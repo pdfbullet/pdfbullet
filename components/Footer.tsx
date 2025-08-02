@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
 
@@ -8,7 +8,21 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
-  
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterMessage, setNewsletterMessage] = useState('');
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail && newsletterEmail.includes('@')) {
+        setNewsletterMessage(`Thank you for subscribing, ${newsletterEmail}!`);
+        setNewsletterEmail('');
+        setTimeout(() => setNewsletterMessage(''), 5000);
+    } else {
+        setNewsletterMessage('Please enter a valid email address.');
+        setTimeout(() => setNewsletterMessage(''), 3000);
+    }
+  };
+
   const handleDownloadLogo = () => {
     const link = document.createElement('a');
     link.href = 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877';
@@ -99,6 +113,31 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
              <h3 className="font-bold text-lg mb-4 mt-6">Legal</h3>
             <ul className="space-y-2 text-gray-400 text-sm">{legal.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul>
           </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-gray-700 text-center">
+          <h3 className="font-bold text-lg mb-2">Subscribe to our newsletter</h3>
+          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+            Get the latest news, articles, and resources, sent to your inbox weekly.
+          </p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+            <input 
+              type="email" 
+              placeholder="Enter your email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              required 
+              aria-label="Email for newsletter"
+              className="flex-grow px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-red"
+            />
+            <button 
+              type="submit" 
+              className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors"
+            >
+              Subscribe
+            </button>
+          </form>
+          {newsletterMessage && <p className={`text-sm mt-3 ${newsletterMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>{newsletterMessage}</p>}
         </div>
 
         <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-sm">

@@ -15,6 +15,7 @@ import SearchModal from './components/SearchModal.tsx';
 import AdminProtectedRoute from './components/AdminProtectedRoute.tsx';
 import CalendarModal from './components/CalendarModal.tsx';
 import CookieConsentBanner from './components/CookieConsentBanner.tsx';
+import Preloader from './components/Preloader.tsx';
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
@@ -101,7 +102,7 @@ function MainApp() {
         />
       )}
       <main className="flex-grow">
-        <Suspense fallback={null}>
+        <Suspense fallback={<Preloader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
