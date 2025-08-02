@@ -1,0 +1,115 @@
+
+import React, { memo } from 'react';
+import { Link } from 'react-router-dom';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
+
+interface FooterProps {
+  onOpenCalendarModal: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
+  
+  const handleDownloadLogo = () => {
+    const link = document.createElement('a');
+    link.href = 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877';
+    link.download = 'ilovepdfly-logo.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const topTools = [
+      { path: '/merge-pdf', name: 'Merge PDF' },
+      { path: '/compress-pdf', name: 'Compress PDF' },
+      { path: '/jpg-to-pdf', name: 'JPG to PDF' },
+      { path: '/edit-pdf', name: 'Edit PDF' },
+      { path: '/pdf-to-word', name: 'PDF to Word' },
+  ];
+  
+  const solutions = [
+      { path: '/education', name: 'For Education' },
+      { path: '/business', name: 'For Business' },
+      { path: '/how-to-use', name: 'How-to Guides' },
+  ];
+
+  const company = [
+      { path: '/about', name: 'About' },
+      { path: '/blog', name: 'Blog' },
+      { path: '/contact', name: 'Contact' },
+      { path: '/ceo', name: 'Message from CEO' },
+  ];
+
+  const legal = [
+      { path: '/privacy-policy', name: 'Privacy Policy' },
+      { path: '/terms-of-service', name: 'Terms & Conditions' },
+      { path: '/cookies-policy', name: 'Cookies Policy' },
+  ];
+  
+  const resources = [
+      { path: '/developer', name: 'Developer API' },
+      { path: '/api-reference', name: 'API Reference' },
+      { path: '/api-pdf', name: 'PDF Tools API' },
+      { path: '/api-image', name: 'Image Tools API' },
+      { path: '/api-signature', name: 'Signature API' },
+  ];
+
+  const socialAndAppLinks = (
+      <>
+        <div className="flex space-x-4 mt-5">
+            <a href="https://www.facebook.com/share/16sdjGNVGr/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="Facebook" title="Facebook"><FacebookIcon className="h-6 w-6" /></a>
+            <a href="https://wa.me/message/JYA22CVSYSZ4N1" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="WhatsApp" title="WhatsApp"><WhatsAppIcon className="h-6 w-6" /></a>
+            <a href="https://www.youtube.com/@btmobilecare" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="YouTube" title="YouTube"><YoutubeIcon className="h-6 w-6" /></a>
+        </div>
+        <div className="mt-6 flex flex-col items-start sm:items-start gap-3">
+            <a href="https://play.google.com/store/apps/details?id=com.ilovepdf.ilovepdf" target="_blank" rel="noopener noreferrer" aria-label="Get it on Google Play" title="Get it on Google Play"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Google Play Store Badge" className="h-10 hover:opacity-90 transition-opacity" width="135" height="40" loading="lazy" /></a>
+            <a href="https://apps.apple.com/us/app/ilovepdf-pdf-editor-scanner/id1485633453" target="_blank" rel="noopener noreferrer" aria-label="Download on the App Store" title="Download on the App Store"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/2560px-Download_on_the_App_Store_Badge.svg.png" alt="App Store Badge" className="h-10 hover:opacity-90 transition-opacity" width="120" height="40" loading="lazy" /></a>
+        </div>
+      </>
+  );
+
+  return (
+    <footer className="bg-black text-white w-full">
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8">
+          
+          {/* Logo & Socials */}
+          <div className="col-span-2">
+            <h3 className="font-bold text-xl mb-3 text-white flex items-center gap-1.5">
+              <span>I</span>
+              <span className="text-brand-red">❤</span>
+              <span>PDFLY</span>
+            </h3>
+            <p className="text-gray-400 text-sm max-w-xs">
+              Your go-to suite of online tools for PDF and image management.
+            </p>
+            {socialAndAppLinks}
+          </div>
+          
+          {/* Links */}
+          <div><h3 className="font-bold text-lg mb-4">Tools</h3><ul className="space-y-2 text-gray-400 text-sm">{topTools.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
+          <div><h3 className="font-bold text-lg mb-4">Solutions</h3><ul className="space-y-2 text-gray-400 text-sm">{solutions.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
+          <div><h3 className="font-bold text-lg mb-4">Company</h3><ul className="space-y-2 text-gray-400 text-sm">{company.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
+          <div>
+            <h3 className="font-bold text-lg mb-4">Resources</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">
+                {resources.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white flex items-center gap-2"><CodeIcon className="h-4 w-4"/> {l.name}</Link></li>)}
+                <li><button onClick={onOpenCalendarModal} title="Open Calendar" className="hover:text-white text-left">Calendar</button></li>
+                <li><button onClick={handleDownloadLogo} title="Download Our Logo" className="hover:text-white text-left">Our Logo</button></li>
+            </ul>
+             <h3 className="font-bold text-lg mb-4 mt-6">Legal</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">{legal.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-sm">
+          <p className="order-2 sm:order-1 mt-4 sm:mt-0">&copy; {new Date().getFullYear()} I Love PDFLY. All Rights Reserved.</p>
+           <div className="order-1 sm:order-2">
+            <Link to="/sitemap" title="Sitemap" className="hover:text-white transition-colors">Sitemap</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default memo(Footer);
