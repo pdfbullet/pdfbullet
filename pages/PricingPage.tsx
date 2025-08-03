@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -38,13 +39,66 @@ const PricingPage: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    const faqData = [
+      {
+        question: "How do I pay for a plan?",
+        answer: "We currently accept payments through the Fonepay digital wallet. On the payment page, you will find a QR code to scan and complete the payment. After paying, you'll need to upload a screenshot of the transaction confirmation."
+      },
+      {
+        question: "What happens after I pay?",
+        answer: "After you upload your payment screenshot and contact our support via WhatsApp, we will verify your payment and activate your plan, usually within a few minutes."
+      },
+       {
+        question: "How long does it take to get Premium access after payment?",
+        answer: "Account activation is usually very fast. After you send your payment proof to our support on WhatsApp, we will verify it and activate your Premium plan, typically within a few minutes to an hour."
+      },
+      {
+        question: "What if I pay but don't get access?",
+        answer: "This is very rare, but if it happens, please contact us immediately on WhatsApp with your payment details and username. Our support team is available to resolve any issues quickly and ensure you get the access you paid for."
+      },
+      {
+        question: "Can I get a refund?",
+        answer: "Due to the nature of digital services and the one-time payment structure, we generally do not offer refunds. We recommend starting with our free plan to ensure our tools meet your needs before purchasing."
+      },
+    ];
+
     useEffect(() => {
         document.title = "Pricing Plans | I Love PDFLY";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
             metaDesc.setAttribute("content", "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with I Love PDFLY.");
         }
-    }, []);
+
+        const faqSchema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqData.map(faq => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.answer
+                }
+            }))
+        };
+        
+        const scriptId = 'faq-schema-pricing';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(faqSchema);
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, [faqData]);
 
     const handleChoosePlan = (plan: string) => {
         if (user) {
@@ -59,7 +113,7 @@ const PricingPage: React.FC = () => {
     };
     
     const userPlans = {
-        basic: { name: 'Basic', price: 'Free', features: ['Access to most tools', 'Limited document processing', 'Work on Web'] },
+        basic: { name: 'Basic', price: 'Free', features: ['Access to most tools', '100 uses per day', 'Work on Web'] },
         premium: { name: 'Premium', price: '$5/year', features: ['Full access to all tools', 'Unlimited document processing', 'Work on Web, Mobile and Desktop', 'No Ads', 'Customer support'] },
         pro: { name: 'Pro', price: '$10/lifetime', features: ['All Premium features', 'Largest file size limits', 'Unlimited AI Assistant queries', 'Dedicated servers for faster processing', 'Priority customer support'] }
     };
@@ -70,21 +124,6 @@ const PricingPage: React.FC = () => {
         business: { name: 'Business', price: '$50/month', features: ['10,000 API calls/day', 'Access to all tools', 'Priority email & chat support', 'Custom integrations available'] }
     };
 
-    const faqData = [
-      {
-        question: "How do I pay for a plan?",
-        answer: "We currently accept payments through the Fonepay digital wallet. On the payment page, you will find a QR code to scan and complete the payment. After paying, you'll need to upload a screenshot of the transaction confirmation."
-      },
-      {
-        question: "What happens after I pay?",
-        answer: "After you upload your payment screenshot and contact our support via WhatsApp, we will verify your payment and activate your plan, usually within a few minutes."
-      },
-      {
-        question: "Can I get a refund?",
-        answer: "Due to the nature of digital services and the one-time payment structure, we generally do not offer refunds. We recommend starting with our free plan to ensure our tools meet your needs before purchasing."
-      },
-    ];
-
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
             <div className="container mx-auto px-6">
@@ -94,7 +133,25 @@ const PricingPage: React.FC = () => {
                         Start for free and scale up as you grow. Powerful tools for individuals and developers.
                     </p>
                 </div>
-
+                 <section className="text-center mb-12">
+                    <h2 className="text-2xl font-bold mb-4">How to Upgrade in 3 Easy Steps</h2>
+                    <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 text-gray-600 dark:text-gray-300">
+                        <div className="flex items-center gap-3 p-2">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-red text-white font-bold text-lg">1</div>
+                            <span>Scan Fonepay QR</span>
+                        </div>
+                        <div className="text-gray-300 dark:text-gray-600 transform rotate-90 md:rotate-0">&rarr;</div>
+                        <div className="flex items-center gap-3 p-2">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-red text-white font-bold text-lg">2</div>
+                            <span>Upload Screenshot</span>
+                        </div>
+                        <div className="text-gray-300 dark:text-gray-600 transform rotate-90 md:rotate-0">&rarr;</div>
+                        <div className="flex items-center gap-3 p-2">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-red text-white font-bold text-lg">3</div>
+                            <span>Confirm via WhatsApp</span>
+                        </div>
+                    </div>
+                </section>
                 <div className="flex justify-center mb-12">
                     <div className="p-1 bg-gray-200 dark:bg-gray-800 rounded-full flex gap-1">
                         <button onClick={() => setPlanType('user')} className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors ${planType === 'user' ? 'bg-white dark:bg-black text-brand-red' : 'text-gray-600 dark:text-gray-300'}`}>User Plans</button>

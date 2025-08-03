@@ -166,7 +166,7 @@ const LessonPlanCreatorPage: React.FC = () => {
             
             <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
                 {/* Input Form */}
-                <div className="lg:col-span-1 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-6 shadow-lg h-fit sticky top-24">
+                <div className="lg:col-span-1 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-6 shadow-lg h-fit lg:sticky lg:top-24">
                     <h2 className="text-2xl font-bold mb-4">Lesson Details</h2>
                     <div className="space-y-4">
                         <div>

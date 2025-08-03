@@ -1,295 +1,230 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-// NOTE: This is a mock authentication system.
-// In a real-world app, this would be handled by a secure backend.
+// Mock types to mimic Firebase interfaces for compatibility
+type MockFirebaseUser = { uid: string; email?: string | null; phoneNumber?: string | null; displayName?: string | null; photoURL?: string | null; metadata: { creationTime?: string } };
+type MockConfirmationResult = { confirm: (otp: string) => Promise<{ user: MockFirebaseUser }> };
 
+// User interface for our app
 interface User {
+  uid: string;
   username: string;
-  profileImage?: string; // Stored as base64 string
+  profileImage?: string;
   isPremium?: boolean;
-  creationDate?: string; // ISO string
+  creationDate?: string;
   apiKey?: string;
   apiPlan?: 'free' | 'developer' | 'business';
 }
 
-interface ApiUsage {
-    count: number;
-    lastReset: number; // timestamp
-}
-
-interface GoogleUserPayload {
-    email: string;
-    name: string;
-    picture?: string;
-}
-
+// Auth Context Type
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, pass: string) => Promise<User>;
-  signup: (username: string, pass: string) => Promise<User>;
+  login: (email: string, pass: string) => Promise<MockFirebaseUser>;
+  signup: (email: string, pass: string) => Promise<MockFirebaseUser>;
   logout: () => void;
-  updateProfileImage: (username: string, image: string) => Promise<void>;
-  changePassword: (username: string, oldPass: string, newPass: string) => Promise<void>;
-  getAllUsers: () => { [username: string]: any };
-  updateUserPremiumStatus: (username: string, isPremium: boolean) => Promise<void>;
-  updateUserApiPlan: (username: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
-  deleteUser: (username: string) => Promise<void>;
-  loginOrSignupWithGoogle: (payload: GoogleUserPayload) => Promise<User>;
+  updateProfileImage: (imageFile: File) => Promise<void>;
+  changePassword: (oldPass: string, newPass: string) => Promise<void>;
+  getAllUsers: () => Promise<User[]>;
+  updateUserPremiumStatus: (uid: string, isPremium: boolean) => Promise<void>;
+  updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
+  deleteUser: (uid: string) => Promise<void>;
+  loginOrSignupWithGoogle: () => Promise<MockFirebaseUser>;
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
+  sendLoginOtp: (phoneNumber: string) => Promise<MockConfirmationResult>;
+  verifyLoginOtp: (confirmationResult: MockConfirmationResult, otp: string) => Promise<MockFirebaseUser>;
+  displayedOtp: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const USERS_STORAGE_KEY = 'ilovepdfly_users_v2';
-const SESSION_STORAGE_KEY = 'ilovepdfly_session_v2';
-
-// Helper to get users from storage
-const getStoredUsers = () => {
-    try {
-        return JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '{}');
-    } catch (e) {
-        return {};
-    }
-};
-
-// Helper to save users to storage
-const setStoredUsers = (users: any) => {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-};
+// Mock data for admin dashboard simulation
+let mockUsers: User[] = [
+    { uid: 'admin-user-01', username: 'admin@example.com', isPremium: true, creationDate: new Date().toISOString(), apiPlan: 'business', apiKey: 'pdfly-fake-api-key-admin' },
+    { uid: 'test-user-02', username: 'test@example.com', isPremium: false, creationDate: new Date().toISOString(), apiPlan: 'free' },
+];
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [displayedOtp, setDisplayedOtp] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for an active session on initial load
+    // Simulate checking for a logged-in user from localStorage
     try {
-        const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
-        if (savedSession) {
-          setUser(JSON.parse(savedSession));
-        }
+      const storedUser = localStorage.getItem('ilovepdfly_user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     } catch (e) {
-        console.error("Failed to parse session data:", e);
-        localStorage.removeItem(SESSION_STORAGE_KEY);
-    } finally {
-        setLoading(false);
+        console.error("Failed to parse user from localStorage", e);
+        localStorage.removeItem('ilovepdfly_user');
     }
+    setLoading(false);
   }, []);
 
-  const login = async (username: string, pass: string): Promise<User> => {
-    const storedUsers = getStoredUsers();
-    const userData = storedUsers[username];
-    if (userData && userData.password === pass) {
-      const loggedInUser: User = { 
-        username,
-        profileImage: userData.profileImage,
-        isPremium: userData.isPremium || false,
-        creationDate: userData.creationDate,
-        apiKey: userData.apiKey,
-        apiPlan: userData.apiPlan || 'free',
-      };
-      setUser(loggedInUser);
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
-      return loggedInUser;
+  const persistUser = (userData: User | null) => {
+    if (userData) {
+      localStorage.setItem('ilovepdfly_user', JSON.stringify(userData));
+      setUser(userData);
     } else {
-      throw new Error('Invalid username or password');
+      localStorage.removeItem('ilovepdfly_user');
+      setUser(null);
     }
   };
 
-  const signup = async (username: string, pass: string): Promise<User> => {
-    const storedUsers = getStoredUsers();
-    if (storedUsers[username]) {
-      throw new Error('Username already exists');
-    }
-    const creationDate = new Date().toISOString();
-    storedUsers[username] = { password: pass, profileImage: undefined, isPremium: false, creationDate, apiPlan: 'free' };
-    setStoredUsers(storedUsers);
-    
-    const loggedInUser: User = { username, isPremium: false, creationDate, apiPlan: 'free' };
-    setUser(loggedInUser);
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
-    return loggedInUser;
-  };
+  const createMockFirebaseUser = (userData: User): MockFirebaseUser => ({
+    uid: userData.uid,
+    email: userData.username.includes('@') ? userData.username : null,
+    phoneNumber: !userData.username.includes('@') ? userData.username : null,
+    displayName: userData.username,
+    photoURL: userData.profileImage || null,
+    metadata: { creationTime: userData.creationDate }
+  });
 
-  const loginOrSignupWithGoogle = async (payload: GoogleUserPayload): Promise<User> => {
-    const storedUsers = getStoredUsers();
-    const username = payload.email; 
-    let userData = storedUsers[username];
-
-    if (!userData) {
-      const creationDate = new Date().toISOString();
-      const randomPassword = Math.random().toString(36).slice(-8);
-      storedUsers[username] = { 
-          password: randomPassword, 
-          profileImage: payload.picture, 
-          isPremium: false, 
-          creationDate,
-          apiPlan: 'free',
-      };
-      setStoredUsers(storedUsers);
-      userData = storedUsers[username];
-    }
-    
-    const loggedInUser: User = { 
-      username,
-      profileImage: userData.profileImage || payload.picture,
-      isPremium: userData.isPremium || false,
-      creationDate: userData.creationDate,
-      apiKey: userData.apiKey,
-      apiPlan: userData.apiPlan || 'free',
+  const signup = async (email: string, pass: string): Promise<MockFirebaseUser> => {
+    if (!email || !pass) throw new Error("Email and password are required.");
+    if (pass.length < 6) throw new Error("Password must be at least 6 characters long.");
+    const newUser: User = {
+      uid: `user-${Date.now()}`,
+      username: email,
+      isPremium: false,
+      creationDate: new Date().toISOString(),
+      apiPlan: 'free',
     };
-    setUser(loggedInUser);
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
-    return loggedInUser;
+    persistUser(newUser);
+    return createMockFirebaseUser(newUser);
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem(SESSION_STORAGE_KEY);
+  const login = async (email: string, pass: string): Promise<MockFirebaseUser> => {
+     if (!email || !pass) throw new Error("Email and password are required.");
+    const existingUser: User = {
+        uid: `user-${Date.now()}`,
+        username: email,
+        isPremium: email.includes('premium'), // Mock logic
+        creationDate: new Date().toISOString(),
+        apiPlan: 'free',
+        profileImage: 'https://i.pravatar.cc/150'
+    };
+    persistUser(existingUser);
+    return createMockFirebaseUser(existingUser);
+  };
+
+  const logout = async () => {
+    persistUser(null);
     sessionStorage.removeItem('isAdminAuthenticated');
   };
+  
+  const sendLoginOtp = async (phoneNumber: string): Promise<MockConfirmationResult> => {
+    setDisplayedOtp(null);
+    console.log(`Simulating OTP send to ${phoneNumber}`);
+    await new Promise(res => setTimeout(res, 1500)); // Simulate network delay
+    
+    // Generate a secure, random 6-digit OTP
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`Generated OTP for ${phoneNumber}: ${generatedOtp}`); // For debugging/demo purposes
+    
+    // Set OTP for display in the UI
+    setDisplayedOtp(generatedOtp);
 
-  const updateProfileImage = async (username: string, image: string): Promise<void> => {
-      const storedUsers = getStoredUsers();
-      if (storedUsers[username]) {
-          storedUsers[username].profileImage = image;
-          setStoredUsers(storedUsers);
+    // Store OTP in session storage to verify later
+    sessionStorage.setItem(`otp_${phoneNumber}`, generatedOtp);
+    
+    return {
+      confirm: async (otp: string): Promise<{ user: MockFirebaseUser }> => {
+        const storedOtp = sessionStorage.getItem(`otp_${phoneNumber}`);
+        sessionStorage.removeItem(`otp_${phoneNumber}`); // OTP can only be used once
+        setDisplayedOtp(null);
 
-          const updatedUser = { ...user, profileImage: image } as User;
-          setUser(updatedUser);
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
-      } else {
-          throw new Error("User not found.");
+        if (otp === storedOtp) {
+            const newUser: User = {
+                uid: `phone-user-${Date.now()}`,
+                username: phoneNumber,
+                isPremium: false,
+                creationDate: new Date().toISOString(),
+                apiPlan: 'free',
+            };
+            persistUser(newUser);
+            return { user: createMockFirebaseUser(newUser) };
+        } else {
+            throw new Error("Invalid OTP code. Please try again.");
+        }
       }
+    };
   };
 
-  const changePassword = async (username: string, oldPass: string, newPass: string): Promise<void> => {
-    const storedUsers = getStoredUsers();
-    const userData = storedUsers[username];
-    if (userData && userData.password === oldPass) {
-        if (newPass.length < 6) {
-            throw new Error("New password must be at least 6 characters long.");
-        }
-        storedUsers[username].password = newPass;
-        setStoredUsers(storedUsers);
-    } else {
-        throw new Error("Incorrect old password.");
-    }
+  const verifyLoginOtp = async (confirmationResult: MockConfirmationResult, otp: string): Promise<MockFirebaseUser> => {
+      const { user: firebaseUser } = await confirmationResult.confirm(otp);
+      return firebaseUser;
   };
   
-  const getAllUsers = () => {
-      const storedUsers = getStoredUsers();
-      const safeUsers: { [username: string]: any } = {};
-      for (const username in storedUsers) {
-          const { password, ...rest } = storedUsers[username];
-          safeUsers[username] = rest;
-      }
-      return safeUsers;
-  }
+  const loginOrSignupWithGoogle = async (): Promise<MockFirebaseUser> => {
+      const googleUser: User = {
+          uid: `google-user-${Date.now()}`,
+          username: 'google.user@example.com',
+          isPremium: false,
+          creationDate: new Date().toISOString(),
+          apiPlan: 'free',
+          profileImage: 'https://i.pravatar.cc/150?u=google'
+      };
+      persistUser(googleUser);
+      return createMockFirebaseUser(googleUser);
+  };
+
+  const updateProfileImage = async (imageFile: File) => {
+    if (!user) throw new Error("No user is signed in.");
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFile);
+    await new Promise<void>((resolve, reject) => {
+        reader.onloadend = () => {
+            const downloadURL = reader.result as string;
+            const updatedUser = { ...user, profileImage: downloadURL };
+            persistUser(updatedUser);
+            resolve();
+        };
+        reader.onerror = reject;
+    });
+  };
+
+  const changePassword = async (oldPass: string, newPass: string) => {
+    if (!oldPass || !newPass) throw new Error("Passwords cannot be empty.");
+    if (newPass.length < 6) throw new Error("New password must be at least 6 characters.");
+    console.log("Password change simulation successful.");
+  };
+
+  // Admin Functions (mocked)
+  const getAllUsers = async (): Promise<User[]> => [...mockUsers];
   
-  const updateUserPremiumStatus = async (username: string, isPremium: boolean): Promise<void> => {
-      const storedUsers = getStoredUsers();
-      if (storedUsers[username]) {
-          storedUsers[username].isPremium = isPremium;
-          setStoredUsers(storedUsers);
-          if (user && user.username === username) {
-              const updatedUser = { ...user, isPremium };
-              setUser(updatedUser);
-              localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
-          }
-      } else {
-          throw new Error("User not found.");
-      }
-  }
-
-  const updateUserApiPlan = async (username: string, plan: 'free' | 'developer' | 'business'): Promise<void> => {
-    const storedUsers = getStoredUsers();
-    if (storedUsers[username]) {
-        storedUsers[username].apiPlan = plan;
-        setStoredUsers(storedUsers);
-        if (user && user.username === username) {
-            const updatedUser = { ...user, apiPlan: plan };
-            setUser(updatedUser);
-            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
-        }
-    } else {
-        throw new Error("User not found.");
-    }
+  const updateUserPremiumStatus = async (uid: string, isPremium: boolean) => {
+    mockUsers = mockUsers.map(u => u.uid === uid ? { ...u, isPremium } : u);
   };
-
-  const deleteUser = async (username: string): Promise<void> => {
-      const storedUsers = getStoredUsers();
-      if (storedUsers[username]) {
-          if (user && user.username === username) {
-              throw new Error("Admins cannot delete their own account from the dashboard.");
-          }
-          delete storedUsers[username];
-          setStoredUsers(storedUsers);
-      } else {
-          throw new Error("User not found.");
-      }
+  
+  const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
+    mockUsers = mockUsers.map(u => u.uid === uid ? { ...u, apiPlan: plan } : u);
   };
-
+  
+  const deleteUser = async (uid: string) => {
+    mockUsers = mockUsers.filter(u => u.uid !== uid);
+  };
+  
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
-    const storedUsers = getStoredUsers();
-    const userData = storedUsers[user.username];
-    
-    const newApiKey = 'pdfly-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
-    userData.apiKey = newApiKey;
-    if (!userData.apiUsage) {
-        userData.apiUsage = { count: 0, lastReset: Date.now() };
-    }
-    if (!userData.apiPlan) {
-        userData.apiPlan = 'free';
-    }
-    setStoredUsers(storedUsers);
-    
-    const updatedUser = { ...user, apiKey: newApiKey, apiPlan: userData.apiPlan };
-    setUser(updatedUser);
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
-    
+    const newApiKey = 'pdfly-mock-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const updatedUser = { ...user, apiKey: newApiKey };
+    persistUser(updatedUser);
     return newApiKey;
   };
   
   const getApiUsage = async (): Promise<{ count: number; limit: number; resetsIn: string }> => {
-    if (!user) throw new Error("You must be logged in to view API usage.");
-    const storedUsers = getStoredUsers();
-    const userData = storedUsers[user.username];
-
+    if (!user) throw new Error("You must be logged in.");
     const plan = user.apiPlan || 'free';
     const limits = { free: 100, developer: 1000, business: 10000 };
-    const limit = limits[plan];
-
-    if (!userData.apiKey || !userData.apiUsage) {
-        return { count: 0, limit, resetsIn: '24h 0m' };
-    }
-    
-    const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const timeSinceReset = now - userData.apiUsage.lastReset;
-
-    if (timeSinceReset > oneDay) {
-        userData.apiUsage.count = 0;
-        userData.apiUsage.lastReset = now;
-        setStoredUsers(storedUsers);
-    }
-    
-    const timeLeft = oneDay - timeSinceReset;
-    const hours = Math.max(0, Math.floor(timeLeft / (60 * 60 * 1000)));
-    const minutes = Math.max(0, Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000)));
-    const resetsIn = `${hours}h ${minutes}m`;
-
-    return { count: userData.apiUsage.count, limit, resetsIn };
+    return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateProfileImage, changePassword, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, generateApiKey, getApiUsage }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = { user, loading, login, signup, logout, updateProfileImage, changePassword, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, generateApiKey, getApiUsage, sendLoginOtp, verifyLoginOtp, displayedOtp };
+
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

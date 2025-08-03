@@ -5,7 +5,7 @@ import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import FileUpload from '../components/FileUpload.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon } from '../components/icons.tsx';
+import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon } from '../components/icons.tsx';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -66,6 +66,7 @@ interface ComparisonResult {
     pageNumber: number;
     img1DataUrl: string;
     img2DataUrl: string;
+
     diffDataUrl: string;
     diffPercentage: number;
 }
@@ -634,6 +635,18 @@ const initialToolOptions = {
     compressionQuality: 0.75,
 };
 
+const toolSeoDescriptions: Record<string, string> = {
+  'merge-pdf': 'Combine and merge multiple PDF files into a single document online for free. Fast, secure, and no watermarks. Your go-to PDF merger.',
+  'split-pdf': 'Split a PDF file into multiple documents or extract specific pages. Our free online PDF splitter is easy to use and secure.',
+  'compress-pdf': 'Reduce the file size of your PDFs online for free. Our PDF compressor maintains the best quality while making files smaller and easier to share.',
+  'jpg-to-pdf': 'Convert JPG, PNG, and other images to PDF format. Create a PDF from your images quickly and securely with our free online converter.',
+  'pdf-to-word': 'Convert your PDF documents to editable Microsoft Word files (DOCX). Accurate and free conversion for your documents.',
+  'remove-background': 'Automatically remove the background from any image with our AI-powered tool. Get a transparent background in seconds, for free.',
+  'sign-pdf': 'Sign PDF documents yourself or request electronic signatures from others. Secure, legally binding, and free for basic use.',
+  'edit-pdf': 'Edit PDF files online for free. Add text, images, shapes, and annotations to your documents with our powerful PDF editor.',
+  'protect-pdf': 'Protect your sensitive PDF files with a strong password. Our free online tool encrypts your documents to keep them secure.'
+};
+
 const ToolPage = (): React.ReactElement => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
@@ -730,8 +743,8 @@ const ToolPage = (): React.ReactElement => {
       handleReset();
 
        // SEO Updates
-      const newTitle = `${currentTool.title} - Free Online Tool | I Love PDFLY`;
-      const newDescription = `${currentTool.description} Use I Love PDFLY for a fast, free, and secure experience to manage your documents.`;
+      const newTitle = `${currentTool.title} – I Love PDFLY`;
+      const newDescription = toolSeoDescriptions[currentTool.id] || `Use the ${currentTool.title} tool on I Love PDFLY. ${currentTool.description} Fast, free, and secure.`;
       
       const baseKeywords = [
           currentTool.title.toLowerCase(),
@@ -1677,7 +1690,7 @@ const ToolPage = (): React.ReactElement => {
                     const reader = new FileReader();
                     reader.onloadend = () => resolve(reader.result as ArrayBuffer);
                     reader.onerror = reject;
-                    reader.readAsArrayBuffer(blob);
+                    reader.readAsDataURL(blob);
                 }, 'image/png');
             });
 
@@ -2418,6 +2431,11 @@ const ToolPage = (): React.ReactElement => {
         </div>
         <h1 className="mt-4 text-4xl font-extrabold text-gray-900 dark:text-gray-100">{tool.title}</h1>
         <p className="mt-2 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{tool.description}</p>
+      </div>
+
+       <div className="text-center text-sm text-gray-500 dark:text-gray-400 mb-6 flex items-center justify-center gap-2">
+          <LockIcon className="h-4 w-4" />
+          <span>All uploaded files are encrypted and deleted automatically after 2 hours.</span>
       </div>
 
       <div className="w-full max-w-5xl bg-white dark:bg-black p-8 rounded-lg shadow-xl animated-border">

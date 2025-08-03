@@ -219,9 +219,41 @@ const HomePage: React.FC = () => {
     
     const faqs = [
         { q: "Is I Love PDFLY completely free?", a: "Yes! Most of our tools are 100% free for standard use. We offer Premium plans for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience." },
-        { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within a few hours." },
+        { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within 2 hours." },
         { q: "Do I need to install any software?", a: "No, you don't need to install anything. I Love PDFLY works directly in your web browser. This means you can access our tools from any device with an internet connection, anywhere in the world." },
     ];
+
+    useEffect(() => {
+        const faqSchema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.map(faq => ({
+                "@type": "Question",
+                "name": faq.q,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.a
+                }
+            }))
+        };
+        
+        const scriptId = 'faq-schema-home';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(faqSchema);
+    
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, [faqs]);
 
     const solutionsData = {
       students: { icon: StudentIcon, title: 'For Students', description: 'Combine research papers, compress large presentations, and convert your assignments to PDF for easy submission.', tools: ['merge-pdf', 'compress-pdf', 'pdf-to-word', 'ocr-pdf'] },

@@ -1,7 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { GoogleGenAI, Chat } from '@google/genai';
-import { AIAssistantIcon, FileIcon, UserIcon, PaperAirplaneIcon, CopyIcon, RefreshIcon, MicrophoneIcon, GlobeIcon } from './icons.tsx';
+import * as pdfjsLib from 'pdfjs-dist';
+import { AIAssistantIcon, FileIcon, UserIcon, PaperAirplaneIcon, CopyIcon, RefreshIcon, MicrophoneIcon, GlobeIcon, StarIcon } from './icons.tsx';
+import { TOOLS } from '../constants.ts';
 
 // SpeechRecognition API type definitions for browsers that support it.
 interface SpeechRecognition extends EventTarget {
@@ -40,10 +43,14 @@ const AIAssistant: React.FC = () => {
 
   // PDF Q&A States
   const [file, setFile] = useState<File | null>(null);
+  const [pdfTextContent, setPdfTextContent] = useState<string>('');
+  const [isParsingPdf, setIsParsingPdf] = useState<boolean>(false);
   const [pdfPrompt, setPdfPrompt] = useState<string>('');
   const [pdfResponse, setPdfResponse] = useState<string>('');
   const [isPdfLoading, setIsPdfLoading] = useState<boolean>(false);
-  const [pdfError, setPdfError] = useState<string>('');
+  const [pdfError, setPdfError] = useState<React.ReactNode>('');
+  const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
+  const [pdfPassword, setPdfPassword] = useState<string>('');
 
   // General Chat States
   const [geminiChat, setGeminiChat] = useState<Chat | null>(null);
@@ -59,20 +66,90 @@ const AIAssistant: React.FC = () => {
   const [copiedTooltip, setCopiedTooltip] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  const extractTextFromPdf = useCallback(async (pdfFile: File, password?: string) => {
+    setIsParsingPdf(true);
+    setPdfError('');
+    try {
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const docOptions: { data: ArrayBuffer; password?: string } = { data: arrayBuffer };
+      if (password) {
+        docOptions.password = password;
+      }
+      const pdf = await pdfjsLib.getDocument(docOptions).promise;
+      
+      // If we get here, password was correct or not needed
+      setIsPasswordProtected(false);
+      setPdfPassword('');
+
+      const numPages = pdf.numPages;
+      let fullText = '';
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
+        fullText += pageText + '\n\n';
+      }
+      setPdfTextContent(fullText);
+    } catch (e: any) {
+      console.error("PDF Parsing Error:", e);
+      if (e.name === 'PasswordException') {
+        if (password) {
+          setPdfError('Incorrect password. Please try again.');
+        } else {
+          setIsPasswordProtected(true);
+          setPdfError(''); // Clear other errors
+        }
+      } else {
+        const repairTool = TOOLS.find(t => t.id === 'repair-pdf');
+        setPdfError(
+          <div>
+            <p className="font-semibold">Sorry, we couldn't read this PDF.</p>
+            <p className="mt-1">The file may be corrupted or in an unsupported format.</p>
+            {repairTool && (
+              <div className="mt-3 text-center">
+                <p className="mb-2">You can try to fix it using our Repair tool:</p>
+                <Link 
+                  to={`/${repairTool.id}`} 
+                  className="inline-flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Go to Repair PDF
+                  {repairTool.isPremium && <StarIcon className="h-4 w-4 text-yellow-300" />}
+                </Link>
+              </div>
+            )}
+          </div>
+        );
+      }
+    } finally {
+      setIsParsingPdf(false);
+    }
+  }, []);
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0]);
+      const droppedFile = acceptedFiles[0];
+      setFile(droppedFile);
       setPdfResponse('');
       setPdfError('');
       setPdfPrompt('');
+      setPdfTextContent('');
+      setIsPasswordProtected(false);
+      setPdfPassword('');
+      extractTextFromPdf(droppedFile);
     }
-  }, []);
+  }, [extractTextFromPdf]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },
     multiple: false,
   });
+  
+  const handleUnlockPdf = () => {
+    if (file) {
+      extractTextFromPdf(file, pdfPassword);
+    }
+  };
   
   const initializeChat = () => {
     if (!geminiChat) {
@@ -138,12 +215,18 @@ const AIAssistant: React.FC = () => {
 
   const handleAskPdf = async () => {
     if (!pdfPrompt || !file) return;
+    if (!pdfTextContent && !isParsingPdf) {
+        setPdfError("Could not read the PDF content. Please try re-uploading the file.");
+        return;
+    }
+     if (isParsingPdf) {
+        setPdfError("Please wait for the PDF to finish processing before asking a question.");
+        return;
+    }
 
     setIsPdfLoading(true);
     setPdfError('');
     setPdfResponse('');
-
-    const simulatedPdfText = `ILovePDFLY Project Summary. This document outlines the key features and goals of the ILovePDFLY web application. The primary mission is to provide a comprehensive, free, and user-friendly suite of tools for PDF manipulation. Core functionalities include merging, splitting, compressing, and converting PDF files. The platform also offers advanced features like OCR, PDF editing, and electronic signatures. The target audience includes students, professionals, and casual users who need quick and reliable PDF solutions. The project emphasizes security, deleting all user files from servers after a few hours. The developer, Bishal Mishra, is a full-stack engineer passionate about creating useful web tools.`;
 
     try {
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -151,7 +234,7 @@ const AIAssistant: React.FC = () => {
 
         DOCUMENT CONTENT:
         ---
-        ${simulatedPdfText}
+        ${pdfTextContent.substring(0, 15000)}
         ---
         
         USER QUESTION: "${pdfPrompt}"`;
@@ -260,6 +343,9 @@ const AIAssistant: React.FC = () => {
     setPdfPrompt('');
     setPdfResponse('');
     setPdfError('');
+    setPdfTextContent('');
+    setIsPasswordProtected(false);
+    setPdfPassword('');
   };
   
   const TabButton: React.FC<{
@@ -326,46 +412,75 @@ const AIAssistant: React.FC = () => {
                                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
-
-                                <div className="flex flex-col sm:flex-row gap-2">
-                                    <input
-                                        type="text"
-                                        value={pdfPrompt}
-                                        onChange={(e) => setPdfPrompt(e.target.value)}
-                                        placeholder="e.g., 'Summarize this document'"
-                                        className="flex-grow w-full px-4 py-3 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-brand-red focus:border-transparent text-gray-800 dark:text-gray-200 transition-shadow"
-                                        disabled={isPdfLoading || isListening}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleAskPdf()}
-                                    />
-                                    <button
-                                        onClick={handleVoiceSearch}
-                                        disabled={isPdfLoading || isListening}
-                                        className={`p-3 rounded-md border bg-white dark:bg-black transition-colors flex-shrink-0 ${
-                                            isListening 
-                                            ? 'border-red-500 text-red-500 animate-pulse' 
-                                            : 'border-gray-300 dark:border-gray-700 text-gray-400 hover:text-brand-red hover:border-brand-red'
-                                        }`}
-                                        aria-label="Use microphone"
-                                    >
-                                        <MicrophoneIcon className="h-6 w-6" />
-                                    </button>
-                                    <button
-                                        onClick={handleAskPdf}
-                                        disabled={isPdfLoading || !pdfPrompt || isListening}
-                                        className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-md transition-all duration-300 disabled:bg-red-300 dark:disabled:bg-red-800 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0"
-                                    >
-                                        {isPdfLoading ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                                Asking...
-                                            </>
-                                        ) : 'Ask'}
-                                    </button>
-                                </div>
+                                
+                                {isParsingPdf && (
+                                    <div className="text-center my-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                                        <p className="text-blue-600 dark:text-blue-300 animate-pulse font-semibold">Reading your PDF...</p>
+                                    </div>
+                                )}
+                                
+                                {isPasswordProtected ? (
+                                    <div className="mt-4 text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+                                        <h3 className="font-bold text-yellow-800 dark:text-yellow-300">Password Required</h3>
+                                        <p className="text-sm text-yellow-700 dark:text-yellow-400 my-2">This PDF is password-protected. Please enter the password to unlock it.</p>
+                                        <div className="flex gap-2 justify-center mt-3">
+                                            <input
+                                                type="password"
+                                                value={pdfPassword}
+                                                onChange={(e) => setPdfPassword(e.target.value)}
+                                                placeholder="Enter PDF password"
+                                                className="flex-grow w-full px-3 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-brand-red focus:border-transparent"
+                                                onKeyPress={(e) => e.key === 'Enter' && handleUnlockPdf()}
+                                            />
+                                            <button
+                                                onClick={handleUnlockPdf}
+                                                className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors"
+                                            >
+                                                Unlock
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={`flex flex-col sm:flex-row gap-2 ${isParsingPdf || pdfError ? 'opacity-50 pointer-events-none' : ''}`}>
+                                        <input
+                                            type="text"
+                                            value={pdfPrompt}
+                                            onChange={(e) => setPdfPrompt(e.target.value)}
+                                            placeholder="e.g., 'Summarize this document'"
+                                            className="flex-grow w-full px-4 py-3 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-brand-red focus:border-transparent text-gray-800 dark:text-gray-200 transition-shadow"
+                                            disabled={isPdfLoading || isListening || isParsingPdf || !!pdfError}
+                                            onKeyPress={(e) => e.key === 'Enter' && handleAskPdf()}
+                                        />
+                                        <button
+                                            onClick={handleVoiceSearch}
+                                            disabled={isPdfLoading || isListening || isParsingPdf || !!pdfError}
+                                            className={`p-3 rounded-md border bg-white dark:bg-black transition-colors flex-shrink-0 ${
+                                                isListening 
+                                                ? 'border-red-500 text-red-500 animate-pulse' 
+                                                : 'border-gray-300 dark:border-gray-700 text-gray-400 hover:text-brand-red hover:border-brand-red'
+                                            }`}
+                                            aria-label="Use microphone"
+                                        >
+                                            <MicrophoneIcon className="h-6 w-6" />
+                                        </button>
+                                        <button
+                                            onClick={handleAskPdf}
+                                            disabled={isPdfLoading || !pdfPrompt || isListening || isParsingPdf || !!pdfError}
+                                            className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-md transition-all duration-300 disabled:bg-red-300 dark:disabled:bg-red-800 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0"
+                                        >
+                                            {isPdfLoading ? (
+                                                <>
+                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    Asking...
+                                                </>
+                                            ) : 'Ask'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                         
-                        {pdfError && <div className="mt-4 text-center text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-3 rounded-md">{pdfError}</div>}
+                        {pdfError && <div className={`mt-4 text-center text-sm p-3 rounded-md ${typeof pdfError === 'string' ? 'text-red-500 bg-red-100 dark:bg-red-900/30' : 'text-gray-800 dark:text-gray-200 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700'}`}>{pdfError}</div>}
 
                         {pdfResponse && (
                             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">

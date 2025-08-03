@@ -90,8 +90,11 @@ const PaymentPage: React.FC = () => {
                     {/* Step 1: Payment */}
                     <div>
                         <StepHeader step={1} title="Make Payment" currentStep={currentStep} />
+                        <div className={`pl-12 ${currentStep !== 1 ? 'block' : 'hidden'}`}>
+                            <p className="text-gray-500 dark:text-gray-400">Payment completed.</p>
+                        </div>
                         <div className={`pl-12 ${currentStep !== 1 ? 'hidden' : ''}`}>
-                            <p className="mb-4 text-gray-600 dark:text-gray-300">Scan the Fonepay QR code below to pay <strong>{currentPlan.price}</strong> for the <strong>{currentPlan.name}</strong> plan. Don't forget to take a screenshot of the successful payment confirmation.</p>
+                            <p className="mb-4 text-gray-600 dark:text-gray-300"><strong>Step 1:</strong> Scan the Fonepay QR code below to pay <strong>{currentPlan.price}</strong> for the <strong>{currentPlan.name}</strong> plan. Make sure to take a screenshot of the successful payment confirmation.</p>
                             <div className="text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg max-w-xs mx-auto">
                                 <img src="https://ik.imagekit.io/fonepay/fonepay%20qr.png?updatedAt=1752920160699" alt="Fonepay QR Code" className="w-48 h-48 mx-auto" width="192" height="192" />
                                 <p className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-200">Fonepay</p>
@@ -107,9 +110,12 @@ const PaymentPage: React.FC = () => {
 
                     {/* Step 2: Upload */}
                     <div>
-                        <StepHeader step={2} title="Upload Proof" currentStep={currentStep} />
+                        <StepHeader step={2} title="Upload Proof of Payment" currentStep={currentStep} />
+                        <div className={`pl-12 ${currentStep !== 2 ? 'block' : 'hidden'}`}>
+                            {currentStep > 2 && <p className="text-gray-500 dark:text-gray-400">Screenshot uploaded successfully.</p>}
+                        </div>
                         <div className={`pl-12 ${currentStep !== 2 ? 'hidden' : ''}`}>
-                            <p className="mb-4 text-gray-600 dark:text-gray-300">Please upload the screenshot of your successful payment transaction.</p>
+                            <p className="mb-4 text-gray-600 dark:text-gray-300"><strong>Step 2:</strong> Please upload the screenshot of your successful payment transaction.</p>
                             <div {...getRootProps()} className={`flex-grow flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-brand-red'}`}>
                                 <input {...getInputProps()} />
                                 <UploadCloudIcon className="h-10 w-10 text-gray-400 mb-2" />
@@ -129,7 +135,7 @@ const PaymentPage: React.FC = () => {
                                 <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 truncate max-w-full px-4">{file?.name}</p>
                                 <button onClick={() => { setFile(null); setCurrentStep(2); }} className="mt-2 text-xs text-red-500 hover:underline">Choose a different file</button>
                             </div>
-                            <p className="my-4 text-gray-600 dark:text-gray-300">Click the button below to open WhatsApp and send your uploaded proof to our support team for verification. Your account will be activated shortly after.</p>
+                            <p className="my-4 text-gray-600 dark:text-gray-300"><strong>Step 3:</strong> Click the button below to open WhatsApp and send your uploaded proof to our support team for verification. Your account will be activated shortly after.</p>
                             <button onClick={handleConfirm} disabled={!file || isSharing} className="w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {isSharing ? 'Opening...' : 'Confirm & Contact Support'}
                                 <WhatsAppIcon className="h-5 w-5" />

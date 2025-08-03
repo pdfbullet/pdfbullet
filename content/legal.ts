@@ -8,7 +8,7 @@ export const privacyPolicy = {
     React.createElement('p', null, 'I Love PDFLY ("us", "we", or "our") operates the https://ilovepdfly.com website (the "Service"). This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data. We are committed to protecting your privacy and handling your data in an open and transparent manner.'),
     
     React.createElement('h4', null, '1. File Handling and Security'),
-    React.createElement('p', null, 'Your privacy is our top priority. For most of our tools, your files are processed entirely within your browser (client-side) and never touch our servers. For features that require server-side processing (e.g., certain complex conversions), files are uploaded over a secure, encrypted connection (HTTPS). These files are stored temporarily for processing and are automatically and permanently deleted from our servers within a few hours. We do not access, copy, analyze, or share your file content.'),
+    React.createElement('p', null, 'Your privacy is our top priority. For most of our tools, your files are processed entirely within your browser (client-side) and never touch our servers. For features that require server-side processing (e.g., certain complex conversions), files are uploaded over a secure, encrypted HTTPS (SSL/TLS) connection. These files are stored temporarily for processing and are automatically and permanently deleted from our servers within 2 hours. We do not access, copy, analyze, or share your file content.'),
 
     React.createElement('h4', null, '2. Information We Collect'),
     React.createElement('p', null, 'We collect several types of information to provide and improve our Service:'),
@@ -30,7 +30,7 @@ export const privacyPolicy = {
     ),
 
     React.createElement('h4', null, '4. Data Retention'),
-     React.createElement('p', null, 'We retain your Account Information as long as your account is active. Processed files are deleted within a few hours. We retain payment verification information for as long as necessary for our accounting and legal obligations.'),
+     React.createElement('p', null, 'We retain your Account Information as long as your account is active. Processed files are deleted within 2 hours. We retain payment verification information for as long as necessary for our accounting and legal obligations.'),
 
     React.createElement('h4', null, '5. Your Rights'),
     React.createElement('p', null, 'You have the right to access, update, or delete your account information at any time by logging into your account. If you wish to permanently delete your account, please contact us.'),
