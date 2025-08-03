@@ -6,12 +6,15 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '', '');
   return {
-    base: '/',
+    base: '/ilovepdfly/',
     plugins: [
       react(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.png', 'icon.png'],
+        workbox: {
+          maximumFileSizeToCacheInBytes: 30 * 1024 * 1024, // ✅ increased limit
+        },
         manifest: {
           name: 'I Love PDFLY',
           short_name: 'PDFLY',
