@@ -31,7 +31,6 @@ const SitemapPage: React.FC = () => {
             toolCategories.image.tools.push(tool);
         } else if (tool.category) {
             if (!toolCategories[tool.category]) {
-                // Failsafe for new categories
                 toolCategories[tool.category] = { title: tool.category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), tools: [] };
             }
             toolCategories[tool.category].tools.push(tool);
@@ -39,7 +38,6 @@ const SitemapPage: React.FC = () => {
     });
     
     const categoryOrder = ['organize', 'optimize', 'convert-to', 'convert-from', 'edit', 'security', 'business', 'image'];
-
 
     const games = [
         { path: "/play-game/memory-match", name: "Memory Match" },
@@ -67,7 +65,7 @@ const SitemapPage: React.FC = () => {
     const legalPages = [
       { path: "/privacy-policy", name: "Privacy Policy" },
       { path: "/terms-of-service", name: "Terms of Service" },
-      { path: "/cookies-policy", name: "Cookie Policy" },
+      { path: "/cookies-policy", name: "Cookies Policy" },
     ];
     
      const solutionPages = [
