@@ -1,8 +1,10 @@
 
+
+
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
-import { AuthProvider } from './contexts/AuthContext.tsx';
+import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { HomeIcon } from './components/icons.tsx';
 
 // Components that are part of the main layout
@@ -10,7 +12,6 @@ import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
-import ChangePasswordModal from './components/ChangePasswordModal.tsx';
 import SearchModal from './components/SearchModal.tsx';
 import AdminProtectedRoute from './components/AdminProtectedRoute.tsx';
 import CalendarModal from './components/CalendarModal.tsx';
@@ -80,8 +81,9 @@ const FloatingBackButton: React.FC = () => {
 
 function MainApp() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [isProfileImageModalOpen, setProfileImageModalOpen] = React.useState(false);
-  const [isChangePasswordModalOpen, setChangePasswordModalOpen] = React.useState(false);
   const [isSearchModalOpen, setSearchModalOpen] = React.useState(false);
   const [isCalendarModalOpen, setCalendarModalOpen] = React.useState(false);
 
@@ -91,13 +93,34 @@ function MainApp() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  React.useEffect(() => {
+    if (!loading && user) {
+      const redirectInfoStr = sessionStorage.getItem('postLoginRedirect');
+      if (redirectInfoStr) {
+        sessionStorage.removeItem('postLoginRedirect');
+        const redirectInfo = JSON.parse(redirectInfoStr);
+
+        const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
+        if (pendingDataStr) {
+          sessionStorage.removeItem('pendingInvoiceDataRedirect');
+          navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
+        } else if (redirectInfo.from === 'pricing') {
+          navigate('/payment', { state: { plan: redirectInfo.plan } });
+        } else if (location.pathname === '/login' || location.pathname === '/signup') {
+          navigate('/');
+        }
+      } else if (location.pathname === '/login' || location.pathname === '/signup') {
+        navigate('/');
+      }
+    }
+  }, [user, loading, navigate, location.pathname]);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black text-gray-800 dark:text-gray-200">
       {hideHeaderFooter && <FloatingBackButton />}
       {!hideHeaderFooter && (
         <Header
           onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
           onOpenSearchModal={() => setSearchModalOpen(true)}
         />
       )}
@@ -164,7 +187,6 @@ function MainApp() {
       {!hideHeaderFooter && <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />}
       
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
-      <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
       <ScrollToTopButton />

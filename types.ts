@@ -13,6 +13,6 @@ export interface Tool {
   category?: 'organize' | 'optimize' | 'convert-from' | 'convert-to' | 'security' | 'edit' | 'business';
   accept?: Record<string, string[]>;
   api?: {
-    category: 'pdf' | 'image' | 'signature';
+    category: 'pdf' | 'image' | 'signature' | 'utility';
   };
 }

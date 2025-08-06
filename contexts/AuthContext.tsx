@@ -1,14 +1,12 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-
-// Mock types to mimic Firebase interfaces for compatibility
-type MockFirebaseUser = { uid: string; email?: string | null; phoneNumber?: string | null; displayName?: string | null; photoURL?: string | null; metadata: { creationTime?: string } };
-type MockConfirmationResult = { confirm: (otp: string) => Promise<{ user: MockFirebaseUser }> };
+import firebase from 'firebase/compat/app';
+import { auth, db, storage } from '../firebase/config.ts';
 
 // User interface for our app
 interface User {
   uid: string;
-  username: string;
-  profileImage?: string;
+  username: string; // Will store displayName or email
+  profileImage?: string; // Will store photoURL
   isPremium?: boolean;
   creationDate?: string;
   apiKey?: string;
@@ -19,199 +17,124 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<MockFirebaseUser>;
-  signup: (email: string, pass: string) => Promise<MockFirebaseUser>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfileImage: (imageFile: File) => Promise<void>;
-  changePassword: (oldPass: string, newPass: string) => Promise<void>;
   getAllUsers: () => Promise<User[]>;
   updateUserPremiumStatus: (uid: string, isPremium: boolean) => Promise<void>;
   updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
   deleteUser: (uid: string) => Promise<void>;
-  loginOrSignupWithGoogle: () => Promise<MockFirebaseUser>;
+  loginOrSignupWithGoogle: () => Promise<void>;
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
-  sendLoginOtp: (phoneNumber: string) => Promise<MockConfirmationResult>;
-  verifyLoginOtp: (confirmationResult: MockConfirmationResult, otp: string) => Promise<MockFirebaseUser>;
-  displayedOtp: string | null;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock data for admin dashboard simulation
-let mockUsers: User[] = [
-    { uid: 'admin-user-01', username: 'admin@example.com', isPremium: true, creationDate: new Date().toISOString(), apiPlan: 'business', apiKey: 'pdfly-fake-api-key-admin' },
-    { uid: 'test-user-02', username: 'test@example.com', isPremium: false, creationDate: new Date().toISOString(), apiPlan: 'free' },
-];
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [displayedOtp, setDisplayedOtp] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate checking for a logged-in user from localStorage
-    try {
-      const storedUser = localStorage.getItem('ilovepdfly_user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    // This handles the redirect result from Google Sign-In. 
+    // It's useful for catching errors from the redirect flow.
+    auth.getRedirectResult().catch((error) => {
+        console.error("Firebase redirect result error:", error.code, error.message);
+    });
+
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          const userRef = db.collection('users').doc(firebaseUser.uid);
+          const doc = await userRef.get();
+          if (doc.exists) {
+            setUser(doc.data() as User);
+          } else {
+            // New user, create a profile in Firestore
+            const newUserProfile: User = {
+              uid: firebaseUser.uid,
+              username: firebaseUser.displayName || firebaseUser.email || 'Anonymous',
+              profileImage: firebaseUser.photoURL || undefined,
+              isPremium: false,
+              creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
+              apiPlan: 'free',
+            };
+            await userRef.set(newUserProfile);
+            setUser(newUserProfile);
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Auth state change error:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
-        localStorage.removeItem('ilovepdfly_user');
-    }
-    setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const persistUser = (userData: User | null) => {
-    if (userData) {
-      localStorage.setItem('ilovepdfly_user', JSON.stringify(userData));
-      setUser(userData);
-    } else {
-      localStorage.removeItem('ilovepdfly_user');
-      setUser(null);
-    }
-  };
-
-  const createMockFirebaseUser = (userData: User): MockFirebaseUser => ({
-    uid: userData.uid,
-    email: userData.username.includes('@') ? userData.username : null,
-    phoneNumber: !userData.username.includes('@') ? userData.username : null,
-    displayName: userData.username,
-    photoURL: userData.profileImage || null,
-    metadata: { creationTime: userData.creationDate }
-  });
-
-  const signup = async (email: string, pass: string): Promise<MockFirebaseUser> => {
-    if (!email || !pass) throw new Error("Email and password are required.");
-    if (pass.length < 6) throw new Error("Password must be at least 6 characters long.");
-    const newUser: User = {
-      uid: `user-${Date.now()}`,
-      username: email,
-      isPremium: false,
-      creationDate: new Date().toISOString(),
-      apiPlan: 'free',
-    };
-    persistUser(newUser);
-    return createMockFirebaseUser(newUser);
-  };
-
-  const login = async (email: string, pass: string): Promise<MockFirebaseUser> => {
-     if (!email || !pass) throw new Error("Email and password are required.");
-    const existingUser: User = {
-        uid: `user-${Date.now()}`,
-        username: email,
-        isPremium: email.includes('premium'), // Mock logic
-        creationDate: new Date().toISOString(),
-        apiPlan: 'free',
-        profileImage: 'https://i.pravatar.cc/150'
-    };
-    persistUser(existingUser);
-    return createMockFirebaseUser(existingUser);
+  const loginOrSignupWithGoogle = async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    // Use redirect which is more reliable than popup
+    await auth.signInWithRedirect(provider);
   };
 
   const logout = async () => {
-    persistUser(null);
     sessionStorage.removeItem('isAdminAuthenticated');
+    await auth.signOut();
   };
   
-  const sendLoginOtp = async (phoneNumber: string): Promise<MockConfirmationResult> => {
-    setDisplayedOtp(null);
-    console.log(`Simulating OTP send to ${phoneNumber}`);
-    await new Promise(res => setTimeout(res, 1500)); // Simulate network delay
-    
-    // Generate a secure, random 6-digit OTP
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`Generated OTP for ${phoneNumber}: ${generatedOtp}`); // For debugging/demo purposes
-    
-    // Set OTP for display in the UI
-    setDisplayedOtp(generatedOtp);
-
-    // Store OTP in session storage to verify later
-    sessionStorage.setItem(`otp_${phoneNumber}`, generatedOtp);
-    
-    return {
-      confirm: async (otp: string): Promise<{ user: MockFirebaseUser }> => {
-        const storedOtp = sessionStorage.getItem(`otp_${phoneNumber}`);
-        sessionStorage.removeItem(`otp_${phoneNumber}`); // OTP can only be used once
-        setDisplayedOtp(null);
-
-        if (otp === storedOtp) {
-            const newUser: User = {
-                uid: `phone-user-${Date.now()}`,
-                username: phoneNumber,
-                isPremium: false,
-                creationDate: new Date().toISOString(),
-                apiPlan: 'free',
-            };
-            persistUser(newUser);
-            return { user: createMockFirebaseUser(newUser) };
-        } else {
-            throw new Error("Invalid OTP code. Please try again.");
-        }
-      }
-    };
-  };
-
-  const verifyLoginOtp = async (confirmationResult: MockConfirmationResult, otp: string): Promise<MockFirebaseUser> => {
-      const { user: firebaseUser } = await confirmationResult.confirm(otp);
-      return firebaseUser;
-  };
-  
-  const loginOrSignupWithGoogle = async (): Promise<MockFirebaseUser> => {
-      const googleUser: User = {
-          uid: `google-user-${Date.now()}`,
-          username: 'google.user@example.com',
-          isPremium: false,
-          creationDate: new Date().toISOString(),
-          apiPlan: 'free',
-          profileImage: 'https://i.pravatar.cc/150?u=google'
-      };
-      persistUser(googleUser);
-      return createMockFirebaseUser(googleUser);
-  };
-
   const updateProfileImage = async (imageFile: File) => {
     if (!user) throw new Error("No user is signed in.");
-    const reader = new FileReader();
-    reader.readAsDataURL(imageFile);
-    await new Promise<void>((resolve, reject) => {
-        reader.onloadend = () => {
-            const downloadURL = reader.result as string;
-            const updatedUser = { ...user, profileImage: downloadURL };
-            persistUser(updatedUser);
-            resolve();
-        };
-        reader.onerror = reject;
-    });
+    const storageRef = storage.ref(`profile_images/${user.uid}/${imageFile.name}`);
+    const snapshot = await storageRef.put(imageFile);
+    const downloadURL = await snapshot.ref.getDownloadURL();
+    
+    const firebaseUser = auth.currentUser;
+    if(firebaseUser) {
+        await firebaseUser.updateProfile({ photoURL: downloadURL });
+    }
+
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update({ profileImage: downloadURL });
+    setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
   };
 
-  const changePassword = async (oldPass: string, newPass: string) => {
-    if (!oldPass || !newPass) throw new Error("Passwords cannot be empty.");
-    if (newPass.length < 6) throw new Error("New password must be at least 6 characters.");
-    console.log("Password change simulation successful.");
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser || !firebaseUser.email) {
+        throw new Error("No user is signed in or user does not have an email address.");
+    }
+    // This flow is for users with an email/password. It will fail for Google-only users, which is expected.
+    const credential = firebase.auth.EmailAuthProvider.credential(firebaseUser.email, oldPassword);
+    await firebaseUser.reauthenticateWithCredential(credential);
+    await firebaseUser.updatePassword(newPassword);
   };
 
-  // Admin Functions (mocked)
-  const getAllUsers = async (): Promise<User[]> => [...mockUsers];
-  
+  const getAllUsers = async (): Promise<User[]> => {
+    const snapshot = await db.collection('users').get();
+    return snapshot.docs.map(doc => doc.data() as User);
+  };
+
   const updateUserPremiumStatus = async (uid: string, isPremium: boolean) => {
-    mockUsers = mockUsers.map(u => u.uid === uid ? { ...u, isPremium } : u);
+    await db.collection('users').doc(uid).update({ isPremium });
   };
   
   const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
-    mockUsers = mockUsers.map(u => u.uid === uid ? { ...u, apiPlan: plan } : u);
+    await db.collection('users').doc(uid).update({ apiPlan: plan });
   };
   
   const deleteUser = async (uid: string) => {
-    mockUsers = mockUsers.filter(u => u.uid !== uid);
+    await db.collection('users').doc(uid).delete();
   };
   
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
     const newApiKey = 'pdfly-mock-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
-    const updatedUser = { ...user, apiKey: newApiKey };
-    persistUser(updatedUser);
+    await db.collection('users').doc(user.uid).update({ apiKey: newApiKey });
+    setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
     return newApiKey;
   };
   
@@ -222,7 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value = { user, loading, login, signup, logout, updateProfileImage, changePassword, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, generateApiKey, getApiUsage, sendLoginOtp, verifyLoginOtp, displayedOtp };
+  const value = { user, loading, logout, updateProfileImage, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, generateApiKey, getApiUsage, changePassword };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
