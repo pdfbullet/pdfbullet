@@ -8,15 +8,6 @@
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="FlpChcEaUhGCEkKdQ2c02AimbrUZe23aW2qWTJHir90" />
     <title>I Love PDFLY - The Ultimate Free Online PDF & Image Toolkit</title>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "c712037e-1215-4c92-8da7-cf48c97bdf24",
-    });
-  });
-</script>
     
    <!-- SEO Meta Tags -->
     <meta id="meta-description" name="description" content="The only PDF & Image toolkit you'll ever need. I Love PDFLY provides a complete suite of free, secure, and fast online tools. Merge, split, compress, convert, edit, sign PDFs, and remove image backgrounds with ease. Client-side processing ensures your files are 100% private. Get started in seconds—no installation required." />
@@ -43,10 +34,19 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&family=Nunito:wght@400;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&family=Nunito:wght@400;700;800&display=swap"></noscript>
     
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- TrustBox script -->
     <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
     <!-- End TrustBox script -->
+    
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "c712037e-1215-4c92-8da7-cf48c97bdf24",
+        });
+      });
+    </script>
 
 <script type="application/ld+json">
     {
@@ -147,7 +147,8 @@
     "react/": "https://esm.sh/react@^19.1.1/",
     "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
     "vite": "https://esm.sh/vite@^7.0.6",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.7.0"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.7.0",
+    "firebase/": "https://esm.sh/firebase@^12.0.0/"
   }
 }
 </script>
