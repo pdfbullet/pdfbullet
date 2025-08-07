@@ -24,9 +24,12 @@ interface AuthContextType {
   updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
   deleteUser: (uid: string) => Promise<void>;
   loginOrSignupWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  auth: firebase.auth.Auth;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,12 +39,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // This handles the redirect result from Google Sign-In. 
-    // It's useful for catching errors from the redirect flow.
-    auth.getRedirectResult().catch((error) => {
-        console.error("Firebase redirect result error:", error.code, error.message);
-    });
-
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       try {
         if (firebaseUser) {
@@ -53,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // New user, create a profile in Firestore
             const newUserProfile: User = {
               uid: firebaseUser.uid,
-              username: firebaseUser.displayName || firebaseUser.email || 'Anonymous',
+              username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
               profileImage: firebaseUser.photoURL || undefined,
               isPremium: false,
               creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
@@ -77,8 +74,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const loginOrSignupWithGoogle = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    // Use redirect which is more reliable than popup
-    await auth.signInWithRedirect(provider);
+    // Use popup which can avoid redirect issues.
+    await auth.signInWithPopup(provider);
+  };
+  
+  const signInWithEmail = async (email: string, password: string) => {
+    await auth.signInWithEmailAndPassword(email, password);
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    await auth.createUserWithEmailAndPassword(email, password);
+    // The onAuthStateChanged listener will handle creating the user profile in Firestore
   };
 
   const logout = async () => {
@@ -145,7 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value = { user, loading, logout, updateProfileImage, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, generateApiKey, getApiUsage, changePassword };
+  const value = { user, loading, logout, updateProfileImage, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
