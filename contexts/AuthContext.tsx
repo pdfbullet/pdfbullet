@@ -1,5 +1,32 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import firebase from 'firebase/compat/app';
+import {
+    onAuthStateChanged,
+    signOut,
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+    updatePassword,
+    Auth,
+    User as FirebaseUser,
+} from 'firebase/auth';
+import {
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+} from 'firebase/firestore';
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL,
+} from 'firebase/storage';
 import { auth, db, storage } from '../firebase/config.ts';
 
 // User interface for our app
@@ -29,7 +56,7 @@ interface AuthContextType {
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
-  auth: firebase.auth.Auth;
+  auth: Auth;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,15 +66,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // onAuthStateChanged is the primary listener for auth changes.
-    // It will be triggered by successful sign-ins, sign-outs, and on initial load.
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
-          const userRef = db.collection('users').doc(firebaseUser.uid);
-          const doc = await userRef.get();
-          if (doc.exists) {
-            setUser(doc.data() as User);
+          const userRef = doc(db, 'users', firebaseUser.uid);
+          const docSnap = await getDoc(userRef);
+          if (docSnap.exists()) {
+            setUser(docSnap.data() as User);
           } else {
             // New user, create a profile in Firestore
             const newUserProfile: User = {
@@ -58,7 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
               apiPlan: 'free',
             };
-            await userRef.set(newUserProfile);
+            await setDoc(userRef, newUserProfile);
             setUser(newUserProfile);
           }
         } else {
@@ -71,63 +96,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
       }
     });
-
-    // Separately, we must process the result of a sign-in with redirect.
-    // This should be done once when the app loads.
-    auth.getRedirectResult()
-      .then((result) => {
-        if (result && result.user) {
-          // Sign-in successful. The onAuthStateChanged listener above will handle
-          // creating the user profile and setting the application state.
-        }
-        // If result is null, it means the user was not returning from a redirect.
-        // In this case, onAuthStateChanged still runs and sets the correct initial auth state.
-      })
-      .catch((error) => {
-        // This catches errors from the redirect flow, such as the user closing the
-        // sign-in window or other OAuth errors from Google.
-        console.error("Google sign-in redirect error:", error);
-        // Ensure the app doesn't stay in a loading state if the redirect fails.
-        setUser(null);
-        setLoading(false);
-      });
-
     return () => unsubscribe();
   }, []);
 
-
   const loginOrSignupWithGoogle = async () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithRedirect(provider);
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
   };
   
   const signInWithEmail = async (email: string, password: string) => {
-    await auth.signInWithEmailAndPassword(email, password);
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
-    await auth.createUserWithEmailAndPassword(email, password);
-    // The onAuthStateChanged listener will handle creating the user profile in Firestore
+    await createUserWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged listener will handle creating the user profile in Firestore
   };
 
   const logout = async () => {
     sessionStorage.removeItem('isAdminAuthenticated');
-    await auth.signOut();
+    await signOut(auth);
   };
   
   const updateProfileImage = async (imageFile: File) => {
     if (!user) throw new Error("No user is signed in.");
-    const storageRef = storage.ref(`profile_images/${user.uid}/${imageFile.name}`);
-    const snapshot = await storageRef.put(imageFile);
-    const downloadURL = await snapshot.ref.getDownloadURL();
+    const storageRef = ref(storage, `profile_images/${user.uid}/${imageFile.name}`);
+    const snapshot = await uploadBytes(storageRef, imageFile);
+    const downloadURL = await getDownloadURL(snapshot.ref);
     
     const firebaseUser = auth.currentUser;
     if(firebaseUser) {
-        await firebaseUser.updateProfile({ photoURL: downloadURL });
+        await updateProfile(firebaseUser, { photoURL: downloadURL });
     }
 
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({ profileImage: downloadURL });
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, { profileImage: downloadURL });
     setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
   };
 
@@ -136,33 +139,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!firebaseUser || !firebaseUser.email) {
         throw new Error("No user is signed in or user does not have an email address.");
     }
-    // This flow is for users with an email/password. It will fail for Google-only users, which is expected.
-    const credential = firebase.auth.EmailAuthProvider.credential(firebaseUser.email, oldPassword);
-    await firebaseUser.reauthenticateWithCredential(credential);
-    await firebaseUser.updatePassword(newPassword);
+    const credential = EmailAuthProvider.credential(firebaseUser.email, oldPassword);
+    await reauthenticateWithCredential(firebaseUser, credential);
+    await updatePassword(firebaseUser, newPassword);
   };
 
   const getAllUsers = async (): Promise<User[]> => {
-    const snapshot = await db.collection('users').get();
+    const usersCollectionRef = collection(db, 'users');
+    const snapshot = await getDocs(usersCollectionRef);
     return snapshot.docs.map(doc => doc.data() as User);
   };
 
   const updateUserPremiumStatus = async (uid: string, isPremium: boolean) => {
-    await db.collection('users').doc(uid).update({ isPremium });
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, { isPremium });
   };
   
   const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
-    await db.collection('users').doc(uid).update({ apiPlan: plan });
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, { apiPlan: plan });
   };
   
   const deleteUser = async (uid: string) => {
-    await db.collection('users').doc(uid).delete();
+    const userRef = doc(db, 'users', uid);
+    await deleteDoc(userRef);
   };
   
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
     const newApiKey = 'pdfly-mock-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
-    await db.collection('users').doc(user.uid).update({ apiKey: newApiKey });
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, { apiKey: newApiKey });
     setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
     return newApiKey;
   };

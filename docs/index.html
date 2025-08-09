@@ -5,6 +5,10 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B90B06" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest" />
+    
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="FlpChcEaUhGCEkKdQ2c02AimbrUZe23aW2qWTJHir90" />
     <title>I Love PDFLY - The Ultimate Free Online PDF & Image Toolkit</title>
@@ -121,7 +125,6 @@
 
   gtag('config', 'G-P5XW4L7TBK');
 </script>
-
 <script type="importmap">
 {
   "imports": {
@@ -149,14 +152,15 @@
     "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
     "vite": "https://esm.sh/vite@^7.0.6",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.7.0",
-    "firebase/": "https://esm.sh/firebase@^12.0.0/"
+    "firebase/": "https://esm.sh/firebase@^12.0.0/",
+    "vite-plugin-pwa": "https://esm.sh/vite-plugin-pwa@^1.0.2"
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/main-CoKUDNu-.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/main-BruT668e.css">
-<link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+<link rel="stylesheet" href="/index.css">
+</head>
   <body class="bg-white dark:bg-black">
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
