@@ -39,6 +39,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // onAuthStateChanged is the primary listener for auth changes.
+    // It will be triggered by successful sign-ins, sign-outs, and on initial load.
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       try {
         if (firebaseUser) {
@@ -69,13 +71,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
       }
     });
+
+    // Separately, we must process the result of a sign-in with redirect.
+    // This should be done once when the app loads.
+    auth.getRedirectResult()
+      .then((result) => {
+        if (result && result.user) {
+          // Sign-in successful. The onAuthStateChanged listener above will handle
+          // creating the user profile and setting the application state.
+        }
+        // If result is null, it means the user was not returning from a redirect.
+        // In this case, onAuthStateChanged still runs and sets the correct initial auth state.
+      })
+      .catch((error) => {
+        // This catches errors from the redirect flow, such as the user closing the
+        // sign-in window or other OAuth errors from Google.
+        console.error("Google sign-in redirect error:", error);
+        // Ensure the app doesn't stay in a loading state if the redirect fails.
+        setUser(null);
+        setLoading(false);
+      });
+
     return () => unsubscribe();
   }, []);
 
+
   const loginOrSignupWithGoogle = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    // Use popup which can avoid redirect issues.
-    await auth.signInWithPopup(provider);
+    await auth.signInWithRedirect(provider);
   };
   
   const signInWithEmail = async (email: string, password: string) => {

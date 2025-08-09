@@ -3,31 +3,25 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
-import 'firebase/compat/analytics';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBJIAxP7WoMK8AuSFz1QVKhxs1kcuu43Zw",
-  authDomain: "i-love-pdfly.firebaseapp.com",
-  projectId: "i-love-pdfly",
-  storageBucket: "i-love-pdfly.appspot.com",
-  messagingSenderId: "445098814659",
-  appId: "1:445098814659:web:ea4d3d6fa9501d207f8676",
-  measurementId: "G-6B54TL0D8K"
+  apiKey: "AIzaSyB7SH4xr3K0zDAeNL5Ri5KX2KHsag7aKkI",
+  authDomain: "i-lovepdfly.firebaseapp.com",
+  projectId: "i-lovepdfly",
+  storageBucket: "i-lovepdfly.appspot.com",
+  messagingSenderId: "415789226795",
+  appId: "1:415789226795:web:778d189b2aafed0b7b436e",
+  measurementId: "G-D5553YDTM8"
 };
 
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// Initialize Analytics if supported
-let analytics;
-firebase.analytics.isSupported().then((supported) => {
-    if (supported) {
-        analytics = firebase.analytics();
-    }
-});
-
-export { app, auth, db, storage, analytics };
+export { auth, db, storage };

@@ -1,7 +1,10 @@
 
 
 
-import React, { lazy, Suspense } from 'react';
+
+
+
+import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
@@ -17,6 +20,8 @@ import AdminProtectedRoute from './components/AdminProtectedRoute.tsx';
 import CalendarModal from './components/CalendarModal.tsx';
 import CookieConsentBanner from './components/CookieConsentBanner.tsx';
 import Preloader from './components/Preloader.tsx';
+import ChangePasswordModal from './components/ChangePasswordModal.tsx';
+import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
@@ -83,9 +88,10 @@ function MainApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [isProfileImageModalOpen, setProfileImageModalOpen] = React.useState(false);
-  const [isSearchModalOpen, setSearchModalOpen] = React.useState(false);
-  const [isCalendarModalOpen, setCalendarModalOpen] = React.useState(false);
+  const [isProfileImageModalOpen, setProfileImageModalOpen] = useState(false);
+  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
+  const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
+  const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
 
   const hideHeaderFooter = location.pathname.startsWith('/play-game/') || location.pathname === '/cv-generator' || location.pathname === '/invoice-generator';
   
@@ -122,6 +128,7 @@ function MainApp() {
         <Header
           onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
           onOpenSearchModal={() => setSearchModalOpen(true)}
+          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
         />
       )}
       <main className="flex-grow">
@@ -189,8 +196,10 @@ function MainApp() {
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
+      <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
       <ScrollToTopButton />
       <CookieConsentBanner />
+      <PWAInstallPrompt />
     </div>
   );
 }

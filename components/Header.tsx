@@ -1,9 +1,10 @@
 
+
 import React, { useState, useRef, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ChevronDownIcon, GridIcon, SunIcon, MoonIcon, UserCircleIcon, 
-  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, ApiIcon, CodeIcon
+  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, ApiIcon, CodeIcon, MenuIcon, CloseIcon
 } from './icons.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
@@ -19,23 +20,11 @@ interface CategoryGroup {
 
 interface HeaderProps {
   onOpenProfileImageModal: () => void;
-  onOpenChangePasswordModal: () => void;
   onOpenSearchModal: () => void;
+  onOpenChangePasswordModal: () => void;
 }
 
-const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-);
-
-const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
-   <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenChangePasswordModal, onOpenSearchModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -52,8 +41,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenChangePa
   const apiMenuTimeoutRef = useRef<number | null>(null);
 
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, auth } = useAuth();
   
+  const hasPasswordProvider = auth.currentUser?.providerData.some(
+    (provider) => provider.providerId === 'password'
+  );
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -297,10 +290,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenChangePa
                         <CameraIcon className="h-5 w-5" />
                         <span>Change Photo</span>
                       </button>
-                      <button onClick={() => { onOpenChangePasswordModal(); closeAllMenus(); }} title="Change password" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                        <KeyIcon className="h-5 w-5" />
-                        <span>Change Password</span>
-                      </button>
+                      {hasPasswordProvider && (
+                        <button onClick={() => { onOpenChangePasswordModal(); closeAllMenus(); }} title="Change password" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                          <KeyIcon className="h-5 w-5" />
+                          <span>Change Password</span>
+                        </button>
+                      )}
                     </div>
                     <div className="border-t border-gray-200 dark:border-gray-700 py-1">
                       <button onClick={() => { logout(); closeAllMenus(); }} title="Logout" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">

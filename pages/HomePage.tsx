@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -6,9 +7,8 @@ import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import AIAssistant from '../components/AIAssistant.tsx';
 import { 
-    ProtectIcon, RefreshIcon, ShoppingBagIcon, EditIcon, DownloadIcon,
-    StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
-    UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon
+    ProtectIcon, StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
+    RefreshIcon, ShoppingBagIcon, DownloadIcon, UsersIcon, ChartBarIcon, LockIcon, QuestionMarkIcon, HeartbeatIcon, EditIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 
@@ -178,7 +178,7 @@ const HomePage: React.FC = () => {
     const heroBadges = [
         { tool: TOOLS.find(t => t.id === 'sign-pdf'), animation: 'animate-float-1', position: 'top-4 left-4 md:top-8 md:left-1/4' },
         { tool: TOOLS.find(t => t.id === 'merge-pdf'), animation: 'animate-float-2', position: 'hidden sm:block top-1/3 left-2 md:top-1/2 md:left-[15%]' },
-        { tool: TOOLS.find(t => t.id === 'protect-pdf'), animation: 'animate-float-3', position: 'bottom-4 left-4 md:bottom-12 md:left-1/4' },
+        { tool: TOOLS.find(t => t.id === 'remove-background'), animation: 'animate-float-3', position: 'bottom-4 left-4 md:bottom-12 md:left-1/4' },
         { tool: TOOLS.find(t => t.id === 'jpg-to-pdf'), animation: 'animate-float-2', position: 'top-4 right-4 md:top-12 md:right-1/4' },
         { tool: TOOLS.find(t => t.id === 'watermark-pdf'), animation: 'animate-float-1', position: 'hidden sm:block top-2/3 right-2 md:top-1/2 md:right-[18%]' },
         { tool: TOOLS.find(t => t.id === 'pdf-to-pdfa'), animation: 'animate-float-3', position: 'bottom-4 right-4 md:bottom-16 md:right-1/4' },
@@ -304,7 +304,7 @@ const HomePage: React.FC = () => {
                             <StarIcon className="h-8 w-8 text-yellow-400" />
                             Your Favorite Tools
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                             {favoriteTools.map((tool) => (
                                 <div key={tool.id}>
                                     <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
@@ -331,7 +331,7 @@ const HomePage: React.FC = () => {
                             </button>
                         ))}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                         {filteredTools.length > 0 ? filteredTools.map((tool) => (
                             <div key={tool.id}>
                                 <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
