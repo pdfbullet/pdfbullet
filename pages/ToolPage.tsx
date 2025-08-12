@@ -5,7 +5,7 @@ import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import FileUpload from '../components/FileUpload.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon } from '../components/icons.tsx';
+import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, UnlockIcon } from '../components/icons.tsx';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -605,7 +605,7 @@ const getOutputFilename = (toolId: string, files: File[], options: any): string 
     case 'extract-text': return `${baseName}.txt`;
     case 'zip-maker': return 'archive.zip';
     case 'resize-file': return firstFile ? `${baseName}_resized.${firstFile.name.split('.').pop()}` : 'resized_file';
-    case 'resize-image': return files.length > 1 ? 'resized_images.zip' : (firstFile ? `${baseName}_resized.${firstFile.name.split('.').pop()}` : 'resized_image');
+    case 'resize-image': return files.length > 1 ? 'resized_images.zip' : (firstFile ? `${baseName}_resized.${options.resizeFormat || 'jpg'}` : 'resized_image');
     case 'crop-image': return firstFile ? `${baseName}_cropped.${firstFile.name.split('.').pop()}` : 'cropped_image';
     case 'convert-to-jpg': return files.length > 1 ? 'converted_to_jpg.zip' : `${baseName}.jpg`;
     case 'convert-from-jpg': return files.length > 1 ? 'converted_images.zip' : `${baseName}.${options.convertToFormat || 'png'}`;
@@ -628,8 +628,18 @@ const initialToolOptions = {
     ocrLanguage: 'eng',
     password: '', allowPrinting: true, allowCopying: true, allowModifying: true,
     top: 0, bottom: 0, left: 0, right: 0,
-    // New options for implemented tools
-    resizeMode: 'percentage', resizePercentage: 50, resizeWidth: 1024, resizeHeight: 1024, resizePdfCompression: 'recommended',
+    resizeMode: 'percentage', // Kept for resize-file
+    resizePercentage: 50, // Kept for resize-file
+    resizePdfCompression: 'recommended',
+    // New options for resize-image
+    resizeUnit: 'percent',
+    resizeWidth: 70,
+    resizeHeight: 70,
+    maintainAspectRatio: true,
+    resizeResolution: 72,
+    resizeFormat: 'jpg',
+    resizeQuality: 90,
+    resizeBackground: '#FFFFFF',
     cropX: 0, cropY: 0, cropWidth: 500, cropHeight: 500,
     convertToFormat: 'png',
     compressionQuality: 0.75,
@@ -681,6 +691,10 @@ const ToolPage = (): React.ReactElement => {
 
   // State for Compare PDF
   const [comparisonResults, setComparisonResults] = useState<ComparisonResult[]>([]);
+
+  // State for resize-image
+  const [originalImageSize, setOriginalImageSize] = useState<{ width: number; height: number } | null>(null);
+
 
   const isProcessButtonDisabled = useMemo(() => {
     if (!tool || state === ProcessingState.Processing) return true;
@@ -922,6 +936,24 @@ const ToolPage = (): React.ReactElement => {
           setProgress(null);
       }
   };
+
+    useEffect(() => {
+        if (tool?.id === 'resize-image' && files.length > 0) {
+            const file = files[0]; // Base dimensions on the first image
+            const img = new Image();
+            img.onload = () => {
+                setOriginalImageSize({ width: img.width, height: img.height });
+            };
+            const url = URL.createObjectURL(file);
+            img.src = url;
+            
+            return () => {
+                URL.revokeObjectURL(url);
+            }
+        } else {
+            setOriginalImageSize(null);
+        }
+    }, [files, tool?.id]);
 
   useEffect(() => {
     const isVisualTool = ['organize-pdf', 'sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool?.id || '');
@@ -1731,59 +1763,92 @@ const ToolPage = (): React.ReactElement => {
                 setProcessedFileBlob(zipBlob);
                 break;
             }
-            case 'resize-file':
+            case 'resize-file': {
+                if (files.length !== 1) throw new Error("Please select one file to resize.");
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const processImageResize = (imgFile: File): Promise<Blob> => new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            let { width, height } = img;
+                            if (toolOptions.resizeMode === 'percentage') {
+                                width = img.width * (toolOptions.resizePercentage / 100);
+                                height = img.height * (toolOptions.resizePercentage / 100);
+                            }
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
+                            canvas.toBlob(blob => blob ? resolve(blob) : reject(), file.type);
+                        };
+                        img.src = URL.createObjectURL(imgFile);
+                    });
+                    const blob = await processImageResize(file);
+                    setProcessedFileBlob(blob);
+                } else if (file.type === 'application/pdf') {
+                    // This is just compression for now.
+                    setProgress({ percentage: 50, status: 'Optimizing PDF... This may take a moment.' });
+                    const pdfBytes = await file.arrayBuffer();
+                    const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+                    const useStreams = toolOptions.resizePdfCompression !== 'basic';
+                    const compressedBytes = await pdfDoc.save({ useObjectStreams: useStreams });
+                    setProcessedFileBlob(new Blob([compressedBytes], { type: 'application/pdf' }));
+                } else {
+                    throw new Error(`Unsupported file type for resizing: ${file.type}`);
+                }
+                break;
+            }
             case 'resize-image': {
-                if (files.length === 0) throw new Error("Please select one or more files to resize.");
+                if (files.length === 0) throw new Error("Please select one or more images to resize.");
                 
                 const processImageResize = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
                     const img = new Image();
                     img.onload = () => {
-                        let { width, height } = img;
-                        if (toolOptions.resizeMode === 'percentage') {
-                            width = img.width * (toolOptions.resizePercentage / 100);
-                            height = img.height * (toolOptions.resizePercentage / 100);
+                        let newWidth, newHeight;
+                        if (toolOptions.resizeUnit === 'percent') {
+                            newWidth = img.width * (toolOptions.resizeWidth / 100);
+                            newHeight = img.height * (toolOptions.resizeHeight / 100);
                         } else { // pixels
-                            width = toolOptions.resizeWidth;
-                            height = toolOptions.resizeHeight;
+                            newWidth = toolOptions.resizeWidth;
+                            newHeight = toolOptions.resizeHeight;
                         }
+
                         const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
                         const ctx = canvas.getContext('2d');
                         if (!ctx) return reject('Could not get canvas context');
-                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Handle background color for formats without transparency
+                        if (toolOptions.resizeFormat === 'jpg' || toolOptions.resizeFormat === 'jpeg') {
+                            ctx.fillStyle = toolOptions.resizeBackground;
+                            ctx.fillRect(0, 0, newWidth, newHeight);
+                        }
+
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                        
+                        const mimeType = `image/${toolOptions.resizeFormat}`;
+                        const quality = toolOptions.resizeQuality / 100;
+
                         canvas.toBlob(blob => {
                             if (blob) resolve(blob);
                             else reject('Canvas to blob failed');
-                        }, file.type);
+                        }, mimeType, quality);
                     };
                     img.onerror = reject;
                     img.src = URL.createObjectURL(file);
                 });
 
                 if (files.length === 1) {
-                    const file = files[0];
-                    if (file.type.startsWith('image/')) {
-                         const blob = await processImageResize(file);
-                         setProcessedFileBlob(blob);
-                    } else if (file.type === 'application/pdf') {
-                         setProgress({ percentage: 50, status: 'Optimizing PDF... This may take a moment.' });
-                         const pdfBytes = await file.arrayBuffer();
-                         const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-                         const useStreams = toolOptions.resizePdfCompression !== 'basic';
-                         const compressedBytes = await pdfDoc.save({ useObjectStreams: useStreams });
-                         setProcessedFileBlob(new Blob([compressedBytes], { type: 'application/pdf' }));
-                    } else {
-                         throw new Error(`Unsupported file type for resizing: ${file.type}`);
-                    }
-                } else { // Batch processing for images
+                    const blob = await processImageResize(files[0]);
+                    setProcessedFileBlob(blob);
+                } else {
                     const zip = new JSZip();
                     for (const [index, file] of files.entries()) {
-                        if (!file.type.startsWith('image/')) continue; // Skip non-images in batch
                         setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Resizing image ${index + 1}` });
                         const blob = await processImageResize(file);
                         const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}_resized.${file.name.split('.').pop()}`, blob);
+                        zip.file(`${baseName}_resized.${toolOptions.resizeFormat || 'jpg'}`, blob);
                     }
                     const zipBlob = await zip.generateAsync({ type: 'blob' });
                     setProcessedFileBlob(zipBlob);
@@ -2040,6 +2105,7 @@ const ToolPage = (): React.ReactElement => {
     setCanvasItems([]);
     setComparisonResults([]);
     setRedactionAreas([]);
+    setOriginalImageSize(null);
   };
 
   const handleDownload = () => {
@@ -2272,58 +2338,94 @@ const ToolPage = (): React.ReactElement => {
                     <input type="password" value={toolOptions.password || ''} onChange={(e) => setToolOptions({ ...toolOptions, password: e.target.value })} className="w-full p-2 border rounded-md" placeholder="Enter current password" />
                 </div>
             );
-        case 'resize-file':
         case 'resize-image': {
-            const isPdf = files.length > 0 && files[0].type === 'application/pdf';
-            if (tool.id === 'resize-image' && isPdf) return <p className="text-center text-red-500">This tool only supports image files.</p>;
+            const handleDimensionChange = (dimension: 'width' | 'height', value: string) => {
+                const numericValue = parseInt(value, 10) || 0;
+                if (toolOptions.maintainAspectRatio && originalImageSize) {
+                    const aspectRatio = originalImageSize.width / originalImageSize.height;
+                    if (dimension === 'width') {
+                        setToolOptions(prev => ({ ...prev, resizeWidth: numericValue, resizeHeight: Math.round(numericValue / aspectRatio) }));
+                    } else {
+                        setToolOptions(prev => ({ ...prev, resizeHeight: numericValue, resizeWidth: Math.round(numericValue * aspectRatio) }));
+                    }
+                } else {
+                    if (dimension === 'width') {
+                        setToolOptions(prev => ({ ...prev, resizeWidth: numericValue }));
+                    } else {
+                        setToolOptions(prev => ({ ...prev, resizeHeight: numericValue }));
+                    }
+                }
+            };
 
+            const handleUnitChange = (unit: 'percent' | 'pixels') => {
+                 if (unit === 'pixels' && originalImageSize) {
+                    setToolOptions(prev => ({ ...prev, resizeUnit: unit, resizeWidth: originalImageSize.width, resizeHeight: originalImageSize.height }));
+                } else {
+                    setToolOptions(prev => ({ ...prev, resizeUnit: unit, resizeWidth: 70, resizeHeight: 70 }));
+                }
+            };
+            
             return (
-                <div>
-                    {isPdf && tool.id === 'resize-file' ? (
-                        <div className="space-y-2 text-center">
-                            <p className="font-semibold text-gray-800 dark:text-gray-100">PDF Compression Level:</p>
-                            <div className="flex justify-center gap-4 p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
-                                {['low', 'recommended', 'high'].map(level => (
-                                    <label key={level} className="flex-1 cursor-pointer">
-                                        <input type="radio" name="resizePdfCompression" value={level} checked={toolOptions.resizePdfCompression === level} onChange={(e) => setToolOptions({ ...toolOptions, resizePdfCompression: e.target.value })} className="sr-only peer" />
-                                        <div className="p-3 rounded-md text-center peer-checked:bg-brand-red peer-checked:text-white peer-checked:shadow-lg transition-all">
-                                            <p className="font-bold capitalize">{level === 'recommended' ? 'Recommended' : level}</p>
-                                            <p className="text-xs">{level === 'low' ? 'Best Quality' : level === 'high' ? 'Smallest Size' : 'Good Balance'}</p>
-                                        </div>
-                                    </label>
-                                ))}
+                 <div className="space-y-6 max-w-2xl mx-auto text-sm">
+                    <h3 className="text-xl font-bold text-center text-gray-800 dark:text-gray-100">Choose new size and format</h3>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="width" className="w-16 font-semibold">Width</label>
+                                <input type="number" id="width" value={toolOptions.resizeWidth} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="height" className="w-16 font-semibold">Height</label>
+                                <input type="number" id="height" value={toolOptions.resizeHeight} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
                             </div>
                         </div>
-                    ) : (
-                        <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => setToolOptions(prev => ({...prev, maintainAspectRatio: !prev.maintainAspectRatio}))} className={`p-2 rounded-md border ${toolOptions.maintainAspectRatio ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                                {toolOptions.maintainAspectRatio ? <LockIcon className="h-5 w-5"/> : <UnlockIcon className="h-5 w-5"/>}
+                            </button>
+                            <select value={toolOptions.resizeUnit} onChange={(e) => handleUnitChange(e.target.value as any)} className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black">
+                                <option value="percent">Percent</option>
+                                <option value="pixels">Pixels</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        <label htmlFor="resolution" className="font-semibold">Resolution</label>
+                        <input type="number" id="resolution" value={toolOptions.resizeResolution} onChange={e => setToolOptions({...toolOptions, resizeResolution: parseInt(e.target.value) || 72})} className="w-24 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                        <span className="text-gray-500">DPI</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div>
+                            <label className="font-semibold block mb-1">Format</label>
+                            <select value={toolOptions.resizeFormat} onChange={e => setToolOptions({...toolOptions, resizeFormat: e.target.value})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black">
+                                <option value="jpg">JPG</option>
+                                <option value="png">PNG</option>
+                            </select>
+                        </div>
+                        {toolOptions.resizeFormat === 'jpg' && (
                             <div>
-                                <label className="font-semibold">Resize by</label>
-                                <select value={toolOptions.resizeMode} onChange={e => setToolOptions({...toolOptions, resizeMode: e.target.value})} className="w-full p-2 border rounded-md mt-1">
-                                    <option value="percentage">Percentage</option>
-                                    <option value="pixels">Pixels</option>
-                                </select>
+                                <label className="font-semibold block mb-1">Quality</label>
+                                <div className="flex items-center gap-2">
+                                <input type="number" min="1" max="100" value={toolOptions.resizeQuality} onChange={e => setToolOptions({...toolOptions, resizeQuality: parseInt(e.target.value) || 90})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                                <span>%</span>
+                                </div>
                             </div>
-                            {toolOptions.resizeMode === 'percentage' ? (
-                                <div>
-                                     <label className="font-semibold">Percentage ({toolOptions.resizePercentage}%)</label>
-                                    <input type="range" min="1" max="200" value={toolOptions.resizePercentage} onChange={e => setToolOptions({...toolOptions, resizePercentage: parseInt(e.target.value)})} className="w-full mt-1" />
+                        )}
+                        {toolOptions.resizeFormat === 'jpg' && (
+                             <div>
+                                <label className="font-semibold block mb-1">Background</label>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setToolOptions({...toolOptions, resizeBackground: '#FFFFFF'})} className={`w-8 h-8 rounded-full border-2 ${toolOptions.resizeBackground === '#FFFFFF' ? 'border-blue-500' : 'border-gray-300'}`} style={{backgroundColor: 'white'}}></button>
+                                    <button onClick={() => setToolOptions({...toolOptions, resizeBackground: '#000000'})} className={`w-8 h-8 rounded-full border-2 ${toolOptions.resizeBackground === '#000000' ? 'border-blue-500' : 'border-gray-300'}`} style={{backgroundColor: 'black'}}></button>
                                 </div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="font-semibold">Width (px)</label>
-                                        <input type="number" value={toolOptions.resizeWidth} onChange={e => setToolOptions({...toolOptions, resizeWidth: parseInt(e.target.value)})} className="w-full p-2 border rounded-md mt-1" />
-                                    </div>
-                                    <div>
-                                        <label className="font-semibold">Height (px)</label>
-                                        <input type="number" value={toolOptions.resizeHeight} onChange={e => setToolOptions({...toolOptions, resizeHeight: parseInt(e.target.value)})} className="w-full p-2 border rounded-md mt-1" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            )
+            );
         }
         case 'crop-image': {
             return (
