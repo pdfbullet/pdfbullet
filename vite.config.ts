@@ -11,10 +11,15 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+        includeAssets: [
+          'favicon.png',
+          'apple-touch-icon.png',
+          'desktop-view.jpg', // ensure these are in public/
+          'mobile-view.png',  // ensure these are in public/
+        ],
         workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // safer limit for GitHub Pages
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff,woff2}'],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // safer limit
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'],
         },
         manifest: {
           name: 'I Love PDFLY: PDF & Image Tools',
