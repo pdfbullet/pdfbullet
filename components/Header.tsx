@@ -1,10 +1,8 @@
-
-
 import React, { useState, useRef, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ChevronDownIcon, GridIcon, SunIcon, MoonIcon, UserCircleIcon, 
-  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, ApiIcon, CodeIcon, MenuIcon, CloseIcon
+  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, ApiIcon, CodeIcon
 } from './icons.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
@@ -23,6 +21,18 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
 }
+
+const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
+   <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
@@ -134,10 +144,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     tool => tool.category === 'convert-to' || tool.category === 'convert-from'
   );
 
-  const formattedTime = currentTime.toLocaleTimeString('en-US', {
+  const formattedTimeDesktop = currentTime.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
+      hour12: true
+  });
+
+  const formattedTimeMobile = currentTime.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
       hour12: true
   });
   
@@ -169,7 +185,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   return (
     <>
     <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-3">
+      <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="md:hidden">
@@ -258,13 +274,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400" aria-live="polite" aria-atomic="true">{formattedTime}</div>
+            {/* Mobile time display (no seconds) */}
+            <div className="block sm:hidden text-sm font-mono text-gray-500 dark:text-gray-400" aria-live="polite" aria-atomic="true">{formattedTimeMobile}</div>
+            {/* Desktop time display (with seconds) */}
+            <div className="hidden sm:block text-sm font-mono text-gray-500 dark:text-gray-400" aria-live="polite" aria-atomic="true">{formattedTimeDesktop}</div>
+
             <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Search" title="Search">
               <SearchIcon className="h-6 w-6" />
             </button>
             {user ? (
                <div className="relative" ref={profileMenuRef}>
-                <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-10 w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
+                <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
                   {user.profileImage ? (
                     <img src={user.profileImage} alt="Profile" className="h-full w-full object-cover" />
                   ) : (
