@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '', '');
   return {
-    base: '/', // correct for custom domain
+    base: '/', // Works for custom domains like ilovepdfly.com
     plugins: [
       react(),
       VitePWA({
@@ -14,12 +14,14 @@ export default defineConfig(({ mode }) => {
         includeAssets: [
           'favicon.png',
           'apple-touch-icon.png',
-          'desktop-view.jpg', // ensure these are in public/
-          'mobile-view.png',  // ensure these are in public/
+          'desktop-view.jpg', // must be in /public
+          'mobile-view.png',  // must be in /public
         ],
         workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // safer limit
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB cache limit
+          globPatterns: [
+            '**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'
+          ],
         },
         manifest: {
           name: 'I Love PDFLY: PDF & Image Tools',

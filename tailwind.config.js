@@ -2,7 +2,13 @@
 export default {
   content: [
     "./index.html",
-    "./**/*.{js,ts,jsx,tsx}",
+    "./*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./pages/**/*.{ts,tsx}",
+    "./contexts/**/*.{ts,tsx}",
+    "./hooks/**/*.{ts,tsx}",
+    "./content/**/*.{ts,tsx}",
+    "./firebase/**/*.{ts,tsx}",
   ],
   darkMode: 'class',
   theme: {
