@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ChevronDownIcon, GridIcon, SunIcon, MoonIcon, UserCircleIcon, 
-  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, ApiIcon, CodeIcon
+  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, 
+  GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
+  HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
+  ApiIcon, CodeIcon, SettingsIcon
 } from './icons.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
@@ -52,6 +55,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
 
   const { theme, toggleTheme } = useTheme();
   const { user, logout, auth } = useAuth();
+  const navigate = useNavigate();
   
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
@@ -309,6 +313,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                       <button onClick={() => { onOpenProfileImageModal(); closeAllMenus(); }} title="Change profile photo" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
                         <CameraIcon className="h-5 w-5" />
                         <span>Change Photo</span>
+                      </button>
+                      <button onClick={() => { navigate('/account-settings'); closeAllMenus(); }} title="Account Settings" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                        <SettingsIcon className="h-5 w-5" />
+                        <span>Account Settings</span>
                       </button>
                       {hasPasswordProvider && (
                         <button onClick={() => { onOpenChangePasswordModal(); closeAllMenus(); }} title="Change password" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">

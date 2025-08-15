@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { UserIcon, StarIcon, TrashIcon, ApiIcon } from '../components/icons.tsx';
+import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon } from '../components/icons.tsx';
 
 interface UserData {
+    uid: string;
     username: string;
-    isPremium: boolean;
+    isPremium?: boolean;
     creationDate?: string;
     apiPlan?: 'free' | 'developer' | 'business';
 }
@@ -15,17 +16,12 @@ const AdminDashboardPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
-    const fetchUsers = () => {
+    const fetchUsers = async () => {
         setLoading(true);
         try {
-            const allUsersData = getAllUsers();
-            const usersArray = Object.keys(allUsersData).map(username => ({
-                username,
-                isPremium: allUsersData[username].isPremium || false,
-                creationDate: allUsersData[username].creationDate,
-                apiPlan: allUsersData[username].apiPlan || 'free',
-            }));
+            const usersArray = await getAllUsers();
             setUsers(usersArray);
         } catch (e) {
             setError('Failed to load user data.');
@@ -38,31 +34,40 @@ const AdminDashboardPage: React.FC = () => {
         fetchUsers();
     }, []);
 
-    const handleTogglePremium = async (username: string, currentStatus: boolean) => {
+    const handleTogglePremium = async (uid: string, currentStatus: boolean | undefined) => {
+        setIsUpdating(uid);
         try {
-            await updateUserPremiumStatus(username, !currentStatus);
-            fetchUsers();
+            await updateUserPremiumStatus(uid, !currentStatus);
+            setUsers(users.map(u => u.uid === uid ? { ...u, isPremium: !currentStatus } : u));
         } catch (e) {
-            alert(`Failed to update status for ${username}.`);
+            alert(`Failed to update status for user ${uid}.`);
+        } finally {
+            setIsUpdating(null);
         }
     };
     
-    const handleApiPlanChange = async (username: string, plan: 'free' | 'developer' | 'business') => {
+    const handleApiPlanChange = async (uid: string, plan: 'free' | 'developer' | 'business') => {
+        setIsUpdating(uid);
         try {
-            await updateUserApiPlan(username, plan);
-            fetchUsers();
+            await updateUserApiPlan(uid, plan);
+            setUsers(users.map(u => u.uid === uid ? { ...u, apiPlan: plan } : u));
         } catch (e) {
-             alert(`Failed to update API plan for ${username}.`);
+             alert(`Failed to update API plan for user ${uid}.`);
+        } finally {
+            setIsUpdating(null);
         }
     };
 
-    const handleDeleteUser = async (username: string) => {
-        if (window.confirm(`Are you sure you want to delete user "${username}"? This cannot be undone.`)) {
+    const handleDeleteUser = async (uid: string, username: string) => {
+        if (window.confirm(`Are you sure you want to delete user "${username}"? This will only remove their data record.`)) {
+            setIsUpdating(uid);
             try {
-                await deleteUser(username);
-                fetchUsers();
+                await deleteUser(uid);
+                await fetchUsers();
             } catch (e: any) {
                 alert(`Error deleting user: ${e.message}`);
+            } finally {
+                setIsUpdating(null);
             }
         }
     };
@@ -117,21 +122,24 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
 
                     <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl overflow-hidden animated-border">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 items-center">
                              <input 
                                 type="text"
                                 placeholder="Search by username..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-200"
+                                className="w-full sm:w-auto flex-grow px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-200"
                              />
+                             <button onClick={fetchUsers} disabled={loading} className="flex items-center gap-2 text-sm font-semibold bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                 <RefreshIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}/> Refresh
+                             </button>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
                                     <tr>
                                         <th scope="col" className="px-6 py-3">Username</th>
-                                        <th scope="col" className="px-6 py-3">Premium</th>
+                                        <th scope="col" className="px-6 py-3">Premium Status</th>
                                         <th scope="col" className="px-6 py-3">API Plan</th>
                                         <th scope="col" className="px-6 py-3">Joined Date</th>
                                         <th scope="col" className="px-6 py-3 text-center">Actions</th>
@@ -144,26 +152,25 @@ const AdminDashboardPage: React.FC = () => {
                                         <tr><td colSpan={5} className="text-center p-6 text-red-500">{error}</td></tr>
                                     ) : filteredUsers.length > 0 ? (
                                         filteredUsers.map(user => (
-                                            <tr key={user.username} className="bg-white dark:bg-gray-900 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                            <tr key={user.uid} className={`border-b dark:border-gray-700 transition-colors ${user.isPremium ? 'bg-yellow-50 dark:bg-yellow-900/10' : 'bg-white dark:bg-gray-900'} hover:bg-gray-50 dark:hover:bg-gray-800/50`}>
                                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    {isUpdating === user.uid && <svg className="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
                                                     {user.username}
                                                 </th>
                                                 <td className="px-6 py-4">
-                                                    <label htmlFor={`toggle-${user.username}`} className="relative inline-flex items-center cursor-pointer" title="Toggle Premium">
-                                                        <input 
-                                                            type="checkbox" 
-                                                            id={`toggle-${user.username}`} 
-                                                            className="sr-only peer" 
-                                                            checked={user.isPremium}
-                                                            onChange={() => handleTogglePremium(user.username, user.isPremium)}
-                                                        />
-                                                        <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-red"></div>
-                                                    </label>
+                                                    <button 
+                                                        onClick={() => handleTogglePremium(user.uid, user.isPremium)}
+                                                        disabled={isUpdating === user.uid}
+                                                        className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${user.isPremium ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300'}`}
+                                                    >
+                                                      {user.isPremium ? 'Active' : 'Activate'}
+                                                    </button>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <select 
-                                                      value={user.apiPlan} 
-                                                      onChange={(e) => handleApiPlanChange(user.username, e.target.value as 'free' | 'developer' | 'business')}
+                                                      value={user.apiPlan || 'free'} 
+                                                      disabled={isUpdating === user.uid}
+                                                      onChange={(e) => handleApiPlanChange(user.uid, e.target.value as 'free' | 'developer' | 'business')}
                                                       className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                     >
                                                       <option value="free">Free</option>
@@ -175,7 +182,7 @@ const AdminDashboardPage: React.FC = () => {
                                                     {user.creationDate ? new Date(user.creationDate).toLocaleDateString() : 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <button onClick={() => handleDeleteUser(user.username)} title="Delete User" className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+                                                    <button onClick={() => handleDeleteUser(user.uid, user.username)} disabled={isUpdating === user.uid} title="Delete User" className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
                                                         <TrashIcon className="h-5 w-5" />
                                                     </button>
                                                 </td>

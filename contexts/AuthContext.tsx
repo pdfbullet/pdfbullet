@@ -38,6 +38,9 @@ interface User {
   creationDate?: string;
   apiKey?: string;
   apiPlan?: 'free' | 'developer' | 'business';
+  firstName?: string;
+  lastName?: string;
+  country?: string; // e.g., 'US'
 }
 
 // Auth Context Type
@@ -46,6 +49,7 @@ interface AuthContextType {
   loading: boolean;
   logout: () => Promise<void>;
   updateProfileImage: (imageFile: File) => Promise<void>;
+  updateUserProfile: (data: { firstName: string; lastName: string; country: string }) => Promise<void>;
   getAllUsers: () => Promise<User[]>;
   updateUserPremiumStatus: (uid: string, isPremium: boolean) => Promise<void>;
   updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
@@ -82,6 +86,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               isPremium: false,
               creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
               apiPlan: 'free',
+              firstName: '',
+              lastName: '',
+              country: '',
             };
             await setDoc(userRef, newUserProfile);
             setUser(newUserProfile);
@@ -133,6 +140,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await updateDoc(userRef, { profileImage: downloadURL });
     setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
   };
+  
+  const updateUserProfile = async (data: { firstName: string; lastName: string; country: string }) => {
+    if (!user) throw new Error("No user is signed in.");
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, data);
+    setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
+  };
 
   const changePassword = async (oldPassword: string, newPassword: string) => {
     const firebaseUser = auth.currentUser;
@@ -181,7 +195,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value = { user, loading, logout, updateProfileImage, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
+  const value = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
