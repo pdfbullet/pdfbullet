@@ -1,11 +1,5 @@
-
-
-
-
-
-
 import React, { lazy, Suspense, useState } from 'react';
-import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { HomeIcon } from './components/icons.tsx';
@@ -93,8 +87,11 @@ function MainApp() {
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
 
-  const hideHeaderFooter = location.pathname.startsWith('/play-game/') || location.pathname === '/cv-generator' || location.pathname === '/invoice-generator';
-  
+  const hideHeaderFooter =
+    location.pathname.startsWith('/play-game/') ||
+    location.pathname === '/cv-generator' ||
+    location.pathname === '/invoice-generator';
+
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -109,7 +106,10 @@ function MainApp() {
         const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
         if (pendingDataStr) {
           sessionStorage.removeItem('pendingInvoiceDataRedirect');
-          navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
+          navigate('/invoice-generator', {
+            state: { restoredData: JSON.parse(pendingDataStr) },
+            replace: true,
+          });
         } else if (redirectInfo.from === 'pricing') {
           navigate('/payment', { state: { plan: redirectInfo.plan } });
         } else if (location.pathname === '/login' || location.pathname === '/signup') {
@@ -169,7 +169,6 @@ function MainApp() {
             <Route path="/api-image" element={<ApiImagePage />} />
             <Route path="/api-signature" element={<ApiSignaturePage />} />
 
-
             {/* Game Routes */}
             <Route path="/play-game/memory-match" element={<MemoryMatchGame />} />
             <Route path="/play-game/word-finder" element={<WordFinderGame />} />
@@ -183,16 +182,16 @@ function MainApp() {
 
             {/* Admin Routes */}
             <Route element={<AdminProtectedRoute />}>
-                <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
             </Route>
-            
+
             {/* ToolPage should be last to catch dynamic tool IDs */}
             <Route path="/:toolId" element={<ToolPage />} />
           </Routes>
         </Suspense>
       </main>
       {!hideHeaderFooter && <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />}
-      
+
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
@@ -205,13 +204,15 @@ function MainApp() {
 }
 
 function App() {
-    return (
-        <ThemeProvider>
-            <AuthProvider>
-                <MainApp />
-            </AuthProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <MainApp />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }
 
 export default App;
