@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://ilovepdfly.com/",
+  "homepage": "https://ilovepdfly.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

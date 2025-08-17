@@ -1,10 +1,10 @@
-import React, { lazy, Suspense, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { HomeIcon } from './components/icons.tsx';
 
-// Components that are part of the main layout
+// Components
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
@@ -17,66 +17,64 @@ import Preloader from './components/Preloader.tsx';
 import ChangePasswordModal from './components/ChangePasswordModal.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 
-// Lazy-loaded pages for code splitting
-const HomePage = lazy(() => import('./pages/HomePage.tsx'));
-const ToolPage = lazy(() => import('./pages/ToolPage.tsx'));
-const AboutPage = lazy(() => import('./pages/AboutPage.tsx'));
-const BlogPage = lazy(() => import('./pages/BlogPage.tsx'));
-const BlogPostPage = lazy(() => import('./pages/BlogPostPage.tsx'));
-const ContactPage = lazy(() => import('./pages/ContactPage.tsx'));
-const LoginPage = lazy(() => import('./pages/LoginPage.tsx'));
-const SignUpPage = lazy(() => import('./pages/SignUpPage.tsx'));
-const DeveloperPage = lazy(() => import('./pages/DeveloperPage.tsx'));
-const FaqPage = lazy(() => import('./pages/FaqPage.tsx'));
-const SitemapPage = lazy(() => import('./pages/SitemapPage.tsx'));
-const GamesPage = lazy(() => import('./pages/PlayGamePage.tsx'));
-const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx'));
-const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
-const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
-const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
-const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
-const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
-const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
-const DeveloperAccessPage = lazy(() => import('./pages/DeveloperAccessPage.tsx'));
-const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage.tsx'));
-const HowToUsePage = lazy(() => import('./pages/HowToUsePage.tsx'));
-const EducationPage = lazy(() => import('./pages/EducationPage.tsx'));
-const BusinessPage = lazy(() => import('./pages/BusinessPage.tsx'));
-const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.tsx'));
-const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.tsx'));
-const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage.tsx'));
-const CeoPage = lazy(() => import('./pages/CeoPage.tsx'));
-const ApiPricingPage = lazy(() => import('./pages/ApiPricingPage.tsx'));
-const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage.tsx'));
-const ApiPdfPage = lazy(() => import('./pages/ApiPdfPage.tsx'));
-const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
-const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
+// Pages
+import HomePage from './pages/HomePage.tsx';
+import ToolPage from './pages/ToolPage.tsx';
+import AboutPage from './pages/AboutPage.tsx';
+import BlogPage from './pages/BlogPage.tsx';
+import BlogPostPage from './pages/BlogPostPage.tsx';
+import ContactPage from './pages/ContactPage.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import SignUpPage from './pages/SignUpPage.tsx';
+import DeveloperPage from './pages/DeveloperPage.tsx';
+import FaqPage from './pages/FaqPage.tsx';
+import SitemapPage from './pages/SitemapPage.tsx';
+import GamesPage from './pages/PlayGamePage.tsx';
+import InvoiceGeneratorPage from './pages/InvoiceGeneratorPage.tsx';
+import CVGeneratorPage from './pages/CVGeneratorPage.tsx';
+import LessonPlanCreatorPage from './pages/LessonPlanCreatorPage.tsx';
+import AIQuestionGeneratorPage from './pages/AIQuestionGeneratorPage.tsx';
+import ImageGeneratorPage from './pages/ImageGeneratorPage.tsx';
+import PricingPage from './pages/PricingPage.tsx';
+import PremiumFeaturePage from './pages/PremiumFeaturePage.tsx';
+import PaymentPage from './pages/PaymentPage.tsx';
+import DeveloperAccessPage from './pages/DeveloperAccessPage.tsx';
+import AdminDashboardPage from './pages/AdminDashboardPage.tsx';
+import HowToUsePage from './pages/HowToUsePage.tsx';
+import EducationPage from './pages/EducationPage.tsx';
+import BusinessPage from './pages/BusinessPage.tsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.tsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.tsx';
+import CookiesPolicyPage from './pages/CookiesPolicyPage.tsx';
+import CeoPage from './pages/CeoPage.tsx';
+import ApiPricingPage from './pages/ApiPricingPage.tsx';
+import ApiReferencePage from './pages/ApiReferencePage.tsx';
+import ApiPdfPage from './pages/ApiPdfPage.tsx';
+import ApiImagePage from './pages/ApiImagePage.tsx';
+import ApiSignaturePage from './pages/ApiSignaturePage.tsx';
 
-// Lazy-loaded games
-const MemoryMatchGame = lazy(() => import('./pages/games/MemoryMatchGame.tsx'));
-const WordFinderGame = lazy(() => import('./pages/games/WordFinderGame.tsx'));
-const QuizGame = lazy(() => import('./pages/games/QuizGame.tsx'));
-const BubbleShooterGame = lazy(() => import('./pages/games/BubbleShooterGame.tsx'));
-const SnakeGame = lazy(() => import('./pages/games/SnakeGame.tsx'));
-const CarRacingGame = lazy(() => import('./pages/games/CarRacingGame.tsx'));
-const PdfInvadersGame = lazy(() => import('./pages/games/PdfInvadersGame.tsx'));
-const ColorFloodGame = lazy(() => import('./pages/games/ColorFloodGame.tsx'));
-const PaperTossGame = lazy(() => import('./pages/games/PaperTossGame.tsx'));
+// Games
+import MemoryMatchGame from './pages/games/MemoryMatchGame.tsx';
+import WordFinderGame from './pages/games/WordFinderGame.tsx';
+import QuizGame from './pages/games/QuizGame.tsx';
+import BubbleShooterGame from './pages/games/BubbleShooterGame.tsx';
+import SnakeGame from './pages/games/SnakeGame.tsx';
+import CarRacingGame from './pages/games/CarRacingGame.tsx';
+import PdfInvadersGame from './pages/games/PdfInvadersGame.tsx';
+import ColorFloodGame from './pages/games/ColorFloodGame.tsx';
+import PaperTossGame from './pages/games/PaperTossGame.tsx';
 
-const FloatingBackButton: React.FC = () => {
-  return (
-    <Link
-      to="/"
-      className="fixed top-4 left-4 z-[100] flex items-center gap-2 bg-white/80 dark:bg-black/70 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-black transition-colors"
-      aria-label="Back to Home"
-      title="Back to Home"
-    >
-      <HomeIcon className="h-6 w-6 text-brand-red" />
-      <span className="font-semibold text-gray-700 dark:text-gray-200 hidden sm:inline">Home</span>
-    </Link>
-  );
-};
+const FloatingBackButton: React.FC = () => (
+  <Link
+    to="/"
+    className="fixed top-4 left-4 z-[100] flex items-center gap-2 bg-white/80 dark:bg-black/70 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-black transition-colors"
+    aria-label="Back to Home"
+    title="Back to Home"
+  >
+    <HomeIcon className="h-6 w-6 text-brand-red" />
+    <span className="font-semibold text-gray-700 dark:text-gray-200 hidden sm:inline">Home</span>
+  </Link>
+);
 
 function MainApp() {
   const location = useLocation();
@@ -92,24 +90,18 @@ function MainApp() {
     location.pathname === '/cv-generator' ||
     location.pathname === '/invoice-generator';
 
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loading && user) {
       const redirectInfoStr = sessionStorage.getItem('postLoginRedirect');
       if (redirectInfoStr) {
         sessionStorage.removeItem('postLoginRedirect');
         const redirectInfo = JSON.parse(redirectInfoStr);
-
         const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
         if (pendingDataStr) {
           sessionStorage.removeItem('pendingInvoiceDataRedirect');
-          navigate('/invoice-generator', {
-            state: { restoredData: JSON.parse(pendingDataStr) },
-            replace: true,
-          });
+          navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
         } else if (redirectInfo.from === 'pricing') {
           navigate('/payment', { state: { plan: redirectInfo.plan } });
         } else if (location.pathname === '/login' || location.pathname === '/signup') {
@@ -132,66 +124,55 @@ function MainApp() {
         />
       )}
       <main className="flex-grow">
-        <Suspense fallback={<Preloader />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:slug" element={<BlogPostPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/developer" element={<DeveloperPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/sitemap" element={<SitemapPage />} />
-            <Route path="/play-game" element={<GamesPage />} />
-            <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
-            <Route path="/cv-generator" element={<CVGeneratorPage />} />
-            <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
-            <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-            <Route path="/ai-image-generator" element={<ImageGeneratorPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/api-pricing" element={<ApiPricingPage />} />
-            <Route path="/premium-feature" element={<PremiumFeaturePage />} />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/developer-access" element={<DeveloperAccessPage />} />
-            <Route path="/how-to-use" element={<HowToUsePage />} />
-            <Route path="/education" element={<EducationPage />} />
-            <Route path="/business" element={<BusinessPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
-            <Route path="/ceo" element={<CeoPage />} />
-
-            {/* API Routes */}
-            <Route path="/api-reference" element={<ApiReferencePage />} />
-            <Route path="/api-pdf" element={<ApiPdfPage />} />
-            <Route path="/api-image" element={<ApiImagePage />} />
-            <Route path="/api-signature" element={<ApiSignaturePage />} />
-
-            {/* Game Routes */}
-            <Route path="/play-game/memory-match" element={<MemoryMatchGame />} />
-            <Route path="/play-game/word-finder" element={<WordFinderGame />} />
-            <Route path="/play-game/quiz-game" element={<QuizGame />} />
-            <Route path="/play-game/bubble-shooter" element={<BubbleShooterGame />} />
-            <Route path="/play-game/snake-game" element={<SnakeGame />} />
-            <Route path="/play-game/car-racing" element={<CarRacingGame />} />
-            <Route path="/play-game/pdf-invaders" element={<PdfInvadersGame />} />
-            <Route path="/play-game/color-flood" element={<ColorFloodGame />} />
-            <Route path="/play-game/paper-toss" element={<PaperTossGame />} />
-
-            {/* Admin Routes */}
-            <Route element={<AdminProtectedRoute />}>
-              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-            </Route>
-
-            {/* ToolPage should be last to catch dynamic tool IDs */}
-            <Route path="/:toolId" element={<ToolPage />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/sitemap" element={<SitemapPage />} />
+          <Route path="/play-game" element={<GamesPage />} />
+          <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+          <Route path="/cv-generator" element={<CVGeneratorPage />} />
+          <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+          <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+          <Route path="/ai-image-generator" element={<ImageGeneratorPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/api-pricing" element={<ApiPricingPage />} />
+          <Route path="/premium-feature" element={<PremiumFeaturePage />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/developer-access" element={<DeveloperAccessPage />} />
+          <Route path="/how-to-use" element={<HowToUsePage />} />
+          <Route path="/education" element={<EducationPage />} />
+          <Route path="/business" element={<BusinessPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+          <Route path="/ceo" element={<CeoPage />} />
+          <Route path="/api-reference" element={<ApiReferencePage />} />
+          <Route path="/api-pdf" element={<ApiPdfPage />} />
+          <Route path="/api-image" element={<ApiImagePage />} />
+          <Route path="/api-signature" element={<ApiSignaturePage />} />
+          <Route path="/play-game/memory-match" element={<MemoryMatchGame />} />
+          <Route path="/play-game/word-finder" element={<WordFinderGame />} />
+          <Route path="/play-game/quiz-game" element={<QuizGame />} />
+          <Route path="/play-game/bubble-shooter" element={<BubbleShooterGame />} />
+          <Route path="/play-game/snake-game" element={<SnakeGame />} />
+          <Route path="/play-game/car-racing" element={<CarRacingGame />} />
+          <Route path="/play-game/pdf-invaders" element={<PdfInvadersGame />} />
+          <Route path="/play-game/color-flood" element={<ColorFloodGame />} />
+          <Route path="/play-game/paper-toss" element={<PaperTossGame />} />
+          <Route element={<AdminProtectedRoute />}>
+            <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          </Route>
+          <Route path="/:toolId" element={<ToolPage />} />
+        </Routes>
       </main>
       {!hideHeaderFooter && <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />}
-
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
