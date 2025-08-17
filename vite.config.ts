@@ -5,9 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '', '');
-
   return {
-    base: './', // ✅ changed from '/' to './' for GitHub Pages / custom domain
+    base: '/', // Works for custom domains like ilovepdfly.com
     plugins: [
       react(),
       VitePWA({
@@ -15,20 +14,21 @@ export default defineConfig(({ mode }) => {
         includeAssets: [
           'favicon.png',
           'apple-touch-icon.png',
-          'desktop-view.jpg',
-          'mobile-view.png',
+          'desktop-view.jpg', // must be in /public
+          'mobile-view.png',  // must be in /public
         ],
         workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB cache limit
           globPatterns: [
-            '**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}',
+            '**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'
           ],
         },
         manifest: {
           name: 'I Love PDFLY: PDF & Image Tools',
           short_name: 'PDFLY',
-          description: "The ultimate PDF & Image toolkit online.",
-          start_url: './', // ✅ make relative to work with base './'
+          description:
+            "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
+          start_url: '/', // fixed from "."
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#B90B06',
@@ -41,8 +41,20 @@ export default defineConfig(({ mode }) => {
             { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
           ],
           screenshots: [
-            { src: '/desktop-view.jpg', sizes: '1280x800', type: 'image/jpeg', form_factor: 'wide', label: 'Desktop view' },
-            { src: '/mobile-view.png', sizes: '540x720', type: 'image/png', form_factor: 'narrow', label: 'Mobile view' },
+            {
+              src: '/desktop-view.jpg',
+              sizes: '1280x800',
+              type: 'image/jpeg',
+              form_factor: 'wide',
+              label: 'I Love PDFLY Homepage with all tools',
+            },
+            {
+              src: '/mobile-view.png',
+              sizes: '540x720',
+              type: 'image/png',
+              form_factor: 'narrow',
+              label: 'Mobile view showing PDF tools',
+            },
           ],
         },
       }),
@@ -53,15 +65,9 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
-          main: resolve(__dirname, 'index.html'),
-        },
-        output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-          },
+          main: resolve(__dirname, 'index.html'), // safer resolve
         },
       },
-      chunkSizeWarningLimit: 2000, // increases warning limit to 2MB
     },
   };
 });
