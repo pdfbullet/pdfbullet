@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '', '');
 
   return {
-    base: '/', // works for custom domains like ilovepdfly.com
+    base: './', // ✅ changed from '/' to './' for GitHub Pages / custom domain
     plugins: [
       react(),
       VitePWA({
@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
           name: 'I Love PDFLY: PDF & Image Tools',
           short_name: 'PDFLY',
           description: "The ultimate PDF & Image toolkit online.",
-          start_url: '/',
+          start_url: './', // ✅ make relative to work with base './'
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#B90B06',
