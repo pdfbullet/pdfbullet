@@ -67,3 +67,27 @@ body {
     min-height: 297mm;
     box-sizing: border-box;
 }
+
+.hero-background {
+  background-image: none;
+}
+.dark .hero-background {
+  background-image: none;
+}
+.hero-background::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  max-width: 1400px;
+  max-height: 1400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(239, 219, 232, 0.4) 0%, rgba(255, 255, 255, 0) 60%);
+  z-index: 0;
+  pointer-events: none;
+}
+.dark .hero-background::before {
+  background: radial-gradient(ellipse at center, rgba(50, 25, 30, 0.4) 0%, rgba(0, 0, 0, 0) 60%);
+}

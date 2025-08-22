@@ -1,9 +1,5 @@
 
 
-
-
-
-
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -17,6 +13,7 @@ import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
 import SearchModal from './components/SearchModal.tsx';
 import AdminProtectedRoute from './components/AdminProtectedRoute.tsx';
+import UserProtectedRoute from './components/UserProtectedRoute.tsx';
 import CalendarModal from './components/CalendarModal.tsx';
 import CookieConsentBanner from './components/CookieConsentBanner.tsx';
 import Preloader from './components/Preloader.tsx';
@@ -35,7 +32,6 @@ const SignUpPage = lazy(() => import('./pages/SignUpPage.tsx'));
 const DeveloperPage = lazy(() => import('./pages/DeveloperPage.tsx'));
 const FaqPage = lazy(() => import('./pages/FaqPage.tsx'));
 const SitemapPage = lazy(() => import('./pages/SitemapPage.tsx'));
-const GamesPage = lazy(() => import('./pages/PlayGamePage.tsx'));
 const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx'));
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
@@ -58,23 +54,13 @@ const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage.tsx'));
 const ApiPdfPage = lazy(() => import('./pages/ApiPdfPage.tsx'));
 const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
-
-// Lazy-loaded games
-const MemoryMatchGame = lazy(() => import('./pages/games/MemoryMatchGame.tsx'));
-const WordFinderGame = lazy(() => import('./pages/games/WordFinderGame.tsx'));
-const QuizGame = lazy(() => import('./pages/games/QuizGame.tsx'));
-const BubbleShooterGame = lazy(() => import('./pages/games/BubbleShooterGame.tsx'));
-const SnakeGame = lazy(() => import('./pages/games/SnakeGame.tsx'));
-const CarRacingGame = lazy(() => import('./pages/games/CarRacingGame.tsx'));
-const PdfInvadersGame = lazy(() => import('./pages/games/PdfInvadersGame.tsx'));
-const ColorFloodGame = lazy(() => import('./pages/games/ColorFloodGame.tsx'));
-const PaperTossGame = lazy(() => import('./pages/games/PaperTossGame.tsx'));
+const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
 
 const FloatingBackButton: React.FC = () => {
   return (
     <Link
       to="/"
-      className="fixed top-4 left-4 z-[100] flex items-center gap-2 bg-white/80 dark:bg-black/70 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-black transition-colors"
+      className="fixed top-4 left-4 z-[100] flex items-center gap-2 bg-white/80 dark:bg-soft-dark/70 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-surface-dark transition-colors"
       aria-label="Back to Home"
       title="Back to Home"
     >
@@ -93,7 +79,7 @@ function MainApp() {
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
 
-  const hideHeaderFooter = location.pathname.startsWith('/play-game/') || location.pathname === '/cv-generator' || location.pathname === '/invoice-generator';
+  const hideHeaderFooter = location.pathname === '/cv-generator' || location.pathname === '/invoice-generator';
   
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -112,6 +98,8 @@ function MainApp() {
           navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
         } else if (redirectInfo.from === 'pricing') {
           navigate('/payment', { state: { plan: redirectInfo.plan } });
+        } else if (redirectInfo.from === '/developer') {
+          navigate('/developer');
         } else if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
         }
@@ -122,7 +110,7 @@ function MainApp() {
   }, [user, loading, navigate, location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black text-gray-800 dark:text-gray-200">
+    <div className="flex flex-col min-h-screen bg-creamy dark:bg-soft-dark text-gray-800 dark:text-gray-200">
       {hideHeaderFooter && <FloatingBackButton />}
       {!hideHeaderFooter && (
         <Header
@@ -144,7 +132,6 @@ function MainApp() {
             <Route path="/developer" element={<DeveloperPage />} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/sitemap" element={<SitemapPage />} />
-            <Route path="/play-game" element={<GamesPage />} />
             <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
             <Route path="/cv-generator" element={<CVGeneratorPage />} />
             <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
@@ -169,21 +156,14 @@ function MainApp() {
             <Route path="/api-image" element={<ApiImagePage />} />
             <Route path="/api-signature" element={<ApiSignaturePage />} />
 
-
-            {/* Game Routes */}
-            <Route path="/play-game/memory-match" element={<MemoryMatchGame />} />
-            <Route path="/play-game/word-finder" element={<WordFinderGame />} />
-            <Route path="/play-game/quiz-game" element={<QuizGame />} />
-            <Route path="/play-game/bubble-shooter" element={<BubbleShooterGame />} />
-            <Route path="/play-game/snake-game" element={<SnakeGame />} />
-            <Route path="/play-game/car-racing" element={<CarRacingGame />} />
-            <Route path="/play-game/pdf-invaders" element={<PdfInvadersGame />} />
-            <Route path="/play-game/color-flood" element={<ColorFloodGame />} />
-            <Route path="/play-game/paper-toss" element={<PaperTossGame />} />
-
             {/* Admin Routes */}
             <Route element={<AdminProtectedRoute />}>
                 <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+            </Route>
+
+            {/* User Protected Routes */}
+            <Route element={<UserProtectedRoute />}>
+                <Route path="/account-settings" element={<AccountSettingsPage />} />
             </Route>
             
             {/* ToolPage should be last to catch dynamic tool IDs */}

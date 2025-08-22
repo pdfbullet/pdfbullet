@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ChevronDownIcon, GridIcon, SunIcon, MoonIcon, UserCircleIcon, 
-  CameraIcon, KeyIcon, LogoutIcon, UserIcon, HomeIcon, BookOpenIcon, 
-  GamepadIcon, StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
+  CameraIcon, KeyIcon, LogoutIcon, UserIcon, BookOpenIcon, 
+  StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
   ApiIcon, CodeIcon, SettingsIcon
 } from './icons.tsx';
@@ -43,15 +43,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isConvertMenuOpen, setConvertMenuOpen] = useState(false);
   const [isAllToolsMenuOpen, setAllToolsMenuOpen] = useState(false);
-  const [isApiMenuOpen, setIsApiMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   const gridMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const convertMenuTimeoutRef = useRef<number | null>(null);
   const allToolsMenuTimeoutRef = useRef<number | null>(null);
-  const apiMenuTimeoutRef = useRef<number | null>(null);
+  const gridMenuTimeoutRef = useRef<number | null>(null);
 
   const { theme, toggleTheme } = useTheme();
   const { user, logout, auth } = useAuth();
@@ -60,11 +58,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
   );
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const checkAdminStatus = () => {
@@ -104,7 +97,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     setMobileMenuOpen(false);
     setConvertMenuOpen(false);
     setAllToolsMenuOpen(false);
-    setIsApiMenuOpen(false);
   }
 
   const handleMenuEnter = (setter: React.Dispatch<React.SetStateAction<boolean>>, timeoutRef: React.MutableRefObject<number | null>) => {
@@ -122,12 +114,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   };
 
   const categoryConfig: Record<string, Omit<CategoryGroup, 'tools' | 'key'>> = {
-    organize: { title: 'Organize', order: 1 },
-    optimize: { title: 'Optimize', order: 2 },
+    organize: { title: 'Organize PDF', order: 1 },
+    optimize: { title: 'Optimize PDF', order: 2 },
     'convert-to': { title: 'Convert to PDF', order: 3 },
     'convert-from': { title: 'Convert from PDF', order: 4 },
-    edit: { title: 'Edit', order: 5 },
-    security: { title: 'Security', order: 6 },
+    edit: { title: 'Edit PDF', order: 5 },
+    security: { title: 'PDF Security', order: 6 },
     business: { title: 'Business Tools', order: 7 },
   };
 
@@ -144,47 +136,58 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     .map(([key, value]) => ({ ...value, key }))
     .sort((a,b) => a.order - b.order);
 
-  const convertTools = TOOLS.filter(
-    tool => tool.category === 'convert-to' || tool.category === 'convert-from'
-  );
-
-  const formattedTimeDesktop = currentTime.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-  });
-
-  const formattedTimeMobile = currentTime.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-  });
+  const convertToTools = TOOLS.filter(tool => tool.category === 'convert-to');
+  const convertFromTools = TOOLS.filter(tool => tool.category === 'convert-from');
   
   const mainNavLinks = [
-    { to: '/', label: 'Home', icon: HomeIcon },
     { to: '/about', label: 'About', icon: UserIcon },
     { to: '/blog', label: 'Blog', icon: BookOpenIcon },
-    { to: '/play-game', label: 'Play Game', icon: GamepadIcon },
+    { to: '/developer', label: 'Developer', icon: ApiIcon },
     { to: '/api-reference', label: 'API Reference', icon: CodeIcon },
   ];
   
   const desktopNavLinks = [
-    { to: '/about', label: 'About' },
-    { to: '/blog', label: 'Blog' },
-    { to: '/compress-pdf', label: 'Compress PDF' },
-    { to: '/merge-pdf', label: 'Merge PDF' },
-    { to: '/jpg-to-pdf', label: 'JPG to PDF' },
+    { to: '/merge-pdf', label: 'MERGE PDF' },
+    { to: '/split-pdf', label: 'SPLIT PDF' },
+    { to: '/compress-pdf', label: 'COMPRESS PDF' },
   ];
   
   const gridMenuLinks = [
       { to: '/pricing', label: 'Pricing', icon: DollarIcon },
       { to: '/education', label: 'Education', icon: StudentIcon },
       { to: '/business', label: 'Business', icon: BriefcaseIcon },
-      { to: '/how-to-use', label: 'How to Use', icon: CheckIcon },
       { to: '/privacy-policy', label: 'Privacy Policy', icon: GavelIcon },
       { to: '/terms-of-service', label: 'Terms of Service', icon: HeartbeatIcon },
   ];
+
+  const toolsById = useMemo(() => new Map(TOOLS.map(tool => [tool.id, tool])), []);
+
+  const allToolsMenuStructure = useMemo(() => [
+    {
+      title: 'ORGANIZE PDF',
+      tools: ['merge-pdf', 'split-pdf', 'organize-pdf', 'scan-to-pdf']
+    },
+    {
+      title: 'OPTIMIZE PDF',
+      tools: ['compress-pdf', 'repair-pdf', 'ocr-pdf']
+    },
+    {
+      title: 'CONVERT TO PDF',
+      tools: ['jpg-to-pdf', 'word-to-pdf', 'powerpoint-to-pdf', 'excel-to-pdf', 'html-to-pdf']
+    },
+    {
+      title: 'CONVERT FROM PDF',
+      tools: ['pdf-to-jpg', 'pdf-to-word', 'pdf-to-powerpoint', 'pdf-to-excel', 'pdf-to-pdfa']
+    },
+    {
+      title: 'EDIT PDF',
+      tools: ['rotate-pdf', 'page-numbers', 'watermark-pdf', 'edit-pdf']
+    },
+    {
+      title: 'PDF SECURITY',
+      tools: ['unlock-pdf', 'protect-pdf', 'sign-pdf', 'redact-pdf', 'compare-pdf']
+    }
+  ], []);
 
   return (
     <>
@@ -197,10 +200,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 <MenuIcon className="h-6 w-6" />
               </button>
             </div>
-            <Link to="/" className="flex items-center space-x-1" title="I Love PDFLY Home">
+            <Link to="/" className="flex items-center space-x-1" title="I Love PDF Home">
               <span className="text-2xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">I</span>
               <span className="text-xl text-brand-red">❤</span>
-              <span className="text-2xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">PDFLY</span>
+              <span className="text-2xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">PDF</span>
             </Link>
             <nav className="hidden md:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
@@ -208,84 +211,73 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                       {link.label}
                   </Link>
               ))}
-              {/* API Dropdown */}
-              <div className="relative" onMouseEnter={() => handleMenuEnter(setIsApiMenuOpen, apiMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setIsApiMenuOpen, apiMenuTimeoutRef)}>
-                <button title="API Tools" className="flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  <span>API</span>
-                  <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isApiMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-                 <div className={`absolute top-full left-0 mt-2 w-64 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-20 transition-all duration-200 ease-out origin-top-left ${isApiMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                    <Link to="/developer" onClick={closeAllMenus} title="Developer Hub" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                      <ApiIcon className="h-5 w-5 text-purple-500" /><span>Developer Hub</span>
-                    </Link>
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                    <Link to="/api-pdf" onClick={closeAllMenus} title="PDF Tools API" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                      <CodeIcon className="h-5 w-5 text-red-500" /><span>PDF Tools API</span>
-                    </Link>
-                    <Link to="/api-image" onClick={closeAllMenus} title="Image Tools API" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                      <CodeIcon className="h-5 w-5 text-blue-500" /><span>Image Tools API</span>
-                    </Link>
-                    <Link to="/api-signature" onClick={closeAllMenus} title="Signature API" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                      <CodeIcon className="h-5 w-5 text-green-500" /><span>Signature API</span>
-                    </Link>
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                    <Link to="/api-reference" onClick={closeAllMenus} title="API Reference" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                      <BookOpenIcon className="h-5 w-5" /><span>API Reference</span>
-                    </Link>
-                 </div>
-              </div>
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
+                  DEVELOPER
+              </Link>
               {/* Convert PDF Dropdown */}
               <div className="relative" onMouseEnter={() => handleMenuEnter(setConvertMenuOpen, convertMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setConvertMenuOpen, convertMenuTimeoutRef)}>
                 <button title="Convert PDF Tools" className="flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  <span>Convert PDF</span>
+                  <span>CONVERT PDF</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isConvertMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`absolute top-full left-0 mt-2 w-64 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-20 transition-all duration-200 ease-out origin-top-left ${isConvertMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                    <div className="grid grid-cols-1">
-                      {convertTools.map(tool => (
-                        <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                          <tool.Icon className={`h-5 w-5 ${tool.textColor}`} />
-                          <span>{tool.title}</span>
-                        </Link>
-                      ))}
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-20 transition-all duration-200 ease-out origin-top ${isConvertMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                    <div className="grid grid-cols-2 gap-x-8">
+                      <div>
+                        <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase">Convert to PDF</h4>
+                        <div className="mt-2 space-y-1">
+                          {convertToTools.map(tool => (
+                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                              <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
+                              <span className="font-semibold text-sm whitespace-nowrap">{tool.title}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase">Convert from PDF</h4>
+                        <div className="mt-2 space-y-1">
+                          {convertFromTools.map(tool => (
+                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                              <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
+                              <span className="font-semibold text-sm whitespace-nowrap">{tool.title}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
               </div>
               {/* All PDF Tools Dropdown */}
-              <div className="relative" onMouseEnter={() => handleMenuEnter(setAllToolsMenuOpen, allToolsMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setAllToolsMenuOpen, allToolsMenuTimeoutRef)}>
-                 <button title="All PDF Tools" className="flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  <span>All PDF Tools</span>
+              <div onMouseEnter={() => handleMenuEnter(setAllToolsMenuOpen, allToolsMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setAllToolsMenuOpen, allToolsMenuTimeoutRef)}>
+                 <button title="All PDF Tools" className="flex items-center px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
+                  <span>ALL PDF TOOLS</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isAllToolsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`absolute top-full right-0 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-20 transition-all duration-200 ease-out origin-top-right ${isAllToolsMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 max-w-4xl">
-                      {sortedCategories.map(cat => (
-                        <div key={cat.title}>
-                          <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">{cat.title}</h4>
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max max-w-[calc(100vw-2rem)] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 transition-all duration-200 ease-out origin-top ${isAllToolsMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'} overflow-x-auto no-scrollbar`}>
+                    <div className="p-6 grid grid-cols-6 gap-x-4">
+                      {allToolsMenuStructure.map((category) => (
+                        <div key={category.title} className="pr-4 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+                          <h4 className="pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{category.title}</h4>
                           <div className="mt-2 space-y-1">
-                            {cat.tools.map(tool => (
-                              <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                  <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
-                                  <span className="font-semibold text-sm whitespace-nowrap">{tool.title}</span>
-                              </Link>
-                            ))}
+                            {category.tools.map(toolId => {
+                              const tool = toolsById.get(toolId);
+                              if (!tool) return null;
+                              return (
+                                <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                    <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
+                                    <span className="font-semibold text-sm">{tool.title}</span>
+                                </Link>
+                              );
+                            })}
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                </div>
               </div>
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Mobile time display (no seconds) */}
-            <div className="block sm:hidden text-sm font-mono text-gray-500 dark:text-gray-400" aria-live="polite" aria-atomic="true">{formattedTimeMobile}</div>
-            {/* Desktop time display (with seconds) */}
-            <div className="hidden sm:block text-sm font-mono text-gray-500 dark:text-gray-400" aria-live="polite" aria-atomic="true">{formattedTimeDesktop}</div>
-
-            <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Search" title="Search">
-              <SearchIcon className="h-6 w-6" />
-            </button>
             {user ? (
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
@@ -340,8 +332,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 <Link to="/signup" title="Sign Up" className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
               </div>
             )}
-            <div className="relative block" ref={gridMenuRef}>
-              <button onClick={() => setGridMenuOpen(!isGridMenuOpen)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Open all tools and options" title="Open all tools and options">
+            <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
+              <SearchIcon className="h-6 w-6" />
+            </button>
+            <div 
+                className="relative block" 
+                ref={gridMenuRef}
+                onMouseEnter={() => handleMenuEnter(setGridMenuOpen, gridMenuTimeoutRef)}
+                onMouseLeave={() => handleMenuLeave(setGridMenuOpen, gridMenuTimeoutRef)}
+            >
+              <button className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Open all tools and options" title="Open all tools and options">
                 <GridIcon className="h-6 w-6" />
               </button>
               {isGridMenuOpen && (

@@ -331,7 +331,7 @@ const DocumentScannerUI = ({ tool }: { tool: Tool }): React.ReactElement => {
 
     if (stream) {
         return (
-            <div className="w-full max-w-4xl bg-black p-4 rounded-lg shadow-xl relative">
+            <div className="w-full max-w-4xl bg-soft-dark p-4 rounded-lg shadow-xl relative">
                 <video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded-lg"></video>
                 <div className="absolute inset-0 border-4 border-dashed border-red-500/50 m-4 rounded-lg pointer-events-none"></div>
                 <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-4">
@@ -344,7 +344,7 @@ const DocumentScannerUI = ({ tool }: { tool: Tool }): React.ReactElement => {
 
     if (pdfBlob) {
         return (
-            <div className="text-center bg-white dark:bg-black p-8 rounded-lg shadow-xl">
+            <div className="text-center bg-white dark:bg-surface-dark p-8 rounded-lg shadow-xl">
                 <h2 className="text-2xl font-bold text-green-600">PDF Ready!</h2>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">Your scanned document is ready for download.</p>
                 <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
@@ -374,7 +374,7 @@ const DocumentScannerUI = ({ tool }: { tool: Tool }): React.ReactElement => {
                      <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Or drag and drop image files onto this area</p>
                  </div>
             ) : (
-                <div className="bg-white dark:bg-black p-4 rounded-lg shadow-xl space-y-4">
+                <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-xl space-y-4">
                     <div className="h-[50vh] bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center p-2 shadow-inner">
                         {selectedPage ? (
                             <img src={selectedPage.filtered} alt={`Page ${selectedPageIndex! + 1}`} className="max-w-full max-h-full object-contain" />
@@ -495,7 +495,7 @@ const EditorModal: React.FC<EditorModalProps> = ({ isOpen, onClose, onApply, typ
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={handleClose}>
-            <div className="bg-white dark:bg-black w-full max-w-md md:max-w-3xl rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-surface-dark w-full max-w-md md:max-w-3xl rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 className="text-xl font-bold text-center">{titleMap[type]}</h3>
                 </div>
@@ -657,7 +657,7 @@ const toolSeoDescriptions: Record<string, string> = {
   'protect-pdf': 'Protect your sensitive PDF files with a strong password. Our free online tool encrypts your documents to keep them secure.'
 };
 
-const ToolPage = (): React.ReactElement => {
+const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -2373,18 +2373,18 @@ const ToolPage = (): React.ReactElement => {
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <label htmlFor="width" className="w-16 font-semibold">Width</label>
-                                <input type="number" id="width" value={toolOptions.resizeWidth} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                                <input type="number" id="width" value={toolOptions.resizeWidth} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
                             </div>
                             <div className="flex items-center gap-2">
                                 <label htmlFor="height" className="w-16 font-semibold">Height</label>
-                                <input type="number" id="height" value={toolOptions.resizeHeight} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                                <input type="number" id="height" value={toolOptions.resizeHeight} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <button onClick={() => setToolOptions(prev => ({...prev, maintainAspectRatio: !prev.maintainAspectRatio}))} className={`p-2 rounded-md border ${toolOptions.maintainAspectRatio ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
                                 {toolOptions.maintainAspectRatio ? <LockIcon className="h-5 w-5"/> : <UnlockIcon className="h-5 w-5"/>}
                             </button>
-                            <select value={toolOptions.resizeUnit} onChange={(e) => handleUnitChange(e.target.value as any)} className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black">
+                            <select value={toolOptions.resizeUnit} onChange={(e) => handleUnitChange(e.target.value as any)} className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark">
                                 <option value="percent">Percent</option>
                                 <option value="pixels">Pixels</option>
                             </select>
@@ -2393,14 +2393,14 @@ const ToolPage = (): React.ReactElement => {
                     
                     <div className="flex items-center gap-2">
                         <label htmlFor="resolution" className="font-semibold">Resolution</label>
-                        <input type="number" id="resolution" value={toolOptions.resizeResolution} onChange={e => setToolOptions({...toolOptions, resizeResolution: parseInt(e.target.value) || 72})} className="w-24 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                        <input type="number" id="resolution" value={toolOptions.resizeResolution} onChange={e => setToolOptions({...toolOptions, resizeResolution: parseInt(e.target.value) || 72})} className="w-24 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
                         <span className="text-gray-500">DPI</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div>
                             <label className="font-semibold block mb-1">Format</label>
-                            <select value={toolOptions.resizeFormat} onChange={e => setToolOptions({...toolOptions, resizeFormat: e.target.value})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black">
+                            <select value={toolOptions.resizeFormat} onChange={e => setToolOptions({...toolOptions, resizeFormat: e.target.value})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark">
                                 <option value="jpg">JPG</option>
                                 <option value="png">PNG</option>
                             </select>
@@ -2409,7 +2409,7 @@ const ToolPage = (): React.ReactElement => {
                             <div>
                                 <label className="font-semibold block mb-1">Quality</label>
                                 <div className="flex items-center gap-2">
-                                <input type="number" min="1" max="100" value={toolOptions.resizeQuality} onChange={e => setToolOptions({...toolOptions, resizeQuality: parseInt(e.target.value) || 90})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black" />
+                                <input type="number" min="1" max="100" value={toolOptions.resizeQuality} onChange={e => setToolOptions({...toolOptions, resizeQuality: parseInt(e.target.value) || 90})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
                                 <span>%</span>
                                 </div>
                             </div>
@@ -2526,7 +2526,7 @@ const ToolPage = (): React.ReactElement => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex flex-col items-center py-12 px-6 bg-gray-50 dark:bg-black">
+    <div className="min-h-[calc(100vh-200px)] flex flex-col items-center py-12 px-6">
       <div className="text-center mb-10">
         <div className={`inline-block p-4 rounded-full ${tool.color}`}>
           <tool.Icon className="h-10 w-10 text-white" />
@@ -2540,7 +2540,7 @@ const ToolPage = (): React.ReactElement => {
           <span>All uploaded files are encrypted and deleted automatically after 2 hours.</span>
       </div>
 
-      <div className="w-full max-w-5xl bg-white dark:bg-black p-8 rounded-lg shadow-xl animated-border">
+      <div className="w-full max-w-5xl bg-white dark:bg-surface-dark p-8 rounded-lg shadow-xl animated-border">
         {tool.id === 'scan-to-pdf' ? (
            <DocumentScannerUI tool={tool} />
         ) : state === ProcessingState.Success ? (
@@ -2689,58 +2689,77 @@ const ToolPage = (): React.ReactElement => {
             
             {showVisualEditor && tool.id === 'compare-pdf' && (
                 <div className="space-y-6">
-                     {comparisonResults.map(result => (
-                        <div key={result.pageNumber} className="border p-4 rounded-lg">
-                            <h3 className="text-xl font-bold mb-2">Page {result.pageNumber} - <span className={result.diffPercentage > 0.1 ? 'text-red-500' : 'text-green-500'}>{result.diffPercentage.toFixed(2)}% difference</span></h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div><h4 className="font-semibold mb-1">Original (File 1)</h4><img src={result.img1DataUrl} alt={`Original page ${result.pageNumber}`} className="border" /></div>
-                                <div><h4 className="font-semibold mb-1">Modified (File 2)</h4><img src={result.img2DataUrl} alt={`Modified page ${result.pageNumber}`} className="border" /></div>
-                                <div><h4 className="font-semibold mb-1">Differences</h4><img src={result.diffDataUrl} alt={`Difference page ${result.pageNumber}`} className="border bg-gray-200" /></div>
+                    {comparisonResults && comparisonResults.length > 0 && (
+                        <div>
+                            <p className="mb-4 text-lg">Found {comparisonResults.filter(r => r.diffPercentage > 0).length} pages with differences.</p>
+                            <div className="space-y-4">
+                                {comparisonResults.map(result => (
+                                    <div key={result.pageNumber} className="border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-900/50">
+                                        <h3 className="font-bold text-lg">Page {result.pageNumber} - <span className={result.diffPercentage > 0.1 ? 'text-red-500' : 'text-green-500'}>Difference: {result.diffPercentage.toFixed(2)}%</span></h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-center mb-1">File 1</h4>
+                                                {result.img1DataUrl ? <img src={result.img1DataUrl} alt={`File 1, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No page</div>}
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-center mb-1">File 2</h4>
+                                                {result.img2DataUrl ? <img src={result.img2DataUrl} alt={`File 2, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No page</div>}
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-center mb-1">Difference</h4>
+                                                {result.diffDataUrl ? <img src={result.diffDataUrl} alt={`Difference, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No diff</div>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                     ))}
+                    )}
                 </div>
-            )}
-            
-            {/* Options and Process Button */}
-            {files.length > 0 && !showVisualEditor && (
-              <div className="mt-8">
-                <div className="mb-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
-                    {renderToolOptions()}
-                </div>
-                <div className="text-center">
-                    <button
-                        onClick={handleProcess}
-                        disabled={isProcessButtonDisabled}
-                        className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed`}
-                    >
-                        {tool.title}
-                    </button>
-                </div>
-              </div>
             )}
 
-            {showVisualEditor && (
-                <div className="mt-8 text-center">
-                     <button
-                        onClick={handleProcess}
-                        disabled={isVisualProcessButtonDisabled}
-                        className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed`}
-                    >
-                        {tool.title}
-                    </button>
-                </div>
+            {/* Options & Process Button */}
+            {(files.length > 0 || isVisualEditor) && (
+              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                {/* Visual editors have their own "process" area */}
+                {isVisualEditor ? (
+                    <div className="text-center">
+                         <button
+                            onClick={handleProcess}
+                            disabled={isVisualProcessButtonDisabled}
+                            className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400`}
+                        >
+                            {tool.title}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-6">
+                       <div className="w-full max-w-2xl">{renderToolOptions()}</div>
+                        <button
+                            onClick={handleProcess}
+                            disabled={isProcessButtonDisabled}
+                            className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400`}
+                        >
+                            {tool.title}
+                        </button>
+                    </div>
+                )}
+              </div>
             )}
           </div>
         )}
       </div>
-       <div className="mt-12 text-center">
-        <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
-            &larr; Back to all tools
-        </Link>
-      </div>
       
-       {isModalOpen && <EditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onApply={handleApplyCanvasItem} type={modalType} />}
+      {/* Back to Home Link */}
+      {!showVisualEditor && (
+        <div className="mt-12 text-center">
+            <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
+            &larr; Or go back to all tools
+            </Link>
+        </div>
+      )}
+      
+      <EditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onApply={handleApplyCanvasItem} type={modalType} />
     </div>
   );
 };

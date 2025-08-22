@@ -38,18 +38,6 @@ const SitemapPage: React.FC = () => {
     });
     
     const categoryOrder = ['organize', 'optimize', 'convert-to', 'convert-from', 'edit', 'security', 'business', 'image'];
-
-    const games = [
-        { path: "/play-game/memory-match", name: "Memory Match" },
-        { path: "/play-game/word-finder", name: "Word Finder" },
-        { path: "/play-game/quiz-game", name: "Quiz Game" },
-        { path: "/play-game/bubble-shooter", name: "Bubble Shooter" },
-        { path: "/play-game/snake-game", name: "Snake Game" },
-        { path: "/play-game/car-racing", name: "Car Racing" },
-        { path: "/play-game/pdf-invaders", name: "PDF Invaders" },
-        { path: "/play-game/color-flood", name: "Color Flood" },
-        { path: "/play-game/paper-toss", name: "Paper Toss" },
-    ];
     
     const mainPages = [
       { path: "/", name: "Home" },
@@ -59,7 +47,6 @@ const SitemapPage: React.FC = () => {
       { path: "/contact", name: "Contact" },
       { path: "/faq", name: "FAQ" },
       { path: "/pricing", name: "Pricing" },
-      { path: "/play-game", name: "Games Arcade" },
     ];
     
     const legalPages = [
@@ -143,12 +130,6 @@ const SitemapPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Developer</h2>
                    <ul className="space-y-2">
                      {developerPages.map(page => <li key={page.path}><Link to={page.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{page.name}</Link></li>)}
-                  </ul>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Arcade</h2>
-                   <ul className="space-y-2">
-                     {games.map(game => <li key={game.path}><Link to={game.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{game.name}</Link></li>)}
                   </ul>
                 </div>
             </div>

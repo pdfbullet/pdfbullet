@@ -40,11 +40,11 @@ const ProfileImageModal: React.FC<ProfileImageModalProps> = ({ isOpen, onClose }
   });
 
   const handleSave = async () => {
-    if (!file || !preview || !user) return;
+    if (!file || !user) return;
     setIsLoading(true);
     setError('');
     try {
-        await updateProfileImage(user.username, preview);
+        await updateProfileImage(file);
         handleClose();
     } catch(err: any) {
         setError(err.message || 'Failed to save image.');
@@ -72,7 +72,7 @@ const ProfileImageModal: React.FC<ProfileImageModalProps> = ({ isOpen, onClose }
     return () => {
         document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
 

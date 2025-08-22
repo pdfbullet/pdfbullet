@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Tool } from '../types.ts';
@@ -23,7 +22,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
     <Link 
       to={`/${id}`} 
       title={`Open the ${title} tool`}
-      className="relative flex flex-row items-center sm:flex-col sm:items-start p-4 sm:p-6 bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 rounded-xl sm:hover:-translate-y-1 transition-transform duration-300 group border-glow-hover"
+      className="relative flex flex-row items-center sm:flex-col sm:items-start p-4 sm:p-6 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-2xl sm:hover:-translate-y-1 transition-all duration-300 group shadow-sm hover:shadow-lg h-full hover:border-gray-900 dark:hover:border-gray-300"
     >
         <div className="flex-shrink-0 sm:w-full sm:flex sm:justify-between sm:items-start">
             <div className={`p-3 rounded-lg ${color}`}>
@@ -54,9 +53,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
                 </button>
             </div>
         </div>
-      <div className="ml-4 sm:ml-0 flex-grow">
+      <div className="ml-4 sm:ml-0 flex-grow flex flex-col">
         <h3 className="sm:mt-4 text-base font-bold text-gray-800 dark:text-gray-100">{title}</h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed sm:flex-grow">{description}</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-grow">{description}</p>
       </div>
     </Link>
   );

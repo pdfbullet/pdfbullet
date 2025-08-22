@@ -153,7 +153,12 @@ const AIAssistant: React.FC = () => {
   
   const initializeChat = () => {
     if (!geminiChat) {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            setChatError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+            return;
+        }
+        const ai = new GoogleGenAI({ apiKey });
         const chatInstance = ai.chats.create({
             model: 'gemini-2.5-flash',
             config: {
@@ -224,12 +229,18 @@ const AIAssistant: React.FC = () => {
         return;
     }
 
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        setPdfError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+        return;
+    }
+
     setIsPdfLoading(true);
     setPdfError('');
     setPdfResponse('');
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey });
         const fullPrompt = `Based on the content of the document provided below, please answer the user's question.
 
         DOCUMENT CONTENT:
@@ -261,6 +272,12 @@ const AIAssistant: React.FC = () => {
   const handleSendChatMessage = async () => {
     if (!chatInput.trim()) return;
 
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        setChatError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+        return;
+    }
+
     const newMessages: ChatMessage[] = [...chatMessages, { role: 'user', text: chatInput }];
     setChatMessages(newMessages);
     const currentInput = chatInput;
@@ -270,7 +287,7 @@ const AIAssistant: React.FC = () => {
 
     try {
         if (useGoogleSearch) {
-             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+             const ai = new GoogleGenAI({ apiKey });
              const response = await ai.models.generateContent({
                model: "gemini-2.5-flash",
                contents: currentInput,
@@ -321,7 +338,13 @@ const AIAssistant: React.FC = () => {
   const handleNewChat = () => {
     setIsChatLoading(true);
     setChatError('');
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        setChatError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+        setIsChatLoading(false);
+        return;
+    }
+    const ai = new GoogleGenAI({ apiKey });
     const chatInstance = ai.chats.create({
         model: 'gemini-2.5-flash',
         config: { systemInstruction: "You are a helpful and friendly AI assistant named PDFLY-AI. Answer user questions clearly and concisely." },

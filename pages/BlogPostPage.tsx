@@ -32,7 +32,7 @@ const BlogPostPage: React.FC = () => {
           "description": post.excerpt,
           "image": post.image,
           "author": {
-              "@type": "Person",
+              "@type": "Organization",
               "name": post.author
           },
           "publisher": {
@@ -40,7 +40,7 @@ const BlogPostPage: React.FC = () => {
             "name": "I Love PDFLY",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://ilovepdfly.com/favicon.svg"
+              "url": "https://ilovepdfly.com/favicon.png"
             }
           },
           "datePublished": new Date(post.date).toISOString()

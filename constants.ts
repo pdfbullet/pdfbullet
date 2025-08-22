@@ -1,3 +1,4 @@
+
 import { Tool } from './types.ts';
 import {
   MergeIcon,
@@ -41,7 +42,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'merge-pdf',
     title: 'Merge PDF',
-    description: 'Combine multiple PDFs into one single document, in the exact order you want. The easiest way to merge PDFs online, trusted by thousands.',
+    description: 'Combine PDFs in the order you want with the easiest PDF merger available.',
     Icon: MergeIcon,
     color: 'bg-orange-500',
     hoverColor: 'hover:bg-orange-600',
@@ -63,7 +64,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'organize-pdf',
     title: 'Organize PDF',
-    description: 'Sort pages of your PDF file however you like. Delete PDF pages or add PDF pages to your document at your convenience.',
+    description: 'Sort, add, and remove PDF pages. Arrange your document pages as you wish.',
     Icon: OrganizeIcon,
     color: 'bg-orange-600',
     hoverColor: 'hover:bg-orange-700',
@@ -100,7 +101,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'compress-pdf',
     title: 'Compress PDF',
-    description: 'Drastically reduce the file size of your PDF documents while maintaining the best quality. Our PDF compressor makes sharing files easy.',
+    description: 'Reduce file size while optimizing for maximal PDF quality.',
     Icon: CompressIcon,
     color: 'bg-green-500',
     hoverColor: 'hover:bg-green-600',
@@ -138,7 +139,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'jpg-to-pdf',
     title: 'JPG to PDF',
-    description: 'Convert JPG, PNG, and other image files to PDF in seconds. Easily adjust orientation, margins, and combine multiple images into one PDF.',
+    description: 'Convert JPG images to PDF in seconds. Easily adjust orientation and margins.',
     Icon: JpgToPdfIcon,
     color: 'bg-yellow-500',
     hoverColor: 'hover:bg-yellow-600',
@@ -164,7 +165,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'word-to-pdf',
     title: 'Word to PDF',
-    description: 'Make DOC and DOCX files easy to read by converting them to PDF.',
+    description: 'Convert your WORD documents to PDF with the best quality and conversion.',
     Icon: WordIcon,
     color: 'bg-blue-500',
     hoverColor: 'hover:bg-blue-600',
@@ -176,7 +177,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'powerpoint-to-pdf',
     title: 'PowerPoint to PDF',
-    description: 'Make PPT and PPTX slideshows easy to view by converting them to PDF.',
+    description: 'Convert PowerPoint presentations to PDF documents.',
     Icon: PowerPointIcon,
     color: 'bg-red-500',
     hoverColor: 'hover:bg-red-600',
@@ -188,7 +189,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'excel-to-pdf',
     title: 'Excel to PDF',
-    description: 'Make EXCEL spreadsheets easy to read by converting them to PDF.',
+    description: 'Convert your EXCEL spreadsheets to PDF. XLS and XLSX to PDF converter.',
     Icon: ExcelIcon,
     color: 'bg-green-700',
     hoverColor: 'hover:bg-green-800',
@@ -224,7 +225,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'pdf-to-jpg',
     title: 'PDF to JPG',
-    description: 'Convert each PDF page into a JPG or extract all images contained in a PDF.',
+    description: 'Extract images from your PDF or convert each page into a JPG.',
     Icon: PdfToJpgIcon,
     color: 'bg-yellow-500',
     hoverColor: 'hover:bg-yellow-600',
@@ -247,7 +248,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'pdf-to-word',
     title: 'PDF to Word',
-    description: 'Turn your PDF into an editable DOCX file. Our PDF to Word converter accurately preserves formatting, tables, and text.',
+    description: 'Easily convert your PDF files into easy to edit DOC and DOCX documents.',
     Icon: WordIcon,
     color: 'bg-blue-500',
     hoverColor: 'hover:bg-blue-600',
@@ -270,7 +271,7 @@ export const TOOLS: Tool[] = [
   {
     id: 'pdf-to-excel',
     title: 'PDF to Excel',
-    description: 'Pull data straight from your PDFs into editable Excel spreadsheets. Convert PDF tables to XLS with just a few clicks.',
+    description: 'Pull data straight from PDFs into Excel spreadsheets in a few clicks.',
     Icon: ExcelIcon,
     color: 'bg-green-700',
     hoverColor: 'hover:bg-green-800',
@@ -968,7 +969,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Are you struggling to share or upload files because of large file sizes? Use the free Compress PDF tool to drastically make your files smaller and more manageable. This is especially useful for design students trying to submit their files for assessment.</p>
 <img src="https://www.ilovepdf.com/storage/blog/205-1678110276-9.-iLovePDF-Compress-%281%29.png" alt="I Love PDFLY Compress PDF" class="my-4 rounded-lg shadow-md" />
 <h3>iLoveIMG Compress Image tool</h3>
-<p>This free image compressor takes your pictures and reduces the file size while keeping as much quality as possible. When you’re creating designs, large file sizes lead to web designers struggling with storage, upload issues, and slow loading times for website and online content—this free tool is a perfect solution.</p>
+<p>This free image compressor takes your pictures and reduces the file size while keeping as much quality as possible. When you’re creating designs, large file sizes lead to web designers struggling with storage, upload issues, and slow loading times for website and online content—this is a perfect solution.</p>
 <p>Quickly and easily reduce the size of your images with a user-friendly tool that can complete your task in under a minute from start to finish. It can also batch convert JPG to PDF along with the other image files it accepts, including PNG, SVG, and GIF.</p>
 <h3>iLovePDF JPG to PDF converter</h3>
 <p>Transform your JPG files into professional PDF documents with ease and precision, thanks to iLovePDF's free JPG to PDF converter.</p>

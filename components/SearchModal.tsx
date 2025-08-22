@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
-import { SearchIcon, BookOpenIcon, UserIcon, GamepadIcon } from './icons.tsx';
+import { SearchIcon, BookOpenIcon, UserIcon } from './icons.tsx';
 import { Tool } from '../types.ts';
 
 interface SearchModalProps {
@@ -15,7 +15,6 @@ const mainPages = [
   { path: "/faq", title: "FAQ", description: "Find answers to frequently asked questions.", Icon: UserIcon, color: 'bg-yellow-500' },
   { path: "/pricing", title: "Pricing", description: "View our flexible pricing plans.", Icon: UserIcon, color: 'bg-purple-500' },
   { path: "/developer", title: "Developer API", description: "Integrate our tools with your applications.", Icon: UserIcon, color: 'bg-teal-500' },
-  { path: "/play-game", title: "Games Arcade", description: "Take a break and play some fun games.", Icon: GamepadIcon, color: 'bg-indigo-500' }
 ];
 
 type SearchableItem = {

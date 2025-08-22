@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { Link } from 'react-router-dom';
@@ -105,15 +106,15 @@ const DeveloperPage: React.FC = () => {
                     <h1 className="text-4xl md:text-5xl font-extrabold">All our tools in a REST API for developers</h1>
                     <p className="mt-4 max-w-2xl text-lg text-gray-200">Whether you are a small startup or a large business, I Love PDFLY API is here to help you automate document processes.</p>
                     <div className="mt-6 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-sm font-semibold">
-                        <Link to="/api/pdf" className="hover:underline">PHP</Link>
+                        <Link to="/api-pdf" className="hover:underline">PHP</Link>
                         <span>-</span>
-                        <Link to="/api/pdf" className="hover:underline">.NET</Link>
+                        <Link to="/api-pdf" className="hover:underline">.NET</Link>
                         <span>-</span>
-                        <Link to="/api/pdf" className="hover:underline">RUBY</Link>
+                        <Link to="/api-pdf" className="hover:underline">RUBY</Link>
                         <span>-</span>
-                        <Link to="/api/pdf" className="hover:underline">NODE.JS</Link>
+                        <Link to="/api-pdf" className="hover:underline">NODE.JS</Link>
                         <span>-</span>
-                        <Link to="/api/pdf" className="hover:underline uppercase">API Reference</Link>
+                        <Link to="/api-reference" className="hover:underline uppercase">API Reference</Link>
                     </div>
                     <div className="mt-8">
                         <button onClick={() => scrollTo(sections.dashboard)} className="bg-white text-teal-800 font-bold py-3 px-8 rounded-md hover:bg-gray-200 transition-colors">Get started</button>

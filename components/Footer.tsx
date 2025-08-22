@@ -1,4 +1,5 @@
 
+
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
@@ -87,7 +88,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
             <h3 className="font-bold text-xl mb-3 text-white flex items-center gap-1.5">
               <span>I</span>
               <span className="text-brand-red">❤</span>
-              <span>PDFLY</span>
+              <span>PDF</span>
             </h3>
             <p className="text-gray-400 text-sm max-w-xs">
               Your go-to suite of online tools for PDF and image management.

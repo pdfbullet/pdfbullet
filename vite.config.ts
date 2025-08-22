@@ -1,12 +1,11 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '', '');
   return {
-    base: '/', // Works for custom domains like ilovepdfly.com
+    base: '/',
     plugins: [
       react(),
       VitePWA({
@@ -28,7 +27,7 @@ export default defineConfig(({ mode }) => {
           short_name: 'PDFLY',
           description:
             "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
-          start_url: '/', // fixed from "."
+          start_url: '/',
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#B90B06',
@@ -65,7 +64,7 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
-          main: resolve(__dirname, 'index.html'), // safer resolve
+          main: 'index.html',
         },
       },
     },

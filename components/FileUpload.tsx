@@ -1,4 +1,5 @@
 
+
 import React, { useCallback } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
 import { UploadCloudIcon, FileIcon } from './icons.tsx';
@@ -47,7 +48,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
         <div 
           {...getRootProps()} 
           title="Drag and drop files or click to select"
-          className={`relative flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black'}`}
+          className={`relative flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark'}`}
         >
           <input {...getInputProps()} aria-label={`Upload files for ${tool.title}`} />
           <div className={`${tool.color} p-4 rounded-full`}>
@@ -60,10 +61,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
           </button>
         </div>
       ) : (
-        <div className="bg-white dark:bg-black p-8 rounded-lg shadow-lg w-full">
+        <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg w-full">
             <div className="max-h-64 overflow-y-auto pr-4 no-scrollbar">
             {files.map(file => (
-                <div key={file.name} className="flex items-center justify-between p-3 mb-2 bg-gray-100 dark:bg-black dark:border dark:border-gray-800 rounded-md">
+                <div key={file.name} className="flex items-center justify-between p-3 mb-2 bg-gray-100 dark:bg-soft-dark dark:border dark:border-gray-800 rounded-md">
                     <div className="flex items-center space-x-3 overflow-hidden">
                         <FileIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
                         <span className="text-gray-700 dark:text-gray-300 font-medium truncate" title={file.name}>{file.name}</span>

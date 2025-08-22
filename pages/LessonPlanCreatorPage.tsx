@@ -16,9 +16,16 @@ const AIQuizGenerator: React.FC<{ lessonPlan: string }> = ({ lessonPlan }) => {
     const handleGenerateQuiz = async () => {
         setIsLoading(true);
         setError('');
+        
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            setError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+            setIsLoading(false);
+            return;
+        }
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             const prompt = `Based on the following lesson plan, generate a 5-question multiple-choice quiz with an answer key at the end.\n\nLesson Plan:\n${lessonPlan}`;
             
             const response = await ai.models.generateContent({
@@ -92,13 +99,20 @@ const LessonPlanCreatorPage: React.FC = () => {
             setError('Please fill in Grade, Subject, and Topic.');
             return;
         }
+
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            setError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+            setIsLoading(false);
+            return;
+        }
         
         setIsLoading(true);
         setError('');
         setLessonPlan('');
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             const prompt = `Create a detailed lesson plan for a ${duration}-minute class.
             - Grade Level: ${grade}
             - Subject: ${subject}

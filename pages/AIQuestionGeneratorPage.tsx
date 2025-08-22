@@ -33,13 +33,20 @@ const AIQuestionGeneratorPage: React.FC = () => {
             setError('Please enter some text to generate questions from.');
             return;
         }
+
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            setError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+            setIsLoading(false);
+            return;
+        }
         
         setIsLoading(true);
         setError('');
         setQuestions([]);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: `Generate a set of 5 diverse questions based on the following text. The questions should include a mix of multiple choice, true/false, and short answer types. For multiple choice, provide 4 options and indicate the correct answer. For true/false, provide the correct answer. For short answer, provide a concise correct answer.

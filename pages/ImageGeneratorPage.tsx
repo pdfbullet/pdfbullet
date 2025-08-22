@@ -26,12 +26,19 @@ const ImageGeneratorPage: React.FC = () => {
             return;
         }
 
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            setError("API Key not found. Please ensure it is set up correctly in your environment configuration.");
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         setError('');
         setImages([]);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             const response = await ai.models.generateImages({
                 model: 'imagen-3.0-generate-002',
                 prompt: prompt,

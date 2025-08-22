@@ -36,7 +36,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
     
     setIsLoading(true);
     try {
-        await changePassword(user.username, oldPassword, newPassword);
+        await changePassword(oldPassword, newPassword);
         setSuccess('Password changed successfully! You can now close this window.');
         setOldPassword('');
         setNewPassword('');
@@ -67,7 +67,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
 

@@ -16,6 +16,9 @@ export default {
       colors: {
         'brand-red': '#B90B06',
         'brand-red-dark': '#a20d08',
+        'creamy': '#FAF9F6',
+        'soft-dark': '#121212',
+        'surface-dark': '#1E1E1E',
       },
       fontFamily: {
         sans: ['Nunito', 'sans-serif'],

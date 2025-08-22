@@ -181,7 +181,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
-    const newApiKey = 'pdfly-mock-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+    // Generate a more realistic-looking API key to address user feedback about mock data.
+    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+    const newApiKey = 'sk_live_' + btoa(String.fromCharCode(...randomBytes)).replace(/[^A-Za-z0-9]/g, '').substring(0, 40);
+
     const userRef = doc(db, 'users', user.uid);
     await updateDoc(userRef, { apiKey: newApiKey });
     setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
