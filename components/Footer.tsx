@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
+import { Logo } from './Logo.tsx';
 
 interface FooterProps {
   onOpenCalendarModal: () => void;
@@ -84,7 +85,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
           {/* Logo & Socials */}
           <div className="col-span-2">
             <Link to="/" title="I Love PDFLY Home">
-              <img src="/logo.svg" alt="I Love PDFLY Logo" className="h-10 w-auto mb-3" />
+              <Logo className="h-10 w-auto mb-3" variant="dark" />
             </Link>
             <p className="text-gray-400 text-sm max-w-xs">
               Your go-to suite of online tools for PDF and image management.

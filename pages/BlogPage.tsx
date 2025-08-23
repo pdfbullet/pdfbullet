@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { blogPosts } from '../constants.ts';
+import { Logo } from '../components/Logo.tsx';
 
 const BlogPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,7 +75,13 @@ const BlogPage: React.FC = () => {
                             </h2>
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">{post.excerpt}</p>
                             <div className="mt-4 flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <img src={post.authorImage} alt={`Photo of blog author ${post.author}`} className="h-10 w-10 rounded-full object-cover" width="40" height="40" loading="lazy" />
+                                {post.authorImage === '/logo.svg' ? (
+                                    <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 p-1 flex items-center justify-center flex-shrink-0">
+                                        <Logo className="h-8 w-8" />
+                                    </div>
+                                ) : (
+                                    <img src={post.authorImage} alt={`Photo of blog author ${post.author}`} className="h-10 w-10 rounded-full object-cover" width="40" height="40" loading="lazy" />
+                                )}
                                 <div>
                                     <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{post.author}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{post.date}</p>

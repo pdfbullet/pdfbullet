@@ -1317,7 +1317,7 @@ We believe this is the future of document management, and we're thrilled to be a
 </div>
 
 <p>We wish all SEE students the very best of luck with their results!</p>`,
-    image: 'https://i.ytimg.com/vi/a62b1a8f9w4/maxresdefault.jpg',
+    image: 'https://ik.imagekit.io/fonepay/result%20copy.jpg?updatedAt=1753159229021',
     author: 'The I Love PDFLY Team',
     authorImage: '/logo.svg',
     tags: ['SEE Result', 'Class 10', 'Education', 'Nepal', 'Result 2082'],

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { blogPosts } from '../constants.ts';
 import SocialShareButtons from '../components/SocialShareButtons.tsx';
+import { Logo } from '../components/Logo.tsx';
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -102,7 +103,13 @@ const BlogPostPage: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-4">
-              <img src={post.authorImage} alt={post.author} className="h-12 w-12 rounded-full object-cover" width="48" height="48" loading="lazy" />
+              {post.authorImage === '/logo.svg' ? (
+                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 p-1 flex items-center justify-center flex-shrink-0">
+                  <Logo className="h-10 w-10" />
+                </div>
+              ) : (
+                <img src={post.authorImage} alt={post.author} className="h-12 w-12 rounded-full object-cover" width="48" height="48" loading="lazy" />
+              )}
               <div>
                   <p className="font-bold text-gray-800 dark:text-gray-100">{post.author}</p>
                   <p className="text-gray-500 dark:text-gray-400">Posted on {post.date}</p>

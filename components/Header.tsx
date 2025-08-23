@@ -7,6 +7,7 @@ import {
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
   ApiIcon, CodeIcon, SettingsIcon
 } from './icons.tsx';
+import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import { useTheme } from '../contexts/ThemeContext.tsx';
@@ -201,7 +202,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             </div>
             <Link to="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
-              <img src="/logo.svg" alt="I Love PDFLY Logo" className="h-10 w-auto" />
+              <Logo className="h-10 w-auto" />
             </Link>
             <nav className="hidden md:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
