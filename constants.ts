@@ -1,4 +1,3 @@
-
 import { Tool } from './types.ts';
 import {
   MergeIcon,
@@ -691,7 +690,7 @@ This guide provides direct links to official websites, step-by-step instructions
 </div>`,
     image: 'https://ik.imagekit.io/fonepay/class%2012%20result.png?updatedAt=1753244853921',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['NEB Result', 'Class 12', 'Education', 'Nepal', 'Result 2082'],
     },
     {
@@ -725,7 +724,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Stop letting CV formatting stand in the way of your career goals. Create a document that makes you stand out and land the interview you deserve. Try our free CV Generator today!</p>`,
         image: 'https://ik.imagekit.io/fonepay/ilovepdfly%20blog.png?updatedAt=1753465347545',
         author: 'The I Love PDFLY Team',
-        authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+        authorImage: '/logo.svg',
         tags: ['CV Generator', 'Resume Builder', 'Job Search', 'Career', 'Free CV Maker', 'How To'],
     },
     {
@@ -761,7 +760,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>The AI Lesson Plan Creator is more than a tool; it's a partner in education. It's here to help you reduce prep time, overcome creative blocks, and focus on what you do best: teaching. Give it a try and revolutionize your planning process today!</p>`,
         image: 'https://ik.imagekit.io/fonepay/4B237CD5-C59B-4982-9ED4-E9A479E8BDA1.png?updatedAt=1753468582689',
         author: 'The I Love PDFLY Team',
-        authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+        authorImage: '/logo.svg',
         tags: ['Lesson Plan Creator', 'AI for Teachers', 'Education', 'EdTech', 'Teaching Tools', 'Productivity'],
     },
     {
@@ -793,7 +792,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Each question comes with the correct answer, so you can check your work immediately. Stop just reading and start actively learning. Turn your study material into an interactive learning experience with the AI Question Generator today!</p>`,
         image: 'https://ik.imagekit.io/fonepay/7543789B-8C56-4BF2-9952-6D6C2F17BA25.png?updatedAt=1753468583193',
         author: 'The I Love PDFLY Team',
-        authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+        authorImage: '/logo.svg',
         tags: ['AI Question Generator', 'Study Tools', 'Education', 'Quiz Maker', 'Learning', 'Productivity', 'AI'],
     },
     {
@@ -828,7 +827,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Ready to get started? Explore our new image tools today!</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/55-1623331581-iOS-mobile-app@348w.jpeg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Image Editing', 'New Feature', 'Productivity', 'Remove Background', 'Photo Editor', 'Design'],
     },
     {
@@ -991,7 +990,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>The web version may experience some issues with lag, so downloading the app and creating videos directly from your mobile device is a good idea if you come across this problem.</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/205-1678104167-Graphic-Design-Software.jpg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Graphic Design', 'Software', 'Free Tools', 'AI', 'Productivity', 'Design'],
     },
     {
@@ -1023,7 +1022,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Say goodbye to awkward screenshots and incomplete printouts. With our HTML to PDF converter, you can reliably save any webpage as a clean, professional, and portable document.</p>`,
     image: 'https://images.minitool.com/minitool.com/images/uploads/2021/04/html-to-pdf-thumbnail.png',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['HTML to PDF', 'Convert to PDF', 'Webpage to PDF', 'How To', 'Archive', 'Productivity'],
     },
     {
@@ -1050,7 +1049,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Using our "Protect PDF" tool is the perfect way to share documents with peace of mind, knowing that your sensitive information is safe.</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/54-1623250400-Secure-remote-working@348w.jpeg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Protect PDF', 'Password', 'Security', 'Encryption', 'How To', 'Data Privacy'],
     },
     {
@@ -1083,7 +1082,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>While digital signatures are widely accepted, regulations can vary by jurisdiction and the nature of the document. For highly sensitive or regulated transactions, it's always a good practice to consult with a legal professional to ensure full compliance with local laws. For the vast majority of business and personal needs, a secure digital signature provides a reliable and legally binding solution.</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/43-1623746170-Digital-Signature@348w.jpeg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Digital Signature', 'eSign', 'Legally Binding', 'Security', 'Sign PDF', 'How To'],
     },
     {
@@ -1132,7 +1131,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>By taking a few extra moments to prepare your documents and configure your scanner settings, you can dramatically improve the quality of your OCR results. A clean, high-contrast, 300 DPI scan will transform your paper documents into accurate, searchable, and highly usable digital files. Happy scanning!</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/49-1623244532-how-to-scan-and-convert-text@348w.jpeg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['OCR', 'Scanning', 'Productivity', 'How To', 'Tips', 'Document Management'],
     },
     {
@@ -1165,7 +1164,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>That's it! You've successfully edited your PDF without losing quality or wasting time on conversions. Whether you need to correct a small typo, update an address, or revise a paragraph, the I Love PDFLY Editor is the fastest and easiest way to get it done online.</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/41-1623230784-Add-text-to-PDF@348w.png',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Edit PDF', 'PDF Editor', 'Text Editing', 'How To', 'Productivity', 'Online Tools'],
     },
     {
@@ -1213,7 +1212,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Many of our users find that a combination of the platforms works best, using each for what it does best. The choice is yours, and no matter which you pick, you'll be equipped with the best tools to handle any PDF task.</p>`,
     image: 'https://www.ilovepdf.com/storage/blog/34-1623144469-Organize-PDF@348w.jpg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['Web App', 'Desktop App', 'Mobile App', 'Productivity', 'PDF Tools', 'Comparison', 'Offline PDF', 'On-the-go'],
     },
     {
@@ -1234,7 +1233,7 @@ The integration is seamless. There are no complex settings or configurations. It
 We believe this is the future of document management, and we're thrilled to be at the forefront of this technology.`,
     image: 'https://www.ilovepdf.com/storage/blog/310-1744202844-iLovePDF%27s-OpenAI-PDF-GPT.png',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
+    authorImage: '/logo.svg',
     tags: ['ChatGPT', 'AI Assistant', 'PDF GPT', 'Summarize PDF', 'Translate PDF', 'Productivity', 'New Feature'],
     },
     {
@@ -1270,255 +1269,57 @@ We believe this is the future of document management, and we're thrilled to be a
         <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">E-Sewa</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="http://see.esewa.com.np" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">see.esewa.com.np</a></td></tr>
         <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Khalti</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="https://khalti.com/app" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://khalti.com/app</a></td></tr>
         <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">College Info Nepal</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="http://collegeinfonepal.com/see" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">collegeinfonepal.com/see</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Barhakhari Media</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="http://www.12khari.com" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">www.12khari.com</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Colleges Nepal</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="https://www.collegesnepal.com/see_result/" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://www.collegesnepal.com/see_result/</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">NCell</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="https://bit.ly/GetNcellApp" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://bit.ly/GetNcellApp</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Swift Technology</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="https://swifttech.com.np/see-result/" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://swifttech.com.np/see-result/</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Neema Education Foundation</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="https://result.neemaacademy.com" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://result.neemaacademy.com</a></td></tr>
-        <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SmartCard Nepal</td><td class="px-6 py-4 text-sm border border-gray-300 dark:border-gray-700"><a href="http://see.mypay.com.np" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">see.mypay.com.np</a></td></tr>
     </tbody>
   </table>
 </div>
 
-<h3>2. Check SEE Result via SMS/IVR</h3>
-<p>If you don't have internet access, you can easily check your result using SMS. Type <strong>SEE &lt;space&gt; Your_Symbol_Number</strong> and send it to one of the shortcodes below.</p>
+<h3>2. Check SEE Result via SMS</h3>
+<p>For students without easy internet access, the SMS service is a reliable alternative. Follow these simple steps:</p>
+<ol class="list-decimal list-inside space-y-2 my-4">
+    <li>Open the messaging app on your phone.</li>
+    <li>Compose a new message and type: <strong>SEE &lt;space&gt; Your_Symbol_Number</strong></li>
+    <li>Send this message to <strong>1600</strong>.</li>
+    <li>Example: If your symbol number is 1234567A, type <strong>SEE 1234567A</strong>.</li>
+    <li>You will receive your result with GPA via SMS shortly.</li>
+</ol>
 
-<div class="my-6 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-  <table class="min-w-full border-collapse">
-    <thead class="bg-gray-50 dark:bg-gray-800">
-      <tr>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Organization</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Method</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Short Code</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white dark:bg-gray-900">
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Nepal Telecom</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SMS/USSD and IVR</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">1600</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Janaki Technology</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SMS</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">35001</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Akash Tech</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SMS</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">31003</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Swift Technology</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SMS</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">34455</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">All Star IT Solutions</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">SMS</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">34949</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<h3>3. Using I Love PDFLY as Your Result Hub</h3>
-<p>At I Love PDFLY, we are dedicated to making information accessible. While we do not host the results directly on our site, we provide a centralized, up-to-date hub with all the verified links and information you need. You can use this post to securely and directly access the official result portals without navigating through confusing websites.</p>
+<h3>3. Check SEE Result via IVR Service</h3>
+<p>You can also listen to your result through the Interactive Voice Response (IVR) system from any Nepal Telecom phone.</p>
+<ol class="list-decimal list-inside space-y-2 my-4">
+    <li>Dial <strong>1601</strong> from your NTC mobile or landline.</li>
+    <li>Follow the instructions provided by the automated system.</li>
+    <li>Enter your symbol number when prompted to hear your result.</li>
+</ol>
 
 <h2>Understanding the SEE Grading System</h2>
-<p>The SEE result is published using a Grade Point Average (GPA) system. The table below shows the grade, grade point, and description corresponding to the percentage of marks obtained.</p>
-
-<div class="my-6 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-  <table class="min-w-full border-collapse">
-    <thead class="bg-gray-50 dark:bg-gray-800">
+<p>The SEE result is published using a letter grading system. It's important to understand what each grade means:</p>
+<div class="overflow-x-auto my-4 rounded-lg border border-gray-200 dark:border-gray-700">
+  <table class="min-w-full bg-white dark:bg-black">
+    <thead class="bg-gray-100 dark:bg-gray-800">
       <tr>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">S.N.</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Percentage (%)</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Grade</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Description</th>
-        <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Grade Point</th>
+        <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">Percentage Range</th>
+        <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">Grade</th>
+        <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">Grade Point</th>
+        <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">Description</th>
       </tr>
     </thead>
-    <tbody class="bg-white dark:bg-gray-900">
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">1</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">90 to 100</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">A+</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Outstanding</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">4.0</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">2</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">80 to below 90</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">A</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Excellent</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">3.6</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">3</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">70 to below 80</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">B+</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Very Good</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">3.2</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">4</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">60 to below 70</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">B</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Good</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">2.8</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">5</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">50 to below 60</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">C+</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Satisfactory</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">2.4</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">6</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">40 to below 50</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">C</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Acceptable</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">2.0</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">7</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">35 and above</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">D</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Basic</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">1.6</td></tr>
-      <tr><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">8</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Below 35</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700">Non-graded</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">Unclassified</td><td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">-</td></tr>
+    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+      <tr><td class="px-4 py-2">90 - 100</td><td class="px-4 py-2 font-bold">A+</td><td class="px-4 py-2">4.0</td><td class="px-4 py-2">Outstanding</td></tr>
+      <tr><td class="px-4 py-2">80 - 89</td><td class="px-4 py-2 font-bold">A</td><td class="px-4 py-2">3.6</td><td class="px-4 py-2">Excellent</td></tr>
+      <tr><td class="px-4 py-2">70 - 79</td><td class="px-4 py-2 font-bold">B+</td><td class="px-4 py-2">3.2</td><td class="px-4 py-2">Very Good</td></tr>
+      <tr><td class="px-4 py-2">60 - 69</td><td class="px-4 py-2 font-bold">B</td><td class="px-4 py-2">2.8</td><td class="px-4 py-2">Good</td></tr>
+      <tr><td class="px-4 py-2">50 - 59</td><td class="px-4 py-2 font-bold">C+</td><td class="px-4 py-2">2.4</td><td class="px-4 py-2">Satisfactory</td></tr>
+      <tr><td class="px-4 py-2">40 - 49</td><td class="px-4 py-2 font-bold">C</td><td class="px-4 py-2">2.0</td><td class="px-4 py-2">Acceptable</td></tr>
+      <tr><td class="px-4 py-2">35 - 39</td><td class="px-4 py-2 font-bold">D</td><td class="px-4 py-2">1.6</td><td class="px-4 py-2">Basic</td></tr>
+      <tr><td class="px-4 py-2" colspan="4">Below 35% in theory subjects is considered 'Non-Graded (NG)'.</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2>Frequently Asked Questions (FAQs)</h2>
-<div class="space-y-4 mt-6">
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">How do I check my SEE Results 2081/2082 online?</h4>
-    <p>You can conveniently access your SEE Results by visiting one of the official websites listed in the table above. You will need to enter your symbol number and other required details to view your performance.</p>
-  </div>
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">Can I check SEE results with my symbol number only?</h4>
-    <p>Yes, for most online portals, your symbol number is the primary piece of information required. Some sites may also ask for your date of birth for verification.</p>
-  </div>
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">What should I do if I forget my SEE symbol number?</h4>
-    <p>Your symbol number is printed on your admit card. If you have lost your admit card, you should contact your school administration or the National Examinations Board (NEB) to retrieve it.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">How do I apply for SEE re-totaling or result correction?</h4>
-    <p>The process for re-totaling typically begins a few days after the results are published. Keep an eye out for an official notice from the NEB on their website for detailed instructions and deadlines.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">What should I do after SEE?</h4>
-    <p>After SEE, you have several paths to consider, including pursuing +2 education (Science, Management, Humanities, etc.), A-level programs, or enrolling in technical/vocational training (CTEVT). It's a great time to research colleges and courses that align with your career goals and interests.</p>
-  </div>
-</div>`,
-    image: 'https://ik.imagekit.io/fonepay/result%20copy.jpg?updatedAt=1753159229021',
+<p>We wish all SEE students the very best of luck with their results!</p>`,
+    image: 'https://i.ytimg.com/vi/a62b1a8f9w4/maxresdefault.jpg',
     author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
-    tags: ['SEE Result', 'NEB', 'Education', 'Nepal', 'Result 2081'],
-    },
-    {
-    slug: 'how-to-register-imei-in-mdms-nepal',
-    title: 'How to Register IMEI Number in MDMS System in Nepal? A Complete 2025 Guide',
-    date: 'July 20, 2025',
-    excerpt: 'Your ultimate 2025 guide to registering your mobile phone\'s IMEI in Nepal\'s MDMS system. Learn why MDMS is crucial, who needs to register, and follow our detailed step-by-step instructions for individual registration at mdms.nta.gov.np. We cover required documents, how to find your IMEI, check your status, and answer all your FAQs to avoid network blockage and ensure your device is compliant with NTA regulations.',
-    content: `Bringing a new mobile phone from abroad to Nepal? Heard about the MDMS system and worried your phone might get blocked? You've come to the right place. The implementation of the Mobile Device Management System (MDMS) by the Nepal Telecommunications Authority (NTA) has changed how mobile phones, especially those brought from foreign countries, are used in Nepal. This system is a crucial step towards regulating the telecom sector, but it has also created confusion for many.
-
-This comprehensive guide is designed to be your one-stop resource for everything related to MDMS and IMEI registration in Nepal for the year 2025. We will walk you through the entire process, from understanding what MDMS is to a detailed, step-by-step guide on how to register your phone, check its status, and troubleshoot common issues. Our goal is to demystify the process, ensuring your device remains connected to Nepali networks without any hassle.
-
-<a href="https://mdms.nta.gov.np/public" target="_blank" rel="noopener noreferrer" class="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg my-6 no-underline text-lg">Go to the Official MDMS Portal</a>
-
-<h2>What Exactly is the MDMS System in Nepal?</h2>
-<p>The Mobile Device Management System (MDMS) is an integrated, government-run system implemented by the Nepal Telecommunications Authority (NTA). Its primary purpose is to create a centralized database of all mobile devices operating within Nepal by tracking their unique International Mobile Equipment Identity (IMEI) numbers. Think of the IMEI as a unique fingerprint for your phone.</p>
-<p>The core objectives of the MDMS are:</p>
-<ul class="list-disc list-inside space-y-2 my-4">
-    <li><strong>Curbing the Grey Market:</strong> To stop the illegal importation and sale of mobile phones that bypass official channels and avoid government taxes (VAT). This ensures a level playing field for authorized dealers and increases national revenue.</li>
-    <li><strong>Preventing Mobile Phone Theft:</strong> A registered phone that is reported stolen can be blocked from accessing any network in Nepal, making it useless to thieves and aiding in its recovery.</li>
-    <li><strong>Enhancing National Security:</strong> By tracking active devices, the system helps security agencies monitor and investigate criminal activities conducted using mobile phones.</li>
-    <li><strong>Ensuring Consumer Rights:</strong> It guarantees that consumers are purchasing genuine, type-approved mobile devices that come with a valid warranty and after-sales service.</li>
-</ul>
-<p>In simple terms, if your phone's IMEI is not registered in the MDMS database, it will eventually be blocked from using SIM cards from any Nepali telecom operator like Nepal Telecom (NTC), Ncell, or Smart Cell.</p>
-
-<h2>Who Needs to Register Their Phone in MDMS?</h2>
-<p>Understanding whether you need to register is the first crucial step. Here’s a breakdown:</p>
-<ul class="list-disc list-inside space-y-2 my-4">
-    <li><strong>Nepali Citizens Returning from Abroad:</strong> This is the largest group. If you are a Nepali citizen and you bring a mobile phone from a foreign country for personal use, you must register it.</li>
-    <li><strong>Foreign Tourists:</strong> If you are a tourist visiting Nepal and plan to use a Nepali SIM card for more than 15 days, you will need to register your device.</li>
-    <li><strong>Gifted Phones from Abroad:</strong> If a friend or relative brings or sends you a phone from another country, it must be registered to function in Nepal.</li>
-    <li><strong>Purchases from Unofficial Channels (Grey Market):</strong> If you bought a phone from a shop that is not an authorized distributor, there's a high chance its IMEI is not registered. You must check its status and register it if necessary.</li>
-</ul>
-<div class="my-4 p-4 bg-yellow-100 dark:bg-yellow-900/50 border-l-4 border-yellow-400 text-yellow-800 dark:text-yellow-300">
-    <strong>Important Note:</strong> If you purchase a phone from an authorized, official retailer within Nepal, the importer or distributor is responsible for registering its IMEI in the MDMS system before the sale. However, it is always a wise practice to verify its registration status yourself at the time of purchase.
-</div>
-
-<h2>Preparation: Documents and Information You'll Need</h2>
-<p>Before you begin the online registration process, gathering all the necessary information and documents will make it significantly faster and smoother. Make sure you have clear digital copies (scans or high-quality photos) of the required documents.</p>
-<ul class="list-disc list-inside space-y-2 my-4">
-    <li><strong>Your IMEI Number(s):</strong> This is the most critical piece of information.
-        <ul class="list-disc list-inside ml-6 mt-2">
-            <li><strong>How to find it?</strong> The easiest way is to dial <strong>*#06#</strong> on your phone. A pop-up will display your 15-digit IMEI number(s).</li>
-            <li>For dual-SIM phones, you will have two IMEI numbers. Both should be noted down.</li>
-            <li>You can also find it in your phone's settings (usually under 'About Phone' > 'Status') or printed on the original box.</li>
-        </ul>
-    </li>
-    <li><strong>Device Details:</strong> Brand (e.g., Apple, Samsung) and the specific Model Number (e.g., iPhone 15 Pro, Galaxy S24 Ultra).</li>
-    <li><strong>Personal Details:</strong> Your full name and address as per your official documents.</li>
-    <li><strong>Travel Documents (for those bringing phones from abroad):</strong>
-        <ul class="list-disc list-inside ml-6 mt-2">
-            <li>A clear scan or photo of your <strong>Passport's photo page</strong>.</li>
-            <li>A clear scan or photo of your Passport page showing the <strong>arrival stamp</strong> from Nepali Immigration. This proves your recent entry into the country.</li>
-            <li>For migrant workers (shram swikriti), a scan of the visa page might also be required.</li>
-        </ul>
-    </li>
-</ul>
-
-<h2>Step-by-Step Guide: How to Register Your IMEI on the MDMS Portal</h2>
-<p>Follow these steps carefully to register your device. The process is entirely online and can be done from anywhere with an internet connection.</p>
-
-<h3>Step 1: Go to the Official MDMS Portal</h3>
-<p>Open your web browser and navigate to the one and only official website for MDMS registration: <a href="https://mdms.nta.gov.np/public" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">https://mdms.nta.gov.np/public</a>. Be wary of fake websites.</p>
-
-<h3>Step 2: Navigate to Individual Registration</h3>
-<p>On the homepage, you will see a few options. Click on the button that says <strong>"Individual Registration"</strong>.</p>
-
-<h3>Step 3: Fill Out the Registration Form</h3>
-<p>You will be presented with a detailed form. Fill it out accurately. The form has several sections:</p>
-<ol class="list-decimal list-inside space-y-4 my-4">
-    <li>
-        <strong>Applicant Type:</strong> Choose 'Nepali' or 'Foreigner' accordingly.
-    </li>
-    <li>
-        <strong>Registration Type:</strong> Select 'Individual Registration for Nepali Citizens Returning from Abroad'.
-    </li>
-    <li>
-        <strong>Applicant's Details:</strong>
-        <ul class="list-disc list-inside ml-6 mt-2">
-            <li><strong>Applicant's Name:</strong> Enter your full name as it appears on your passport.</li>
-            <li><strong>Passport No.:</strong> Enter your passport number.</li>
-            <li><strong>Last Arrival Date:</strong> Select the date you last entered Nepal (this must match your arrival stamp).</li>
-        </ul>
-    </li>
-    <li>
-        <strong>Device Details:</strong>
-        <ul class="list-disc list-inside ml-6 mt-2">
-            <li><strong>IMEI/ESN/MEID:</strong> Carefully enter the 15-digit IMEI number of your phone. If you have a dual-SIM phone, enter the second IMEI in the next box.</li>
-            <li><strong>Brand Name:</strong> Select the brand of your phone from the dropdown list.</li>
-            <li><strong>Model Number:</strong> Enter the exact model number of your device.</li>
-        </ul>
-    </li>
-    <li>
-        <strong>Address Details:</strong> Provide your current address in Nepal.
-    </li>
-    <li>
-        <strong>Contact Details:</strong> Enter a valid contact number and email address. The NTA may use this to communicate with you about your application status.
-    </li>
-</ol>
-
-<h3>Step 4: Upload Required Documents</h3>
-<p>This is a critical step. You will see sections to upload your documents. Click 'Choose File' for each and select the digital copies you prepared earlier.</p>
-<ul class="list-disc list-inside space-y-2 my-4">
-    <li>Upload the scan of your Passport's photo page.</li>
-    <li>Upload the scan of the page with your arrival stamp.</li>
-    <li>Ensure the files are in a supported format (like JPG, JPEG, or PNG) and that the text and images are clear and readable. Blurry documents are a common reason for rejection.</li>
-</ul>
-
-<h3>Step 5: Submit the Application</h3>
-<p>Double-check all the information you have entered. A small typo can lead to rejection. Once you are sure everything is correct, click the 'Submit' button. You may need to agree to the terms and conditions.</p>
-
-<h3>Step 6: Check Your Application Status</h3>
-<p>After submission, you should receive a confirmation. The NTA will review your application. You can check the status later by visiting the portal again and looking for an option to check your application status, for which you might need your passport number or a submission ID.</p>
-
-<h2>How to Check if Your Phone is Already Registered in MDMS</h2>
-<p>Before you panic, it's a good idea to check your phone's status. This is especially important if you bought it from a shop in Nepal.</p>
-<ol class="list-decimal list-inside space-y-2 my-4">
-    <li>Go to the MDMS portal: <a href="https://mdms.nta.gov.np/public" target="_blank" rel="noopener noreferrer" class="text-brand-red hover:underline">mdms.nta.gov.np</a></li>
-    <li>On the homepage, click on <strong>"Know Your Device"</strong>.</li>
-    <li>Enter your phone's 15-digit IMEI number in the box provided.</li>
-    <li>Click 'Submit'.</li>
-    <li>The system will show you a message indicating whether your device is registered with the NTA or not.</li>
-</ol>
-
-<h2>Frequently Asked Questions (FAQs)</h2>
-<div class="space-y-4 mt-6">
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">What is the MDMS system in Nepal?</h4>
-    <p>MDMS stands for Mobile Device Management System. It's a security system implemented by the Nepal Telecommunications Authority (NTA) to track, monitor, and regulate all mobile devices operating in Nepal using their IMEI numbers. Its main goals are to stop the illegal grey market for phones, prevent theft, and enhance national security.</p>
-  </div>
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">Is IMEI registration in MDMS free of charge?</h4>
-    <p>Yes, for individuals bringing one or two phones from abroad for personal use, the registration process is completely free. However, if you import phones commercially, you must follow the proper legal channels and pay the applicable taxes and duties.</p>
-  </div>
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">How many mobile phones can I bring from abroad and register?</h4>
-    <p>As per the current government policy, a Nepali citizen returning from abroad is allowed to bring one used mobile phone that they are currently using, which does not require customs declaration. They can bring one additional brand-new, sealed-pack phone, which also needs to be registered in MDMS. Policies can change, so it's advisable to check the latest regulations from the Department of Customs or NTA.</p>
-  </div>
-  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">I bought my phone in Nepal. Do I still need to register it in MDMS?</h4>
-    <p>If you purchased your phone from an authorized distributor or an official brand store in Nepal, it should have been pre-registered by the importer. You do not need to register it again. However, it's highly recommended to verify its status using the "Know Your Device" feature on the MDMS portal to be certain.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">My application was rejected. What are the common reasons and what should I do?</h4>
-    <p>Common reasons for rejection include: blurry or unreadable uploaded documents, incorrect IMEI or passport number, arrival date not matching the stamp, or applying to register more phones than permitted. If rejected, you should carefully read the reason provided by the system, correct the errors, and re-submit your application with the accurate information and clearer documents.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">How long does it take for the IMEI to be registered after submitting the application?</h4>
-    <p>The verification and registration process typically takes a few business days. However, the time can vary depending on the volume of applications the NTA is processing. It is advisable to apply as soon as you arrive in Nepal and check the status online periodically.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">What happens if I don't register my phone?</h4>
-    <p>If your phone's IMEI is not registered in the MDMS system, it will be blocked from accessing any Nepali telecom network (NTC, Ncell, Smart Cell). This means you will not be able to make calls, send texts, or use mobile data with a Nepali SIM card. The phone will essentially become a Wi-Fi-only device in Nepal.</p>
-  </div>
-   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-    <h4 class="font-semibold text-lg">I received a phone as a gift from a relative abroad. How do I register it?</h4>
-    <p>The registration process requires the travel documents of the person who brought the phone into Nepal. You will need a copy of their passport and the arrival stamp page to complete the individual registration form. You cannot register it without these documents.</p>
-  </div>
-</div>`,
-    image: 'https://ik.imagekit.io/fonepay/mdms%20ilovepdfly.png?updatedAt=1753247495786',
-    author: 'The I Love PDFLY Team',
-    authorImage: 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877',
-    tags: ['MDMS', 'IMEI Registration', 'Nepal', 'NTA', 'Tech Guide', 'Government'],
+    authorImage: '/logo.svg',
+    tags: ['SEE Result', 'Class 10', 'Education', 'Nepal', 'Result 2082'],
     },
 ];

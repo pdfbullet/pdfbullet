@@ -1,5 +1,3 @@
-
-
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
@@ -26,8 +24,8 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
 
   const handleDownloadLogo = () => {
     const link = document.createElement('a');
-    link.href = 'https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877';
-    link.download = 'ilovepdfly-logo.png';
+    link.href = '/logo.svg';
+    link.download = 'ilovepdfly-logo.svg';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -85,11 +83,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
           
           {/* Logo & Socials */}
           <div className="col-span-2">
-            <h3 className="font-bold text-xl mb-3 text-white flex items-center gap-1.5">
-              <span>I</span>
-              <span className="text-brand-red">❤</span>
-              <span>PDF</span>
-            </h3>
+            <Link to="/" title="I Love PDFLY Home">
+              <img src="/logo.svg" alt="I Love PDFLY Logo" className="h-10 w-auto mb-3" />
+            </Link>
             <p className="text-gray-400 text-sm max-w-xs">
               Your go-to suite of online tools for PDF and image management.
             </p>

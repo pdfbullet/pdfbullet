@@ -1,7 +1,7 @@
 # I Love PDFLY - The Ultimate Free Online PDF & Image Toolkit
 
 <p align="center">
-  <img src="https://ik.imagekit.io/fonepay/I%20lovePDLY%20logo.PNG?updatedAt=1753104228877" alt="I Love PDFLY Logo" width="150"/>
+  <img src="https://ilovepdfly.com/logo.svg" alt="I Love PDFLY Logo" width="200"/>
 </p>
 
 <p align="center">
@@ -44,31 +44,31 @@ I Love PDFLY offers a wide array of tools, all accessible from a single, user-fr
 
 | Category       | Tools                                                                                                                                                                                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Organize**   | [Merge PDF](https://ilovepdfly.com/merge-pdf), [Split PDF](https://ilovepdfly.com/split-pdf), [Organize PDF](https://ilovepdfly.com/organize-pdf), [Rotate PDF](https://ilovepdfly.com/rotate-pdf)                                                                                              |
-| **Optimize**   | [Compress PDF](https://ilovepdfly.com/compress-pdf), [Repair PDF](https://ilovepdfly.com/repair-pdf)                                                                                                                                                                                            |
-| **Convert to PDF** | [JPG to PDF](https://ilovepdfly.com/jpg-to-pdf), [Word to PDF](https://ilovepdfly.com/word-to-pdf), [PowerPoint to PDF](https://ilovepdfly.com/powerpoint-to-pdf), [Excel to PDF](https://ilovepdfly.com/excel-to-pdf), [HTML to PDF](https://ilovepdfly.com/html-to-pdf), [PSD to PDF](https://ilovepdfly.com/psd-to-pdf) |
-| **Convert from PDF** | [PDF to JPG](https://ilovepdfly.com/pdf-to-jpg), [PDF to PNG](https://ilovepdfly.com/pdf-to-png), [PDF to Word](https://ilovepdfly.com/pdf-to-word), [PDF to PowerPoint](https://ilovepdfly.com/pdf-to-powerpoint), [PDF to Excel](https://ilovepdfly.com/pdf-to-excel), [PDF to PDF/A](https://ilovepdfly.com/pdf-to-pdfa), [Extract Text](https://ilovepdfly.com/extract-text) |
-| **Edit**       | [Edit PDF](https://ilovepdfly.com/edit-pdf), [Page Numbers](https://ilovepdfly.com/page-numbers), [Crop PDF](https://ilovepdfly.com/crop-pdf), [OCR PDF](https://ilovepdfly.com/ocr-pdf), [Compare PDF](https://ilovepdfly.com/compare-pdf), [Redact PDF](https://ilovepdfly.com/redact-pdf) |
-| **Security**   | [Unlock PDF](https://ilovepdfly.com/unlock-pdf), [Protect PDF](https://ilovepdfly.com/protect-pdf), [Sign PDF](https://ilovepdfly.com/sign-pdf), [Watermark](https://ilovepdfly.com/watermark-pdf)                                                                                            |
+| **Organize**   | [Merge PDF](https://ilovepdfly.com/#/merge-pdf), [Split PDF](https://ilovepdfly.com/#/split-pdf), [Organize PDF](https://ilovepdfly.com/#/organize-pdf), [Rotate PDF](https://ilovepdfly.com/#/rotate-pdf)                                                                                              |
+| **Optimize**   | [Compress PDF](https://ilovepdfly.com/#/compress-pdf), [Repair PDF](https://ilovepdfly.com/#/repair-pdf)                                                                                                                                                                                            |
+| **Convert to PDF** | [JPG to PDF](https://ilovepdfly.com/#/jpg-to-pdf), [Word to PDF](https://ilovepdfly.com/#/word-to-pdf), [PowerPoint to PDF](https://ilovepdfly.com/#/powerpoint-to-pdf), [Excel to PDF](https://ilovepdfly.com/#/excel-to-pdf), [HTML to PDF](https://ilovepdfly.com/#/html-to-pdf), [PSD to PDF](https://ilovepdfly.com/#/psd-to-pdf) |
+| **Convert from PDF** | [PDF to JPG](https://ilovepdfly.com/#/pdf-to-jpg), [PDF to PNG](https://ilovepdfly.com/#/pdf-to-png), [PDF to Word](https://ilovepdfly.com/#/pdf-to-word), [PDF to PowerPoint](https://ilovepdfly.com/#/pdf-to-powerpoint), [PDF to Excel](https://ilovepdfly.com/#/pdf-to-excel), [PDF to PDF/A](https://ilovepdfly.com/#/pdf-to-pdfa), [Extract Text](https://ilovepdfly.com/#/extract-text) |
+| **Edit**       | [Edit PDF](https://ilovepdfly.com/#/edit-pdf), [Page Numbers](https://ilovepdfly.com/#/page-numbers), [Crop PDF](https://ilovepdfly.com/#/crop-pdf), [OCR PDF](https://ilovepdfly.com/#/ocr-pdf), [Compare PDF](https://ilovepdfly.com/#/compare-pdf), [Redact PDF](https://ilovepdfly.com/#/redact-pdf) |
+| **Security**   | [Unlock PDF](https://ilovepdfly.com/#/unlock-pdf), [Protect PDF](https://ilovepdfly.com/#/protect-pdf), [Sign PDF](https://ilovepdfly.com/#/sign-pdf), [Watermark](https://ilovepdfly.com/#/watermark-pdf)                                                                                            |
 
 ### Image Tools
 
-*   [Remove Background](https://ilovepdfly.com/remove-background)
-*   [Resize Image](https://ilovepdfly.com/resize-image)
-*   [Compress Image](https://ilovepdfly.com/compress-image)
-*   [Crop Image](https://ilovepdfly.com/crop-image)
-*   [Convert to JPG](https://ilovepdfly.com/convert-to-jpg)
-*   [Convert from JPG](https://ilovepdfly.com/convert-from-jpg)
-*   [Watermark Image](https://ilovepdfly.com/watermark-image)
+*   [Remove Background](https://ilovepdfly.com/#/remove-background)
+*   [Resize Image](https://ilovepdfly.com/#/resize-image)
+*   [Compress Image](https://ilovepdfly.com/#/compress-image)
+*   [Crop Image](https://ilovepdfly.com/#/crop-image)
+*   [Convert to JPG](https://ilovepdfly.com/#/convert-to-jpg)
+*   [Convert from JPG](https://ilovepdfly.com/#/convert-from-jpg)
+*   [Watermark Image](https://ilovepdfly.com/#/watermark-image)
 
 ### AI & Business Tools
 
 *   **AI Assistant:** Chat directly with your PDF documents. Ask questions, get summaries, and find information instantly.
-*   [AI Question Generator](https://ilovepdfly.com/ai-question-generator): Automatically create quizzes from any text.
-*   [AI Image Generator](https://ilovepdfly.com/ai-image-generator): Turn your text descriptions into unique images.
-*   [Lesson Plan Creator](https://ilovepdfly.com/lesson-plan-creator): Generate detailed lesson plans for any subject.
-*   [Invoice Generator](https://ilovepdfly.com/invoice-generator): Create and customize professional invoices for free.
-*   [CV Generator](https://ilovepdfly.com/cv-generator): Build a polished, job-ready CV in minutes.
+*   [AI Question Generator](https://ilovepdfly.com/#/ai-question-generator): Automatically create quizzes from any text.
+*   [AI Image Generator](https://ilovepdfly.com/#/ai-image-generator): Turn your text descriptions into unique images.
+*   [Lesson Plan Creator](https://ilovepdfly.com/#/lesson-plan-creator): Generate detailed lesson plans for any subject.
+*   [Invoice Generator](https://ilovepdfly.com/#/invoice-generator): Create and customize professional invoices for free.
+*   [CV Generator](https://ilovepdfly.com/#/cv-generator): Build a polished, job-ready CV in minutes.
 
 ---
 
@@ -130,6 +130,6 @@ To get a local copy up and running, follow these simple steps.
 
 ## Contact
 
-Bishal Mishra - [Message from CEO](https://ilovepdfly.com/ceo) - Support@ilovepdfly.com
+Bishal Mishra - [Message from CEO](https://ilovepdfly.com/#/ceo) - Support@ilovepdfly.com
 
 Project Link: [https://github.com/your-username/ilovepdfly](https://github.com/your-username/ilovepdfly)
