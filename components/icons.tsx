@@ -411,6 +411,12 @@ export const BriefcaseIcon: React.FC<{ className?: string }> = ({ className }) =
     </svg>
 );
 
+export const PuzzleIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V5H6c-1.1 0-2 .9-2 2v4H2.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5H4v4c0 1.1.9 2 2 2h4v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h4c1.1 0 2-.9 2-2v-4h1.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
+    </svg>
+);
+
 export const GavelIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M1 21h12v2H1zM5.24 8.07l2.83-2.83 14.14 14.14-2.83 2.83zM12.32 1l5.66 5.66-2.83 2.83-5.66-5.66z"/>
@@ -516,24 +522,6 @@ export const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-export const PuzzleIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 14h-4v-4H7v-4h4V5h4v4h4v4h-4v4z"/>
-    </svg>
-);
-
-export const CarIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
-    </svg>
-);
-
-export const GamepadIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M22.08,8.47c-0.27-2.1-1.35-3.87-2.8-5.32c-1.45-1.45-3.23-2.53-5.32-2.8C12.18,0.08,10.9,0.18,9.75,0.73 C8.6,1.29,7.64,2.25,7.09,3.4C6.54,4.55,6.43,5.82,6.71,7.6C6.7,7.57,6.7,7.53,6.69,7.5c-2.48,0-4.5,2.02-4.5,4.5 s2.02,4.5,4.5,4.5c0.11,0,0.22-0.01,0.33-0.02c-0.08,0.43-0.15,0.85-0.2,1.27c-0.5,4.2,2.83,7.54,7.03,7.03 c4.2-0.5,7.54-3.83,7.03-7.03c-0.05-0.42-0.12-0.84-0.2-1.27c0.1,0.01,0.21,0.02,0.32,0.02c2.48,0,4.5-2.02,4.5-4.5 S19.2,7.5,16.71,7.5c0.01-0.03,0.01-0.07,0.02-0.1C16.99,5.82,17.1,4.55,16.55,3.4z M10.5,10.5h-4v-2h4V10.5z M10.5,6.5h-2v-2 h2V6.5z M14.5,8.5h-2v-2h2V8.5z M16.5,10.5h-4v-2h4V10.5z"/>
-    </svg>
-);
-
 export const MinusIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
@@ -622,5 +610,27 @@ export const ListBulletedIcon: React.FC<{ className?: string }> = ({ className }
 export const ListOrderedIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 11.9V11H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/>
+    </svg>
+);
+
+export const GoogleDriveIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7.71 3.5L1.5 15l6.21 11.5 6.21-11.5z" fill="#3777e3" />
+        <path d="M16.29 3.5L10.08 15l6.21 11.5L22.5 15z" fill="#ffc107" />
+        <path d="M12 15l-4.29-7.44h8.58z" fill="#4caf50" />
+    </svg>
+);
+
+export const DropboxIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0061ff">
+        <path d="M12 4.5l-5 3-5 3 5 3 5-3 5 3-5 3-5-3-5 3 5 3 5-3zm0 0l5 3 5 3-5 3-5-3-5-3 5-3 5 3z" />
+        <path d="M2 10.5l5 3 5-3-5-3-5 3zm10 0l5 3 5-3-5-3-5 3z" />
+    </svg>
+);
+
+export const OneDriveIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0078d4">
+        <path d="M11.2 6.8c.2-.2.5-.2.7 0l5.8 5.8c.2.2.2.5 0 .7l-5.8 5.8c-.2.2-.5.2-.7 0l-5.8-5.8c-.2-.2-.2-.5 0-.7l5.8-5.8z" opacity=".5" />
+        <path d="M11.2 4c.2-.2.5-.2.7 0l5.8 5.8c.2.2.2.5 0 .7l-5.8 5.8c-.2.2-.5.2-.7 0L5.4 10.5c-.2-.2-.2-.5 0-.7L11.2 4z" />
     </svg>
 );

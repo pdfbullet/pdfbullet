@@ -1,9 +1,5 @@
 {
   "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ],
-  "name": "Copy of main Latest version 1",
-  "description": "",
-  "prompt": ""
+    "camera"
+  ]
 }

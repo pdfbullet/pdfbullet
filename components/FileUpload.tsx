@@ -1,9 +1,18 @@
-
-
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
-import { UploadCloudIcon, FileIcon } from './icons.tsx';
+import { UploadCloudIcon, FileIcon, GoogleDriveIcon, DropboxIcon, OneDriveIcon } from './icons.tsx';
 import { Tool } from '../types.ts';
+
+// TODO: Replace with your actual API keys and IDs
+const GOOGLE_API_KEY = 'AIzaSyD3MDVQ3bkz0n3Hu3ju-sGCIMCybUQGbVU';
+const GOOGLE_CLIENT_ID = '415789226795-0mu2ru52dcc5b649njfarn059lkjkcnk.apps.googleusercontent.com';
+const ONEDRIVE_CLIENT_ID = 'YOUR_ONEDRIVE_CLIENT_ID';
+
+// These declarations are needed to access the cloud picker SDKs loaded in index.html
+declare const gapi: any;
+declare const Dropbox: any;
+declare const OneDrive: any;
+declare const google: any;
 
 interface FileUploadProps {
   tool: Tool;
@@ -22,6 +31,17 @@ const formatBytes = (bytes: number, decimals = 2) => {
 };
 
 const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }) => {
+  const [gapiLoaded, setGapiLoaded] = useState(false);
+  const [pickerApiLoaded, setPickerApiLoaded] = useState(false);
+  const [oauthToken, setOauthToken] = useState<any>(null);
+
+  useEffect(() => {
+    if (gapi) {
+      gapi.load('client:picker', () => {
+        setGapiLoaded(true);
+      });
+    }
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles([...files, ...acceptedFiles].filter((file, index, self) =>
@@ -42,6 +62,89 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
   
   const addMoreFilesProps = useDropzone({ onDrop });
 
+  const handleCloudFile = async (url: string, name: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch file: ${response.statusText}`);
+      const blob = await response.blob();
+      const file = new File([blob], name, { type: blob.type });
+      onDrop([file]);
+    } catch (error) {
+      console.error("Error fetching cloud file:", error);
+    }
+  };
+
+  const handleGoogleDriveClick = () => {
+    if (!gapiLoaded || !GOOGLE_API_KEY || !GOOGLE_CLIENT_ID) {
+        alert("Google Drive Picker is not configured. Please provide API Key and Client ID.");
+        return;
+    }
+
+    gapi.load('picker', { 'callback': () => setPickerApiLoaded(true) });
+    gapi.auth.authorize(
+      { client_id: GOOGLE_CLIENT_ID, scope: ['https://www.googleapis.com/auth/drive.readonly'], immediate: false },
+      (authResult: any) => {
+        if (authResult && !authResult.error) {
+          setOauthToken(authResult);
+          createPicker(authResult.access_token);
+        }
+      }
+    );
+  };
+  
+  const createPicker = (token: string) => {
+      const view = new google.picker.View(google.picker.ViewId.DOCS);
+      const picker = new google.picker.PickerBuilder()
+          .setApiKey(GOOGLE_API_KEY)
+          .setOAuthToken(token)
+          .addView(view)
+          .setCallback(pickerCallback)
+          .build();
+      picker.setVisible(true);
+  };
+  
+  const pickerCallback = (data: any) => {
+      if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+          const doc = data[google.picker.Response.DOCUMENTS][0];
+          const url = `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`;
+          fetch(url, {
+              headers: { 'Authorization': `Bearer ${oauthToken.access_token}` }
+          })
+          .then(res => res.blob())
+          .then(blob => {
+              const file = new File([blob], doc.name, { type: doc.mimeType });
+              onDrop([file]);
+          });
+      }
+  };
+  
+  const handleDropboxClick = () => {
+      Dropbox.choose({
+          success: (dropboxFiles: any[]) => {
+              dropboxFiles.forEach(file => handleCloudFile(file.link, file.name));
+          },
+          linkType: "direct",
+          multiselect: true,
+      });
+  };
+
+  const handleOneDriveClick = () => {
+    if (!ONEDRIVE_CLIENT_ID || ONEDRIVE_CLIENT_ID === 'YOUR_ONEDRIVE_CLIENT_ID') {
+      alert("OneDrive Picker is not configured. Please provide a Client ID.");
+      return;
+    }
+    OneDrive.open({
+        clientId: ONEDRIVE_CLIENT_ID,
+        action: "download",
+        multiSelect: true,
+        success: (files: any) => {
+            files.value.forEach((file: any) => handleCloudFile(file["@microsoft.graph.downloadUrl"], file.name));
+        },
+        cancel: () => {},
+        error: (e: any) => console.error(e)
+    });
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       {files.length === 0 ? (
@@ -59,6 +162,17 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
           <button type="button" title="Select files from your computer" className={`mt-4 ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors`}>
             Select Files
           </button>
+          <div className="mt-6 pt-6 border-t border-dashed border-gray-300 dark:border-gray-600 w-full flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button onClick={handleGoogleDriveClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
+                  <GoogleDriveIcon className="h-5 w-5" /> Google Drive
+              </button>
+              <button onClick={handleDropboxClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
+                  <DropboxIcon className="h-5 w-5" /> Dropbox
+              </button>
+              <button onClick={handleOneDriveClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
+                  <OneDriveIcon className="h-5 w-5" /> OneDrive
+              </button>
+          </div>
         </div>
       ) : (
         <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg w-full">

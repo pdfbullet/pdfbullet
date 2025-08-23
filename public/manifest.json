@@ -1,15 +1,54 @@
 {
-  "name": "I Love PDFLY",
+  "name": "I Love PDFLY: PDF & Image Tools",
   "short_name": "PDFLY",
-  "start_url": ".",
+  "description": "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#B90B06",
+  "orientation": "portrait-primary",
+  "categories": [
+    "productivity",
+    "utilities",
+    "business"
+  ],
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "500x500",
+      "src": "/favicon.png",
+      "sizes": "192x192",
       "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/desktop-view.jpg",
+      "sizes": "1280x800",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "I Love PDFLY Homepage with all tools"
+    },
+    {
+      "src": "/mobile-view.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view showing PDF tools"
     }
   ]
 }

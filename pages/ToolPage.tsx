@@ -5,7 +5,7 @@ import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import FileUpload from '../components/FileUpload.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, UnlockIcon } from '../components/icons.tsx';
+import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, UnlockIcon, EmailIcon, WhatsAppIcon } from '../components/icons.tsx';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -173,245 +173,6 @@ interface ScannedPage {
     filter: FilterType;
 }
 
-const DocumentScannerUI = ({ tool }: { tool: Tool }): React.ReactElement => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [stream, setStream] = useState<MediaStream | null>(null);
-    const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
-    const [selectedPageIndex, setSelectedPageIndex] = useState<number | null>(null);
-    const [processing, setProcessing] = useState(false);
-    const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
-    const [error, setError] = useState('');
-
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        setError('');
-        if (acceptedFiles.length > 0) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const dataUrl = reader.result as string;
-                const newPage = { id: Date.now(), original: dataUrl, filtered: dataUrl, filter: 'original' as FilterType };
-                setScannedPages(p => [...p, newPage]);
-                setSelectedPageIndex(scannedPages.length);
-            };
-            reader.readAsDataURL(acceptedFiles[0]);
-        }
-    }, [scannedPages.length]);
-
-    const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-        onDrop, noClick: true, noKeyboard: true,
-        accept: { 'image/jpeg': ['.jpeg', '.jpg'], 'image/png': ['.png'] }
-    });
-
-    const startCamera = useCallback(async () => {
-        setError('');
-        try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            setStream(mediaStream);
-            if (videoRef.current) videoRef.current.srcObject = mediaStream;
-        } catch (err) {
-            console.error("Error accessing camera:", err);
-            setError('Could not access the camera. Please ensure you have given permission in your browser settings.');
-        }
-    }, []);
-
-    const stopCamera = useCallback(() => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            setStream(null);
-        }
-    }, [stream]);
-
-    useEffect(() => {
-      startCamera();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => { return () => { stopCamera(); }; }, [stopCamera]);
-
-    const capturePage = () => {
-        if (videoRef.current) {
-            const video = videoRef.current;
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-                const newPage = { id: Date.now(), original: dataUrl, filtered: dataUrl, filter: 'original' as FilterType };
-                setScannedPages(p => [...p, newPage]);
-                setSelectedPageIndex(scannedPages.length);
-                stopCamera();
-            }
-        }
-    };
-
-    const handleFilterChange = async (filter: FilterType) => {
-        if (selectedPageIndex === null) return;
-        const page = scannedPages[selectedPageIndex];
-        if (page.filter === filter) return;
-
-        const filteredImage = await applyFilter(page.original, filter);
-        setScannedPages(pages => pages.map((p, i) => i === selectedPageIndex ? { ...p, filtered: filteredImage, filter } : p));
-    };
-    
-    const rotateImage = (imageSrc: string): Promise<string> => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return;
-                canvas.width = img.height;
-                canvas.height = img.width;
-                ctx.translate(canvas.width / 2, canvas.height / 2);
-                ctx.rotate(90 * Math.PI / 180);
-                ctx.drawImage(img, -img.width / 2, -img.height / 2);
-                resolve(canvas.toDataURL('image/jpeg', 0.9));
-            };
-            img.src = imageSrc;
-        });
-    };
-    
-    const handleRotatePage = async (index: number) => {
-        const page = scannedPages[index];
-        const rotatedOriginal = await rotateImage(page.original);
-        const filteredAfterRotation = await applyFilter(rotatedOriginal, page.filter);
-        setScannedPages(pages => pages.map((p, i) => i === index ? { ...p, original: rotatedOriginal, filtered: filteredAfterRotation } : p));
-    };
-
-    const removePage = (index: number) => {
-        setScannedPages(prevPages => {
-            const newPages = prevPages.filter((_, i) => i !== index);
-            setSelectedPageIndex(prevSelected => {
-                if (prevSelected === null) return null;
-                if (newPages.length === 0) return null;
-                if (prevSelected === index) return 0;
-                if (prevSelected > index) return prevSelected - 1;
-                return prevSelected;
-            });
-            return newPages;
-        });
-    };
-
-    const generatePdf = async () => {
-        if (scannedPages.length === 0) return;
-        setProcessing(true);
-        setError('');
-        try {
-            const pdfDoc = await PDFDocument.create();
-            for (const pageData of scannedPages) {
-                const imageBytes = await fetch(pageData.filtered).then(res => res.arrayBuffer());
-                const image = await pdfDoc.embedJpg(imageBytes);
-                const page = pdfDoc.addPage([image.width, image.height]);
-                page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
-            }
-            const pdfBytes = await pdfDoc.save();
-            setPdfBlob(new Blob([pdfBytes], { type: 'application/pdf' }));
-        } catch (err) {
-            console.error("Error generating PDF:", err);
-            setError('Failed to generate PDF.');
-        } finally {
-            setProcessing(false);
-        }
-    };
-    
-    const handleDownload = () => {
-        if (!pdfBlob) return;
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'scanned_document.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    const selectedPage = selectedPageIndex !== null ? scannedPages[selectedPageIndex] : null;
-
-    if (stream) {
-        return (
-            <div className="w-full max-w-4xl bg-soft-dark p-4 rounded-lg shadow-xl relative">
-                <video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded-lg"></video>
-                <div className="absolute inset-0 border-4 border-dashed border-red-500/50 m-4 rounded-lg pointer-events-none"></div>
-                <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-4">
-                    <button onClick={capturePage} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Capture</button>
-                    <button onClick={stopCamera} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Close</button>
-                </div>
-            </div>
-        )
-    }
-
-    if (pdfBlob) {
-        return (
-            <div className="text-center bg-white dark:bg-surface-dark p-8 rounded-lg shadow-xl">
-                <h2 className="text-2xl font-bold text-green-600">PDF Ready!</h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">Your scanned document is ready for download.</p>
-                <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <button onClick={handleDownload} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">Download PDF</button>
-                    <button onClick={() => { setPdfBlob(null); setScannedPages([]); setSelectedPageIndex(null); }} className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-800 dark:text-gray-200 font-bold py-3 px-8 rounded-lg text-lg transition-colors">Scan Again</button>
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="w-full max-w-5xl space-y-4">
-            {error && <div className="text-center text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-3 rounded-md mb-4">{error}</div>}
-            
-            {scannedPages.length === 0 ? (
-                 <div {...getRootProps()} className={`text-center p-12 border-2 border-dashed rounded-lg transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                     <input {...getInputProps()} />
-                     <p className="mb-4 font-semibold text-lg text-gray-800 dark:text-gray-200">Start by adding a page</p>
-                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                         <button onClick={(e) => { e.stopPropagation(); startCamera(); }} className={`flex items-center gap-2 justify-center flex-1 ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors`}>
-                             <CameraIcon className="h-6 w-6"/> Use Camera
-                         </button>
-                         <button type="button" onClick={(e) => { e.stopPropagation(); open(); }} className="w-full flex items-center gap-2 justify-center flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
-                             <UploadIcon className="h-6 w-6"/> Upload File
-                         </button>
-                     </div>
-                     <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Or drag and drop image files onto this area</p>
-                 </div>
-            ) : (
-                <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-xl space-y-4">
-                    <div className="h-[50vh] bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center p-2 shadow-inner">
-                        {selectedPage ? (
-                            <img src={selectedPage.filtered} alt={`Page ${selectedPageIndex! + 1}`} className="max-w-full max-h-full object-contain" />
-                        ) : (
-                            <p className="text-gray-500">Select a page to view and edit</p>
-                        )}
-                    </div>
-                    {selectedPage && <FilterBar onFilterChange={handleFilterChange} activeFilter={selectedPage.filter} />}
-                    <div className="border-t border-b border-gray-200 dark:border-gray-700 py-4">
-                        <div {...getRootProps()} className="flex items-center gap-4 overflow-x-auto p-2 no-scrollbar">
-                             <input {...getInputProps()} />
-                             {scannedPages.map((page, index) => (
-                                 <div key={page.id} onClick={() => setSelectedPageIndex(index)} className="relative flex-shrink-0 w-24 h-32 cursor-pointer group">
-                                     <img src={page.filtered} alt={`thumbnail ${index+1}`} className={`w-full h-full object-cover rounded-md border-2 ${selectedPageIndex === index ? 'border-brand-red' : 'border-transparent'}`} />
-                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                         <button onClick={(e) => { e.stopPropagation(); handleRotatePage(index) }} className="text-white bg-blue-600/80 rounded-full p-1.5 hover:bg-blue-600"><RotateIcon className="h-4 w-4"/></button>
-                                         <button onClick={(e) => { e.stopPropagation(); removePage(index) }} className="text-white bg-red-600/80 rounded-full p-1.5 hover:bg-red-600"><TrashIcon className="h-4 w-4"/></button>
-                                     </div>
-                                 </div>
-                             ))}
-                             <div className="flex-shrink-0 flex flex-col items-center justify-center gap-2 w-24 h-32 p-2 border-2 border-dashed rounded-md text-gray-500 hover:border-brand-red hover:text-brand-red transition-colors">
-                                <button onClick={(e) => { e.stopPropagation(); startCamera(); }} className="w-full text-center p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"><CameraIcon className="h-5 w-5 mx-auto"/> <span className="text-xs">Camera</span></button>
-                                <button onClick={(e) => { e.stopPropagation(); open(); }} className="w-full text-center p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"><UploadIcon className="h-5 w-5 mx-auto"/> <span className="text-xs">Upload</span></button>
-                             </div>
-                        </div>
-                    </div>
-                     <div className="text-center">
-                        <button onClick={generatePdf} disabled={processing} className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400`}>
-                            {processing ? 'Generating...' : `Generate PDF (${scannedPages.length} pages)`}
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
 const EditorModal: React.FC<EditorModalProps> = ({ isOpen, onClose, onApply, type }) => {
     const [activeTab, setActiveTab] = useState<'type' | 'initials' | 'upload'>(type === 'text' ? 'type' : 'upload');
     const [fullName, setFullName] = useState('');
@@ -565,6 +326,163 @@ const EditorModal: React.FC<EditorModalProps> = ({ isOpen, onClose, onApply, typ
                     <button onClick={handleApply} className="px-6 py-2 font-semibold text-white bg-brand-red rounded-md hover:bg-brand-red-dark">Apply</button>
                 </div>
             </div>
+        </div>
+    );
+};
+
+interface DocumentScannerUIProps {
+    tool: Tool;
+}
+
+const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
+    const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
+    const [error, setError] = useState<string>('');
+    const [processing, setProcessing] = useState(false);
+
+    const startCamera = async () => {
+        setError('');
+        try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            setStream(mediaStream);
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream;
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Could not access the camera. Please check permissions.');
+        }
+    };
+
+    const stopCamera = () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            setStream(null);
+        }
+    };
+    
+    useEffect(() => {
+        startCamera();
+        return () => stopCamera();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const capturePage = () => {
+        if (!videoRef.current) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const newPage: ScannedPage = {
+            id: Date.now(),
+            original: dataUrl,
+            filtered: dataUrl,
+            filter: 'original',
+        };
+        setScannedPages(prev => [...prev, newPage]);
+    };
+
+    const handleFilterChange = async (id: number, filter: FilterType) => {
+        const pageToUpdate = scannedPages.find(p => p.id === id);
+        if (!pageToUpdate) return;
+
+        const filteredImage = await applyFilter(pageToUpdate.original, filter);
+        setScannedPages(prev => prev.map(p => p.id === id ? { ...p, filtered: filteredImage, filter } : p));
+    };
+
+    const removePage = (id: number) => {
+        setScannedPages(prev => prev.filter(p => p.id !== id));
+    };
+    
+    const generatePdf = async () => {
+        if (scannedPages.length === 0) {
+            setError("Please scan at least one page.");
+            return;
+        }
+        setProcessing(true);
+        setError('');
+        try {
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            for (let i = 0; i < scannedPages.length; i++) {
+                const page = scannedPages[i];
+                const img = new Image();
+                img.src = page.filtered;
+                await new Promise(resolve => img.onload = resolve);
+                
+                if (i > 0) pdf.addPage();
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgRatio = img.width / img.height;
+                const pdfRatio = pdfWidth / pdfHeight;
+                
+                let imgWidth, imgHeight;
+                if (imgRatio > pdfRatio) {
+                    imgWidth = pdfWidth;
+                    imgHeight = pdfWidth / imgRatio;
+                } else {
+                    imgHeight = pdfHeight;
+                    imgWidth = pdfHeight * imgRatio;
+                }
+                
+                const x = (pdfWidth - imgWidth) / 2;
+                const y = (pdfHeight - imgHeight) / 2;
+
+                pdf.addImage(page.filtered, 'JPEG', x, y, imgWidth, imgHeight);
+            }
+            pdf.save('scanned_document.pdf');
+        } catch (err) {
+            setError("Failed to generate PDF. Please try again.");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    return (
+        <div className="w-full max-w-5xl mx-auto">
+            {stream ? (
+                <div className="relative mb-4">
+                    <video ref={videoRef} autoPlay playsInline className="w-full rounded-lg shadow-lg border-2 border-gray-700"></video>
+                    <button onClick={capturePage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-4 rounded-full shadow-lg border-2 border-gray-300 hover:bg-gray-200">
+                        <CameraIcon className="h-8 w-8 text-brand-red" />
+                    </button>
+                </div>
+            ) : (
+                <div className="w-full aspect-video bg-black rounded-lg flex flex-col items-center justify-center text-gray-400">
+                    {error ? <p className="text-red-400">{error}</p> : <p>Starting camera...</p>}
+                    <button onClick={startCamera} className="mt-4 bg-brand-red text-white font-bold py-2 px-4 rounded">Retry Camera</button>
+                </div>
+            )}
+            
+            {scannedPages.length > 0 && (
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-bold mb-4">Scanned Pages ({scannedPages.length})</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {scannedPages.map(page => (
+                            <div key={page.id} className="relative group">
+                                <img src={page.filtered} alt="Scanned page" className="w-full rounded-md" />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1">
+                                    <button onClick={() => removePage(page.id)} className="self-end p-1 bg-red-600 rounded-full text-white">
+                                        <CloseIcon className="h-4 w-4" />
+                                    </button>
+                                    <div className="text-white text-xs">
+                                        <FilterBar onFilterChange={(filter) => handleFilterChange(page.id, filter)} activeFilter={page.filter} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-6 text-center">
+                        <button onClick={generatePdf} disabled={processing} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-green-800">
+                            {processing ? 'Generating PDF...' : 'Create PDF'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -728,6 +646,26 @@ const ToolPage: React.FC = () => {
       }
   }, [tool, pdfPages.length, canvasItems.length, redactionAreas.length, state]);
   
+  const handleReset = useCallback(() => {
+    setState(ProcessingState.Idle);
+    setErrorMessage('');
+    setProcessedFileBlob(null);
+    setFiles([]);
+    setToolOptions(initialToolOptions);
+    setProgress(null);
+    setPdfPages([]);
+    setPdfPagePreviews([]);
+    setCanvasItems([]);
+    setIsModalOpen(false);
+    setActiveDrag(null);
+    setRedactionAreas([]);
+    setIsDrawingRedaction(false);
+    setRedactionStartPoint(null);
+    setCurrentRedaction(null);
+    setComparisonResults([]);
+    setOriginalImageSize(null);
+  }, []);
+
   // Capture original meta info on component mount for SEO and handle updates
   useEffect(() => {
     if (!originalMetas.current) {
@@ -831,7 +769,7 @@ const ToolPage: React.FC = () => {
     }
 
     return cleanupSeo;
-  }, [toolId, navigate, user]);
+  }, [toolId, navigate, user, handleReset]);
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -890,7 +828,7 @@ const ToolPage: React.FC = () => {
         height: Math.abs(height)
     });
   };
-
+  
   const extractPages = async () => {
       if (!tool || files.length === 0) return;
       if (tool.id !== 'compare-pdf' && files.length !== 1) return;
@@ -1704,1062 +1642,203 @@ const ToolPage: React.FC = () => {
                         for (let i = 0; i < psdData.length; i++) {
                             targetArray[i] = psdData[i] >> 8; // Convert 16-bit to 8-bit
                         }
-                    } else if ('set' in psdData) {
-                        targetArray.set(psdData as unknown as ArrayLike<number>);
+                    } else if (psdData instanceof Uint8Array || psdData instanceof Uint8ClampedArray) {
+                       targetArray.set(psdData);
                     }
                     const imageData = new ImageData(targetArray, psd.width, psd.height);
                     ctx.putImageData(imageData, 0, 0);
                 }
                 return c;
             })();
-            
-            const pngBytes = await new Promise<ArrayBuffer>((resolve, reject) => {
+
+            const pngBytes = await new Promise<ArrayBuffer>((resolve) => {
                 imageCanvas.toBlob(blob => {
-                    if (!blob) {
-                      reject(new Error("Canvas to Blob conversion failed"));
-                      return;
-                    }
                     const reader = new FileReader();
                     reader.onloadend = () => resolve(reader.result as ArrayBuffer);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
+                    reader.readAsArrayBuffer(blob!);
                 }, 'image/png');
             });
 
-            const pngImage = await pdfDoc.embedPng(pngBytes);
-            const page = pdfDoc.addPage([pngImage.width, pngImage.height]);
-            page.drawImage(pngImage, { x: 0, y: 0, width: pngImage.width, height: pngImage.height });
-            
+            const embeddedImage = await pdfDoc.embedPng(pngBytes);
+            const page = pdfDoc.addPage([psd.width, psd.height]);
+            page.drawImage(embeddedImage);
+
             const pdfBytes = await pdfDoc.save();
             setProcessedFileBlob(new Blob([pdfBytes], { type: 'application/pdf' }));
             break;
           }
-           case 'extract-text': {
-                if (files.length !== 1) throw new Error("Please select one PDF file.");
-                const file = files[0];
-                const pdfData = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-                let fullText = '';
-                const numPages = pdf.numPages;
-                for (let i = 1; i <= numPages; i++) {
-                    setProgress({ percentage: Math.round(((i - 1) / numPages) * 100), status: `Extracting text from page ${i}` });
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
-                    fullText += pageText + '\n\n';
-                }
-                setProcessedFileBlob(new Blob([fullText], { type: 'text/plain' }));
-                break;
+          case 'extract-text': {
+            if (files.length !== 1) throw new Error("Please select one PDF file.");
+            const file = files[0];
+            const pdfData = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                setProgress({ percentage: Math.round(((i - 1) / pdf.numPages) * 100), status: `Extracting text from page ${i}` });
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
+                fullText += pageText + '\n\n';
             }
-            case 'zip-maker': {
-                if (files.length === 0) throw new Error("Please select at least one file to zip.");
-                const zip = new JSZip();
-                for (const [index, file] of files.entries()) {
-                    setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Adding file ${index + 1} of ${files.length}` });
-                    const fileData = await file.arrayBuffer();
-                    zip.file(file.name, fileData);
-                }
-                const zipBlob = await zip.generateAsync({ type: 'blob' });
-                setProcessedFileBlob(zipBlob);
-                break;
+            setProcessedFileBlob(new Blob([fullText], { type: 'text/plain' }));
+            break;
+          }
+          case 'zip-maker': {
+            if (files.length === 0) throw new Error("Please select at least one file to zip.");
+            const zip = new JSZip();
+            for (const [index, file] of files.entries()) {
+                 setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Adding file ${index + 1}` });
+                 zip.file(file.name, file);
             }
-            case 'resize-file': {
-                if (files.length !== 1) throw new Error("Please select one file to resize.");
-                const file = files[0];
-                if (file.type.startsWith('image/')) {
-                    const processImageResize = (imgFile: File): Promise<Blob> => new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            let { width, height } = img;
-                            if (toolOptions.resizeMode === 'percentage') {
-                                width = img.width * (toolOptions.resizePercentage / 100);
-                                height = img.height * (toolOptions.resizePercentage / 100);
-                            }
-                            const canvas = document.createElement('canvas');
-                            canvas.width = width;
-                            canvas.height = height;
-                            canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
-                            canvas.toBlob(blob => blob ? resolve(blob) : reject(), file.type);
-                        };
-                        img.src = URL.createObjectURL(imgFile);
-                    });
-                    const blob = await processImageResize(file);
-                    setProcessedFileBlob(blob);
-                } else if (file.type === 'application/pdf') {
-                    // This is just compression for now.
-                    setProgress({ percentage: 50, status: 'Optimizing PDF... This may take a moment.' });
-                    const pdfBytes = await file.arrayBuffer();
-                    const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-                    const useStreams = toolOptions.resizePdfCompression !== 'basic';
-                    const compressedBytes = await pdfDoc.save({ useObjectStreams: useStreams });
-                    setProcessedFileBlob(new Blob([compressedBytes], { type: 'application/pdf' }));
-                } else {
-                    throw new Error(`Unsupported file type for resizing: ${file.type}`);
-                }
-                break;
-            }
-            case 'resize-image': {
-                if (files.length === 0) throw new Error("Please select one or more images to resize.");
-                
-                const processImageResize = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        let newWidth, newHeight;
-                        if (toolOptions.resizeUnit === 'percent') {
-                            newWidth = img.width * (toolOptions.resizeWidth / 100);
-                            newHeight = img.height * (toolOptions.resizeHeight / 100);
-                        } else { // pixels
-                            newWidth = toolOptions.resizeWidth;
-                            newHeight = toolOptions.resizeHeight;
-                        }
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            setProcessedFileBlob(zipBlob);
+            break;
+          }
+          case 'resize-file': {
+              if (files.length !== 1) throw new Error("Please select exactly one file to resize.");
+              const file = files[0];
+              if (file.type.startsWith('image/')) {
+                  // Handle image resizing
+                  const image = new Image();
+                  image.src = URL.createObjectURL(file);
+                  await new Promise(resolve => image.onload = resolve);
+                  const canvas = document.createElement('canvas');
+                  const newWidth = image.width * (toolOptions.resizePercentage / 100);
+                  const newHeight = image.height * (toolOptions.resizePercentage / 100);
+                  canvas.width = newWidth;
+                  canvas.height = newHeight;
+                  const ctx = canvas.getContext('2d')!;
+                  ctx.drawImage(image, 0, 0, newWidth, newHeight);
+                  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, file.type, 0.9));
+                  if (!blob) throw new Error("Could not resize image.");
+                  setProcessedFileBlob(blob);
+              } else if (file.type === 'application/pdf') {
+                  // Handle PDF compression as "resizing"
+                   setProgress({ percentage: 50, status: 'Compressing PDF... This may take a moment.'});
+                  const pdfBytes = await file.arrayBuffer();
+                  const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+                  const useStreams = toolOptions.resizePdfCompression !== 'basic';
+                  const compressedBytes = await pdfDoc.save({ useObjectStreams: useStreams });
+                  setProcessedFileBlob(new Blob([compressedBytes], { type: 'application/pdf' }));
+              } else {
+                  throw new Error(`Unsupported file type for resizing: ${file.type}`);
+              }
+              break;
+          }
 
-                        const canvas = document.createElement('canvas');
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject('Could not get canvas context');
-
-                        // Handle background color for formats without transparency
-                        if (toolOptions.resizeFormat === 'jpg' || toolOptions.resizeFormat === 'jpeg') {
-                            ctx.fillStyle = toolOptions.resizeBackground;
-                            ctx.fillRect(0, 0, newWidth, newHeight);
-                        }
-
-                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-                        
-                        const mimeType = `image/${toolOptions.resizeFormat}`;
-                        const quality = toolOptions.resizeQuality / 100;
-
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject('Canvas to blob failed');
-                        }, mimeType, quality);
-                    };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(file);
-                });
-
-                if (files.length === 1) {
-                    const blob = await processImageResize(files[0]);
-                    setProcessedFileBlob(blob);
-                } else {
-                    const zip = new JSZip();
-                    for (const [index, file] of files.entries()) {
-                        setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Resizing image ${index + 1}` });
-                        const blob = await processImageResize(file);
-                        const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}_resized.${toolOptions.resizeFormat || 'jpg'}`, blob);
-                    }
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    setProcessedFileBlob(zipBlob);
-                }
-                break;
-            }
-            case 'crop-image': {
-                if (files.length !== 1) throw new Error("Please select one image file to crop.");
-                const file = files[0];
-                const { cropX, cropY, cropWidth, cropHeight } = toolOptions;
-
-                const processImageCrop = (imgFile: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = cropWidth;
-                        canvas.height = cropHeight;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject(new Error('Could not get canvas context'));
-                        ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject(new Error('Failed to create blob from canvas'));
-                        }, imgFile.type);
-                    };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(imgFile);
-                });
-
-                const blob = await processImageCrop(file);
-                setProcessedFileBlob(blob);
-                break;
-            }
-            case 'convert-to-jpg': {
-                const processConversion = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject('Could not get canvas context');
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject('Canvas to blob failed');
-                        }, 'image/jpeg', 0.9);
-                    };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(file);
-                });
-
-                if (files.length === 1) {
-                    const blob = await processConversion(files[0]);
-                    setProcessedFileBlob(blob);
-                } else if (files.length > 1) {
-                    const zip = new JSZip();
-                    for (const [index, file] of files.entries()) {
-                        setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Converting file ${index + 1}` });
-                        const blob = await processConversion(file);
-                        const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}.jpg`, blob);
-                    }
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    setProcessedFileBlob(zipBlob);
-                } else {
-                    throw new Error("Please select one or more image files.");
-                }
-                break;
-            }
-            case 'convert-from-jpg': {
-                const format = toolOptions.convertToFormat || 'png';
-                const mimeType = `image/${format}`;
-
-                const processImage = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject('Could not get canvas context');
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject('Canvas to blob conversion failed');
-                        }, mimeType);
-                    };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(file);
-                });
-
-                if (files.length === 1) {
-                    const blob = await processImage(files[0]);
-                    setProcessedFileBlob(blob);
-                } else {
-                    const zip = new JSZip();
-                    for (const [index, file] of files.entries()) {
-                        setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Converting file ${index + 1}` });
-                        const blob = await processImage(file);
-                        const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}.${format}`, blob);
-                    }
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    setProcessedFileBlob(zipBlob);
-                }
-                break;
-            }
-            case 'compress-image': {
-                const quality = toolOptions.compressionQuality || 0.75;
-                const processImage = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject('Could not get canvas context');
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject('Canvas to blob conversion failed');
-                        }, 'image/jpeg', quality);
-                    };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(file);
-                });
-
-                if (files.length === 1) {
-                    const blob = await processImage(files[0]);
-                    setProcessedFileBlob(blob);
-                } else {
-                    const zip = new JSZip();
-                    for (const [index, file] of files.entries()) {
-                        setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Compressing file ${index + 1}` });
-                        const blob = await processImage(file);
-                        const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}_compressed.jpg`, blob);
-                    }
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    setProcessedFileBlob(zipBlob);
-                }
-                break;
-            }
-            case 'watermark-image': {
-                const processImage = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
-                    const baseImage = new Image();
-                    baseImage.onload = async () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = baseImage.width;
-                        canvas.height = baseImage.height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return reject('Could not get canvas context');
-                        ctx.drawImage(baseImage, 0, 0);
-                        
-                        ctx.globalAlpha = toolOptions.watermarkOpacity || 0.5;
-
-                        if (toolOptions.watermarkType === 'image' && toolOptions.watermarkImage) {
-                            const watermarkImage = new Image();
-                            watermarkImage.onload = () => {
-                                ctx.drawImage(watermarkImage, canvas.width / 2 - watermarkImage.width / 2, canvas.height / 2 - watermarkImage.height / 2);
-                                canvas.toBlob(blob => resolve(blob!), 'image/png');
-                            };
-                            watermarkImage.onerror = reject;
-                            watermarkImage.src = toolOptions.watermarkImage;
-                        } else if (toolOptions.watermarkType === 'text') {
-                            const text = toolOptions.watermarkText || 'I LOVE PDFLY';
-                            const size = toolOptions.watermarkSize || 50;
-                            ctx.font = `bold ${size}px Arial`;
-                            ctx.fillStyle = toolOptions.watermarkColor || '#e53935';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            
-                            ctx.save();
-                            ctx.translate(canvas.width / 2, canvas.height / 2);
-                            ctx.rotate((toolOptions.watermarkRotation || -45) * Math.PI / 180);
-                            
-                            if (toolOptions.watermarkTiled) {
-                                const patternCanvas = document.createElement('canvas');
-                                const patternCtx = patternCanvas.getContext('2d')!;
-                                const textWidth = ctx.measureText(text).width;
-                                patternCanvas.width = textWidth + size;
-                                patternCanvas.height = textWidth + size;
-                                patternCtx.font = `bold ${size}px Arial`;
-                                patternCtx.fillStyle = toolOptions.watermarkColor || '#e53935';
-                                patternCtx.textAlign = 'center';
-                                patternCtx.textBaseline = 'middle';
-                                patternCtx.fillText(text, patternCanvas.width / 2, patternCanvas.height / 2);
-                                
-                                const pattern = ctx.createPattern(patternCanvas, 'repeat');
-                                if (pattern) {
-                                  ctx.fillStyle = pattern;
-                                  ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
-                                }
-                            } else {
-                                ctx.fillText(text, 0, 0);
-                            }
-                            ctx.restore();
-                            canvas.toBlob(blob => resolve(blob!), 'image/png');
-                        } else {
-                           canvas.toBlob(blob => resolve(blob!), 'image/png');
-                        }
-                    };
-                    baseImage.onerror = reject;
-                    baseImage.src = URL.createObjectURL(file);
-                });
-
-                if (files.length === 1) {
-                    const blob = await processImage(files[0]);
-                    setProcessedFileBlob(blob);
-                } else {
-                    const zip = new JSZip();
-                    for (const [index, file] of files.entries()) {
-                        setProgress({ percentage: Math.round(((index + 1) / files.length) * 100), status: `Watermarking file ${index + 1}` });
-                        const blob = await processImage(file);
-                        const baseName = file.name.replace(/\.[^/.]+$/, "");
-                        zip.file(`${baseName}_watermarked.png`, blob);
-                    }
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    setProcessedFileBlob(zipBlob);
-                }
-                break;
-            }
-          default:
-            throw new Error(`Tool "${tool.id}" is not yet implemented.`);
         }
         setState(ProcessingState.Success);
       } catch (e: any) {
         console.error(e);
-        let message = 'An unexpected error occurred during processing.';
-        if (e instanceof Error) {
-            message = e.message;
-        } else if (typeof e === 'string') {
-            message = e;
-        } else if (e && typeof e.message === 'string') {
-            message = e.message;
-        }
-        setErrorMessage(message);
+        setErrorMessage(e.message || 'An unknown error occurred during processing.');
         setState(ProcessingState.Error);
       } finally {
         setProgress(null);
       }
   };
-  
-  const handleReset = () => {
-    setState(ProcessingState.Idle);
-    setErrorMessage('');
-    setProcessedFileBlob(null);
-    setFiles([]);
-    setToolOptions(initialToolOptions);
-    setProgress(null);
-    setPdfPages([]);
-    setPdfPagePreviews([]);
-    setCanvasItems([]);
-    setComparisonResults([]);
-    setRedactionAreas([]);
-    setOriginalImageSize(null);
-  };
 
+  if (!tool) {
+    // This can happen briefly on load, or if the toolId is invalid.
+    // A loading spinner could be shown here.
+    return (
+        <div className="flex items-center justify-center h-screen">
+           <div className="text-center">
+              <p className="text-xl font-semibold">Loading Tool...</p>
+           </div>
+        </div>
+    );
+  }
+  
   const handleDownload = () => {
-    if (!processedFileBlob || !tool) return;
-    
+    if (!processedFileBlob) return;
     const url = URL.createObjectURL(processedFileBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', getOutputFilename(tool.id, files, toolOptions));
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode?.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = getOutputFilename(tool.id, files, toolOptions);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
   
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-      setDraggedItemIndex(index);
-      e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-      e.preventDefault();
-      if (draggedItemIndex === null || draggedItemIndex === index) return;
-      const newPages = [...pdfPages];
-      const [removed] = newPages.splice(draggedItemIndex, 1);
-      newPages.splice(index, 0, removed);
-      setPdfPages(newPages);
-      setDraggedItemIndex(null);
-  };
-
-  const handleDeletePage = (indexToDelete: number) => { setPdfPages(pdfPages.filter((_, index) => index !== indexToDelete)); };
-  
-  const handleApplyCanvasItem = (data: Partial<CanvasItem>, type: CanvasItem['type']) => {
-      if (!data.dataUrl) return;
-      const img = new Image();
-      img.onload = () => {
-          const newWidth = type === 'text' ? img.width / 2 : 150;
-          const scale = newWidth / img.width;
-          const newHeight = img.height * scale;
-
-          let initialPageIndex = 0;
-          let initialX = 0;
-          let initialY = 0;
-
-          if (previewContainerRef.current) {
-              const container = previewContainerRef.current;
-              const centerY = container.scrollTop + container.clientHeight / 2;
-
-              for (let i = 0; i < pdfPagePreviews.length; i++) {
-                  const pageElement = document.getElementById(`pdf-page-${i}`);
-                  if (pageElement && centerY >= pageElement.offsetTop && centerY < pageElement.offsetTop + pageElement.offsetHeight) {
-                      initialPageIndex = i;
-                      break;
-                  }
-              }
-
-              initialX = container.scrollLeft + container.clientWidth / 2 - newWidth / 2;
-              initialY = centerY - newHeight / 2;
-          }
-
-          setCanvasItems(items => [...items, {
-              ...data,
-              id: Date.now(),
-              type,
-              width: newWidth,
-              height: newHeight,
-              x: initialX,
-              y: initialY,
-              pageIndex: initialPageIndex,
-          } as CanvasItem]);
-      };
-      img.src = data.dataUrl;
-      setIsModalOpen(false);
-  };
-  
-  const handleItemDragStart = (e: React.MouseEvent<HTMLDivElement>, id: number) => {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
-      setActiveDrag({ id, offsetX: e.clientX - target.getBoundingClientRect().left, offsetY: e.clientY - target.getBoundingClientRect().top });
-  };
-  
-  const openEditorModal = (type: 'signature' | 'text' | 'image') => {
-    setModalType(type);
-    setIsModalOpen(true);
+  if (tool.id === 'scan-to-pdf') {
+     return (
+          <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+              <div className="text-center mb-6">
+                <h1 className="text-4xl font-extrabold text-white">{tool.title}</h1>
+                <p className="mt-2 text-lg text-gray-400 max-w-2xl">{tool.description}</p>
+              </div>
+              <DocumentScannerUI tool={tool} />
+          </div>
+     );
   }
-  
-  const handleMouseDownRedaction = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!previewContainerRef.current || tool?.id !== 'redact-pdf') return;
-    setIsDrawingRedaction(true);
-    const container = previewContainerRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const x = e.clientX - containerRect.left + container.scrollLeft;
-    const y = e.clientY - containerRect.top + container.scrollTop;
-
-    let pageIndex = 0;
-    for (let i = 0; i < pdfPagePreviews.length; i++) {
-        const pageEl = document.getElementById(`pdf-page-${i}`);
-        if (pageEl && y >= pageEl.offsetTop && y < pageEl.offsetTop + pageEl.offsetHeight) {
-            pageIndex = i;
-            break;
-        }
-    }
-    setRedactionStartPoint({ x, y, pageIndex });
-    setCurrentRedaction({ x, y, width: 0, height: 0, pageIndex });
-  };
-  
-  const handleMouseUpRedaction = () => {
-    if (!isDrawingRedaction || !currentRedaction || currentRedaction.width < 5 || currentRedaction.height < 5) {
-        setIsDrawingRedaction(false);
-        setCurrentRedaction(null);
-        return;
-    }
-    setRedactionAreas(prev => [...prev, { ...currentRedaction, id: Date.now() }]);
-    setIsDrawingRedaction(false);
-    setCurrentRedaction(null);
-    setRedactionStartPoint(null);
-  };
-  
-  const removeRedactionArea = (id: number) => {
-    setRedactionAreas(areas => areas.filter(area => area.id !== id));
-  };
-
-  const editorToolbar = (
-    <div className="flex flex-wrap items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        {tool?.id === 'sign-pdf' && (
-            <>
-                <button onClick={() => openEditorModal('signature')} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
-                    <EditIcon className="h-5 w-5" /> Signature
-                </button>
-                <button onClick={() => openEditorModal('text')} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
-                    <strong>T</strong> Text
-                </button>
-                 <button onClick={() => openEditorModal('image')} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
-                    <ImageIcon className="h-5 w-5" /> Image
-                </button>
-            </>
-        )}
-        {tool?.id === 'edit-pdf' && (
-             <>
-                 <button onClick={() => openEditorModal('text')} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
-                    <strong>T</strong> Text
-                </button>
-                 <button onClick={() => openEditorModal('image')} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
-                    <ImageIcon className="h-5 w-5" /> Image
-                </button>
-            </>
-        )}
-        {tool?.id === 'redact-pdf' && (
-            <p className="text-sm p-2 text-gray-600 dark:text-gray-300">Click and drag on the document to draw redaction areas.</p>
-        )}
-        {(canvasItems.length > 0 || redactionAreas.length > 0) && (
-            <button onClick={() => { setCanvasItems([]); setRedactionAreas([]); }} className="flex items-center gap-2 p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 ml-auto text-sm">
-                <TrashIcon className="h-5 w-5" /> Clear All
-            </button>
-        )}
-    </div>
-  );
-
-  if (!tool) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl font-semibold">Loading tool...</div>
-      </div>
-    );
-  }
-
-  const isVisualEditor = ['organize-pdf', 'sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool.id);
-  const showVisualEditor = (isVisualEditor && files.length > 0) || (tool.id === 'compare-pdf' && comparisonResults.length > 0);
-  
-  const renderToolOptions = () => {
-    switch (tool.id) {
-        case 'compress-pdf':
-            return (
-                <div className="space-y-2 text-center">
-                    <p className="font-semibold text-gray-800 dark:text-gray-100">Compression Level:</p>
-                    <div className="flex justify-center gap-4 p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
-                        {['low', 'recommended', 'high'].map(level => (
-                            <label key={level} className="flex-1 cursor-pointer">
-                                <input type="radio" name="compression" value={level} checked={toolOptions.compressionLevel === level} onChange={(e) => setToolOptions({ ...toolOptions, compressionLevel: e.target.value })} className="sr-only peer" />
-                                <div className="p-3 rounded-md text-center peer-checked:bg-brand-red peer-checked:text-white peer-checked:shadow-lg transition-all">
-                                    <p className="font-bold capitalize">{level === 'recommended' ? 'Recommended' : level}</p>
-                                    <p className="text-xs">{level === 'low' ? 'Best Quality' : level === 'high' ? 'Smallest Size' : 'Good Balance'}</p>
-                                </div>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            );
-        case 'split-pdf':
-            return (
-                <div className="space-y-4">
-                    <select value={toolOptions.splitMode} onChange={e => setToolOptions({ ...toolOptions, splitMode: e.target.value })} className="w-full p-2 border rounded-md">
-                        <option value="all">Extract all pages</option>
-                        <option value="ranges">Select ranges</option>
-                        <option value="fixed">Fixed range split</option>
-                    </select>
-                    {toolOptions.splitMode === 'ranges' && <input type="text" value={toolOptions.splitRanges} onChange={e => setToolOptions({...toolOptions, splitRanges: e.target.value})} className="w-full p-2 border rounded-md" placeholder="e.g., 1, 3-5, 8" />}
-                    {toolOptions.splitMode === 'fixed' && <input type="number" value={toolOptions.splitFixedSize} onChange={e => setToolOptions({...toolOptions, splitFixedSize: parseInt(e.target.value) || 1})} className="w-full p-2 border rounded-md" placeholder="Split every X pages" />}
-                </div>
-            );
-         case 'jpg-to-pdf':
-            return (
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div><label className="font-semibold">Orientation</label><select value={toolOptions.pageOrientation} onChange={e => setToolOptions({...toolOptions, pageOrientation: e.target.value})} className="w-full p-2 border rounded-md mt-1"><option value="auto">Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
-                    <div><label className="font-semibold">Page Size</label><select value={toolOptions.pageSize} onChange={e => setToolOptions({...toolOptions, pageSize: e.target.value})} className="w-full p-2 border rounded-md mt-1"><option value="fit">Fit Image</option><option value="a4">A4</option><option value="letter">US Letter</option></select></div>
-                    <div><label className="font-semibold">Margin</label><select value={toolOptions.pageMargin} onChange={e => setToolOptions({...toolOptions, pageMargin: e.target.value})} className="w-full p-2 border rounded-md mt-1"><option value="none">None</option><option value="small">Small</option><option value="big">Big</option></select></div>
-                 </div>
-            );
-        case 'pdf-to-jpg': case 'pdf-to-png':
-            return (
-                <div><label className="font-semibold">Image Quality (DPI Scale)</label><input type="range" min="0.5" max="3" step="0.1" value={toolOptions.imageQuality} onChange={e => setToolOptions({...toolOptions, imageQuality: parseFloat(e.target.value)})} className="w-full mt-1"/></div>
-            );
-        case 'ocr-pdf':
-            return (
-                <div><label className="font-semibold">Document Language</label><select value={toolOptions.ocrLanguage} onChange={e => setToolOptions({...toolOptions, ocrLanguage: e.target.value})} className="w-full p-2 border rounded-md mt-1"><option value="eng">English</option><option value="spa">Spanish</option><option value="fra">French</option><option value="deu">German</option><option value="chi_sim">Chinese (Simplified)</option></select></div>
-            );
-         case 'protect-pdf':
-            return (
-                <div className="space-y-4">
-                     <input type="password" value={toolOptions.password || ''} onChange={(e) => setToolOptions({ ...toolOptions, password: e.target.value })} className="w-full p-2 border rounded-md" placeholder="Enter password" />
-                     <fieldset className="border p-4 rounded-md"><legend className="font-semibold px-2">Permissions</legend><div className="flex flex-wrap gap-4"><label className="flex items-center gap-2"><input type="checkbox" checked={toolOptions.allowPrinting} onChange={e => setToolOptions({...toolOptions, allowPrinting: e.target.checked})} /> Allow Printing</label><label className="flex items-center gap-2"><input type="checkbox" checked={toolOptions.allowCopying} onChange={e => setToolOptions({...toolOptions, allowCopying: e.target.checked})} /> Allow Copying</label><label className="flex items-center gap-2"><input type="checkbox" checked={toolOptions.allowModifying} onChange={e => setToolOptions({...toolOptions, allowModifying: e.target.checked})} /> Allow Modifying</label></div></fieldset>
-                </div>
-            );
-        case 'unlock-pdf':
-             return (
-                <div className="space-y-2">
-                    <label className="font-semibold">Password</label>
-                    <input type="password" value={toolOptions.password || ''} onChange={(e) => setToolOptions({ ...toolOptions, password: e.target.value })} className="w-full p-2 border rounded-md" placeholder="Enter current password" />
-                </div>
-            );
-        case 'resize-image': {
-            const handleDimensionChange = (dimension: 'width' | 'height', value: string) => {
-                const numericValue = parseInt(value, 10) || 0;
-                if (toolOptions.maintainAspectRatio && originalImageSize) {
-                    const aspectRatio = originalImageSize.width / originalImageSize.height;
-                    if (dimension === 'width') {
-                        setToolOptions(prev => ({ ...prev, resizeWidth: numericValue, resizeHeight: Math.round(numericValue / aspectRatio) }));
-                    } else {
-                        setToolOptions(prev => ({ ...prev, resizeHeight: numericValue, resizeWidth: Math.round(numericValue * aspectRatio) }));
-                    }
-                } else {
-                    if (dimension === 'width') {
-                        setToolOptions(prev => ({ ...prev, resizeWidth: numericValue }));
-                    } else {
-                        setToolOptions(prev => ({ ...prev, resizeHeight: numericValue }));
-                    }
-                }
-            };
-
-            const handleUnitChange = (unit: 'percent' | 'pixels') => {
-                 if (unit === 'pixels' && originalImageSize) {
-                    setToolOptions(prev => ({ ...prev, resizeUnit: unit, resizeWidth: originalImageSize.width, resizeHeight: originalImageSize.height }));
-                } else {
-                    setToolOptions(prev => ({ ...prev, resizeUnit: unit, resizeWidth: 70, resizeHeight: 70 }));
-                }
-            };
-            
-            return (
-                 <div className="space-y-6 max-w-2xl mx-auto text-sm">
-                    <h3 className="text-xl font-bold text-center text-gray-800 dark:text-gray-100">Choose new size and format</h3>
-                    
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                                <label htmlFor="width" className="w-16 font-semibold">Width</label>
-                                <input type="number" id="width" value={toolOptions.resizeWidth} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <label htmlFor="height" className="w-16 font-semibold">Height</label>
-                                <input type="number" id="height" value={toolOptions.resizeHeight} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => setToolOptions(prev => ({...prev, maintainAspectRatio: !prev.maintainAspectRatio}))} className={`p-2 rounded-md border ${toolOptions.maintainAspectRatio ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                                {toolOptions.maintainAspectRatio ? <LockIcon className="h-5 w-5"/> : <UnlockIcon className="h-5 w-5"/>}
-                            </button>
-                            <select value={toolOptions.resizeUnit} onChange={(e) => handleUnitChange(e.target.value as any)} className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark">
-                                <option value="percent">Percent</option>
-                                <option value="pixels">Pixels</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                        <label htmlFor="resolution" className="font-semibold">Resolution</label>
-                        <input type="number" id="resolution" value={toolOptions.resizeResolution} onChange={e => setToolOptions({...toolOptions, resizeResolution: parseInt(e.target.value) || 72})} className="w-24 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
-                        <span className="text-gray-500">DPI</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div>
-                            <label className="font-semibold block mb-1">Format</label>
-                            <select value={toolOptions.resizeFormat} onChange={e => setToolOptions({...toolOptions, resizeFormat: e.target.value})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark">
-                                <option value="jpg">JPG</option>
-                                <option value="png">PNG</option>
-                            </select>
-                        </div>
-                        {toolOptions.resizeFormat === 'jpg' && (
-                            <div>
-                                <label className="font-semibold block mb-1">Quality</label>
-                                <div className="flex items-center gap-2">
-                                <input type="number" min="1" max="100" value={toolOptions.resizeQuality} onChange={e => setToolOptions({...toolOptions, resizeQuality: parseInt(e.target.value) || 90})} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-surface-dark" />
-                                <span>%</span>
-                                </div>
-                            </div>
-                        )}
-                        {toolOptions.resizeFormat === 'jpg' && (
-                             <div>
-                                <label className="font-semibold block mb-1">Background</label>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => setToolOptions({...toolOptions, resizeBackground: '#FFFFFF'})} className={`w-8 h-8 rounded-full border-2 ${toolOptions.resizeBackground === '#FFFFFF' ? 'border-blue-500' : 'border-gray-300'}`} style={{backgroundColor: 'white'}}></button>
-                                    <button onClick={() => setToolOptions({...toolOptions, resizeBackground: '#000000'})} className={`w-8 h-8 rounded-full border-2 ${toolOptions.resizeBackground === '#000000' ? 'border-blue-500' : 'border-gray-300'}`} style={{backgroundColor: 'black'}}></button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-        case 'crop-image': {
-            return (
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="font-semibold">Width (px)</label>
-                        <input type="number" value={toolOptions.cropWidth} onChange={e => setToolOptions({...toolOptions, cropWidth: parseInt(e.target.value) || 0})} className="w-full p-2 border rounded-md mt-1" />
-                    </div>
-                    <div>
-                        <label className="font-semibold">Height (px)</label>
-                        <input type="number" value={toolOptions.cropHeight} onChange={e => setToolOptions({...toolOptions, cropHeight: parseInt(e.target.value) || 0})} className="w-full p-2 border rounded-md mt-1" />
-                    </div>
-                    <div>
-                        <label className="font-semibold">X offset</label>
-                        <input type="number" value={toolOptions.cropX} onChange={e => setToolOptions({...toolOptions, cropX: parseInt(e.target.value) || 0})} className="w-full p-2 border rounded-md mt-1" />
-                    </div>
-                    <div>
-                        <label className="font-semibold">Y offset</label>
-                        <input type="number" value={toolOptions.cropY} onChange={e => setToolOptions({...toolOptions, cropY: parseInt(e.target.value) || 0})} className="w-full p-2 border rounded-md mt-1" />
-                    </div>
-                </div>
-            );
-        }
-        case 'convert-to-jpg': {
-            return <p className="text-center text-gray-600 dark:text-gray-400">All selected images will be converted to JPG format.</p>;
-        }
-        case 'convert-from-jpg':
-            return (
-                <div>
-                    <label className="font-semibold">Convert to Format</label>
-                    <select value={toolOptions.convertToFormat} onChange={e => setToolOptions({...toolOptions, convertToFormat: e.target.value})} className="w-full p-2 border rounded-md mt-1">
-                        <option value="png">PNG</option>
-                        <option value="gif">GIF</option>
-                    </select>
-                </div>
-            );
-        case 'compress-image':
-            return (
-                <div>
-                    <label className="font-semibold">Compression Quality ({Math.round(toolOptions.compressionQuality * 100)}%)</label>
-                    <input 
-                        type="range" 
-                        min="0.1" 
-                        max="1" 
-                        step="0.05" 
-                        value={toolOptions.compressionQuality} 
-                        onChange={e => setToolOptions({...toolOptions, compressionQuality: parseFloat(e.target.value)})} 
-                        className="w-full mt-1"
-                    />
-                </div>
-            );
-        case 'watermark-image': {
-            const handleWatermarkImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-                if (e.target.files && e.target.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        setToolOptions({ ...toolOptions, watermarkImage: event.target?.result as string });
-                    };
-                    reader.readAsDataURL(e.target.files[0]);
-                }
-            };
-            return (
-                <div className="space-y-4">
-                    <div>
-                        <label className="font-semibold">Watermark Type</label>
-                        <select value={toolOptions.watermarkType} onChange={e => setToolOptions({...toolOptions, watermarkType: e.target.value})} className="w-full p-2 border rounded-md mt-1">
-                            <option value="text">Text</option>
-                            <option value="image">Image</option>
-                        </select>
-                    </div>
-                    {toolOptions.watermarkType === 'text' ? (
-                         <input type="text" value={toolOptions.watermarkText} onChange={e => setToolOptions({...toolOptions, watermarkText: e.target.value})} className="w-full p-2 border rounded-md" placeholder="Your Text" />
-                    ) : (
-                        <input type="file" accept="image/*" onChange={handleWatermarkImageUpload} className="w-full p-2 border rounded-md" />
-                    )}
-                    {toolOptions.watermarkType === 'text' && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <input type="number" value={toolOptions.watermarkSize} onChange={e => setToolOptions({...toolOptions, watermarkSize: parseInt(e.target.value)})} placeholder="Font Size" className="w-full p-2 border rounded-md" />
-                            <input type="color" value={toolOptions.watermarkColor} onChange={e => setToolOptions({...toolOptions, watermarkColor: e.target.value})} className="w-full p-2 border rounded-md" />
-                        </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="font-semibold">Opacity</label>
-                            <input type="range" min="0" max="1" step="0.1" value={toolOptions.watermarkOpacity} onChange={e => setToolOptions({...toolOptions, watermarkOpacity: parseFloat(e.target.value)})} className="w-full" />
-                        </div>
-                         <div>
-                            <label className="font-semibold">Rotation</label>
-                            <input type="range" min="-180" max="180" value={toolOptions.watermarkRotation} onChange={e => setToolOptions({...toolOptions, watermarkRotation: parseInt(e.target.value)})} className="w-full" />
-                        </div>
-                    </div>
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={toolOptions.watermarkTiled} onChange={e => setToolOptions({...toolOptions, watermarkTiled: e.target.checked})} /> Tiled Watermark</label>
-                </div>
-            );
-        }
-        default: return null;
-    }
-  };
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex flex-col items-center py-12 px-6">
-      <div className="text-center mb-10">
-        <div className={`inline-block p-4 rounded-full ${tool.color}`}>
-          <tool.Icon className="h-10 w-10 text-white" />
+    <div className="py-12 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-10">
+          <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+            <tool.Icon className="h-12 w-12 text-white" />
+          </div>
+          <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{tool.title}</h1>
+          <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{tool.description}</p>
         </div>
-        <h1 className="mt-4 text-4xl font-extrabold text-gray-900 dark:text-gray-100">{tool.title}</h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{tool.description}</p>
-      </div>
 
-       <div className="text-center text-sm text-gray-500 dark:text-gray-400 mb-6 flex items-center justify-center gap-2">
-          <LockIcon className="h-4 w-4" />
-          <span>All uploaded files are encrypted and deleted automatically after 2 hours.</span>
-      </div>
-
-      <div className="w-full max-w-5xl bg-white dark:bg-surface-dark p-8 rounded-lg shadow-xl animated-border">
-        {tool.id === 'scan-to-pdf' ? (
-           <DocumentScannerUI tool={tool} />
-        ) : state === ProcessingState.Success ? (
-          <div className="text-center">
-            {tool.id === 'compare-pdf' ? (
-                <div>
-                     <h2 className="text-2xl font-bold text-green-600">Comparison Complete!</h2>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">Review the differences below.</p>
-                </div>
-            ) : (
-                <>
-                    <h2 className="text-2xl font-bold text-green-600">Processing Complete!</h2>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">Your file is ready for download.</p>
-                    <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                        <button
-                            onClick={handleDownload}
-                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors"
-                        >
-                            Download File
-                        </button>
-                        <button
-                            onClick={handleReset}
-                            className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-3 px-8 rounded-lg text-lg transition-colors"
-                        >
-                            Process Another File
-                        </button>
-                    </div>
-                </>
-            )}
-          </div>
-        ) : state === ProcessingState.Processing ? (
-          <div className="text-center py-12">
-             <div className="flex items-center justify-center gap-3 text-2xl font-bold text-gray-800 dark:text-gray-200">
-                <svg className="animate-spin h-8 w-8 text-brand-red" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{progress?.status || 'Processing...'}</span>
-             </div>
-             {progress && (
-                <div className="w-full max-w-md mx-auto bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
-                    <div className="bg-brand-red h-2.5 rounded-full" style={{ width: `${progress.percentage}%` }}></div>
-                </div>
-             )}
-          </div>
-        ) : state === ProcessingState.Error ? (
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-500">An Error Occurred</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{errorMessage}</p>
-            <button
-                onClick={handleReset}
-                className="mt-6 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors"
-            >
-                Try Again
-            </button>
-          </div>
-        ) : (
-          <div>
-            {/* File Upload Component or Initial State */}
-            {!showVisualEditor && (
-                <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept} />
-            )}
-
-            {/* Visual Editor (for Organize, Sign, Edit, Redact) */}
-            {showVisualEditor && tool.id === 'organize-pdf' && (
-                <div>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                        {pdfPages.map((page, index) => (
-                            <div 
-                                key={page.originalIndex} 
-                                draggable 
-                                onDragStart={(e) => handleDragStart(e, index)}
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, index)}
-                                className="relative group cursor-move aspect-[210/297]"
-                            >
-                                <img src={page.imageDataUrl} alt={`Page ${page.originalIndex + 1}`} className="w-full h-full object-contain border-2 border-gray-300 dark:border-gray-700 rounded-md" />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <button onClick={() => handleDeletePage(index)} className="text-white bg-red-600/80 rounded-full p-2 hover:bg-red-600">
-                                        <TrashIcon className="h-5 w-5"/>
-                                    </button>
-                                </div>
-                                <span className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">{index + 1}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-            
-            {showVisualEditor && ['sign-pdf', 'edit-pdf'].includes(tool.id) && (
-                <div>
-                    {editorToolbar}
-                    <div ref={previewContainerRef} onMouseDown={e => e.preventDefault()} className="relative h-[80vh] overflow-y-auto bg-gray-200 dark:bg-gray-800 p-4 space-y-4">
-                        {pdfPagePreviews.map((src, index) => (
-                            <img key={index} id={`pdf-page-${index}`} src={src} alt={`Page ${index+1}`} className="max-w-full mx-auto shadow-lg" />
-                        ))}
-                        {canvasItems.map(item => (
-                            <div 
-                                key={item.id}
-                                onMouseDown={(e) => handleItemDragStart(e, item.id)}
-                                className="absolute cursor-move border-2 border-dashed border-blue-500"
-                                style={{
-                                    left: item.x, top: item.y,
-                                    width: item.width, height: item.height
-                                }}
-                            >
-                                {item.dataUrl && <img src={item.dataUrl} alt="canvas item" className="w-full h-full object-contain" />}
-                                <button onClick={() => setCanvasItems(items => items.filter(i => i.id !== item.id))} className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-0.5"><CloseIcon className="h-3 w-3"/></button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-            
-            {showVisualEditor && tool.id === 'redact-pdf' && (
-                <div>
-                    {editorToolbar}
-                    <div ref={previewContainerRef} 
-                        onMouseDown={handleMouseDownRedaction}
-                        onMouseMove={handleMouseMoveRedaction}
-                        onMouseUp={handleMouseUpRedaction}
-                        onMouseLeave={handleMouseUpRedaction} // End redaction if mouse leaves area
-                        className="relative h-[80vh] overflow-y-auto bg-gray-200 dark:bg-gray-800 p-4 space-y-4 cursor-crosshair">
-                        
-                        {pdfPagePreviews.map((src, index) => (
-                            <img key={index} id={`pdf-page-${index}`} src={src} alt={`Page ${index+1}`} className="max-w-full mx-auto shadow-lg select-none" draggable="false" />
-                        ))}
-                        
-                        {/* Render saved redaction areas */}
-                        {redactionAreas.map(area => (
-                            <div key={area.id}
-                                className="absolute bg-black border border-red-500"
-                                style={{ left: area.x, top: area.y, width: area.width, height: area.height }}>
-                                <button onClick={() => removeRedactionArea(area.id)} className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100"><CloseIcon className="h-3 w-3"/></button>
-                            </div>
-                        ))}
-
-                        {/* Render current drawing redaction */}
-                        {currentRedaction && (
-                            <div className="absolute bg-black/50 border-2 border-dashed border-red-500 pointer-events-none"
-                                style={{ left: currentRedaction.x, top: currentRedaction.y, width: currentRedaction.width, height: currentRedaction.height }}>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-            
-            {showVisualEditor && tool.id === 'compare-pdf' && (
-                <div className="space-y-6">
-                    {comparisonResults && comparisonResults.length > 0 && (
-                        <div>
-                            <p className="mb-4 text-lg">Found {comparisonResults.filter(r => r.diffPercentage > 0).length} pages with differences.</p>
-                            <div className="space-y-4">
-                                {comparisonResults.map(result => (
-                                    <div key={result.pageNumber} className="border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-900/50">
-                                        <h3 className="font-bold text-lg">Page {result.pageNumber} - <span className={result.diffPercentage > 0.1 ? 'text-red-500' : 'text-green-500'}>Difference: {result.diffPercentage.toFixed(2)}%</span></h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-center mb-1">File 1</h4>
-                                                {result.img1DataUrl ? <img src={result.img1DataUrl} alt={`File 1, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No page</div>}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-center mb-1">File 2</h4>
-                                                {result.img2DataUrl ? <img src={result.img2DataUrl} alt={`File 2, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No page</div>}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-center mb-1">Difference</h4>
-                                                {result.diffDataUrl ? <img src={result.diffDataUrl} alt={`Difference, Page ${result.pageNumber}`} className="w-full border dark:border-gray-700" /> : <div className="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500">No diff</div>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Options & Process Button */}
-            {(files.length > 0 || isVisualEditor) && (
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                {/* Visual editors have their own "process" area */}
-                {isVisualEditor ? (
-                    <div className="text-center">
-                         <button
-                            onClick={handleProcess}
-                            disabled={isVisualProcessButtonDisabled}
-                            className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400`}
-                        >
-                            {tool.title}
-                        </button>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center gap-6">
-                       <div className="w-full max-w-2xl">{renderToolOptions()}</div>
-                        <button
-                            onClick={handleProcess}
-                            disabled={isProcessButtonDisabled}
-                            className={`w-full max-w-sm ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors disabled:bg-gray-400`}
-                        >
-                            {tool.title}
-                        </button>
-                    </div>
-                )}
-              </div>
-            )}
-          </div>
+        {state === ProcessingState.Idle && (
+            <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept} />
         )}
-      </div>
-      
-      {/* Back to Home Link */}
-      {!showVisualEditor && (
-        <div className="mt-12 text-center">
-            <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
-            &larr; Or go back to all tools
-            </Link>
+        
+        {state === ProcessingState.Processing && (
+            <div className="text-center p-12 bg-white dark:bg-surface-dark rounded-lg shadow-xl">
+                <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-brand-red mx-auto"></div>
+                <h2 className="mt-6 text-2xl font-bold text-gray-800 dark:text-gray-100">Processing...</h2>
+                {progress && (
+                    <>
+                     <p className="mt-2 text-gray-600 dark:text-gray-400">{progress.status}</p>
+                     <div className="w-full max-w-md mx-auto bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
+                        <div className="bg-brand-red h-2.5 rounded-full" style={{ width: `${progress.percentage}%` }}></div>
+                     </div>
+                    </>
+                )}
+            </div>
+        )}
+
+        {state === ProcessingState.Error && (
+            <div className="text-center p-12 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-xl border border-red-200 dark:border-red-800">
+                <h2 className="text-2xl font-bold text-red-700 dark:text-red-300">An Error Occurred</h2>
+                <p className="mt-2 text-red-600 dark:text-red-400">{errorMessage}</p>
+                <button onClick={handleReset} className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
+            </div>
+        )}
+        
+        {state === ProcessingState.Success && (
+            <div className="text-center p-12 bg-green-50 dark:bg-green-900/20 rounded-lg shadow-xl border border-green-200 dark:border-green-800">
+                <h2 className="text-2xl font-bold text-green-700 dark:text-green-300">Success!</h2>
+                <p className="mt-2 text-green-600 dark:text-green-400">Your files have been processed.</p>
+                {processedFileBlob && (
+                  <button onClick={handleDownload} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg">Download File</button>
+                )}
+                <button onClick={handleReset} className="mt-4 text-gray-600 dark:text-gray-400 font-semibold hover:underline">Process more files</button>
+            </div>
+        )}
+
+        <div className="mt-6 flex justify-center">
+            {state === ProcessingState.Idle && files.length > 0 && (
+                <button 
+                  onClick={handleProcess} 
+                  disabled={isProcessButtonDisabled}
+                  className={`text-white font-bold py-3 px-12 rounded-lg text-xl transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
+                >
+                    {tool.title}
+                </button>
+            )}
         </div>
-      )}
-      
-      <EditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onApply={handleApplyCanvasItem} type={modalType} />
+        <div className="mt-12 text-center">
+          <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
+            &larr; Back to all tools
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
