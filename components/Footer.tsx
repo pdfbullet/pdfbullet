@@ -84,9 +84,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
           
           {/* Logo & Socials */}
           <div className="col-span-2">
-            <Link to="/" title="I Love PDFLY Home">
+            <a href="/" title="I Love PDFLY Home">
               <Logo className="h-10 w-auto mb-3" variant="dark" />
-            </Link>
+            </a>
             <p className="text-gray-400 text-sm max-w-xs">
               Your go-to suite of online tools for PDF and image management.
             </p>

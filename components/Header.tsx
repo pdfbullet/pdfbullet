@@ -201,9 +201,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 <MenuIcon className="h-6 w-6" />
               </button>
             </div>
-            <Link to="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
+            <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
               <Logo className="h-10 w-auto" />
-            </Link>
+            </a>
             <nav className="hidden md:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
                   <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
