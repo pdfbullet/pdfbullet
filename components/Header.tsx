@@ -5,7 +5,7 @@ import {
   CameraIcon, KeyIcon, LogoutIcon, UserIcon, BookOpenIcon, 
   StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
-  ApiIcon, CodeIcon, SettingsIcon
+  ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -157,6 +157,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { to: '/pricing', label: 'Pricing', icon: DollarIcon },
       { to: '/education', label: 'Education', icon: StudentIcon },
       { to: '/business', label: 'Business', icon: BriefcaseIcon },
+      { to: '/press', label: 'Press', icon: NewspaperIcon },
       { to: '/privacy-policy', label: 'Privacy Policy', icon: GavelIcon },
       { to: '/terms-of-service', label: 'Terms of Service', icon: HeartbeatIcon },
   ];

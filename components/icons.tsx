@@ -387,6 +387,12 @@ export const BookOpenIcon: React.FC<{ className?: string }> = ({ className }) =>
     </svg>
 );
 
+export const NewspaperIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19 20H5V6h14v14zM5 4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H5zm2 4h10v2H7V8zm0 4h10v2H7v-2zm0 4h5v2H7v-2z"/>
+  </svg>
+);
+
 export const CVIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/>
@@ -632,5 +638,37 @@ export const OneDriveIcon: React.FC<{ className?: string }> = ({ className }) =>
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0078d4">
         <path d="M11.2 6.8c.2-.2.5-.2.7 0l5.8 5.8c.2.2.2.5 0 .7l-5.8 5.8c-.2.2-.5.2-.7 0l-5.8-5.8c-.2-.2-.2-.5 0-.7l5.8-5.8z" opacity=".5" />
         <path d="M11.2 4c.2-.2.5-.2.7 0l5.8 5.8c.2.2.2.5 0 .7l-5.8 5.8c-.2.2-.5.2-.7 0L5.4 10.5c-.2-.2-.2-.5 0-.7L11.2 4z" />
+    </svg>
+);
+
+export const PressMobileIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g>
+            <path fill="#e53935" d="M66.3,28.8H33.7a4.9,4.9,0,0,0-4.9,4.9V85.1a4.9,4.9,0,0,0,4.9,4.9H66.3a4.9,4.9,0,0,0,4.9-4.9V33.7A4.9,4.9,0,0,0,66.3,28.8Z"/>
+            <path fill="#2e2e38" d="M61.4,10H38.6A11.4,11.4,0,0,0,27.2,21.4V78.6A11.4,11.4,0,0,0,38.6,90H61.4A11.4,11.4,0,0,0,72.8,78.6V21.4A11.4,11.4,0,0,0,61.4,10Z"/>
+        </g>
+    </svg>
+);
+
+export const PressDesktopIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g>
+            <path fill="#e53935" d="M78.6,71.1H21.4a5,5,0,0,1-5-5V23.9a5,5,0,0,1,5-5H78.6a5,5,0,0,1,5,5V66.1A5,5,0,0,1,78.6,71.1Z"/>
+            <path fill="#2e2e38" d="M88.6,81.1H11.4a5,5,0,0,1,0-10H88.6a5,5,0,0,1,0,10Z"/>
+            <path fill="#e53935" d="M50,71.1h0a5,5,0,0,1-5-5V23.9a5,5,0,0,1,5-5h0a5,5,0,0,1,5,5V66.1A5,5,0,0,1,50,71.1Z"/>
+            <path fill="#e53935" d="M57.1,38.9H42.9a5,5,0,0,1,0-10H57.1a5,5,0,0,1,0,10Z"/>
+        </g>
+    </svg>
+);
+
+export const PressUpdatesIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g>
+            <path fill="#5f7d8c" d="M50,90A40,40,0,1,1,90,50,40,40,0,0,1,50,90Z"/>
+            <path fill="#748c99" d="M50,80A30,30,0,1,1,80,50,30,30,0,0,1,50,80Z"/>
+            <path fill="#e53935" d="M50,10a40,40,0,0,1,40,40,5,5,0,0,1-10,0,30,30,0,0,0-30-30,5,5,0,0,1,0-10Z"/>
+            <path fill="#5f7d8c" d="M50,70A20,20,0,1,1,70,50,20,20,0,0,1,50,70Z"/>
+            <path fill="#748c99" d="M50,60A10,10,0,1,1,60,50,10,10,0,0,1,50,60Z"/>
+        </g>
     </svg>
 );

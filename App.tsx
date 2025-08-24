@@ -55,6 +55,7 @@ const ApiPdfPage = lazy(() => import('./pages/ApiPdfPage.tsx'));
 const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
 const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
+const PressPage = lazy(() => import('./pages/PressPage.tsx'));
 
 const FloatingBackButton: React.FC = () => {
   return (
@@ -149,6 +150,7 @@ function MainApp() {
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
             <Route path="/ceo" element={<CeoPage />} />
+            <Route path="/press" element={<PressPage />} />
 
             {/* API Routes */}
             <Route path="/api-reference" element={<ApiReferencePage />} />

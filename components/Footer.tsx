@@ -49,6 +49,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
   const company = [
       { path: '/about', name: 'About' },
       { path: '/blog', name: 'Blog' },
+      { path: '/press', name: 'Press' },
       { path: '/contact', name: 'Contact' },
       { path: '/ceo', name: 'Message from CEO' },
       { path: '/privacy-policy', name: 'Privacy Policy' },
