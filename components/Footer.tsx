@@ -55,6 +55,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
       { path: '/privacy-policy', name: 'Privacy Policy' },
       { path: '/terms-of-service', name: 'Terms & Conditions' },
       { path: '/cookies-policy', name: 'Cookies Policy' },
+      { path: '/user-data-deletion', name: 'Data Deletion' },
   ];
   
   const resources = [
