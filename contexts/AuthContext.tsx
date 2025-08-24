@@ -1,33 +1,13 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import {
-    onAuthStateChanged,
-    signOut,
-    updateProfile,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    reauthenticateWithCredential,
-    EmailAuthProvider,
-    updatePassword,
-    Auth,
-    User as FirebaseUser,
-} from 'firebase/auth';
-import {
-    doc,
-    getDoc,
-    setDoc,
-    collection,
-    getDocs,
-    updateDoc,
-    deleteDoc,
-} from 'firebase/firestore';
-import {
-    ref,
-    uploadBytes,
-    getDownloadURL,
-} from 'firebase/storage';
-import { auth, db, storage } from '../firebase/config.ts';
+import { auth, db, storage, firebase } from '../firebase/config.ts';
+
+// Add this at the top of the file
+declare global {
+  interface Window {
+    FB: any;
+    fbAsyncInit: () => void;
+  }
+}
 
 // User interface for our app
 interface User {
@@ -55,12 +35,13 @@ interface AuthContextType {
   updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
   deleteUser: (uid: string) => Promise<void>;
   loginOrSignupWithGoogle: () => Promise<void>;
+  loginOrSignupWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
-  auth: Auth;
+  auth: firebase.auth.Auth;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,12 +51,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: firebase.User | null) => {
       try {
         if (firebaseUser) {
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const docSnap = await getDoc(userRef);
-          if (docSnap.exists()) {
+          const userRef = db.collection('users').doc(firebaseUser.uid);
+          const docSnap = await userRef.get();
+          if (docSnap.exists) {
             setUser(docSnap.data() as User);
           } else {
             // New user, create a profile in Firestore
@@ -90,7 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               lastName: '',
               country: '',
             };
-            await setDoc(userRef, newUserProfile);
+            await userRef.set(newUserProfile);
             setUser(newUserProfile);
           }
         } else {
@@ -107,44 +88,81 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const loginOrSignupWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
   };
   
+  const loginOrSignupWithFacebook = async () => {
+    return new Promise<void>((resolve, reject) => {
+        // Check if FB SDK is loaded
+        if (typeof window.FB === 'undefined' || !window.FB) {
+            console.error('Facebook SDK not loaded.');
+            return reject(new Error('Facebook SDK is not available. Please try again in a moment.'));
+        }
+
+        window.FB.login((response: any) => {
+            if (response.authResponse && response.authResponse.accessToken) {
+                // Get the access token
+                const accessToken = response.authResponse.accessToken;
+                // Create a Firebase credential with the token
+                const credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
+                
+                // Sign in to Firebase with the credential
+                auth.signInWithCredential(credential)
+                    .then(() => {
+                        // Firebase onAuthStateChanged will handle the user state update.
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Firebase sign in with Facebook credential error:", error);
+                        // Pass the Firebase error to the caller
+                        reject(error);
+                    });
+            } else {
+                console.log('User cancelled login or did not fully authorize.');
+                // Create an error that looks like a Firebase error for consistent handling
+                const error = new Error('The user closed the popup.');
+                (error as any).code = 'auth/popup-closed-by-user';
+                reject(error);
+            }
+        }, { scope: 'email,public_profile' });
+    });
+  };
+
   const signInWithEmail = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    await auth.signInWithEmailAndPassword(email, password);
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    await auth.createUserWithEmailAndPassword(email, password);
     // onAuthStateChanged listener will handle creating the user profile in Firestore
   };
 
   const logout = async () => {
     sessionStorage.removeItem('isAdminAuthenticated');
-    await signOut(auth);
+    await auth.signOut();
   };
   
   const updateProfileImage = async (imageFile: File) => {
     if (!user) throw new Error("No user is signed in.");
-    const storageRef = ref(storage, `profile_images/${user.uid}/${imageFile.name}`);
-    const snapshot = await uploadBytes(storageRef, imageFile);
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    const storageRef = storage.ref(`profile_images/${user.uid}/${imageFile.name}`);
+    const snapshot = await storageRef.put(imageFile);
+    const downloadURL = await snapshot.ref.getDownloadURL();
     
     const firebaseUser = auth.currentUser;
     if(firebaseUser) {
-        await updateProfile(firebaseUser, { photoURL: downloadURL });
+        await firebaseUser.updateProfile({ photoURL: downloadURL });
     }
 
-    const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, { profileImage: downloadURL });
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update({ profileImage: downloadURL });
     setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
   };
   
   const updateUserProfile = async (data: { firstName: string; lastName: string; country: string }) => {
     if (!user) throw new Error("No user is signed in.");
-    const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, data);
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update(data);
     setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
   };
 
@@ -153,30 +171,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!firebaseUser || !firebaseUser.email) {
         throw new Error("No user is signed in or user does not have an email address.");
     }
-    const credential = EmailAuthProvider.credential(firebaseUser.email, oldPassword);
-    await reauthenticateWithCredential(firebaseUser, credential);
-    await updatePassword(firebaseUser, newPassword);
+    const credential = firebase.auth.EmailAuthProvider.credential(firebaseUser.email, oldPassword);
+    await firebaseUser.reauthenticateWithCredential(credential);
+    await firebaseUser.updatePassword(newPassword);
   };
 
   const getAllUsers = async (): Promise<User[]> => {
-    const usersCollectionRef = collection(db, 'users');
-    const snapshot = await getDocs(usersCollectionRef);
+    const usersCollectionRef = db.collection('users');
+    const snapshot = await usersCollectionRef.get();
     return snapshot.docs.map(doc => doc.data() as User);
   };
 
   const updateUserPremiumStatus = async (uid: string, isPremium: boolean) => {
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, { isPremium });
+    const userRef = db.collection('users').doc(uid);
+    await userRef.update({ isPremium });
   };
   
   const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, { apiPlan: plan });
+    const userRef = db.collection('users').doc(uid);
+    await userRef.update({ apiPlan: plan });
   };
   
   const deleteUser = async (uid: string) => {
-    const userRef = doc(db, 'users', uid);
-    await deleteDoc(userRef);
+    const userRef = db.collection('users').doc(uid);
+    await userRef.delete();
   };
   
   const generateApiKey = async (): Promise<string> => {
@@ -185,8 +203,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const randomBytes = crypto.getRandomValues(new Uint8Array(32));
     const newApiKey = 'sk_live_' + btoa(String.fromCharCode(...randomBytes)).replace(/[^A-Za-z0-9]/g, '').substring(0, 40);
 
-    const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, { apiKey: newApiKey });
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update({ apiKey: newApiKey });
     setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
     return newApiKey;
   };
@@ -198,7 +216,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
