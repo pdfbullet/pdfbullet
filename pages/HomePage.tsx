@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -11,6 +12,7 @@ import {
     UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
+import { useAuth } from '../contexts/AuthContext.tsx';
 
 const HomeFaqItem: React.FC<{
     item: { q: string, a: string },
@@ -131,6 +133,7 @@ const HomePage: React.FC = () => {
     const [activeSolutionTab, setActiveSolutionTab] = useState<'students' | 'business' | 'educators'>('students');
     
     const { isFavorite, toggleFavorite } = useFavorites();
+    const { user } = useAuth();
 
     const filterCategories = [
         { label: 'All', category: 'All' },
@@ -257,15 +260,23 @@ const HomePage: React.FC = () => {
   return (
     <div className="overflow-x-hidden">
         {/* Hero Section */}
-        <section className="relative pt-4 pb-2 md:pt-6 md:pb-2 text-center overflow-hidden hero-background">
+        <section className={`relative text-center overflow-hidden hero-background transition-all duration-300 ${user ? 'py-16' : 'pt-4 pb-2 md:pt-6 md:pb-2'}`}>
             <div className="container max-w-7xl mx-auto px-6 relative z-10">
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
-                    Every tool you need to work with PDFs in one place
-                </h1>
-                <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                    Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
-                </p>
-                <div className="flex flex-wrap justify-center gap-3 mt-16">
+                {user ? (
+                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
+                        Hi {user.username}, let's get started
+                    </h1>
+                ) : (
+                    <>
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
+                            Every tool you need to work with PDFs in one place
+                        </h1>
+                        <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600 dark:text-gray-400">
+                            Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
+                        </p>
+                    </>
+                )}
+                <div className={`flex flex-wrap justify-center gap-3 ${user ? 'mt-8' : 'mt-16'}`}>
                     {filterCategories.map(({ label, category }) => (
                         <button
                             key={label}
