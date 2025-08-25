@@ -28,16 +28,39 @@ export default defineConfig(({ mode }) => {
           description:
             "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
           start_url: '/',
+          id: '/',
           display: 'standalone',
+          display_override: ['window-controls-overlay'],
           background_color: '#ffffff',
           theme_color: '#B90B06',
           orientation: 'portrait-primary',
+          dir: 'auto',
           categories: ['productivity', 'utilities', 'business'],
           icons: [
-            { src: '/favicon.png', sizes: '192x192', type: 'image/png' },
-            { src: '/favicon.png', sizes: '512x512', type: 'image/png' },
-            { src: '/favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-            { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+            {
+              src: '/favicon.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: '/favicon.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: '/apple-touch-icon.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+            {
+              src: '/apple-touch-icon.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
           ],
           screenshots: [
             {
@@ -54,6 +77,27 @@ export default defineConfig(({ mode }) => {
               form_factor: 'narrow',
               label: 'Mobile view showing PDF tools',
             },
+          ],
+          edge_side_panel: {
+            preferred_width: 480
+          },
+          file_handlers: [
+            {
+              action: '/',
+              accept: {
+                'application/pdf': ['.pdf'],
+              },
+              launch_type: 'single-client'
+            }
+          ],
+          launch_handler: {
+            client_mode: 'navigate-existing'
+          },
+          protocol_handlers: [
+            {
+              protocol: 'web+pdfly',
+              url: '/?url=%s'
+            }
           ],
         },
       }),
