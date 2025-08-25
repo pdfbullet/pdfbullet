@@ -700,3 +700,31 @@ export const DesktopIcon: React.FC<{ className?: string }> = ({ className }) => 
         <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
     </svg>
 );
+
+export const IOSIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#8E8E93"/>
+        <text x="32" y="42" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" fontSize="28" fill="white" textAnchor="middle" fontWeight="600">iOS</text>
+    </svg>
+);
+
+export const AndroidIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#a4c639" d="M15.4,5.43c0.91-0.91,1.4-2.14,1.4-3.43H7.2c0,1.29,0.49,2.52,1.4,3.43L12,8.83L15.4,5.43z M5.1,17.4A3.4,3.4,0,0,0,8.5,20.8h7a3.4,3.4,0,0,0,3.4-3.4V10.5h-14V17.4z M16.9,8.45a0.8,0.8,0,1,0,0,1.6,0.8,0.8,0,0,0,0-1.6z M7.1,8.45a0.8,0.8,0,1,0,0,1.6,0.8,0.8,0,0,0,0-1.6z"/>
+  </svg>
+);
+
+export const MacOSIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#8E8E93" d="M19.34,14.28A4.24,4.24,0,0,0,15.1,15.5a4.32,4.32,0,0,0-2.43-3.85,4.1,4.1,0,0,0-3-1.42,4.41,4.41,0,0,0-4.32,4.88,7.21,7.21,0,0,0,6,6.33,7.07,7.07,0,0,0,8-6.19A4.3,4.3,0,0,0,19.34,14.28Zm-7.46-9.3a4.2,4.2,0,0,0,2.91,1.3,4.13,4.13,0,0,0,3.19-1.57,4.06,4.06,0,0,0-3.08-1.54A4.18,4.18,0,0,0,11.88,4.98Z"/>
+  </svg>
+);
+
+export const WindowsIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#f25022" d="M1 1h9v9H1z"/>
+      <path fill="#7fba00" d="M11 1h9v9h-9z"/>
+      <path fill="#00a4ef" d="M1 11h9v9H1z"/>
+      <path fill="#ffb900" d="M11 11h9v9h-9z"/>
+    </svg>
+);

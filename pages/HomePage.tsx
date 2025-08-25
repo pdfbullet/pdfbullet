@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -9,7 +10,8 @@ import { Tool } from '../types.ts';
 import { 
     ProtectIcon, RefreshIcon, ShoppingBagIcon, EditIcon, DownloadIcon,
     StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
-    UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon
+    UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon,
+    IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -448,6 +450,38 @@ const HomePage: React.FC = () => {
                             suffix={stat.suffix}
                         />
                     ))}
+                </div>
+            </div>
+        </section>
+
+        {/* Trusted by Millions Section */}
+        <section className="py-20">
+            <div className="container max-w-7xl mx-auto px-6 text-center">
+                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The PDF software trusted by millions of users</h2>
+                <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
+                    iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
+                </p>
+                <div className="mt-12 flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <IOSIcon className="h-16 w-16" />
+                        <span className="font-semibold text-lg">iOS</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <AndroidIcon className="h-16 w-16" />
+                        <span className="font-semibold text-lg">Android</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <MacOSIcon className="h-16 w-16" />
+                        <span className="font-semibold text-lg">MacOS</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <WindowsIcon className="h-14 w-14" />
+                        <span className="font-semibold text-lg">Windows</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <GlobeIcon className="h-16 w-16" />
+                        <span className="font-semibold text-lg">Web</span>
+                    </div>
                 </div>
             </div>
         </section>
