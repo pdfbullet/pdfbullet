@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { UserIcon, StarIcon, CheckIcon, ApiIcon } from '../components/icons.tsx';
+import { UserIcon, StarIcon, CheckIcon, ApiIcon, WarningIcon } from '../components/icons.tsx';
 
 const countries = [
   { code: 'AF', name: 'Afghanistan', flag: '🇦🇫' }, { code: 'AL', name: 'Albania', flag: '🇦🇱' },
@@ -90,12 +90,14 @@ const countries = [
 ];
 
 const AccountSettingsPage: React.FC = () => {
-    const { user, updateUserProfile } = useAuth();
+    const { user, updateUserProfile, deleteCurrentUser } = useAuth();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [country, setCountry] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -117,6 +119,23 @@ const AccountSettingsPage: React.FC = () => {
             setMessage('Failed to update profile. Please try again.');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setMessage('');
+        setIsLoading(true);
+        try {
+            await deleteCurrentUser();
+            // onAuthStateChanged listener will handle logout and redirect.
+        } catch (err: any) {
+            if (err.code === 'auth/requires-recent-login') {
+                setMessage('For your security, this action requires a recent login. Please log out and log back in, then try again.');
+            } else {
+                setMessage(`An error occurred while deleting your account: ${err.message}.`);
+            }
+            setIsLoading(false);
+            setIsDeleteModalOpen(false); // Close modal to show the message on the page
         }
     };
 
@@ -176,6 +195,21 @@ const AccountSettingsPage: React.FC = () => {
                                     {message && <p className={`text-sm font-semibold ${message.includes('successfully') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
                                 </div>
                             </form>
+
+                            <div className="mt-12 pt-6 border-t border-red-500/30">
+                                <h2 className="text-xl font-bold text-red-600 dark:text-red-400">Danger Zone</h2>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                    Deleting your account is a permanent action and cannot be undone. All your data, including profile information and any saved content, will be permanently removed.
+                                </p>
+                                <div className="mt-4">
+                                    <button
+                                        onClick={() => setIsDeleteModalOpen(true)}
+                                        className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                                    >
+                                        Delete My Account
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Plan Section */}
@@ -204,6 +238,57 @@ const AccountSettingsPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {isDeleteModalOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+                        onClick={() => setIsDeleteModalOpen(false)}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="delete-account-title"
+                    >
+                        <div 
+                            className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="p-6 text-center">
+                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50">
+                                    <WarningIcon className="h-6 w-6 text-red-600" />
+                                </div>
+                                <h3 id="delete-account-title" className="text-lg font-bold text-gray-900 dark:text-white mt-4">Are you absolutely sure?</h3>
+                                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                    This action cannot be undone. This will permanently delete your account and all associated data.
+                                </p>
+                                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                                    Please type <strong className="text-red-600 dark:text-red-400">DELETE</strong> to confirm.
+                                </p>
+                                <input
+                                    type="text"
+                                    value={deleteConfirmText}
+                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                    className="w-full mt-2 p-2 text-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-red-500 focus:border-red-500"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteAccount}
+                                    disabled={deleteConfirmText !== 'DELETE' || isLoading}
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-red-800"
+                                >
+                                    {isLoading ? 'Deleting...' : 'Delete Account Permanently'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

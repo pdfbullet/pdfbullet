@@ -9,6 +9,37 @@ const CeoPage: React.FC = () => {
         if (metaDesc) {
             metaDesc.setAttribute("content", "Read a message from the CEO of I Love PDFLY. Learn about our vision, our commitment to innovation, and the future of document management.");
         }
+
+        // Add Person JSON-LD schema for SEO
+        const scriptId = 'ceo-schema-page';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Bishal Mishra",
+            "jobTitle": "Founder & CEO",
+            "image": "https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg",
+            "worksFor": {
+                "@type": "Organization",
+                "name": "I Love PDFLY",
+                "url": "https://ilovepdfly.com/"
+            },
+            "url": "https://ilovepdfly.com/#/ceo"
+        });
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+
     }, []);
 
     return (

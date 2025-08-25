@@ -23,18 +23,20 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          name: 'I Love PDFLY',
+          name: 'I Love PDFLY: PDF & Image Tools',
           short_name: 'PDFLY',
-          description: "Free PDF & Image Toolkit",
+          description:
+            "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
           start_url: '/',
           display: 'standalone',
           background_color: '#ffffff',
-          theme_color: '#0078d7',
+          theme_color: '#B90B06',
           orientation: 'portrait-primary',
           categories: ['productivity', 'utilities', 'business'],
           icons: [
-            { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-            { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/favicon.png', sizes: '192x192', type: 'image/png' },
+            { src: '/favicon.png', sizes: '512x512', type: 'image/png' },
+            { src: '/favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
             { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
           ],
           screenshots: [

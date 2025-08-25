@@ -1,5 +1,4 @@
 
-
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -19,6 +18,62 @@ import CookieConsentBanner from './components/CookieConsentBanner.tsx';
 import Preloader from './components/Preloader.tsx';
 import ChangePasswordModal from './components/ChangePasswordModal.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
+
+// Inlined component to fix import issue
+const DataDeletionPage: React.FC = () => {
+    React.useEffect(() => {
+        document.title = "User Data Deletion | I Love PDFLY";
+    }, []);
+
+    return (
+        <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
+            <div className="container mx-auto px-6">
+                <div className="max-w-4xl mx-auto bg-white dark:bg-black p-8 md:p-12 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">User Data Deletion Request</h1>
+                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                        <p>We are committed to protecting your privacy and giving you control over your personal data. If you wish to delete your account and all associated data from our systems, please follow the instructions below.</p>
+                        
+                        <h3>How to Delete Your Data</h3>
+                        <p>You can permanently delete your account and all associated data directly from your account settings. This is the fastest and most secure way to delete your data.</p>
+                        <ol>
+                            <li>Log in to your I Love PDFLY account.</li>
+                            <li>Navigate to the <Link to="/account-settings" className="text-brand-red hover:underline">Account Settings</Link> page.</li>
+                            <li>Scroll down to the "Danger Zone" section.</li>
+                            <li>Click on "Delete My Account" and follow the on-screen instructions to confirm the deletion.</li>
+                        </ol>
+
+                        <h3 className="mt-6">Alternative Method</h3>
+                        <p>If you are unable to access your account, you can request data deletion by sending an email to our support team with the subject line "Data Deletion Request".</p>
+                        <p>
+                            <strong>Email:</strong> <a href="mailto:Support@ilovepdfly.com" className="text-brand-red hover:underline">Support@ilovepdfly.com</a>
+                        </p>
+                        <p>Please include the username and email address associated with your account in your message.</p>
+
+                        <h3>What Happens Next?</h3>
+                        <p>
+                            <strong>For self-service deletion:</strong> Your account and data will be permanently deleted immediately upon confirmation.
+                        </p>
+                        <p>
+                            <strong>For email requests:</strong> Once we receive your request, our team will verify your identity and process the deletion. We will confirm with you via email once the process is complete, which typically takes up to 30 days.
+                        </p>
+                        
+                        <h3>What Data is Deleted?</h3>
+                        <p>The deletion process will remove:</p>
+                        <ul>
+                            <li>Your user account and profile information (username, email, profile picture, etc.).</li>
+                            <li>Any content you have created or saved within your account.</li>
+                            <li>Your API key and associated usage data.</li>
+                        </ul>
+                        <p>Please note that some anonymous, aggregated usage data that is not linked to your personal identity may be retained for analytical purposes.</p>
+
+                        <p>If you have any questions about this process, please do not hesitate to contact us.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
@@ -56,7 +111,6 @@ const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
 const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
 const PressPage = lazy(() => import('./pages/PressPage.tsx'));
-const UserDataDeletionPage = lazy(() => import('./pages/UserDataDeletionPage.tsx'));
 
 const FloatingBackButton: React.FC = () => {
   return (
@@ -152,7 +206,7 @@ function MainApp() {
             <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
             <Route path="/ceo" element={<CeoPage />} />
             <Route path="/press" element={<PressPage />} />
-            <Route path="/user-data-deletion" element={<UserDataDeletionPage />} />
+            <Route path="/user-data-deletion" element={<DataDeletionPage />} />
 
             {/* API Routes */}
             <Route path="/api-reference" element={<ApiReferencePage />} />

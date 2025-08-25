@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
 
@@ -65,6 +65,47 @@ const toolGuides: Record<string, { purpose: string; steps: string[] }> = {
 };
 
 const HowToUsePage: React.FC = () => {
+
+    useEffect(() => {
+        // Add HowTo JSON-LD schema for SEO
+        const scriptId = 'howto-schema-page';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+
+        const howToSchema = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": TOOLS.map((tool, index) => {
+                const guide = toolGuides[tool.id] || toolGuides['default'];
+                return {
+                    "@type": "HowTo",
+                    "name": `How to ${tool.title}`,
+                    "description": guide.purpose,
+                    "step": guide.steps.map((stepText, stepIndex) => ({
+                        "@type": "HowToStep",
+                        "name": `Step ${stepIndex + 1}`,
+                        "text": stepText,
+                    }))
+                };
+            })
+        };
+        
+        script.textContent = JSON.stringify(howToSchema);
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, []);
+
+
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
             <div className="container mx-auto px-6">

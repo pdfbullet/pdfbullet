@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { CopyIcon } from '../components/icons.tsx';
 
 const TermsOfServicePage: React.FC = () => {
@@ -16,6 +16,36 @@ const TermsOfServicePage: React.FC = () => {
         s9: useRef<HTMLDivElement>(null),
         s10: useRef<HTMLDivElement>(null),
     };
+
+    useEffect(() => {
+        const scriptId = 'legal-page-schema';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Terms of Service",
+            "url": "https://ilovepdfly.com/#/terms-of-service",
+            "description": "The Terms of Service governing the use of the I Love PDFLY website and tools.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "I Love PDFLY",
+                "url": "https://ilovepdfly.com/"
+            }
+        });
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, []);
 
     const handleCopyToClipboard = (sectionId: string, ref: React.RefObject<HTMLDivElement>) => {
         if (ref.current) {

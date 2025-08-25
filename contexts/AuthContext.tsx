@@ -34,6 +34,7 @@ interface AuthContextType {
   updateUserPremiumStatus: (uid: string, isPremium: boolean) => Promise<void>;
   updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
   deleteUser: (uid: string) => Promise<void>;
+  deleteCurrentUser: () => Promise<void>;
   loginOrSignupWithGoogle: () => Promise<void>;
   loginOrSignupWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -196,6 +197,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const userRef = db.collection('users').doc(uid);
     await userRef.delete();
   };
+
+  const deleteCurrentUser = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+        throw new Error("No user is currently signed in to delete.");
+    }
+    
+    // 1. Delete Firestore document
+    const userRef = db.collection('users').doc(firebaseUser.uid);
+    await userRef.delete();
+    
+    // 2. Delete user from Firebase Auth
+    // This will trigger onAuthStateChanged, which will set user to null
+    await firebaseUser.delete();
+  };
   
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
@@ -216,7 +232,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

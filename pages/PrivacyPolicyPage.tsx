@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CopyIcon } from '../components/icons.tsx';
 
@@ -16,6 +16,36 @@ const PrivacyPolicyPage: React.FC = () => {
         s8: useRef<HTMLDivElement>(null),
         s9: useRef<HTMLDivElement>(null),
     };
+
+     useEffect(() => {
+        const scriptId = 'legal-page-schema';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Privacy Policy",
+            "url": "https://ilovepdfly.com/#/privacy-policy",
+            "description": "I Love PDFLY's Privacy Policy outlining our procedures on the collection, use, and disclosure of your information.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "I Love PDFLY",
+                "url": "https://ilovepdfly.com/"
+            }
+        });
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, []);
 
     const handleCopyToClipboard = (sectionId: string, ref: React.RefObject<HTMLDivElement>) => {
         if (ref.current) {

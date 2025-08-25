@@ -61,6 +61,35 @@ const FaqPage: React.FC = () => {
         if (metaDesc) {
             metaDesc.setAttribute("content", "Find answers to frequently asked questions about I Love PDFLY's tools, security, and usage. Get help with merging, splitting, compressing PDFs, and more.");
         }
+
+        // Add FAQPage JSON-LD schema for SEO
+        const scriptId = 'faq-schema-page';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqData.map(faq => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.answer
+                }
+            }))
+        });
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
     }, []);
 
     const toggleFaq = (index: number) => {
