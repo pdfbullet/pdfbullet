@@ -203,7 +203,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             </div>
             <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
-              <Logo className="h-10 w-auto" />
+              <Logo className="h-8 md:h-10 w-auto" />
             </a>
             <nav className="hidden md:flex items-center space-x-1">
               {desktopNavLinks.map(link => (

@@ -1,10 +1,6 @@
-
-
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { TOOLS } from '../constants.ts';
+import { TOOLS, blogPosts } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import { 
@@ -398,39 +394,6 @@ const HomePage: React.FC = () => {
             </div>
         </section>
         
-        {/* Why Choose Section */}
-        <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
-                <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Why Choose I Love PDFLY?</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">The ultimate online toolkit for all your PDF needs.</p>
-                </div>
-                <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <ProtectIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Ultimate Privacy</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">Your files are processed client-side. Nothing is ever uploaded to our servers, guaranteeing 100% privacy.</p>
-                    </div>
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <RefreshIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Blazing Fast</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">Because all processing happens in your browser, there's no upload/download time. Get results instantly.</p>
-                    </div>
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <ShoppingBagIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Completely Free</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">All our core tools are free to use, without limits. No hidden fees, no sign-up required for most features.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         {/* Our Impact Section */}
         <section className="py-20">
             <div className="container max-w-7xl mx-auto px-6">
@@ -461,7 +424,7 @@ const HomePage: React.FC = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
                     iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
                 </p>
-                <div className="mt-12 flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
                     <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
                         <IOSIcon className="h-16 w-16" />
                         <span className="font-semibold text-lg">iOS</span>
@@ -483,6 +446,72 @@ const HomePage: React.FC = () => {
                         <span className="font-semibold text-lg">Web</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        {/* Why Choose Section */}
+        <section className="py-20">
+            <div className="container max-w-7xl mx-auto px-6">
+                <div className="max-w-5xl mx-auto text-center">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Why Choose I Love PDFLY?</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">The ultimate online toolkit for all your PDF needs.</p>
+                </div>
+                <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
+                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
+                            <LockIcon className="h-8 w-8 text-brand-red"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Secure. Private. In your control.</h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">Your files are processed client-side. Nothing is ever uploaded to our servers, guaranteeing 100% privacy.</p>
+                    </div>
+                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
+                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
+                            <RefreshIcon className="h-8 w-8 text-brand-red"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Blazing Fast</h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">Because all processing happens in your browser, there's no upload/download time. Get results instantly.</p>
+                    </div>
+                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
+                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
+                            <ShoppingBagIcon className="h-8 w-8 text-brand-red"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Completely Free</h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">All our core tools are free to use, without limits. No hidden fees, no sign-up required for most features.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* Blog Section */}
+        <section className="py-20 bg-gray-50 dark:bg-black">
+            <div className="container max-w-7xl mx-auto px-6 text-center">
+                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">From Our Blog</h2>
+                <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
+                    Tips, tricks, and updates from our team to help you be more productive.
+                </p>
+                <div className="mt-8 text-center">
+                    <Link to="/blog" title="View All Articles" className="text-brand-red font-semibold hover:underline">
+                        View All Articles &rarr;
+                    </Link>
+                </div>
+            </div>
+            <div className="mt-12 group relative overflow-hidden" style={{ cursor: 'grab' }}>
+                <div className="flex space-x-8 animate-marquee">
+                    {[...blogPosts.slice(0, 6), ...blogPosts.slice(0, 6)].map((post, index) => (
+                        <div key={`${post.slug}-${index}`} className="flex-shrink-0 w-80 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                            <Link to={`/blog/${post.slug}`} className="block">
+                                <img src={post.image} alt={post.title} className="h-40 w-full object-cover" loading="lazy" />
+                                <div className="p-6">
+                                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 h-14 overflow-hidden">{post.title}</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 h-10 overflow-hidden text-ellipsis">{post.excerpt}</p>
+                                    <span className="text-brand-red font-semibold text-sm mt-4 inline-block">Read More &rarr;</span>
+                                </div>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+                <div className="absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-gray-50 dark:from-black to-transparent pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-gray-50 dark:from-black to-transparent pointer-events-none"></div>
             </div>
         </section>
 

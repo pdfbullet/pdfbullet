@@ -8,7 +8,8 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 import { 
     TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, 
     UnlockIcon, EmailIcon, WhatsAppIcon, RightArrowIcon, LeftArrowIcon, DownloadIcon, GoogleDriveIcon, LinkIcon, 
-    DropboxIcon, CheckIcon, CopyIcon, StarIcon, FacebookIcon, XIcon, LinkedInIcon 
+    DropboxIcon, CheckIcon, CopyIcon, StarIcon, FacebookIcon, XIcon, LinkedInIcon, IOSIcon, AndroidIcon, 
+    MacOSIcon, WindowsIcon, GlobeIcon 
 } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 
@@ -2037,6 +2038,16 @@ const ToolPage: React.FC = () => {
                     </div>
                 </div>
 
+                <div className="mt-12 text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg max-w-5xl mx-auto border border-green-200 dark:border-green-700">
+                    <h3 className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+                        <LockIcon className="h-6 w-6"/>
+                        <span>Secure. Private. In your control.</span>
+                    </h3>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                        For your security, your processed files are automatically and permanently deleted from our servers within 2 hours. We do not view, copy, or analyze your files.
+                    </p>
+                </div>
+
                 <div className="mt-16 bg-white dark:bg-black p-8 rounded-lg shadow-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Continue to...</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -2076,10 +2087,35 @@ const ToolPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="mt-12 text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg max-w-5xl mx-auto border border-blue-200 dark:border-blue-700">
-                    <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300">Secure. Private. In your control.</h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">Your files are processed with end-to-end encryption and are deleted from our servers automatically.</p>
+                <div className="mt-12 text-center p-6 rounded-lg max-w-5xl mx-auto">
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">The PDF software trusted by millions of users</h2>
+                    <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
+                        iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
+                    </p>
+                    <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
+                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <IOSIcon className="h-16 w-16" />
+                            <span className="font-semibold text-lg">iOS</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <AndroidIcon className="h-16 w-16" />
+                            <span className="font-semibold text-lg">Android</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <MacOSIcon className="h-16 w-16" />
+                            <span className="font-semibold text-lg">MacOS</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <WindowsIcon className="h-14 w-14" />
+                            <span className="font-semibold text-lg">Windows</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <GlobeIcon className="h-16 w-16" />
+                            <span className="font-semibold text-lg">Web</span>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         )}
 
