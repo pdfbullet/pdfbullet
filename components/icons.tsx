@@ -559,6 +559,12 @@ export const ChainedTasksIcon: React.FC<{ className?: string }> = ({ className }
     </svg>
 );
 
+export const LinkIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+    </svg>
+);
+
 export const TrendingUpIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/>
@@ -627,16 +633,14 @@ export const ListOrderedIcon: React.FC<{ className?: string }> = ({ className })
 
 export const GoogleDriveIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M7.71 3.5L1.5 15l6.21 11.5 6.21-11.5z" fill="#3777e3" />
-        <path d="M16.29 3.5L10.08 15l6.21 11.5L22.5 15z" fill="#ffc107" />
-        <path d="M12 15l-4.29-7.44h8.58z" fill="#4caf50" />
+        <path d="M0 0h24v24H0z" fill="none"/>
+        <path d="M7.71 3.5 1 12l6.71 8.5h15.58L16.58 12 23.29 3.5H7.71zM12 17.5 8.25 12l3.75-5.5 3.75 5.5-3.75 5.5z"/>
     </svg>
 );
 
 export const DropboxIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0061ff">
-        <path d="M12 4.5l-5 3-5 3 5 3 5-3 5 3-5 3-5-3-5 3 5 3 5-3zm0 0l5 3 5 3-5 3-5-3-5-3 5-3 5 3z" />
-        <path d="M2 10.5l5 3 5-3-5-3-5 3zm10 0l5 3 5-3-5-3-5 3z" />
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.4 7.4l4.9-3.2 4.9 3.2-4.9 3.2L3.4 7.4zm12.3-3.2l4.9 3.2-4.9 3.2-4.9-3.2 4.9-3.2zM8.3 11.8l4.9 3.2 4.9-3.2-4.9-3.2-4.9 3.2zm0 6.4l4.9-3.2-4.9-3.2L3.4 15l4.9 3.2z"/>
     </svg>
 );
 
@@ -676,5 +680,23 @@ export const PressUpdatesIcon: React.FC<{ className?: string }> = ({ className }
             <path fill="#5f7d8c" d="M50,70A20,20,0,1,1,70,50,20,20,0,0,1,50,70Z"/>
             <path fill="#748c99" d="M50,60A10,10,0,1,1,60,50,10,10,0,0,1,50,60Z"/>
         </g>
+    </svg>
+);
+
+export const RightArrowIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z" />
+  </svg>
+);
+
+export const LeftArrowIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    </svg>
+);
+
+export const DesktopIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
     </svg>
 );

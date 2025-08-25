@@ -48,6 +48,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-orange-500',
     category: 'organize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'split-pdf',
@@ -59,6 +61,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-orange-500',
     category: 'organize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'organize-pdf',
@@ -70,6 +74,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-orange-600',
     category: 'organize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'rotate-pdf',
@@ -81,6 +87,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-indigo-500',
     category: 'organize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
    {
     id: 'zip-maker',
@@ -94,6 +102,8 @@ export const TOOLS: Tool[] = [
     isNew: true,
     accept: {},
     api: { category: 'utility' },
+    fileTypeDisplayName: 'files',
+    fileTypeNounPlural: 'files here',
   },
   
   // Optimize
@@ -107,6 +117,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-green-500',
     category: 'optimize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'repair-pdf',
@@ -119,6 +131,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'optimize',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'resize-file',
@@ -132,6 +146,8 @@ export const TOOLS: Tool[] = [
     isNew: true,
     accept: { 'image/*': ['.png', '.jpg', '.jpeg'], 'application/pdf': ['.pdf'] },
     api: { category: 'utility' },
+    fileTypeDisplayName: 'files',
+    fileTypeNounPlural: 'files',
   },
 
   // Convert To
@@ -147,6 +163,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'image/jpeg': ['.jpeg', '.jpg'], 'image/png': ['.png'] },
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'JPG',
+    fileTypeNounPlural: 'images',
   },
   {
     id: 'psd-to-pdf',
@@ -160,6 +178,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'image/vnd.adobe.photoshop': ['.psd'], 'application/octet-stream': ['.psd'] },
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PSD',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'word-to-pdf',
@@ -172,11 +192,13 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'] },
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'WORD',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'powerpoint-to-pdf',
-    title: 'PowerPoint to PDF',
-    description: 'Convert PowerPoint presentations to PDF documents.',
+    title: 'Convert POWERPOINT to PDF',
+    description: 'Make PPT and PPTX slideshows easy to view by converting them to PDF.',
     Icon: PowerPointIcon,
     color: 'bg-red-500',
     hoverColor: 'hover:bg-red-600',
@@ -184,6 +206,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'] },
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'POWERPOINT',
+    fileTypeNounPlural: 'slideshows',
   },
   {
     id: 'excel-to-pdf',
@@ -196,6 +220,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'EXCEL',
+    fileTypeNounPlural: 'files',
   },
    {
     id: 'html-to-pdf',
@@ -231,6 +257,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-yellow-500',
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'pdf-to-png',
@@ -243,6 +271,8 @@ export const TOOLS: Tool[] = [
     isNew: true,
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'pdf-to-word',
@@ -254,6 +284,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-blue-500',
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'pdf-to-powerpoint',
@@ -266,6 +298,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'pdf-to-excel',
@@ -277,6 +311,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-green-700',
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'pdf-to-pdfa',
@@ -288,6 +324,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-slate-500',
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'extract-text',
@@ -299,6 +337,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-red-400',
     category: 'convert-from',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
 
 
@@ -315,6 +355,8 @@ export const TOOLS: Tool[] = [
     isNew: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'page-numbers',
@@ -327,6 +369,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'crop-pdf',
@@ -339,6 +383,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
    {
     id: 'ocr-pdf',
@@ -351,6 +397,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'compare-pdf',
@@ -363,6 +411,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'redact-pdf',
@@ -375,6 +425,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'edit',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'ai-question-generator',
@@ -434,6 +486,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-cyan-500',
     category: 'security',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'protect-pdf',
@@ -445,6 +499,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-blue-800',
     category: 'security',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'sign-pdf',
@@ -457,6 +513,8 @@ export const TOOLS: Tool[] = [
     isPremium: true,
     category: 'security',
     api: { category: 'signature' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'watermark-pdf',
@@ -468,6 +526,8 @@ export const TOOLS: Tool[] = [
     textColor: 'text-purple-500',
     category: 'security',
     api: { category: 'pdf' },
+    fileTypeDisplayName: 'PDF',
+    fileTypeNounPlural: 'files',
   },
   
   // == IMAGE API TOOLS ==
@@ -482,6 +542,8 @@ export const TOOLS: Tool[] = [
     category: 'edit',
     accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'remove-background',
@@ -494,6 +556,8 @@ export const TOOLS: Tool[] = [
     category: 'edit',
     accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'crop-image',
@@ -506,6 +570,8 @@ export const TOOLS: Tool[] = [
     category: 'edit',
     accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'convert-to-jpg',
@@ -518,6 +584,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-to',
     accept: { 'image/*': ['.png', '.gif', '.tif', '.tiff', '.psd', '.svg', '.webp'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'convert-from-jpg',
@@ -530,6 +598,8 @@ export const TOOLS: Tool[] = [
     category: 'convert-from',
     accept: { 'image/jpeg': ['.jpg', '.jpeg'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'JPG',
+    fileTypeNounPlural: 'images',
   },
   {
     id: 'compress-image',
@@ -542,6 +612,8 @@ export const TOOLS: Tool[] = [
     category: 'optimize',
     accept: { 'image/*': ['.png', '.jpg', '.jpeg'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
   {
     id: 'watermark-image',
@@ -554,6 +626,8 @@ export const TOOLS: Tool[] = [
     category: 'edit',
     accept: { 'image/*': ['.png', '.jpg', '.jpeg'] },
     api: { category: 'image' },
+    fileTypeDisplayName: 'image',
+    fileTypeNounPlural: 'files',
   },
 ];
 

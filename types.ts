@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export interface Tool {
@@ -15,4 +16,6 @@ export interface Tool {
   api?: {
     category: 'pdf' | 'image' | 'signature' | 'utility';
   };
+  fileTypeDisplayName?: string;
+  fileTypeNounPlural?: string;
 }

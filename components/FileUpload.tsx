@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
-import { UploadCloudIcon, FileIcon, GoogleDriveIcon, DropboxIcon, OneDriveIcon } from './icons.tsx';
+import { UploadCloudIcon, GoogleDriveIcon, DropboxIcon, PlusIcon, CloseIcon, DesktopIcon } from './icons.tsx';
 import { Tool } from '../types.ts';
 
 // TODO: Replace with your actual API keys and IDs
@@ -19,18 +19,10 @@ interface FileUploadProps {
   files: File[];
   setFiles: (files: File[]) => void;
   accept?: Accept;
+  children?: React.ReactNode;
 }
 
-const formatBytes = (bytes: number, decimals = 2) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-};
-
-const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept, children }) => {
   const [gapiLoaded, setGapiLoaded] = useState(false);
   const [pickerApiLoaded, setPickerApiLoaded] = useState(false);
   const [oauthToken, setOauthToken] = useState<any>(null);
@@ -51,16 +43,17 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
     ));
   }, [files, setFiles]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: accept || { 'application/pdf': ['.pdf'] },
+    noClick: true, // We will trigger the file input manually
   });
   
   const removeFile = (fileName: string) => {
     setFiles(files.filter(file => file.name !== fileName));
   };
   
-  const addMoreFilesProps = useDropzone({ onDrop });
+  const addMoreFilesProps = useDropzone({ onDrop, accept: accept || { 'application/pdf': ['.pdf'] } });
 
   const handleCloudFile = async (url: string, name: string) => {
     try {
@@ -74,7 +67,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
     }
   };
 
-  const handleGoogleDriveClick = () => {
+  const handleGoogleDriveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!gapiLoaded || !GOOGLE_API_KEY || !GOOGLE_CLIENT_ID) {
         alert("Google Drive Picker is not configured. Please provide API Key and Client ID.");
         return;
@@ -118,7 +112,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
       }
   };
   
-  const handleDropboxClick = () => {
+  const handleDropboxClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
       Dropbox.choose({
           success: (dropboxFiles: any[]) => {
               dropboxFiles.forEach(file => handleCloudFile(file.link, file.name));
@@ -128,7 +123,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
       });
   };
 
-  const handleOneDriveClick = () => {
+  const handleOneDriveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!ONEDRIVE_CLIENT_ID || ONEDRIVE_CLIENT_ID === 'YOUR_ONEDRIVE_CLIENT_ID') {
       alert("OneDrive Picker is not configured. Please provide a Client ID.");
       return;
@@ -144,62 +140,92 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept }
         error: (e: any) => console.error(e)
     });
   };
-
+  
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto">
       {files.length === 0 ? (
         <div 
           {...getRootProps()} 
-          title="Drag and drop files or click to select"
-          className={`relative flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark'}`}
+          className={`relative flex flex-col items-center justify-center p-12 rounded-lg cursor-pointer transition-colors duration-300 ${isDragActive ? 'bg-red-50 dark:bg-red-900/20 ring-2 ring-brand-red ring-dashed' : 'bg-transparent'}`}
         >
-          <input {...getInputProps()} aria-label={`Upload files for ${tool.title}`} />
-          <div className={`${tool.color} p-4 rounded-full`}>
-            <UploadCloudIcon className="h-12 w-12 text-white" />
+          <input {...getInputProps()} />
+          
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={open}
+              className={`${tool.color} ${tool.hoverColor} text-white font-bold py-4 px-10 rounded-lg text-xl transition-colors shadow-lg flex-grow-0`}
+            >
+              Select {tool.fileTypeDisplayName || 'files'}
+            </button>
+            
+            <button
+                onClick={handleGoogleDriveClick}
+                aria-label="Select from Google Drive"
+                title="Select from Google Drive"
+                className={`p-4 rounded-lg shadow-lg transition-colors ${tool.color} ${tool.hoverColor} text-white`}
+              >
+                <GoogleDriveIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={handleDropboxClick}
+                aria-label="Select from Dropbox"
+                title="Select from Dropbox"
+                className={`p-4 rounded-lg shadow-lg transition-colors ${tool.color} ${tool.hoverColor} text-white`}
+              >
+                <DropboxIcon className="h-6 w-6" />
+              </button>
           </div>
-          <p className="mt-6 text-2xl font-bold dark:text-gray-100">Drag and drop files here</p>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">or</p>
-          <button type="button" title="Select files from your computer" className={`mt-4 ${tool.color} ${tool.hoverColor} text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors`}>
-            Select Files
-          </button>
-          <div className="mt-6 pt-6 border-t border-dashed border-gray-300 dark:border-gray-600 w-full flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button onClick={handleGoogleDriveClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
-                  <GoogleDriveIcon className="h-5 w-5" /> Google Drive
-              </button>
-              <button onClick={handleDropboxClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
-                  <DropboxIcon className="h-5 w-5" /> Dropbox
-              </button>
-              <button onClick={handleOneDriveClick} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md transition-colors">
-                  <OneDriveIcon className="h-5 w-5" /> OneDrive
-              </button>
-          </div>
+
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            or drop {tool.fileTypeDisplayName || ''} {tool.fileTypeNounPlural || 'here'}
+          </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg w-full">
-            <div className="max-h-64 overflow-y-auto pr-4 no-scrollbar">
-            {files.map(file => (
-                <div key={file.name} className="flex items-center justify-between p-3 mb-2 bg-gray-100 dark:bg-soft-dark dark:border dark:border-gray-800 rounded-md">
-                    <div className="flex items-center space-x-3 overflow-hidden">
-                        <FileIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
-                        <span className="text-gray-700 dark:text-gray-300 font-medium truncate" title={file.name}>{file.name}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm flex-shrink-0">({formatBytes(file.size)})</span>
+         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* File Previews (Main Area) */}
+            <div className="lg:col-span-8 xl:col-span-9 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {files.map(file => (
+                    <div key={`${file.name}-${file.lastModified}`} className="relative group bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md">
+                        <div className="w-full bg-white dark:bg-gray-900/50 rounded-lg p-4 flex-grow flex items-center justify-center aspect-[4/3]">
+                            <tool.Icon className={`w-16 h-16 ${tool.textColor}`} />
+                        </div>
+                        <p className="w-full text-sm font-semibold text-gray-700 dark:text-gray-300 truncate mt-3" title={file.name}>{file.name}</p>
+                        <button onClick={() => removeFile(file.name)} className="absolute top-2 right-2 p-1.5 bg-gray-800/60 hover:bg-red-600/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Remove ${file.name}`}>
+                            <CloseIcon className="h-4 w-4" />
+                        </button>
                     </div>
-                    <button onClick={() => removeFile(file.name)} className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0 ml-2" aria-label={`Remove ${file.name}`} title={`Remove ${file.name}`}>
-                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            ))}
+                ))}
             </div>
-            <div className="flex justify-center mt-6">
-                <div {...addMoreFilesProps.getRootProps()} className="inline-block">
-                    <input {...addMoreFilesProps.getInputProps()} aria-label={`Add more files for ${tool.title}`} />
-                    <button type="button" title="Add more files" className={`flex items-center gap-2 text-white font-bold py-2 px-6 rounded-lg text-md transition-colors ${tool.color} ${tool.hoverColor}`}>
-                        <UploadCloudIcon className="h-5 w-5" />
+
+            {/* Actions Sidebar */}
+            <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-24">
+                 <div className="flex justify-end relative mb-8">
+                    <div className="absolute right-[80px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-sm font-semibold px-3 py-1 rounded-md shadow-lg whitespace-nowrap">
                         Add more files
-                    </button>
+                        <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-3 h-3 bg-gray-800 transform rotate-45"></div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="relative">
+                            <button {...addMoreFilesProps.getRootProps()} onClick={addMoreFilesProps.open} title="Add more files" className="w-16 h-16 bg-brand-red rounded-full flex items-center justify-center text-white shadow-lg hover:bg-brand-red-dark transition-colors">
+                                <input {...addMoreFilesProps.getInputProps()} />
+                                <PlusIcon className="h-8 w-8" />
+                            </button>
+                            <span className="absolute -top-1 -right-1 w-6 h-6 bg-gray-900 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-surface-dark">{files.length}</span>
+                        </div>
+                        <button onClick={addMoreFilesProps.open} title="Add from computer" className="w-12 h-12 bg-brand-red rounded-full flex items-center justify-center text-white shadow-lg hover:bg-brand-red-dark transition-colors">
+                            <DesktopIcon className="h-6 w-6" />
+                        </button>
+                        <button onClick={handleGoogleDriveClick} title="Add from Google Drive" className="w-12 h-12 bg-brand-red rounded-full flex items-center justify-center text-white shadow-lg hover:bg-brand-red-dark transition-colors">
+                            <GoogleDriveIcon className="h-6 w-6" />
+                        </button>
+                        <button onClick={handleDropboxClick} title="Add from Dropbox" className="w-12 h-12 bg-brand-red rounded-full flex items-center justify-center text-white shadow-lg hover:bg-brand-red-dark transition-colors">
+                            <DropboxIcon className="h-6 w-6" />
+                        </button>
+                    </div>
                 </div>
+                {children}
             </div>
         </div>
       )}

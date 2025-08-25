@@ -5,7 +5,12 @@ import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import FileUpload from '../components/FileUpload.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, UnlockIcon, EmailIcon, WhatsAppIcon } from '../components/icons.tsx';
+import { 
+    TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, 
+    UnlockIcon, EmailIcon, WhatsAppIcon, RightArrowIcon, LeftArrowIcon, DownloadIcon, GoogleDriveIcon, LinkIcon, 
+    DropboxIcon, CheckIcon, CopyIcon, StarIcon, FacebookIcon, XIcon, LinkedInIcon 
+} from '../components/icons.tsx';
+import { Logo } from '../components/Logo.tsx';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -21,7 +26,7 @@ import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { readPsd } from 'ag-psd';
 import { removeBackground } from '@imgly/background-removal';
-
+import * as QRCode from 'https://esm.sh/qrcode@1.5.3';
 
 // Setup for pdfjs worker. This is a one-time setup.
 const setupPdfjs = async () => {
@@ -34,6 +39,13 @@ const setupPdfjs = async () => {
 };
 setupPdfjs();
 
+// These declarations are needed to access the cloud picker SDKs loaded in index.html
+declare const gapi: any;
+declare const Dropbox: any;
+declare const google: any;
+
+const GOOGLE_API_KEY = 'AIzaSyD3MDVQ3bkz0n3Hu3ju-sGCIMCybUQGbVU';
+const GOOGLE_CLIENT_ID = '415789226795-0mu2ru52dcc5b649njfarn059lkjkcnk.apps.googleusercontent.com';
 
 enum ProcessingState {
   Idle = "IDLE",
@@ -575,6 +587,48 @@ const toolSeoDescriptions: Record<string, string> = {
   'protect-pdf': 'Protect your sensitive PDF files with a strong password. Our free online tool encrypts your documents to keep them secure.'
 };
 
+const getSuccessMessage = (tool: Tool): React.ReactNode => {
+    switch (tool.id) {
+        case 'merge-pdf': return <>PDFs have been merged!</>;
+        case 'split-pdf': return <>Your PDF has been split!</>;
+        case 'compress-pdf': return <>Your PDF has been compressed!</>;
+        case 'organize-pdf': return <>Your PDF has been organized!</>;
+        case 'remove-background': return <>Background has been removed!</>;
+    }
+    
+    if (tool.title.toLowerCase().includes(' to ')) {
+        const parts = tool.title.split(/ to /i);
+        const fromType = parts[0].replace(/convert/i, '').trim();
+        const toType = parts[1].trim();
+        return <>{fromType.toUpperCase()} have been converted to <strong>{toType}</strong>!</>;
+    }
+
+    const noun = tool.fileTypeNounPlural ? tool.fileTypeNounPlural.charAt(0).toUpperCase() + tool.fileTypeNounPlural.slice(1) : 'Files';
+    return <>{noun} have been processed successfully!</>;
+};
+
+const getDownloadButtonText = (tool: Tool): string => {
+     switch (tool.id) {
+        case 'merge-pdf': return 'Download merged PDF';
+        case 'split-pdf': return 'Download split PDF files';
+        case 'compress-pdf': return 'Download compressed PDF';
+        case 'remove-background': return 'Download image';
+        case 'zip-maker': return 'Download ZIP file';
+    }
+
+    if (tool.title.toLowerCase().startsWith('pdf to ')) {
+        const target = tool.title.substring(7);
+        return `Download as ${target}`;
+    }
+    
+    if (tool.title.toLowerCase().endsWith(' to pdf')) {
+        return 'Download as PDF';
+    }
+
+    return `Download ${tool.fileTypeDisplayName || 'file'}`;
+};
+
+
 const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
@@ -588,6 +642,15 @@ const ToolPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [toolOptions, setToolOptions] = useState<any>(initialToolOptions);
   const [progress, setProgress] = useState<{ percentage: number; status: string } | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string>('');
+  
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareableUrl, setShareableUrl] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [qrCodeError, setQrCodeError] = useState('');
+  const [isQrLoading, setIsQrLoading] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
+  const [cloudSaveState, setCloudSaveState] = useState<{google: 'idle' | 'saving' | 'saved', dropbox: 'idle' | 'saving' | 'saved'}>({google: 'idle', dropbox: 'idle'});
   
   // States for Organize PDF
   const [pdfPages, setPdfPages] = useState<PdfPage[]>([]);
@@ -613,6 +676,61 @@ const ToolPage: React.FC = () => {
   // State for resize-image
   const [originalImageSize, setOriginalImageSize] = useState<{ width: number; height: number } | null>(null);
 
+  const blobToDataURL = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(blob);
+    });
+  }
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    if (processedFileBlob) {
+        objectUrl = URL.createObjectURL(processedFileBlob);
+        setDownloadUrl(objectUrl);
+    }
+
+    return () => {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            setDownloadUrl('');
+        }
+    };
+  }, [processedFileBlob]);
+
+  const getProcessingMessage = (tool: Tool | null): React.ReactNode => {
+    if (!tool) return 'Processing...';
+
+    const title = tool.title;
+    if (title.toLowerCase().startsWith('convert ')) {
+        const rest = title.substring(8);
+        const parts = rest.split(/ to /i);
+        return <>Converting <strong>{parts[0]}</strong> to <strong>{parts[1]}</strong>...</>;
+    }
+    if (title.includes(' to ')) {
+         const parts = title.split(/ to /i);
+         return <>Converting <strong>{parts[0]}</strong> to <strong>{parts[1]}</strong>...</>;
+    }
+    const words = title.split(' ');
+    let action = words[0];
+    const rest = words.slice(1).join(' ');
+    
+    let gerund = action;
+    if (action.endsWith('e')) {
+        gerund = action.slice(0, -1) + 'ing';
+    } else if (['split', 'compress', 'redact'].some(s => action.toLowerCase().includes(s))) {
+         gerund = action + action.slice(-1) + 'ing';
+    } else {
+        gerund = action + 'ing';
+    }
+    if (title === 'Create ZIP file') {
+        return <>Creating ZIP file...</>
+    }
+
+    return <>{gerund.charAt(0).toUpperCase() + gerund.slice(1)} {rest}...</>;
+  };
 
   const isProcessButtonDisabled = useMemo(() => {
     if (!tool || state === ProcessingState.Processing) return true;
@@ -653,6 +771,10 @@ const ToolPage: React.FC = () => {
     setFiles([]);
     setToolOptions(initialToolOptions);
     setProgress(null);
+    setDownloadUrl('');
+    setShareableUrl('');
+    setIsShareModalOpen(false);
+    setCloudSaveState({google: 'idle', dropbox: 'idle'});
     setPdfPages([]);
     setPdfPagePreviews([]);
     setCanvasItems([]);
@@ -1750,17 +1872,83 @@ const ToolPage: React.FC = () => {
   }
   
   const handleDownload = () => {
-    if (!processedFileBlob) return;
-    const url = URL.createObjectURL(processedFileBlob);
+    if (!downloadUrl) return;
     const a = document.createElement('a');
-    a.href = url;
+    a.href = downloadUrl;
     a.download = getOutputFilename(tool.id, files, toolOptions);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
   
+  const handleSaveToDropbox = async () => {
+    if (!processedFileBlob) return;
+    setCloudSaveState(prev => ({ ...prev, dropbox: 'saving' }));
+    try {
+        const dataUrl = await blobToDataURL(processedFileBlob);
+
+        Dropbox.save(dataUrl, getOutputFilename(tool.id, files, toolOptions), {
+            success: () => setCloudSaveState(prev => ({ ...prev, dropbox: 'saved' })),
+            error: (err: any) => { console.error("Dropbox save error:", err); setCloudSaveState(prev => ({...prev, dropbox: 'idle'})); },
+            cancel: () => setCloudSaveState(prev => ({...prev, dropbox: 'idle'})),
+        });
+    } catch (e) {
+        console.error("Error preparing file for Dropbox", e);
+        setCloudSaveState(prev => ({...prev, dropbox: 'idle'}));
+    }
+  };
+
+    const openShareModal = async () => {
+        if (!processedFileBlob) return;
+        
+        setIsShareModalOpen(true);
+        setShareableUrl('');
+        setQrCodeUrl('');
+        setQrCodeError('');
+        setIsQrLoading(true);
+
+        let dataUrl = '';
+        try {
+            dataUrl = await blobToDataURL(processedFileBlob);
+            setShareableUrl(dataUrl);
+        } catch (error) {
+            console.error("Error converting blob to data URL:", error);
+            setShareableUrl('Error: Could not generate link.');
+            setQrCodeError('Could not generate QR code link.');
+            setIsQrLoading(false);
+            return;
+        }
+
+        try {
+            // Using a client-side library is more robust, private, and removes the network dependency.
+            // Using 'L' for low errorCorrectionLevel to maximize data capacity.
+            const generatedUrl = await QRCode.toDataURL(dataUrl, { width: 150, errorCorrectionLevel: 'L' });
+            setQrCodeUrl(generatedUrl);
+            setQrCodeError('');
+        } catch (error) {
+            console.error("Error generating QR code:", error);
+            // This error typically happens if the data URL is too long for the QR code standard.
+            setQrCodeError("This file is too large to generate a scannable QR code. Please use the 'Copy' button to share the download link.");
+        } finally {
+            setIsQrLoading(false);
+        }
+    };
+
+    const closeShareModal = () => {
+        if (qrCodeUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(qrCodeUrl);
+        }
+        setIsShareModalOpen(false);
+    };
+
+  const handleCopyLink = () => {
+    if (!shareableUrl || shareableUrl.startsWith('Error')) return;
+    navigator.clipboard.writeText(shareableUrl).then(() => {
+        setIsCopying(true);
+        setTimeout(() => setIsCopying(false), 2000);
+    });
+  }
+
   if (tool.id === 'scan-to-pdf') {
      return (
           <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
@@ -1776,30 +1964,47 @@ const ToolPage: React.FC = () => {
   return (
     <div className="py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
-            <tool.Icon className="h-12 w-12 text-white" />
+        {state !== ProcessingState.Processing && (
+          <div className="text-center mb-10">
+            <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+              <tool.Icon className="h-12 w-12 text-white" />
+            </div>
+            <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{tool.title}</h1>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{tool.description}</p>
           </div>
-          <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{tool.title}</h1>
-          <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{tool.description}</p>
-        </div>
+        )}
 
         {state === ProcessingState.Idle && (
-            <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept} />
+            <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
+                 {files.length > 0 && (
+                    <button
+                        onClick={handleProcess}
+                        disabled={isProcessButtonDisabled}
+                        className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
+                    >
+                        {tool.title} <RightArrowIcon className="h-6 w-6" />
+                    </button>
+                )}
+            </FileUpload>
         )}
         
         {state === ProcessingState.Processing && (
-            <div className="text-center p-12 bg-white dark:bg-surface-dark rounded-lg shadow-xl">
-                <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-brand-red mx-auto"></div>
-                <h2 className="mt-6 text-2xl font-bold text-gray-800 dark:text-gray-100">Processing...</h2>
-                {progress && (
-                    <>
-                     <p className="mt-2 text-gray-600 dark:text-gray-400">{progress.status}</p>
-                     <div className="w-full max-w-md mx-auto bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
-                        <div className="bg-brand-red h-2.5 rounded-full" style={{ width: `${progress.percentage}%` }}></div>
-                     </div>
-                    </>
-                )}
+            <div className="flex flex-col items-center justify-center text-center w-full min-h-[60vh] py-12">
+                <div className="mb-12">
+                    <Logo className="h-12 w-auto" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                    {getProcessingMessage(tool)}
+                </h2>
+                <div className="mt-12">
+                    <div 
+                        className="w-24 h-24 border-[10px] border-gray-200 dark:border-gray-700 rounded-full animate-spin"
+                        style={{ borderTopColor: '#B90B06' }}
+                    ></div>
+                </div>
+                 {progress && (
+                    <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>
+                 )}
             </div>
         )}
 
@@ -1812,32 +2017,132 @@ const ToolPage: React.FC = () => {
         )}
         
         {state === ProcessingState.Success && (
-            <div className="text-center p-12 bg-green-50 dark:bg-green-900/20 rounded-lg shadow-xl border border-green-200 dark:border-green-800">
-                <h2 className="text-2xl font-bold text-green-700 dark:text-green-300">Success!</h2>
-                <p className="mt-2 text-green-600 dark:text-green-400">Your files have been processed.</p>
-                {processedFileBlob && (
-                  <button onClick={handleDownload} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg">Download File</button>
-                )}
-                <button onClick={handleReset} className="mt-4 text-gray-600 dark:text-gray-400 font-semibold hover:underline">Process more files</button>
+            <div className="text-center w-full max-w-7xl mx-auto py-12">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                  {getSuccessMessage(tool)}
+                </h2>
+                
+                <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <button onClick={handleDownload} className="flex-grow-0 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg text-xl flex items-center gap-3 transition-colors">
+                        <DownloadIcon className="h-6 w-6" />
+                        {getDownloadButtonText(tool)}
+                    </button>
+                    <div className="flex gap-4">
+                         <button onClick={handleSaveToDropbox} disabled={cloudSaveState.dropbox !== 'idle'} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Save to Dropbox" title="Save to Dropbox">
+                             {cloudSaveState.dropbox === 'saving' ? <svg className="animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : cloudSaveState.dropbox === 'saved' ? <CheckIcon className="h-6 w-6 text-green-500" /> : <DropboxIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />}
+                        </button>
+                        <button onClick={openShareModal} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Share download link" title="Share download link">
+                            <LinkIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-16 bg-white dark:bg-black p-8 rounded-lg shadow-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Continue to...</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {TOOLS.slice(0, 12).map(t => (
+                            <Link key={t.id} to={`/${t.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div className={`p-2 rounded-md ${t.color}`}>
+                                    <t.Icon className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-left">{t.title}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="mt-12 text-center p-6 bg-gray-50 dark:bg-black/50 rounded-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h3>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">Please share the tool to inspire more productive people!</p>
+                    <div className="mt-6 flex flex-wrap justify-center gap-4">
+                        <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <StarIcon className="h-5 w-5 text-green-500" />
+                            <span>Trustpilot</span>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <FacebookIcon className="h-5 w-5 text-blue-600" />
+                            <span>Facebook</span>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Filovepdfly.com&text=Check%20out%20iLovePDFLY,%20the%20best%20free%20online%20PDF%20toolkit!" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <XIcon className="h-5 w-5" />
+                            <span>Twitter</span>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <LinkedInIcon className="h-5 w-5 text-blue-700" />
+                            <span>LinkedIn</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div className="mt-12 text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg max-w-5xl mx-auto border border-blue-200 dark:border-blue-700">
+                    <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300">Secure. Private. In your control.</h3>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">Your files are processed with end-to-end encryption and are deleted from our servers automatically.</p>
+                </div>
             </div>
         )}
 
-        <div className="mt-6 flex justify-center">
-            {state === ProcessingState.Idle && files.length > 0 && (
-                <button 
-                  onClick={handleProcess} 
-                  disabled={isProcessButtonDisabled}
-                  className={`text-white font-bold py-3 px-12 rounded-lg text-xl transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
-                >
-                    {tool.title}
-                </button>
-            )}
-        </div>
-        <div className="mt-12 text-center">
-          <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
-            &larr; Back to all tools
-          </Link>
-        </div>
+        {isShareModalOpen && (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={closeShareModal}>
+                <div className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
+                    <div className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Copy & Send download link</h3>
+                            <button onClick={closeShareModal} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"><CloseIcon className="h-5 w-5"/></button>
+                        </div>
+                        <div className="flex">
+                            <input 
+                                type="text" 
+                                readOnly 
+                                value={shareableUrl.startsWith('Error') ? shareableUrl : shareableUrl.substring(0, 60) + '...'}
+                                placeholder="Generating link..."
+                                className="flex-grow w-full px-3 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-md text-sm truncate text-gray-800 dark:text-gray-200"
+                            />
+                            <button 
+                                onClick={handleCopyLink}
+                                disabled={!shareableUrl || isCopying || shareableUrl.startsWith('Error')}
+                                className="bg-brand-red text-white font-bold px-4 rounded-r-md text-sm disabled:bg-red-300 dark:disabled:bg-red-800 w-24"
+                            >
+                                {isCopying ? 'Copied!' : 'Copy'}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="p-6 border-t border-gray-200 dark:border-gray-700 text-center">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Instantly download to your phone</h3>
+                        <div className="mt-4 bg-white dark:bg-gray-900 p-2 rounded inline-block shadow-md">
+                            {isQrLoading ? (
+                                <div className="w-[150px] h-[150px] flex items-center justify-center text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded">
+                                    <svg className="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                            ) : qrCodeError ? (
+                                <div className="w-[150px] h-[150px] flex items-center justify-center p-2 text-sm text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded">
+                                    {qrCodeError}
+                                </div>
+                            ) : (
+                                <img 
+                                    src={qrCodeUrl} 
+                                    alt="QR code for file download"
+                                    width="150"
+                                    height="150"
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+        
+        {state !== ProcessingState.Processing && (
+          <div className="mt-12 text-center">
+            <button onClick={handleReset} className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
+              &larr; Process another file
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
