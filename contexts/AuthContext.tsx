@@ -21,6 +21,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   country?: string; // e.g., 'US'
+  twoFactorEnabled?: boolean;
 }
 
 // Auth Context Type
@@ -42,6 +43,7 @@ interface AuthContextType {
   generateApiKey: () => Promise<string>;
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -58,7 +60,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const userRef = db.collection('users').doc(firebaseUser.uid);
           const docSnap = await userRef.get();
           if (docSnap.exists) {
-            setUser(docSnap.data() as User);
+            const userData = docSnap.data() as User;
+            setUser({ ...userData, twoFactorEnabled: userData.twoFactorEnabled || false });
           } else {
             // New user, create a profile in Firestore
             const newUserProfile: User = {
@@ -71,6 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               firstName: '',
               lastName: '',
               country: '',
+              twoFactorEnabled: false,
             };
             await userRef.set(newUserProfile);
             setUser(newUserProfile);
@@ -94,40 +98,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
   
   const loginOrSignupWithFacebook = async () => {
-    return new Promise<void>((resolve, reject) => {
-        // Check if FB SDK is loaded
-        if (typeof window.FB === 'undefined' || !window.FB) {
-            console.error('Facebook SDK not loaded.');
-            return reject(new Error('Facebook SDK is not available. Please try again in a moment.'));
-        }
-
-        window.FB.login((response: any) => {
-            if (response.authResponse && response.authResponse.accessToken) {
-                // Get the access token
-                const accessToken = response.authResponse.accessToken;
-                // Create a Firebase credential with the token
-                const credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
-                
-                // Sign in to Firebase with the credential
-                auth.signInWithCredential(credential)
-                    .then(() => {
-                        // Firebase onAuthStateChanged will handle the user state update.
-                        resolve();
-                    })
-                    .catch((error) => {
-                        console.error("Firebase sign in with Facebook credential error:", error);
-                        // Pass the Firebase error to the caller
-                        reject(error);
-                    });
-            } else {
-                console.log('User cancelled login or did not fully authorize.');
-                // Create an error that looks like a Firebase error for consistent handling
-                const error = new Error('The user closed the popup.');
-                (error as any).code = 'auth/popup-closed-by-user';
-                reject(error);
-            }
-        }, { scope: 'email,public_profile' });
-    });
+    const provider = new firebase.auth.FacebookAuthProvider();
+    provider.addScope('email');
+    provider.addScope('public_profile');
+    await auth.signInWithPopup(provider);
+    // onAuthStateChanged will handle the user state update.
   };
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -232,7 +207,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
   };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, auth };
+  const updateTwoFactorStatus = async (enabled: boolean) => {
+    if (!user) throw new Error("No user is signed in.");
+    const userRef = db.collection('users').doc(user.uid);
+    // Corrected the typo here from `cupdate` to `update`
+    await userRef.update({ twoFactorEnabled: enabled });
+    setUser(prevUser => (prevUser ? { ...prevUser, twoFactorEnabled: enabled } : null));
+  };
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

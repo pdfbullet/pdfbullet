@@ -1,9 +1,9 @@
 
+
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
-import { HomeIcon } from './components/icons.tsx';
 
 // Components that are part of the main layout
 import Header from './components/Header.tsx';
@@ -111,20 +111,25 @@ const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
 const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
 const PressPage = lazy(() => import('./pages/PressPage.tsx'));
+const WorkflowsPage = lazy(() => import('./pages/WorkflowsPage.tsx'));
+const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
+const UserDashboardLayout = lazy(() => import('./components/UserDashboardLayout.tsx'));
 
-const FloatingBackButton: React.FC = () => {
-  return (
-    <Link
-      to="/"
-      className="fixed top-4 left-4 z-[100] flex items-center gap-2 bg-white/80 dark:bg-soft-dark/70 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-surface-dark transition-colors"
-      aria-label="Back to Home"
-      title="Back to Home"
-    >
-      <HomeIcon className="h-6 w-6 text-brand-red" />
-      <span className="font-semibold text-gray-700 dark:text-gray-200 hidden sm:inline">Home</span>
-    </Link>
-  );
-};
+// New Dashboard Pages
+const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
+const TeamPage = lazy(() => import('./pages/TeamPage.tsx'));
+const LastTasksPage = lazy(() => import('./pages/LastTasksPage.tsx'));
+const SignaturesOverviewPage = lazy(() => import('./pages/SignaturesOverviewPage.tsx'));
+const SentPage = lazy(() => import('./pages/SentPage.tsx'));
+const InboxPage = lazy(() => import('./pages/InboxPage.tsx'));
+const SignedPage = lazy(() => import('./pages/SignedPage.tsx'));
+const TemplatesPage = lazy(() => import('./pages/TemplatesPage.tsx'));
+const ContactsPage = lazy(() => import('./pages/ContactsPage.tsx'));
+const SignatureSettingsPage = lazy(() => import('./pages/SignatureSettingsPage.tsx'));
+const PlansAndPackagesPage = lazy(() => import('./pages/PlansAndPackagesPage.tsx'));
+const BusinessDetailsPage = lazy(() => import('./pages/BusinessDetailsPage.tsx'));
+const InvoicesPage = lazy(() => import('./pages/InvoicesPage.tsx'));
+
 
 function MainApp() {
   const location = useLocation();
@@ -135,8 +140,6 @@ function MainApp() {
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
 
-  const hideHeaderFooter = location.pathname === '/cv-generator' || location.pathname === '/invoice-generator';
-  
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -154,8 +157,10 @@ function MainApp() {
           navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
         } else if (redirectInfo.from === 'pricing') {
           navigate('/payment', { state: { plan: redirectInfo.plan } });
-        } else if (redirectInfo.from === '/developer') {
+        } else if (redirectInfo.from === 'developer') {
           navigate('/developer');
+        } else if (redirectInfo.from === 'workflows_create') {
+          navigate('/workflows/create');
         } else if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
         }
@@ -167,14 +172,11 @@ function MainApp() {
 
   return (
     <div className="flex flex-col min-h-screen bg-creamy dark:bg-soft-dark text-gray-800 dark:text-gray-200">
-      {hideHeaderFooter && <FloatingBackButton />}
-      {!hideHeaderFooter && (
-        <Header
-          onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-          onOpenSearchModal={() => setSearchModalOpen(true)}
-          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-        />
-      )}
+      <Header
+        onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+        onOpenSearchModal={() => setSearchModalOpen(true)}
+        onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+      />
       <main className="flex-grow">
         <Suspense fallback={<Preloader />}>
           <Routes>
@@ -207,7 +209,7 @@ function MainApp() {
             <Route path="/ceo" element={<CeoPage />} />
             <Route path="/press" element={<PressPage />} />
             <Route path="/user-data-deletion" element={<DataDeletionPage />} />
-
+            
             {/* API Routes */}
             <Route path="/api-reference" element={<ApiReferencePage />} />
             <Route path="/api-pdf" element={<ApiPdfPage />} />
@@ -219,9 +221,26 @@ function MainApp() {
                 <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
             </Route>
 
-            {/* User Protected Routes */}
+            {/* User Protected Routes with Dashboard Layout */}
             <Route element={<UserProtectedRoute />}>
-                <Route path="/account-settings" element={<AccountSettingsPage />} />
+                <Route element={<UserDashboardLayout />}>
+                    <Route path="/account-settings" element={<AccountSettingsPage />} />
+                    <Route path="/workflows" element={<WorkflowsPage />} />
+                    <Route path="/workflows/create" element={<CreateWorkflowPage />} />
+                    <Route path="/security" element={<SecurityPage />} />
+                    <Route path="/team" element={<TeamPage />} />
+                    <Route path="/last-tasks" element={<LastTasksPage />} />
+                    <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+                    <Route path="/sent" element={<SentPage />} />
+                    <Route path="/inbox" element={<InboxPage />} />
+                    <Route path="/signed" element={<SignedPage />} />
+                    <Route path="/templates" element={<TemplatesPage />} />
+                    <Route path="/contacts" element={<ContactsPage />} />
+                    <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+                    <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+                    <Route path="/business-details" element={<BusinessDetailsPage />} />
+                    <Route path="/invoices" element={<InvoicesPage />} />
+                </Route>
             </Route>
             
             {/* ToolPage should be last to catch dynamic tool IDs */}
@@ -229,7 +248,7 @@ function MainApp() {
           </Routes>
         </Suspense>
       </main>
-      {!hideHeaderFooter && <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />}
+      <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />
       
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />

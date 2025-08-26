@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+// FIX: Import `useNavigate` from `react-router-dom`.
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
@@ -7,7 +9,7 @@ import {
     ProtectIcon, RefreshIcon, ShoppingBagIcon, EditIcon, DownloadIcon,
     StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
     UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon,
-    IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon
+    IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, RightArrowIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -132,26 +134,37 @@ const HomePage: React.FC = () => {
     
     const { isFavorite, toggleFavorite } = useFavorites();
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const filterCategories = [
         { label: 'All', category: 'All' },
         { label: 'Workflows', category: 'workflows' },
         { label: 'Organize PDF', category: 'organize' },
         { label: 'Optimize PDF', category: 'optimize' },
-        { label: 'Convert PDF', category: 'convert' },
+        { label: 'Convert PDF', category: 'convert-from' }, // Changed to be more specific
         { label: 'Edit PDF', category: 'edit' },
         { label: 'PDF Security', category: 'security' },
     ];
+
+    const handleWorkflowClick = () => {
+        if (!user) {
+            navigate('/login', { state: { from: 'workflows_create' } });
+        } else {
+            navigate('/workflows/create');
+        }
+    };
+    
+    const handleCategoryClick = (category: string) => {
+      // For workflows, the action is handled by the cards themselves, which check for auth.
+      setActiveCategory(category);
+    };
 
     const filteredTools = useMemo(() => {
         if (activeCategory === 'All') {
             return TOOLS;
         }
-        if (activeCategory === 'convert') {
-            return TOOLS.filter(tool => tool.category === 'convert-to' || tool.category === 'convert-from');
-        }
         if (activeCategory === 'workflows') {
-            return []; // No workflow tools defined yet
+            return []; // Workflow has a custom UI
         }
         return TOOLS.filter(tool => tool.category === activeCategory);
     }, [activeCategory]);
@@ -278,9 +291,9 @@ const HomePage: React.FC = () => {
                     {filterCategories.map(({ label, category }) => (
                         <button
                             key={label}
-                            onClick={() => setActiveCategory(category)}
+                            onClick={() => handleCategoryClick(category)}
                             title={`Filter by ${label}`}
-                            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                                 activeCategory === category
                                     ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
                                     : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'
@@ -296,15 +309,49 @@ const HomePage: React.FC = () => {
         {/* Tools Section */}
         <section id="all-tools" className="pt-2 pb-24">
             <div className="container max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {filteredTools.length > 0 ? filteredTools.map((tool) => (
-                        <div key={tool.id}>
-                            <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
+                {activeCategory === 'workflows' ? (
+                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto animate-fade-in-down">
+                        <div onClick={handleWorkflowClick} className="group relative cursor-pointer col-span-1 p-8 bg-[#fdebeb] dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                             <svg width="100%" height="100%" className="absolute top-0 left-0 w-full h-full text-red-200 dark:text-red-800/50" fill="none">
+                                <path d="M10 20 Q 50 0 90 20" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
+                                <path d="M190 100 Q 150 120 190 140" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
+                                <circle cx="160" cy="15" r="3" fill="currentColor" className="text-red-300 dark:text-red-700"/>
+                                <line x1="160" y1="15" x2="250" y2="15" stroke="currentColor" strokeWidth="0.5" />
+                                <path d="M 20 150 A 50 50 0 0 1 70 100" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
+                             </svg>
+                            <div className="relative z-10 flex flex-col h-full">
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create a workflow</h3>
+                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex-grow">
+                                    Create custom workflows with your favorite tools, automate tasks, and reuse them anytime.
+                                </p>
+                                <div className="mt-4 font-semibold text-brand-red flex items-center gap-2 group-hover:underline">
+                                    Create workflow
+                                    <RightArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                </div>
+                            </div>
                         </div>
-                    )) : (
-                        <p className="col-span-full text-center text-gray-500 py-10">No tools found in this category.</p>
-                    )}
-                </div>
+                        <div onClick={handleWorkflowClick} className="cursor-pointer flex flex-col items-center justify-center p-8 bg-white dark:bg-surface-dark border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl hover:border-brand-red hover:text-brand-red transition-all duration-300 group">
+                             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 text-gray-500 dark:text-gray-400 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
+                                <PlusIcon className="h-6 w-6" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Add a workflow</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">1 of 6</p>
+                             <div className="mt-4 bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2">
+                                <StarIcon className="h-4 w-4"/> 1 x free
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        {filteredTools.length > 0 ? filteredTools.map((tool) => (
+                            <div key={tool.id}>
+                                <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
+                            </div>
+                        )) : (
+                            <p className="col-span-full text-center text-gray-500 py-10">No tools found in this category.</p>
+                        )}
+                    </div>
+                )}
             </div>
         </section>
 
