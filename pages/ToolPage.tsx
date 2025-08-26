@@ -28,6 +28,7 @@ import * as XLSX from 'xlsx';
 import { readPsd } from 'ag-psd';
 import { removeBackground } from '@imgly/background-removal';
 import * as QRCode from 'https://esm.sh/qrcode@1.5.3';
+import { useLastTasks } from '../hooks/useLastTasks.ts';
 
 // Setup for pdfjs worker. This is a one-time setup.
 const setupPdfjs = async () => {
@@ -634,6 +635,7 @@ const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addTask } = useLastTasks();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -644,6 +646,7 @@ const ToolPage: React.FC = () => {
   const [toolOptions, setToolOptions] = useState<any>(initialToolOptions);
   const [progress, setProgress] = useState<{ percentage: number; status: string } | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string>('');
+  const [originalSize, setOriginalSize] = useState<number>(0);
   
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareableUrl, setShareableUrl] = useState('');
@@ -687,6 +690,14 @@ const ToolPage: React.FC = () => {
   }
 
   useEffect(() => {
+    if (files.length > 0) {
+        setOriginalSize(files.reduce((acc, f) => acc + f.size, 0));
+    } else {
+        setOriginalSize(0);
+    }
+  }, [files]);
+
+  useEffect(() => {
     let objectUrl: string | null = null;
     if (processedFileBlob) {
         objectUrl = URL.createObjectURL(processedFileBlob);
@@ -699,6 +710,19 @@ const ToolPage: React.FC = () => {
             setDownloadUrl('');
         }
     };
+  }, [processedFileBlob]);
+
+  useEffect(() => {
+    if (processedFileBlob && tool) {
+        const outputFilename = getOutputFilename(tool.id, files, toolOptions);
+        addTask({
+            toolId: tool.id,
+            toolTitle: tool.title,
+            outputFilename: outputFilename,
+            fileBlob: processedFileBlob,
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [processedFileBlob]);
 
   const getProcessingMessage = (tool: Tool | null): React.ReactNode => {
@@ -773,6 +797,7 @@ const ToolPage: React.FC = () => {
     setToolOptions(initialToolOptions);
     setProgress(null);
     setDownloadUrl('');
+    setOriginalSize(0);
     setShareableUrl('');
     setIsShareModalOpen(false);
     setCloudSaveState({google: 'idle', dropbox: 'idle'});
@@ -2003,9 +2028,14 @@ const ToolPage: React.FC = () => {
                         style={{ borderTopColor: '#B90B06' }}
                     ></div>
                 </div>
-                 {progress && (
-                    <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>
-                 )}
+                {progress && (
+                    <div className="w-full max-w-md mt-8">
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">{progress.status} ({progress.percentage}%)</p>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div className="bg-brand-red h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress.percentage}%` }}></div>
+                        </div>
+                    </div>
+                )}
             </div>
         )}
 
@@ -2023,6 +2053,12 @@ const ToolPage: React.FC = () => {
                   {getSuccessMessage(tool)}
                 </h2>
                 
+                 {processedFileBlob && (tool.id === 'compress-pdf' || tool.id === 'compress-image' || tool.id === 'resize-file') && originalSize > 0 && processedFileBlob.size < originalSize && (
+                    <p className="mt-4 text-lg text-green-700 dark:text-green-300 font-semibold">
+                        Success! File size reduced from {(originalSize / 1024 / 1024).toFixed(2)} MB to {(processedFileBlob.size / 1024 / 1024).toFixed(2)} MB.
+                    </p>
+                )}
+
                 <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
                     <button onClick={handleDownload} className="flex-grow-0 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg text-xl flex items-center gap-3 transition-colors">
                         <DownloadIcon className="h-6 w-6" />
@@ -2037,6 +2073,19 @@ const ToolPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
+                {downloadUrl && (processedFileBlob?.type.startsWith('image/') || processedFileBlob?.type === 'application/pdf') && (
+                    <div className="mt-8 max-w-4xl mx-auto">
+                        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Preview of Your Processed File</h3>
+                        {processedFileBlob?.type.startsWith('image/') ? (
+                            <div className={`inline-block border rounded-lg shadow-lg ${tool.id === 'remove-background' ? 'checkered-bg' : ''}`}>
+                                <img src={downloadUrl} alt="Processed preview" className="max-w-full h-auto max-h-[60vh] rounded-lg" />
+                            </div>
+                        ) : processedFileBlob?.type === 'application/pdf' ? (
+                            <iframe src={downloadUrl} className="w-full h-[70vh] rounded-lg shadow-lg border" title="PDF Preview"></iframe>
+                        ) : null}
+                    </div>
+                )}
 
                 <div className="mt-12 text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg max-w-5xl mx-auto border border-green-200 dark:border-green-700">
                     <h3 className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
