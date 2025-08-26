@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import { PlusIcon, TrashIcon, RightArrowIcon } from '../components/icons.tsx';
-
-interface WorkflowStep {
-    id: number;
-    tool: Tool;
-}
+import { useWorkflows, Workflow, WorkflowStep } from '../hooks/useWorkflows.ts';
 
 const CreateWorkflowPage: React.FC = () => {
     const navigate = useNavigate();
-    const [workflowName, setWorkflowName] = useState('');
-    const [steps, setSteps] = useState<WorkflowStep[]>([]);
+    const location = useLocation();
+    const { addWorkflow, updateWorkflow } = useWorkflows();
+
+    const editingWorkflow = location.state?.workflow as Workflow | null;
+
+    const [workflowName, setWorkflowName] = useState(editingWorkflow?.name || '');
+    const [steps, setSteps] = useState<WorkflowStep[]>(() => {
+        if (editingWorkflow) {
+            return editingWorkflow.tools.map((toolTitle, index) => {
+                const tool = TOOLS.find(t => t.title === toolTitle);
+                return tool ? { id: Date.now() + index, tool } : null;
+            }).filter((s): s is WorkflowStep => s !== null);
+        }
+        return [];
+    });
     const [selectedToolId, setSelectedToolId] = useState<string>('');
 
     // Filter out tools that don't make sense in a workflow (like generators)
@@ -32,8 +41,20 @@ const CreateWorkflowPage: React.FC = () => {
     };
 
     const handleSave = () => {
-        // In a real app, this would save to a backend/context
-        console.log(`Workflow "${workflowName}" saved with ${steps.length} steps!`);
+        const workflowData = {
+            name: workflowName,
+            tools: steps.map(s => s.tool.title),
+        };
+
+        if (editingWorkflow) {
+            updateWorkflow({
+                ...editingWorkflow,
+                ...workflowData
+            });
+        } else {
+            addWorkflow(workflowData);
+        }
+
         navigate('/workflows', { state: { workflowSaved: true } });
     };
 
@@ -44,7 +65,7 @@ const CreateWorkflowPage: React.FC = () => {
                 <div className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
                     <Link to="/workflows" className="text-gray-400 dark:text-gray-500 hover:underline">Workflows</Link>
                     <span className="text-gray-400 dark:text-gray-500 mx-2">/</span>
-                    <span>Create new workflow</span>
+                    <span>{editingWorkflow ? 'Edit workflow' : 'Create new workflow'}</span>
                 </div>
                 <Link
                     to="/pricing"

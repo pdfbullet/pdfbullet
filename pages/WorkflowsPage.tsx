@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PuzzleIcon, RightArrowIcon, EditIcon, TrashIcon, CheckIcon } from '../components/icons.tsx';
-
-// View icon to match screenshot
-const ViewIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-    </svg>
-);
+import { useWorkflows } from '../hooks/useWorkflows.ts';
+import { TOOLS } from '../constants.ts';
 
 // Reusable toggle switch component
 const ToggleSwitch: React.FC<{ checked: boolean; onChange: () => void }> = ({ checked, onChange }) => (
@@ -27,15 +22,7 @@ const WorkflowsPage: React.FC = () => {
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(location.state?.workflowSaved || false);
     
-    // Mock data to represent the saved workflow from the screenshot
-    const [workflows, setWorkflows] = useState([
-        {
-            id: 1,
-            name: 'mishra',
-            tools: ['Excel to PDF', 'Merge PDF'],
-            status: true,
-        },
-    ]);
+    const { workflows, toggleWorkflowStatus, deleteWorkflow } = useWorkflows();
 
     // Effect to hide the success message after a few seconds
     useEffect(() => {
@@ -48,34 +35,31 @@ const WorkflowsPage: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [showSuccess, navigate, location.pathname]);
-    
-    const toggleStatus = (id: number) => {
-        setWorkflows(workflows.map(wf => wf.id === id ? { ...wf, status: !wf.status } : wf));
-    };
 
-    const handleView = (id: number) => {
-        const workflow = workflows.find(wf => wf.id === id);
-        if (workflow) {
-            alert(`Viewing workflow: "${workflow.name}"\nTools: ${workflow.tools.join(' -> ')}\nStatus: ${workflow.status ? 'Active' : 'Inactive'}`);
+    const handleStart = (workflowTools: string[]) => {
+        if (workflowTools.length > 0) {
+            const firstToolTitle = workflowTools[0];
+            const tool = TOOLS.find(t => t.title === firstToolTitle);
+            if (tool) {
+                navigate(`/${tool.id}`);
+            } else {
+                alert(`Tool "${firstToolTitle}" not found.`);
+            }
         }
     };
 
     const handleEdit = (id: number) => {
-        const workflow = workflows.find(wf => wf.id === id);
-        if (workflow) {
-            // In a real app, this would navigate to an edit page.
-            // navigate(`/workflows/edit/${id}`);
-            alert(`This would open an edit page for the "${workflow.name}" workflow.`);
+        const workflowToEdit = workflows.find(wf => wf.id === id);
+        if (workflowToEdit) {
+            navigate('/workflows/create', { state: { workflow: workflowToEdit } });
         }
     };
 
-    const handleDelete = (id: number) => {
-        const workflow = workflows.find(wf => wf.id === id);
-        if (workflow && window.confirm(`Are you sure you want to delete the workflow "${workflow.name}"?`)) {
-            setWorkflows(prevWorkflows => prevWorkflows.filter(wf => wf.id !== id));
+    const handleDelete = (id: number, name: string) => {
+        if (window.confirm(`Are you sure you want to delete the workflow "${name}"?`)) {
+            deleteWorkflow(id);
         }
     };
-
 
     return (
         <div className="w-full">
@@ -132,12 +116,12 @@ const WorkflowsPage: React.FC = () => {
                                         ))}
                                     </div>
                                     <div className="col-span-2">
-                                        <ToggleSwitch checked={wf.status} onChange={() => toggleStatus(wf.id)} />
+                                        <ToggleSwitch checked={wf.status} onChange={() => toggleWorkflowStatus(wf.id)} />
                                     </div>
                                     <div className="col-span-3 flex justify-end items-center gap-1 text-gray-500 dark:text-gray-400">
-                                        <button onClick={() => handleView(wf.id)} aria-label="View workflow" title="View workflow" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><ViewIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => handleStart(wf.tools)} aria-label="Start workflow" title="Start workflow" className="p-2 rounded-full font-semibold text-sm text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20">Start</button>
                                         <button onClick={() => handleEdit(wf.id)} aria-label="Edit workflow" title="Edit workflow" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><EditIcon className="h-5 w-5"/></button>
-                                        <button onClick={() => handleDelete(wf.id)} aria-label="Delete workflow" title="Delete workflow" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><TrashIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => handleDelete(wf.id, wf.name)} aria-label="Delete workflow" title="Delete workflow" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><TrashIcon className="h-5 w-5"/></button>
                                     </div>
                                 </div>
                              )) : (
