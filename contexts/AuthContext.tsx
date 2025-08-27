@@ -9,6 +9,17 @@ declare global {
   }
 }
 
+// Add and export this interface
+export interface BusinessDetails {
+  companyName: string;
+  vatId: string;
+  country: string;
+  stateProvince: string;
+  city: string;
+  address: string;
+  zipCode: string;
+}
+
 // User interface for our app
 interface User {
   uid: string;
@@ -22,6 +33,7 @@ interface User {
   lastName?: string;
   country?: string; // e.g., 'US'
   twoFactorEnabled?: boolean;
+  businessDetails?: BusinessDetails;
 }
 
 // Auth Context Type
@@ -44,6 +56,7 @@ interface AuthContextType {
   getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
+  updateBusinessDetails: (details: BusinessDetails) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -215,7 +228,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(prevUser => (prevUser ? { ...prevUser, twoFactorEnabled: enabled } : null));
   };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, auth };
+  const updateBusinessDetails = async (details: BusinessDetails) => {
+    if (!user) throw new Error("No user is signed in.");
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update({ businessDetails: details });
+    setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
+  };
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

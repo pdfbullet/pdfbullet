@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface UserPackages {
     signatures: number;
@@ -8,8 +8,8 @@ export interface UserPackages {
 const PACKAGES_KEY = 'ilovepdfly_user_packages_v1';
 
 const initialPackages: UserPackages = {
-    signatures: 0,
-    sms: 0,
+    signatures: 10, // Start with some initial signatures for demo
+    sms: 5,
 };
 
 const getStoredPackages = (): UserPackages => {
@@ -36,6 +36,20 @@ export const useUserPackages = () => {
             console.error("Failed to save user packages to localStorage", error);
         }
     }, [packages]);
+    
+    const addSignatures = useCallback((count: number) => {
+        setPackages(prev => ({
+            ...prev,
+            signatures: prev.signatures + count
+        }));
+    }, []);
 
-    return { packages, setPackages };
+    const addSms = useCallback((count: number) => {
+        setPackages(prev => ({
+            ...prev,
+            sms: prev.sms + count
+        }));
+    }, []);
+
+    return { packages, addSignatures, addSms };
 };
