@@ -447,6 +447,12 @@ export const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+export const CheckCircleIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>
+);
+
 export const DollarIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-.96.73-1.66 2.2-1.66 1.51 0 2.15.68 2.22 1.55H15c-.07-1.44-1.12-2.43-3-2.43-1.96 0-3.43 1.1-3.43 2.73 0 1.45 1.1 2.38 3.19 2.88 2.1.51 2.83 1.25 2.83 2.31 0 1.05-.8 1.8-2.34 1.8-1.74 0-2.52-.84-2.6-1.8H9.3c.1 1.76 1.52 2.8 3.7 2.8 2.1 0 3.62-1.03 3.62-2.73 0-1.52-1.1-2.42-3.82-3.04z"/>
@@ -726,5 +732,23 @@ export const WindowsIcon: React.FC<{ className?: string }> = ({ className }) => 
       <path fill="#7fba00" d="M11 1h9v9h-9z"/>
       <path fill="#00a4ef" d="M1 11h9v9H1z"/>
       <path fill="#ffb900" d="M11 11h9v9h-9z"/>
+    </svg>
+);
+
+export const QrCodeIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2zM17 13h2v2h-2zM19 13h2v2h-2z"/>
+    </svg>
+);
+
+export const TagIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.22-1.05-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+    </svg>
+);
+
+export const CalendarIconSimple: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
     </svg>
 );
