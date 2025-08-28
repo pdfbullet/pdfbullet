@@ -280,12 +280,12 @@ const HomePage: React.FC = () => {
         <section className={`relative text-center overflow-hidden hero-background transition-all duration-300 ${user ? 'py-16' : 'pt-4 pb-2 md:pt-6 md:pb-2'}`}>
             <div className="container max-w-7xl mx-auto px-6 relative z-10">
                 {user ? (
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
                         Hi {user.username}, let's get started
                     </h1>
                 ) : (
                     <>
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
                             Every tool you need to work with PDFs in one place
                         </h1>
                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600 dark:text-gray-400">
@@ -293,21 +293,25 @@ const HomePage: React.FC = () => {
                         </p>
                     </>
                 )}
-                <div className={`flex flex-wrap justify-center gap-3 ${user ? 'mt-8' : 'mt-16'}`}>
-                    {filterCategories.map(({ label, category }) => (
-                        <button
-                            key={label}
-                            onClick={() => handleCategoryClick(category)}
-                            title={`Filter by ${label}`}
-                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
-                                activeCategory === category
-                                    ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
-                                    : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'
-                            }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
+                <div className={`w-full flex justify-center ${user ? 'mt-8' : 'mt-16'}`}>
+                    <div className="overflow-x-auto no-scrollbar pb-2">
+                        <div className="inline-flex items-center justify-start gap-3">
+                            {filterCategories.map(({ label, category }) => (
+                                <button
+                                    key={label}
+                                    onClick={() => handleCategoryClick(category)}
+                                    title={`Filter by ${label}`}
+                                    className={`flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
+                                        activeCategory === category
+                                            ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
+                                            : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

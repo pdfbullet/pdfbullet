@@ -207,11 +207,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </a>
             <nav className="hidden md:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
-                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
+                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap hidden lg:flex">
                       {link.label}
                   </Link>
               ))}
-              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap hidden lg:flex">
                   DEVELOPER
               </Link>
               {/* Convert PDF Dropdown */}
