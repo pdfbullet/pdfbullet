@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ChevronDownIcon, GridIcon, SunIcon, MoonIcon, UserCircleIcon, 
   CameraIcon, KeyIcon, LogoutIcon, UserIcon, BookOpenIcon, 
   StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
-  ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon, LockIcon, UsersIcon,
-  PuzzleIcon, RefreshIcon, SignIcon, PaperAirplaneIcon, FileIcon, InvoiceIcon
+  ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -56,7 +55,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const { theme, toggleTheme } = useTheme();
   const { user, logout, auth } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
@@ -115,52 +113,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
           setter(false);
       }, 200); // 200ms delay
   };
-
-  const NavItem: React.FC<{ name: string; path: string; icon: React.FC<{ className?: string }>; disabled?: boolean }> = ({ name, path, icon: Icon, disabled }) => {
-    const isActive = (path !== '/' && location.pathname.startsWith(path));
-    
-    const classes = `flex items-center gap-3 p-2 rounded-md text-sm font-medium transition-colors ${
-        isActive
-            ? 'bg-red-100 text-brand-red dark:bg-red-900/30'
-            : disabled
-            ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-    }`;
-    
-    const content = <><Icon className="h-5 w-5" /><span>{name}</span></>;
-    
-    if (disabled) {
-        return <div className={classes}>{content}</div>;
-    }
-    
-    return <Link to={path} className={classes} onClick={closeAllMenus}>{content}</Link>;
-  };
-
-  const sidebarNav = [
-        { group: 'Profile', items: [
-            { name: 'My account', path: '/account-settings', icon: UserIcon },
-            { name: 'Security', path: '/security', icon: LockIcon },
-            { name: 'Team', path: '/team', icon: UsersIcon },
-        ]},
-        { group: 'Settings', items: [
-            { name: 'Workflows', path: '/workflows', icon: PuzzleIcon },
-            { name: 'Last tasks', path: '/last-tasks', icon: RefreshIcon },
-        ]},
-        { group: 'Signatures', items: [
-            { name: 'Overview', path: '/signatures-overview', icon: SignIcon },
-            { name: 'Sent', path: '/sent', icon: PaperAirplaneIcon },
-            { name: 'Inbox', path: '/inbox', icon: EmailIcon },
-            { name: 'Signed', path: '/signed', icon: CheckIcon },
-            { name: 'Templates', path: '/templates', icon: FileIcon },
-            { name: 'Contacts', path: '/contacts', icon: UsersIcon },
-            { name: 'Settings', path: '/signature-settings', icon: SettingsIcon },
-        ]},
-        { group: 'Billing', items: [
-            { name: 'Plans & Packages', path: '/plans-packages', icon: DollarIcon },
-            { name: 'Business details', path: '/business-details', icon: BriefcaseIcon },
-            { name: 'Invoices', path: '/invoices', icon: InvoiceIcon },
-        ]}
-    ];
 
   const categoryConfig: Record<string, Omit<CategoryGroup, 'tools' | 'key'>> = {
     organize: { title: 'Organize PDF', order: 1 },
@@ -242,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   return (
     <>
     <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 py-3">
+      <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="md:hidden">
@@ -440,82 +392,43 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     <div className={`fixed inset-0 z-[60] bg-black/50 transition-opacity md:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setMobileMenuOpen(false)}></div>
     <div className={`fixed top-0 left-0 h-full w-full max-w-xs bg-white dark:bg-black z-[70] transition-transform duration-300 ease-in-out md:hidden transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-            {user ? (
-                 <div className="flex flex-col h-full">
-                    <div className="flex items-start justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-200 border-2 border-brand-red/50 flex-shrink-0">
-                                {user.profileImage ? <img src={user.profileImage} alt="Profile" className="h-full w-full object-cover" /> : <UserIcon className="h-full w-full text-gray-500 p-2" />}
-                            </div>
-                            <div>
-                                <p className="font-bold text-gray-800 dark:text-gray-100 truncate">{user.username}</p>
-                                <p className="text-sm text-red-500 font-semibold">Registered</p>
-                            </div>
-                        </div>
-                         <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300" aria-label="Close menu" title="Close menu">
-                            <CloseIcon className="h-6 w-6" />
-                        </button>
-                    </div>
-                     <nav className="flex-grow overflow-y-auto p-2">
-                        {sidebarNav.map(group => (
-                            <div key={group.group} className="mb-4">
-                                <h3 className="px-2 py-2 text-xs font-bold uppercase text-gray-400 tracking-wider">{group.group}</h3>
-                                <div className="space-y-1">
-                                    {group.items.map(item => (
-                                        <NavItem key={item.name} {...item} />
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </nav>
-                 </div>
-            ) : (
-                <>
-                    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                        <span className="font-bold text-lg text-gray-800 dark:text-gray-100">All Tools</span>
-                        <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300" aria-label="Close menu" title="Close menu">
-                            <CloseIcon className="h-6 w-6" />
-                        </button>
-                    </div>
-                    <nav className="flex-grow overflow-y-auto p-2">
-                        <div className="space-y-4">
-                            {sortedCategories.map(cat => (
-                                <div key={cat.title}>
-                                    <h4 className="px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{cat.title}</h4>
-                                    <div className="mt-1 space-y-1">
-                                        {cat.tools.map(tool => (
-                                            <Link
-                                                key={tool.id}
-                                                to={`/${tool.id}`}
-                                                onClick={closeAllMenus}
-                                                title={tool.title}
-                                                className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                            >
-                                                <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} />
-                                                <span className="font-semibold text-sm">{tool.title}</span>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            <div>
-                                <h4 className="px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Developer API</h4>
-                                <div className="mt-1 space-y-1">
-                                    <Link to="/api-pdf" onClick={closeAllMenus} title="PDF REST API" className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"><CodeIcon className="h-6 w-6 text-red-500"/><span>PDF REST API</span></Link>
-                                    <Link to="/api-image" onClick={closeAllMenus} title="Image REST API" className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"><CodeIcon className="h-6 w-6 text-blue-500"/><span>Image REST API</span></Link>
-                                    <Link to="/api-signature" onClick={closeAllMenus} title="Signature REST API" className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"><CodeIcon className="h-6 w-6 text-green-500"/><span>Signature REST API</span></Link>
-                                </div>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <span className="font-bold text-lg text-gray-800 dark:text-gray-100">All Tools</span>
+                <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300" aria-label="Close menu" title="Close menu">
+                    <CloseIcon className="h-6 w-6" />
+                </button>
+            </div>
+            <nav className="flex-grow overflow-y-auto p-2">
+                <div className="space-y-4">
+                    {sortedCategories.map(cat => (
+                        <div key={cat.title}>
+                            <h4 className="px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{cat.title}</h4>
+                            <div className="mt-1 space-y-1">
+                                {cat.tools.map(tool => (
+                                    <Link
+                                        key={tool.id}
+                                        to={`/${tool.id}`}
+                                        onClick={closeAllMenus}
+                                        title={tool.title}
+                                        className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    >
+                                        <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} />
+                                        <span className="font-semibold text-sm">{tool.title}</span>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
-                    </nav>
-                    <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center space-x-2">
-                            <Link to="/login" onClick={closeAllMenus} title="Login" className="flex-1 text-center font-semibold text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors py-2 px-4 rounded-md border border-gray-300 dark:border-gray-700">Login</Link>
-                            <Link to="/signup" onClick={closeAllMenus} title="Sign Up" className="flex-1 text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
-                        </div>
+                    ))}
+                </div>
+            </nav>
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                {!user && (
+                    <div className="flex items-center space-x-2">
+                        <Link to="/login" onClick={closeAllMenus} title="Login" className="flex-1 text-center font-semibold text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors py-2 px-4 rounded-md border border-gray-300 dark:border-gray-700">Login</Link>
+                        <Link to="/signup" onClick={closeAllMenus} title="Sign Up" className="flex-1 text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
                     </div>
-                </>
-            )}
+                )}
+            </div>
         </div>
     </div>
     </>

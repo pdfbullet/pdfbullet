@@ -39,7 +39,7 @@ const BusinessPage: React.FC = () => {
         <div className="bg-white dark:bg-black text-gray-800 dark:text-gray-200">
             {/* Hero Section */}
             <section className="py-20 md:py-28 bg-gray-50 dark:bg-black">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="grid lg:grid-cols-5 gap-12 items-center">
                         <div className="lg:col-span-2 text-center lg:text-left">
                             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">
@@ -68,7 +68,7 @@ const BusinessPage: React.FC = () => {
             
             {/* Features Section */}
              <section className="py-20">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         <div className="bg-gray-50 dark:bg-black p-6 rounded-xl shadow-md text-center">
                             <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
@@ -104,7 +104,7 @@ const BusinessPage: React.FC = () => {
 
             {/* All-in-one Platform section */}
              <section className="py-20 bg-gray-50 dark:bg-black">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold">Your all-in-one platform for your document needs</h2>
                     </div>
@@ -123,7 +123,7 @@ const BusinessPage: React.FC = () => {
             
             {/* Enterprise section */}
              <section className="py-20">
-                 <div className="container mx-auto px-6">
+                 <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold">Designed for enterprise</h2>
                     </div>
@@ -158,7 +158,7 @@ const BusinessPage: React.FC = () => {
 
             {/* Industry Solutions section */}
             <section className="py-20 md:py-28 bg-gray-50 dark:bg-black">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-3xl md:text-4xl font-extrabold">Discover how I Love PDFLY simplifies document management for your business sector</h2>
                     </div>
@@ -195,7 +195,7 @@ const BusinessPage: React.FC = () => {
             
             {/* API and CTA */}
             <section className="py-20">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="bg-brand-red text-white p-12 rounded-xl text-center shadow-lg">
                         <ApiIcon className="h-12 w-12 mx-auto mb-4" />
                         <h2 className="text-3xl font-extrabold">Integrate our tools with your systems</h2>

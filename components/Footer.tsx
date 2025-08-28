@@ -81,7 +81,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
 
   return (
     <footer className="bg-black text-white w-full">
-      <div className="container mx-auto px-6 py-12">
+      <div className="px-6 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8">
           
           {/* Logo & Socials */}

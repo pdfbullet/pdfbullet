@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon } from '../components/icons.tsx';
@@ -86,8 +87,8 @@ const AdminDashboardPage: React.FC = () => {
 
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
-            <div className="container mx-auto px-6">
-                <div className="max-w-6xl mx-auto">
+            <div className="px-6">
+                <div>
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
                         <div>
                             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">Admin Dashboard</h1>

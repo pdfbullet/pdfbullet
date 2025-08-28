@@ -37,7 +37,7 @@ const EducationPage: React.FC = () => {
         <div className="bg-white dark:bg-black overflow-x-hidden">
             {/* Hero Section */}
             <section className="bg-gray-50 dark:bg-black py-20 md:py-24">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div>
                             <p className="text-brand-red font-semibold">I Love PDFLY Education</p>
@@ -66,7 +66,7 @@ const EducationPage: React.FC = () => {
 
             {/* Simplification Section */}
             <section className="py-20 md:py-24">
-                <div className="container mx-auto px-6 text-center">
+                <div className="px-6 text-center">
                     <div className="max-w-4xl mx-auto">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
                             Simplifying document workflow for students & faculty
@@ -90,7 +90,7 @@ const EducationPage: React.FC = () => {
             </section>
             
             {/* Image Banner */}
-            <section className="container mx-auto px-6">
+            <section className="px-6">
                 <div className="w-full h-64 md:h-80 bg-cover bg-center rounded-lg shadow-lg overflow-hidden" style={{ backgroundImage: `url('https://www.ilovepdf.com/img/education/school.jpg')` }}>
                     <div className="w-full h-full bg-black/30"></div>
                 </div>
@@ -98,7 +98,7 @@ const EducationPage: React.FC = () => {
 
             {/* Powerful Features Section */}
             <section className="py-20 md:py-24">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                      <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
                             Powerful features to help you stay on top of your work
@@ -123,7 +123,7 @@ const EducationPage: React.FC = () => {
 
             {/* CTA Section */}
             <section className="bg-gray-50 dark:bg-black py-20 md:py-24">
-                <div className="container mx-auto px-6">
+                <div className="px-6">
                     <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 text-center md:text-left">
                         <div>
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">For Students & Teachers</h3>
@@ -149,7 +149,7 @@ const EducationPage: React.FC = () => {
 
              {/* Final CTA Section */}
             <section className="py-20">
-                <div className="container mx-auto px-6 text-center">
+                <div className="px-6 text-center">
                     <div className="text-brand-red text-4xl mb-4">♥</div>
                      <p className="text-xl md:text-2xl font-semibold text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
                         Because every PDF problem you might now have can be our next challenge

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { Link } from 'react-router-dom';
@@ -122,7 +123,7 @@ const DeveloperPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="container mx-auto px-6 py-12 relative z-10">
+            <div className="px-6 py-12 relative z-10">
                 <div className="lg:flex lg:gap-12">
                     <aside className="w-full lg:w-64 lg:sticky lg:top-24 self-start mb-8 lg:mb-0">
                         <nav className="space-y-2 bg-white/80 dark:bg-black/70 backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-gray-800">

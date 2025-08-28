@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { UserIcon, StarIcon, CheckIcon, ApiIcon, WarningIcon } from '../components/icons.tsx';
+import { UserIcon, StarIcon, ApiIcon, WarningIcon } from '../components/icons.tsx';
 
 const countries = [
   { code: 'AF', name: 'Afghanistan', flag: '🇦🇫' }, { code: 'AL', name: 'Albania', flag: '🇦🇱' },
@@ -96,8 +97,6 @@ const AccountSettingsPage: React.FC = () => {
     const [country, setCountry] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -107,187 +106,95 @@ const AccountSettingsPage: React.FC = () => {
         }
     }, [user]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage('');
         setIsLoading(true);
+        setMessage('');
         try {
             await updateUserProfile({ firstName, lastName, country });
             setMessage('Profile updated successfully!');
             setTimeout(() => setMessage(''), 3000);
         } catch (error) {
-            setMessage('Failed to update profile. Please try again.');
+            setMessage('Failed to update profile.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleDeleteAccount = async () => {
-        setMessage('');
-        setIsLoading(true);
-        try {
-            await deleteCurrentUser();
-            // onAuthStateChanged listener will handle logout and redirect.
-        } catch (err: any) {
-            if (err.code === 'auth/requires-recent-login') {
-                setMessage('For your security, this action requires a recent login. Please log out and log back in, then try again.');
-            } else {
-                setMessage(`An error occurred while deleting your account: ${err.message}.`);
+        if (window.confirm('Are you sure you want to permanently delete your account? This action cannot be undone.')) {
+            try {
+                await deleteCurrentUser();
+                // User will be logged out and redirected by AuthContext
+            } catch (error) {
+                alert('Failed to delete account. Please try again or contact support.');
             }
-            setIsLoading(false);
-            setIsDeleteModalOpen(false); // Close modal to show the message on the page
         }
     };
 
-    if (!user) {
-        return (
-            <div className="py-16 md:py-24 text-center">
-                <p>Loading user data...</p>
-            </div>
-        );
-    }
-    
-    const userPlan = user.isPremium ? 'Premium' : 'Basic';
-    const apiPlan = user.apiPlan && user.apiPlan !== 'free' ? user.apiPlan.charAt(0).toUpperCase() + user.apiPlan.slice(1) : null;
-
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Account Settings</h1>
-                <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                    Manage your personal information and view your plan details.
-                </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-                {/* Form Section */}
-                <div className="md:col-span-2 bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-3">
-                            <UserIcon className="h-6 w-6" />
-                            Personal Information
-                        </h2>
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            <div>
-                                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
-                                <input type="text" id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red" />
-                            </div>
-                            <div>
-                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
-                                <input type="text" id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red" />
-                            </div>
+        <div className="w-full space-y-8">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">My account</h1>
+            
+            {/* Personal Info */}
+            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><UserIcon className="h-6 w-6" /> Personal information</h2>
+                <form onSubmit={handleSave} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First name</label>
+                            <input type="text" id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full p-2 border rounded-md" />
                         </div>
                         <div>
-                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
-                            <select id="country" value={country} onChange={e => setCountry(e.target.value)} className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red">
-                                <option value="">Select a country</option>
-                                {countries.map(c => (
-                                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex items-center justify-between">
-                             <button type="submit" disabled={isLoading} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors disabled:bg-red-300">
-                                {isLoading ? 'Saving...' : 'Save Changes'}
-                            </button>
-                            {message && <p className={`text-sm font-semibold ${message.includes('successfully') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
-                        </div>
-                    </form>
-
-                    <div className="mt-12 pt-6 border-t border-red-500/30">
-                        <h2 className="text-xl font-bold text-red-600 dark:text-red-400">Danger Zone</h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                            Deleting your account is a permanent action and cannot be undone. All your data, including profile information and any saved content, will be permanently removed.
-                        </p>
-                        <div className="mt-4">
-                            <button
-                                onClick={() => setIsDeleteModalOpen(true)}
-                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-                            >
-                                Delete My Account
-                            </button>
+                            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last name</label>
+                            <input type="text" id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full p-2 border rounded-md" />
                         </div>
                     </div>
-                </div>
-
-                {/* Plan Section */}
-                <div className="md:col-span-1 space-y-6">
-                    <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-3">
-                            <StarIcon className="h-6 w-6 text-yellow-500"/>
-                            Your Plan
-                        </h2>
-                         <div className={`p-4 rounded-lg ${user.isPremium ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-800'}`}>
-                            <p className="font-bold text-lg text-gray-800 dark:text-gray-100">{userPlan} User</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {user.isPremium ? 'Full access to all tools & features.' : 'Access to standard free tools.'}
-                            </p>
-                        </div>
+                    <div>
+                        <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+                        <select id="country" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select country</option>
+                            {countries.map(c => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
+                        </select>
                     </div>
-                     {apiPlan && <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-3">
-                            <ApiIcon className="h-6 w-6 text-purple-500"/>
-                            API Plan
-                        </h2>
-                        <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-                            <p className="font-bold text-lg text-gray-800 dark:text-gray-100">{apiPlan} Plan</p>
-                        </div>
-                    </div>}
+                    {message && <p className={`mt-2 text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
+                    <div className="text-right">
+                        <button type="submit" disabled={isLoading} className="bg-brand-red text-white font-bold py-2 px-6 rounded-md disabled:bg-red-300">{isLoading ? 'Saving...' : 'Save'}</button>
+                    </div>
+                </form>
+            </div>
+
+            {/* Subscription */}
+            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><StarIcon className="h-6 w-6" /> Subscription</h2>
+                <div className="flex justify-between items-center">
+                    <p>You are on the <span className="font-bold">{user?.isPremium ? 'Premium' : 'Free'}</span> plan.</p>
+                    <button className="text-brand-red font-semibold hover:underline">Manage subscription</button>
                 </div>
             </div>
 
-            {isDeleteModalOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-                    onClick={() => setIsDeleteModalOpen(false)}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="delete-account-title"
-                >
-                    <div 
-                        className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="p-6 text-center">
-                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50">
-                                <WarningIcon className="h-6 w-6 text-red-600" />
-                            </div>
-                            <h3 id="delete-account-title" className="text-lg font-bold text-gray-900 dark:text-white mt-4">Are you absolutely sure?</h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                This action cannot be undone. This will permanently delete your account and all associated data.
-                            </p>
-                            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                                Please type <strong className="text-red-600 dark:text-red-400">DELETE</strong> to confirm.
-                            </p>
-                            <input
-                                type="text"
-                                value={deleteConfirmText}
-                                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                className="w-full mt-2 p-2 text-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-red-500 focus:border-red-500"
-                            />
-                        </div>
-                        <div className="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
-                            <button
-                                type="button"
-                                onClick={() => setIsDeleteModalOpen(false)}
-                                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDeleteAccount}
-                                disabled={deleteConfirmText !== 'DELETE' || isLoading}
-                                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-red-800"
-                            >
-                                {isLoading ? 'Deleting...' : 'Delete Account Permanently'}
-                            </button>
-                        </div>
-                    </div>
+            {/* API Access */}
+            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ApiIcon className="h-6 w-6" /> API Access</h2>
+                <div className="flex justify-between items-center">
+                    <p>Your API plan is: <span className="font-bold">{user?.apiPlan || 'free'}</span>.</p>
+                    <button className="text-brand-red font-semibold hover:underline">Manage API Plan</button>
                 </div>
-            )}
+            </div>
+
+            {/* Danger Zone */}
+            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border-2 border-red-500/50">
+                <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><WarningIcon className="h-6 w-6" /> Danger Zone</h2>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="font-semibold">Delete your account</p>
+                        <p className="text-sm text-gray-500">Once you delete your account, there is no going back. Please be certain.</p>
+                    </div>
+                    <button onClick={handleDeleteAccount} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700">Delete My Account</button>
+                </div>
+            </div>
         </div>
     );
 };
-
+// FIX: Add default export to the component.
 export default AccountSettingsPage;

@@ -41,7 +41,7 @@ const BlogPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-black py-16 md:py-24 overflow-x-hidden">
-      <div className="container mx-auto px-6">
+      <div className="px-6">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">I Love PDFLY Blog</h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
@@ -49,7 +49,7 @@ const BlogPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Blog Posts */}
           <div className="lg:col-span-2 space-y-8">
             {filteredPosts.length > 0 ? (

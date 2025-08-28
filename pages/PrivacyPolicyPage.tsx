@@ -58,7 +58,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
-            <div className="container mx-auto px-6">
+            <div className="px-6">
                 <div className="max-w-4xl mx-auto bg-white dark:bg-black p-8 md:p-12 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">Privacy Policy for I Love PDFLY</h1>
                     <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">

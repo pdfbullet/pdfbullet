@@ -82,7 +82,7 @@ const PaymentPage: React.FC = () => {
 
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
-            <div className="container mx-auto px-6">
+            <div className="px-6">
                 <div className="max-w-4xl mx-auto text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Complete Your Purchase</h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">

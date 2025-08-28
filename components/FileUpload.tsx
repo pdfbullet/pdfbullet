@@ -142,7 +142,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ tool, files, setFiles, accept, 
   };
   
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       {files.length === 0 ? (
         <div 
           {...getRootProps()} 

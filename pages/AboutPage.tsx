@@ -13,7 +13,7 @@ const AboutPage: React.FC = () => {
 
   return (
     <div className="py-16 md:py-24 overflow-x-hidden bg-gray-50 dark:bg-black">
-      <div className="container mx-auto px-6">
+      <div className="px-6">
         <section className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Our Mission: To Make Document Management Simple, Secure, and Accessible for Everyone</h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">

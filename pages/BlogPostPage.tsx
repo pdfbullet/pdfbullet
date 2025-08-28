@@ -81,8 +81,8 @@ const BlogPostPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-black py-16 md:py-24">
-      <div className="container mx-auto px-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="px-6">
+        <div>
           <div className="mb-8">
             <Link to="/blog" className="text-brand-red hover:underline font-semibold">
               &larr; Back to Blog

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -98,7 +99,7 @@ const FaqPage: React.FC = () => {
 
     return (
         <div className="bg-gray-50 dark:bg-black py-16 md:py-24 overflow-x-hidden">
-            <div className="container mx-auto px-6">
+            <div className="px-6">
                 <div className="max-w-4xl mx-auto text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Frequently Asked Questions</h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
