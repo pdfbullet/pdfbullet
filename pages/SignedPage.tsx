@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import { useSignedDocuments, SignedDocument } from '../hooks/useSignedDocuments.ts';
 import { SearchIcon, ChevronDownIcon, TrashIcon } from '../components/icons.tsx';
+import { Logo } from '../components/Logo.tsx';
 
 const SignedDocDetailsModal: React.FC<{ doc: SignedDocument | null; onClose: () => void; }> = ({ doc, onClose }) => {
     if (!doc) return null;
@@ -169,9 +170,12 @@ const SignedPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-4">
                         <SignatureHeaderIcon />
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                            I<span className="text-brand-red">♥</span>PDF Signature
-                        </h1>
+                        <div className="flex items-center gap-2">
+                            <Logo className="h-7 w-auto" />
+                            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                Signature
+                            </h1>
+                        </div>
                     </div>
                     <button 
                         onClick={handleNewSignature}

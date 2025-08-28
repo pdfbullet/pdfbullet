@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignature } from '../hooks/useSignature.ts';
@@ -6,6 +5,7 @@ import SignatureModal from '../components/SignatureModal.tsx';
 import { SearchIcon, TrashIcon, PlusIcon, CloseIcon, PhoneIcon, DownloadIcon } from '../components/icons.tsx';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
+import { Logo } from '../components/Logo.tsx';
 
 const SignatureHeaderIcon: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`p-2 bg-blue-600 rounded-md inline-block ${className}`}>
@@ -247,7 +247,12 @@ const ContactsPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-4">
                         <SignatureHeaderIcon />
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">I<span className="text-brand-red">♥</span>PDF Signature</h1>
+                        <div className="flex items-center gap-2">
+                            <Logo className="h-7 w-auto" />
+                            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                Signature
+                            </h1>
+                        </div>
                     </div>
                     <button onClick={() => setIsSignatureModalOpen(true)} className="w-full sm:w-auto bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md">New signature</button>
                 </div>
