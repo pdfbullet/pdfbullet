@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 // FIX: Import `useNavigate` from `react-router-dom`.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -9,10 +10,12 @@ import {
     ProtectIcon, RefreshIcon, ShoppingBagIcon, EditIcon, DownloadIcon,
     StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
     UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon,
-    IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, RightArrowIcon
+    IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, RightArrowIcon,
+    WorkflowPathIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
+import { useWorkflows } from '../hooks/useWorkflows.ts';
 
 const HomeFaqItem: React.FC<{
     item: { q: string, a: string },
@@ -135,6 +138,9 @@ const HomePage: React.FC = () => {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { workflows } = useWorkflows();
+    const toolsByTitle = useMemo(() => new Map(TOOLS.map(t => [t.title, t])), []);
+
 
     const filterCategories = [
         { label: 'All', category: 'All' },
@@ -310,34 +316,56 @@ const HomePage: React.FC = () => {
         <section id="all-tools" className="pt-2 pb-24">
             <div className="container max-w-7xl mx-auto px-6">
                 {activeCategory === 'workflows' ? (
-                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto animate-fade-in-down">
-                        <div onClick={handleWorkflowClick} className="group relative cursor-pointer col-span-1 p-8 bg-[#fdebeb] dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                             <svg width="100%" height="100%" className="absolute top-0 left-0 w-full h-full text-red-200 dark:text-red-800/50" fill="none">
-                                <path d="M10 20 Q 50 0 90 20" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
-                                <path d="M190 100 Q 150 120 190 140" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
-                                <circle cx="160" cy="15" r="3" fill="currentColor" className="text-red-300 dark:text-red-700"/>
-                                <line x1="160" y1="15" x2="250" y2="15" stroke="currentColor" strokeWidth="0.5" />
-                                <path d="M 20 150 A 50 50 0 0 1 70 100" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" strokeLinecap="round" />
-                             </svg>
-                            <div className="relative z-10 flex flex-col h-full">
-                                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create a workflow</h3>
-                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex-grow">
-                                    Create custom workflows with your favorite tools, automate tasks, and reuse them anytime.
-                                </p>
-                                <div className="mt-4 font-semibold text-brand-red flex items-center gap-2 group-hover:underline">
-                                    Create workflow
-                                    <RightArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                </div>
+                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        {/* Manage Workflows Card */}
+                        <Link
+                            to="/workflows"
+                            title="Manage your workflows"
+                            className="flex flex-col p-6 bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 rounded-2xl hover:-translate-y-1 transition-all duration-300 group shadow-sm hover:shadow-lg h-full"
+                        >
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Manage your workflows</h3>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex-grow">View and edit your saved workflows.</p>
+                            <div className="mt-4 font-semibold text-pink-600 flex items-center gap-2 group-hover:underline">
+                                Go to admin
+                                <RightArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </div>
-                        </div>
-                        <div onClick={handleWorkflowClick} className="cursor-pointer flex flex-col items-center justify-center p-8 bg-white dark:bg-surface-dark border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl hover:border-brand-red hover:text-brand-red transition-all duration-300 group">
+                        </Link>
+
+                        {/* User-created Workflows */}
+                        {workflows.filter(wf => wf.status).map(workflow => {
+                            const firstTool = toolsByTitle.get(workflow.tools[0]);
+                            if (!firstTool) return null;
+
+                            return (
+                                <Link
+                                    key={workflow.id}
+                                    to={`/${firstTool.id}`}
+                                    title={`Start workflow: ${workflow.name}`}
+                                    className="relative flex flex-col p-6 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-2xl hover:-translate-y-1 transition-all duration-300 group shadow-sm hover:shadow-lg h-full"
+                                >
+                                    <WorkflowPathIcon className="h-10 w-10 mb-4" />
+                                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{workflow.name}</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-grow break-words">
+                                        {workflow.tools.join(' → ')}
+                                    </p>
+                                </Link>
+                            );
+                        })}
+
+                        {/* Add a workflow Card */}
+                        <div 
+                            onClick={handleWorkflowClick} 
+                            className="cursor-pointer flex flex-col items-center justify-center p-6 bg-white dark:bg-surface-dark border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl hover:border-brand-red hover:text-brand-red transition-all duration-300 group h-full"
+                        >
                              <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 text-gray-500 dark:text-gray-400 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
                                 <PlusIcon className="h-6 w-6" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Add a workflow</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">1 of 6</p>
-                             <div className="mt-4 bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2">
-                                <StarIcon className="h-4 w-4"/> 1 x free
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                {workflows.length + 1} of 6
+                            </p>
+                            <div className="mt-4 bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2">
+                                <StarIcon className="h-4 w-4"/> Premium
                             </div>
                         </div>
                     </div>

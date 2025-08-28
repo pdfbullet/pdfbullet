@@ -3,15 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSignature } from '../hooks/useSignature.ts';
 import SignatureModal from '../components/SignatureModal.tsx';
 import { SettingsIcon, TrashIcon, EditIcon, FileIcon } from '../components/icons.tsx';
-
-// Specific icon for the "I ❤️ PDF Signature" header
-const SignatureHeaderIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={`p-2 bg-blue-600 rounded-md inline-block ${className}`}>
-    <svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-    </svg>
-  </div>
-);
+import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 
 const SignatureSettingsDropdown: React.FC<{ onEdit: () => void; onDelete: () => void; }> = ({ onEdit, onDelete }) => (
     <div className="absolute top-8 right-4 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
@@ -28,9 +20,10 @@ const SignatureSettingsDropdown: React.FC<{ onEdit: () => void; onDelete: () => 
 const SignaturesOverviewPage: React.FC = () => {
     const navigate = useNavigate();
     const { signature, saveSignature, deleteSignature } = useSignature();
+    const { documents, loading } = useSignedDocuments();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'sent' | 'inbox' | 'signed'>('sent');
+    const [activeTab, setActiveTab] = useState<'sent' | 'inbox' | 'signed'>('signed');
 
     const handleDelete = () => {
         if (window.confirm('Are you sure you want to delete your saved signature?')) {
@@ -50,17 +43,26 @@ const SignaturesOverviewPage: React.FC = () => {
         navigate('/sign-pdf');
     };
 
+    const latestSignedDoc = documents.length > 0 ? documents[0] : null;
+    const timeAgo = (timestamp: number) => {
+        const seconds = Math.floor((new Date().getTime() - timestamp) / 1000);
+        if (seconds < 60) return "Just now";
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} minutes ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hours ago`;
+        const days = Math.floor(hours / 24);
+        return `${days} days ago`;
+    };
+
     return (
         <>
             <div className="w-full space-y-8">
                 {/* Header */}
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <SignatureHeaderIcon />
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
-                            I<span className="text-brand-red">♥</span>PDF Signature
-                        </h1>
-                    </div>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
+                        Signatures Overview
+                    </h1>
                     <button onClick={() => setIsModalOpen(true)} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors">
                         New signature
                     </button>
@@ -123,16 +125,22 @@ const SignaturesOverviewPage: React.FC = () => {
                         {activeTab === 'signed' && (
                             <div className="p-4 text-center text-gray-500">
                                 This section will show your signed documents.
-                                <div className="mt-4 border rounded-lg p-4 flex items-center justify-between text-left animate-pulse">
-                                  <div className="flex items-center gap-3">
-                                    <FileIcon className="h-8 w-8 text-blue-500"/>
-                                    <div>
-                                      <p className="font-semibold text-gray-700 dark:text-gray-200">example_contract_signed.pdf</p>
-                                      <p className="text-xs">Signed 2 minutes ago</p>
+                                {loading ? (
+                                    <div className="mt-4 p-4 animate-pulse">Loading...</div>
+                                ) : latestSignedDoc ? (
+                                    <div className="mt-4 border rounded-lg p-4 flex items-center justify-between text-left">
+                                      <div className="flex items-center gap-3">
+                                        <FileIcon className="h-8 w-8 text-blue-500"/>
+                                        <div>
+                                          <p className="font-semibold text-gray-700 dark:text-gray-200">{latestSignedDoc.signedFileName}</p>
+                                          <p className="text-xs">Signed {timeAgo(latestSignedDoc.createdAt)}</p>
+                                        </div>
+                                      </div>
+                                      <span className="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">{latestSignedDoc.status.toUpperCase()}</span>
                                     </div>
-                                  </div>
-                                  <span className="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">COMPLETED</span>
-                                </div>
+                                ) : (
+                                    <div className="mt-4 p-4">You have no signed documents yet.</div>
+                                )}
                             </div>
                         )}
                     </div>

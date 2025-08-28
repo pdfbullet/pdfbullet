@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { useAuth } from '../contexts/AuthContext.tsx';
+import { UserIcon } from './icons.tsx';
 
 interface SignatureModalProps {
     isOpen: boolean;
@@ -16,14 +17,6 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
 
     const fonts = ['Pacifico', 'Dancing Script', 'Caveat', 'Great Vibes', 'Homemade Apple', 'Kalam'];
     const [selectedFont, setSelectedFont] = useState(fonts[0]);
-    
-    const signatureColors = [
-        { name: 'Black', value: '#000000' },
-        { name: 'Blue', value: '#0055d4' },
-        { name: 'Red', value: '#dc3545' },
-        { name: 'Green', value: '#198754' }
-    ];
-    const [selectedColor, setSelectedColor] = useState(signatureColors[0].value);
 
     useEffect(() => {
         if (user?.username) {
@@ -65,7 +58,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
                             <label htmlFor="full-name" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Full name:</label>
                             <div className="relative mt-1">
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <img src="/logo.svg" alt="user icon" className="h-5 w-5"/>
+                                    <UserIcon className="h-5 w-5 text-gray-400"/>
                                 </span>
                                 <input
                                     type="text"
@@ -98,34 +91,18 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
 
                     <div className="mt-4">
                         {activeTab === 'signature' && (
-                            <>
-                                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                                    {fonts.map(font => (
-                                        <div key={font} className={`p-4 rounded-md border-2 ${selectedFont === font ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-transparent'}`}>
-                                            <label className="flex items-center cursor-pointer">
-                                                <input type="radio" name="signature-font" value={font} checked={selectedFont === font} onChange={() => setSelectedFont(font)} className="h-5 w-5 text-brand-red focus:ring-brand-red" />
-                                                <div id={`font-preview-${font}`} style={{ fontFamily: font, color: selectedColor }} className="ml-4 text-3xl">
-                                                    {fullName || "Your Name"}
-                                                </div>
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="mt-4 flex items-center gap-4">
-                                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Color:</span>
-                                    <div className="flex gap-2">
-                                        {signatureColors.map(color => (
-                                            <button
-                                                key={color.name}
-                                                onClick={() => setSelectedColor(color.value)}
-                                                className={`w-6 h-6 rounded-full border-2 transition-transform ${selectedColor === color.value ? 'border-brand-red scale-110' : 'border-transparent'}`}
-                                                style={{ backgroundColor: color.value }}
-                                                aria-label={`Select ${color.name} color`}
-                                            />
-                                        ))}
+                            <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                {fonts.map(font => (
+                                    <div key={font} className={`p-4 rounded-md border-2 ${selectedFont === font ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-transparent'}`}>
+                                        <label className="flex items-center cursor-pointer">
+                                            <input type="radio" name="signature-font" value={font} checked={selectedFont === font} onChange={() => setSelectedFont(font)} className="h-5 w-5 text-brand-red focus:ring-brand-red" />
+                                            <div id={`font-preview-${font}`} style={{ fontFamily: font }} className="ml-4 text-3xl text-gray-800 dark:text-gray-100">
+                                                {fullName || "Your Name"}
+                                            </div>
+                                        </label>
                                     </div>
-                                </div>
-                            </>
+                                ))}
+                            </div>
                         )}
                         {activeTab === 'initials' && <div className="p-8 text-center text-gray-500">Initials feature is coming soon.</div>}
                         {activeTab === 'stamp' && <div className="p-8 text-center text-gray-500">Company Stamp feature is coming soon.</div>}

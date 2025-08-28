@@ -1,8 +1,59 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignature } from '../hooks/useSignature.ts';
-import SignatureModal from '../components/SignatureModal.tsx';
-import { SearchIcon, ChevronDownIcon } from '../components/icons.tsx';
+import { jsPDF } from 'jspdf';
+import { useSignedDocuments, SignedDocument } from '../hooks/useSignedDocuments.ts';
+import { SearchIcon, ChevronDownIcon, TrashIcon } from '../components/icons.tsx';
+
+const SignedDocDetailsModal: React.FC<{ doc: SignedDocument | null; onClose: () => void; }> = ({ doc, onClose }) => {
+    if (!doc) return null;
+
+    let auditTrail = [];
+    try {
+        auditTrail = JSON.parse(doc.auditTrail);
+    } catch (e) {
+        console.error("Could not parse audit trail", e);
+    }
+
+
+    return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-black w-full max-w-2xl rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
+                <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+                    <h2 className="text-xl font-bold">Document Details</h2>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">&times;</button>
+                </div>
+                <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+                    <div>
+                        <h3 className="font-bold mb-2 text-gray-800 dark:text-gray-100">File Information</h3>
+                        <p className="text-sm"><strong>Original File:</strong> {doc.originalFileName}</p>
+                        <p className="text-sm"><strong>Signed File:</strong> {doc.signedFileName}</p>
+                        <p className="text-sm"><strong>Status:</strong> <span className="text-green-600 font-semibold">{doc.status}</span></p>
+                        <p className="text-sm"><strong>Created At:</strong> {new Date(doc.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <h3 className="font-bold mb-2 text-gray-800 dark:text-gray-100">Signers</h3>
+                        {doc.signers.map((signer, i) => (
+                            <div key={i} className="text-sm border-t pt-2 mt-2 first:border-t-0">
+                                <p><strong>Name:</strong> {signer.name}</p>
+                                <p><strong>Signed At:</strong> {new Date(signer.signedAt).toLocaleString()}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <div>
+                        <h3 className="font-bold mb-2 text-gray-800 dark:text-gray-100">Audit Trail</h3>
+                        <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded-md whitespace-pre-wrap">
+                            {JSON.stringify(auditTrail, null, 2)}
+                        </pre>
+                    </div>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg text-right">
+                    <button onClick={onClose} className="px-4 py-2 font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100">Close</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 // Icon for the "I ❤️ PDF Signature" header
 const SignatureHeaderIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -15,11 +66,20 @@ const SignatureHeaderIcon: React.FC<{ className?: string }> = ({ className }) =>
 
 const SignedPage: React.FC = () => {
     const navigate = useNavigate();
-    const { saveSignature } = useSignature();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { documents, loading, deleteSignedDocument } = useSignedDocuments();
     const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [selectedDoc, setSelectedDoc] = useState<SignedDocument | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const initialFilters = {
+        startDate: '',
+        endDate: '',
+        statuses: { signed: true, voided: false, declined: false, expired: false, deleted: false }
+    };
+    const [filters, setFilters] = useState(initialFilters);
+
 
     // Click outside handler for dropdowns
     useEffect(() => {
@@ -32,47 +92,68 @@ const SignedPage: React.FC = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleSaveSignature = (dataUrl: string) => {
-        saveSignature(dataUrl);
-        setIsModalOpen(false);
+    const handleNewSignature = () => {
         navigate('/sign-pdf');
     };
+    
+    const downloadBlob = (blob: Blob, filename: string) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
-    const mockData = [
-        {
-            id: 1,
-            originator: 'ilovepdfly (Me)',
-            file: 'Geospatial Analysis Report_signed.pdf',
-            signers: 1,
-            creationDate: 'Aug 26, 2025, 17:09:17',
-            signedDate: '08/26/2025',
-            status: 'Signed',
-        },
-        {
-            id: 2,
-            originator: 'Jane Doe',
-            file: 'Q3 Financial Statement.pdf',
-            signers: 3,
-            creationDate: 'Aug 22, 2025, 11:30:05',
-            signedDate: '08/24/2025',
-            status: 'Signed',
-        }
-    ];
+    const generateAuditPdf = (doc: SignedDocument) => {
+        const pdf = new jsPDF();
+        pdf.setFontSize(18);
+        pdf.text('Audit Trail Report', 14, 22);
 
-    const initialFilters = {
-        startDate: '2020-01-01',
-        endDate: new Date().toISOString().split('T')[0],
-        statuses: {
-            signed: false,
-            voided: false,
-            declined: false,
-            expired: false,
-            deleted: false
+        pdf.setFontSize(12);
+        pdf.text(`Document: ${doc.signedFileName}`, 14, 35);
+        pdf.text(`Created: ${new Date(doc.createdAt).toLocaleString()}`, 14, 42);
+        pdf.text(`Status: ${doc.status}`, 14, 49);
+
+        pdf.setFontSize(14);
+        pdf.text('Events:', 14, 62);
+        pdf.setFontSize(10);
+        let auditTrailText = 'No audit trail available.';
+        try {
+            auditTrailText = JSON.stringify(JSON.parse(doc.auditTrail), null, 2);
+        } catch (e) {
+            console.error("Error parsing audit trail:", e);
         }
+        const lines = pdf.splitTextToSize(auditTrailText, 180);
+        pdf.text(lines, 14, 68);
+        
+        pdf.save(`audit_trail_${doc.id}.pdf`);
     };
     
-    const [filters, setFilters] = useState(initialFilters);
+    const filteredDocuments = useMemo(() => {
+        return documents.filter(doc => {
+            const docDate = new Date(doc.createdAt);
 
+            const matchesSearch = searchTerm === '' || 
+                doc.signedFileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                doc.originator.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesStartDate = !filters.startDate || docDate >= new Date(filters.startDate);
+            const matchesEndDate = !filters.endDate || docDate <= new Date(filters.endDate + 'T23:59:59');
+
+            // This is simple for now as we only have 'Signed' status
+            const matchesStatus = filters.statuses.signed && doc.status === 'Signed';
+
+            return matchesSearch && matchesStartDate && matchesEndDate && matchesStatus;
+        });
+    }, [documents, searchTerm, filters]);
+
+    const clearFilters = () => {
+        setFilters(initialFilters);
+    };
+    
     const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
         setFilters(prev => ({
@@ -80,11 +161,6 @@ const SignedPage: React.FC = () => {
             statuses: { ...prev.statuses, [name]: checked }
         }));
     };
-    
-    const clearFilters = () => {
-        setFilters(initialFilters);
-    };
-
 
     return (
         <>
@@ -98,7 +174,7 @@ const SignedPage: React.FC = () => {
                         </h1>
                     </div>
                     <button 
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleNewSignature}
                         className="w-full sm:w-auto bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors"
                     >
                         New signature
@@ -109,21 +185,19 @@ const SignedPage: React.FC = () => {
                 <div className="p-6">
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Processed documents</h2>
                     
-                    {/* Filters and Search */}
+                     {/* Filters and Search */}
                     <div>
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
                             <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2">
                                 <ChevronDownIcon className="h-4 w-4" /> Filters
                             </button>
                             <div className="relative w-full sm:max-w-xs">
-                                <input type="text" placeholder="Search here..." className="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-brand-red focus:border-brand-red" />
+                                <input type="text" placeholder="Search here..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-brand-red focus:border-brand-red" />
                                 <button className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-600">
                                     <SearchIcon className="h-5 w-5" />
                                 </button>
                             </div>
                         </div>
-
-                        {/* Filter Panel */}
                         {isFilterOpen && (
                             <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700 mb-4 animate-fade-in-down">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -167,16 +241,22 @@ const SignedPage: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mockData.map((doc) => (
+                                {loading && (
+                                    <tr><td colSpan={5} className="text-center p-8 text-gray-500">Loading signed documents...</td></tr>
+                                )}
+                                {!loading && filteredDocuments.length === 0 && (
+                                     <tr><td colSpan={5} className="text-center p-8 text-gray-500">No signed documents found.</td></tr>
+                                )}
+                                {!loading && filteredDocuments.map((doc) => (
                                     <tr key={doc.id} className="border-b dark:border-gray-700">
                                         <td className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100">{doc.originator}</td>
                                         <td className="px-6 py-4">
-                                            <p className="font-semibold text-gray-800 dark:text-gray-100">{doc.file}</p>
-                                            <p className="text-xs text-blue-500 font-semibold">{doc.signers} signer</p>
+                                            <p className="font-semibold text-gray-800 dark:text-gray-100">{doc.signedFileName}</p>
+                                            <p className="text-xs text-blue-500 font-semibold">{doc.signers.length} signer(s)</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-gray-700 dark:text-gray-200">{doc.creationDate}</p>
-                                            <p className="text-xs text-green-600 dark:text-green-400">Signed on {doc.signedDate}</p>
+                                            <p className="text-gray-700 dark:text-gray-200">{new Date(doc.createdAt).toLocaleString()}</p>
+                                            <p className="text-xs text-green-600 dark:text-green-400">Signed on {new Date(doc.signers[0].signedAt).toLocaleDateString()}</p>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="px-3 py-1 text-xs font-semibold text-green-800 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-full">
@@ -184,18 +264,23 @@ const SignedPage: React.FC = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div ref={dropdownOpen === doc.id ? dropdownRef : null} className="relative inline-block">
-                                                <button onClick={() => setDropdownOpen(dropdownOpen === doc.id ? null : doc.id)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                                                    Download <ChevronDownIcon className={`h-4 w-4 transition-transform ${dropdownOpen === doc.id ? 'rotate-180' : ''}`} />
+                                            <div className="flex items-center justify-end gap-2">
+                                                <div ref={dropdownOpen === doc.id ? dropdownRef : null} className="relative inline-block">
+                                                    <button onClick={() => setDropdownOpen(dropdownOpen === doc.id ? null : doc.id)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+                                                        Download <ChevronDownIcon className={`h-4 w-4 transition-transform ${dropdownOpen === doc.id ? 'rotate-180' : ''}`} />
+                                                    </button>
+                                                    {dropdownOpen === doc.id && (
+                                                        <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10 text-left">
+                                                            <button onClick={() => { setSelectedDoc(doc); setDropdownOpen(null); }} className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">View details</button>
+                                                            <button onClick={() => downloadBlob(doc.signedFile, doc.signedFileName)} className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download signed documents</button>
+                                                            <button onClick={() => generateAuditPdf(doc)} className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download Audit</button>
+                                                            <button onClick={() => downloadBlob(doc.originalFile, doc.originalFileName)} className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download Original</button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <button onClick={() => deleteSignedDocument(doc.id)} className="p-2 text-gray-400 hover:text-red-500 rounded-full" title="Delete Record">
+                                                    <TrashIcon className="h-5 w-5"/>
                                                 </button>
-                                                {dropdownOpen === doc.id && (
-                                                    <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10 text-left">
-                                                        <a href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">View details</a>
-                                                        <a href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download signed documents</a>
-                                                        <a href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download Audit</a>
-                                                        <a href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Download Original</a>
-                                                    </div>
-                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -205,16 +290,12 @@ const SignedPage: React.FC = () => {
                     </div>
                     
                     <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                        1-{mockData.length} of {mockData.length}
+                        1-{filteredDocuments.length} of {filteredDocuments.length}
                     </div>
                 </div>
             </div>
             
-            <SignatureModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)}
-                onSave={handleSaveSignature}
-            />
+            <SignedDocDetailsModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
         </>
     );
 };

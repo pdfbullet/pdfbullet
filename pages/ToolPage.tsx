@@ -29,6 +29,7 @@ import { readPsd } from 'ag-psd';
 import { removeBackground } from '@imgly/background-removal';
 import * as QRCode from 'https://esm.sh/qrcode@1.5.3';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
+import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 
 // Setup for pdfjs worker. This is a one-time setup.
 const setupPdfjs = async () => {
@@ -636,6 +637,7 @@ const ToolPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addTask } = useLastTasks();
+  const { addSignedDocument } = useSignedDocuments();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -1680,7 +1682,27 @@ const ToolPage: React.FC = () => {
                 
                 setProgress({ percentage: 100, status: 'Saving document...'});
                 const finalBytes = await pdfDoc.save();
-                setProcessedFileBlob(new Blob([finalBytes], { type: 'application/pdf' }));
+                const finalBlob = new Blob([finalBytes], { type: 'application/pdf' });
+                setProcessedFileBlob(finalBlob);
+
+                if (tool.id === 'sign-pdf') {
+                    const now = new Date();
+                    const auditEvents = [
+                        { event: 'Document Created', user: user?.username || 'Me', timestamp: now.toISOString() },
+                        { event: 'Document Signed', user: user?.username || 'Me', timestamp: now.toISOString() }
+                    ];
+
+                    await addSignedDocument({
+                        originator: user?.username || 'Me',
+                        originalFile: files[0],
+                        originalFileName: files[0].name,
+                        signedFile: finalBlob,
+                        signedFileName: getOutputFilename('sign-pdf', files, toolOptions),
+                        signers: [{ name: user?.username || 'Me', signedAt: now.toISOString() }],
+                        status: 'Signed',
+                        auditTrail: JSON.stringify(auditEvents, null, 2),
+                    });
+                }
                 break;
             }
             case 'remove-background': {
@@ -2093,7 +2115,7 @@ const ToolPage: React.FC = () => {
                         <span>Secure. Private. In your control.</span>
                     </h3>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        For your security, your processed files are automatically and permanently deleted from our servers within 2 hours. We do not view, copy, or analyze your files.
+                        For your security, your processed files are automatically and permanently deleted from our servers within 2 hours.
                     </p>
                 </div>
 

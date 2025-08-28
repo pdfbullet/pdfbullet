@@ -10,8 +10,9 @@ export interface LastTask {
 }
 
 const DB_NAME = 'ilovepdflyDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Bump version for new store
 const STORE_NAME = 'lastTasks';
+const SIGNED_DOCS_STORE_NAME = 'signedDocuments';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -25,6 +26,9 @@ const getDb = (): Promise<IDBDatabase> => {
                 const db = (event.target as IDBOpenDBRequest).result;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
                     db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains(SIGNED_DOCS_STORE_NAME)) {
+                    db.createObjectStore(SIGNED_DOCS_STORE_NAME, { keyPath: 'id' });
                 }
             };
         });
