@@ -24,34 +24,36 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
     <Link 
       to={`/${id}`} 
       title={`Open the ${title} tool`}
-      className="relative flex flex-col p-4 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
+      className="relative flex flex-row sm:flex-col items-center sm:items-start p-4 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-28 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
     >
-        <div className="flex justify-between items-start">
-            <div className={`p-2.5 rounded-lg ${color}`}>
-                <Icon className={`h-6 w-6 ${iconColorClass}`} />
-            </div>
-            <button 
-              onClick={handleFavoriteClick} 
-              className="text-gray-300 dark:text-gray-600 hover:text-yellow-400 transition-colors z-10 p-1 -mr-1 -mt-1 opacity-50 group-hover:opacity-100"
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            >
-                {isFavorite ? (
-                    <StarIcon className="h-5 w-5 text-yellow-400" />
-                ) : (
-                    <StarOutlineIcon className="h-5 w-5" />
-                )}
-            </button>
+        <button 
+          onClick={handleFavoriteClick} 
+          className="absolute top-2 right-2 text-gray-300 dark:text-gray-600 hover:text-yellow-400 transition-colors z-10 p-1 opacity-50 group-hover:opacity-100"
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+            {isFavorite ? (
+                <StarIcon className="h-5 w-5 text-yellow-400" />
+            ) : (
+                <StarOutlineIcon className="h-5 w-5" />
+            )}
+        </button>
+
+        {/* Icon */}
+        <div className={`p-2.5 rounded-lg ${color} flex-shrink-0`}>
+            <Icon className={`h-6 w-6 ${iconColorClass}`} />
         </div>
 
-      <div className="flex flex-col flex-grow mt-3 overflow-hidden">
-        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 truncate">{title}</h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-grow line-clamp-3">
+      {/* Text Content */}
+      <div className="flex flex-col flex-grow ml-4 sm:ml-0 sm:mt-3 overflow-hidden">
+        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">{title}</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
             {description}
         </p>
       </div>
 
-      <div className="flex items-center gap-2 mt-auto pt-2">
+      {/* Badges - hidden on mobile to save space */}
+      <div className="hidden sm:flex items-center gap-2 mt-auto pt-2">
         {isPremium && (
             <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">
                 Premium

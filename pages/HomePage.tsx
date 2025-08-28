@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 // FIX: Import `useNavigate` from `react-router-dom`.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -294,15 +293,15 @@ const HomePage: React.FC = () => {
                         </p>
                     </>
                 )}
-                <div className={`w-full flex justify-center ${user ? 'mt-8' : 'mt-16'}`}>
-                    <div className="overflow-x-auto no-scrollbar pb-2">
-                        <div className="inline-flex items-center justify-start gap-3">
+                <div className={`w-full ${user ? 'mt-8' : 'mt-16'}`}>
+                    <div className="pb-2">
+                        <div className="flex flex-wrap items-center justify-center gap-3">
                             {filterCategories.map(({ label, category }) => (
                                 <button
                                     key={label}
                                     onClick={() => handleCategoryClick(category)}
                                     title={`Filter by ${label}`}
-                                    className={`flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
+                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                                         activeCategory === category
                                             ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
                                             : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'

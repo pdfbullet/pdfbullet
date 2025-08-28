@@ -171,7 +171,7 @@ function MainApp() {
   }, [user, loading, navigate, location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-creamy dark:bg-soft-dark text-gray-800 dark:text-gray-200">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black text-gray-800 dark:text-gray-200">
       <Header
         onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
         onOpenSearchModal={() => setSearchModalOpen(true)}
