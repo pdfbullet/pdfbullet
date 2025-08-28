@@ -341,8 +341,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 onMouseEnter={() => handleMenuEnter(setGridMenuOpen, gridMenuTimeoutRef)}
                 onMouseLeave={() => handleMenuLeave(setGridMenuOpen, gridMenuTimeoutRef)}
             >
-              <button className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Open all tools and options" title="Open all tools and options">
-                <GridIcon className="h-6 w-6" />
+              <button className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
+                <GridIcon className="h-7 w-7" />
               </button>
               {isGridMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2">

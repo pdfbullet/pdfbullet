@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 // FIX: Import `useNavigate` from `react-router-dom`.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -278,7 +279,7 @@ const HomePage: React.FC = () => {
     <div className="overflow-x-hidden">
         {/* Hero Section */}
         <section className={`relative text-center overflow-hidden hero-background transition-all duration-300 ${user ? 'py-16' : 'pt-4 pb-2 md:pt-6 md:pb-2'}`}>
-            <div className="container max-w-7xl mx-auto px-6 relative z-10">
+            <div className="container max-w-screen-2xl mx-auto px-6 relative z-10">
                 {user ? (
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
                         Hi {user.username}, let's get started
@@ -318,9 +319,9 @@ const HomePage: React.FC = () => {
 
         {/* Tools Section */}
         <section id="all-tools" className="pt-2 pb-24">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 {activeCategory === 'workflows' ? (
-                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {/* Manage Workflows Card */}
                         <Link
                             to="/workflows"
@@ -374,7 +375,7 @@ const HomePage: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {filteredTools.length > 0 ? filteredTools.map((tool) => (
                             <div key={tool.id}>
                                 <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
@@ -389,7 +390,7 @@ const HomePage: React.FC = () => {
 
         {/* Solutions For You Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Solutions For You</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">PDF tools tailored to your specific needs.</p>
@@ -440,7 +441,7 @@ const HomePage: React.FC = () => {
         
         {/* Simple Steps Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Simple Steps to Success</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Get your PDF tasks done in just a few clicks.</p>
@@ -475,7 +476,7 @@ const HomePage: React.FC = () => {
         
         {/* Our Impact Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Our Impact in Numbers</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
@@ -498,7 +499,7 @@ const HomePage: React.FC = () => {
 
         {/* Trusted by Millions Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6 text-center">
+            <div className="container max-w-screen-2xl mx-auto px-6 text-center">
                 <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The PDF software trusted by millions of users</h2>
                 <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
                     iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
@@ -530,7 +531,7 @@ const HomePage: React.FC = () => {
 
         {/* Why Choose Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Why Choose I Love PDFLY?</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">The ultimate online toolkit for all your PDF needs.</p>
@@ -563,7 +564,7 @@ const HomePage: React.FC = () => {
 
         {/* Blog Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
-            <div className="container max-w-7xl mx-auto px-6 text-center">
+            <div className="container max-w-screen-2xl mx-auto px-6 text-center">
                 <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">From Our Blog</h2>
                 <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
                     Tips, tricks, and updates from our team to help you be more productive.
@@ -596,7 +597,7 @@ const HomePage: React.FC = () => {
 
         {/* Testimonials Section */}
         <section className="py-20 overflow-hidden">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Trusted by Professionals Worldwide</h2>
                 </div>
@@ -625,7 +626,7 @@ const HomePage: React.FC = () => {
         
         {/* Trustpilot Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Review Us on Trustpilot</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Your feedback helps us grow and improve.</p>
@@ -648,7 +649,7 @@ const HomePage: React.FC = () => {
 
         {/* Other Solutions Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50 flex items-center justify-center gap-4">
                         <QuestionMarkIcon className="h-10 w-10 text-brand-red" />
@@ -692,7 +693,7 @@ const HomePage: React.FC = () => {
 
         {/* FAQ Section */}
         <section className="py-20">
-            <div className="container max-w-7xl mx-auto px-6">
+            <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Frequently Asked Questions</h2>
                 </div>
