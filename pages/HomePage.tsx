@@ -277,7 +277,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="overflow-x-hidden">
         {/* Hero Section */}
-        <section className={`relative text-center overflow-hidden hero-background transition-all duration-300 ${user ? 'py-16' : 'pt-4 pb-2 md:pt-6 md:pb-2'}`}>
+        <section className={`relative text-center overflow-hidden hero-background transition-all duration-300 ${user ? 'py-4' : 'pt-4 pb-2 md:pt-6 md:pb-2'}`}>
             <div className="container max-w-screen-2xl mx-auto px-6 relative z-10">
                 {user ? (
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
@@ -293,7 +293,7 @@ const HomePage: React.FC = () => {
                         </p>
                     </>
                 )}
-                <div className={`w-full ${user ? 'mt-8' : 'mt-16'}`}>
+                <div className={`w-full ${user ? 'mt-2' : 'mt-16'}`}>
                     <div className="pb-2">
                         <div className="flex flex-wrap items-center justify-center gap-3">
                             {filterCategories.map(({ label, category }) => (
@@ -317,10 +317,10 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* Tools Section */}
-        <section id="all-tools" className="pt-2 pb-24">
+        <section id="all-tools" className="pb-24">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 {activeCategory === 'workflows' ? (
-                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {/* Manage Workflows Card */}
                         <Link
                             to="/workflows"
@@ -374,7 +374,7 @@ const HomePage: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {filteredTools.length > 0 ? filteredTools.map((tool) => (
                             <div key={tool.id}>
                                 <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
