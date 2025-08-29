@@ -55,6 +55,7 @@ const CeoPage: React.FC = () => {
                                 width="224"
                                 height="224"
                                 loading="lazy"
+                                decoding="async"
                             />
                         </div>
                         <div className="text-center md:text-left">

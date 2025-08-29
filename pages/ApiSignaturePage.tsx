@@ -29,10 +29,17 @@ const ApiSignaturePage: React.FC = () => {
         <div>
             {/* Hero Section */}
              <section 
-              className="relative bg-cover bg-center text-white py-24 md:py-32" 
-              style={{ backgroundImage: "url('https://ik.imagekit.io/fonepay/imgi_19_background.png?updatedAt=1754032191458')" }}
+              className="relative bg-teal-800 text-white py-24 md:py-32" 
             >
-              <div className="absolute inset-0 bg-teal-800/70"></div>
+              <img 
+                src="https://ik.imagekit.io/fonepay/imgi_19_background.png?updatedAt=1754032191458" 
+                alt="Abstract signature background"
+                className="absolute inset-0 w-full h-full object-cover opacity-30"
+                width="1920"
+                height="1080"
+                loading="lazy"
+                decoding="async"
+              />
               <div className="relative z-10 container mx-auto px-6 max-w-7xl">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     {/* Left Column: Text Content */}
@@ -157,10 +164,10 @@ const ApiSignaturePage: React.FC = () => {
                         <div className="text-center md:text-left">
                             <h2 className="text-3xl font-extrabold">Pricing</h2>
                             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">I Love PDFLY offers prepaid packages at a competitive price. Create a pack that suits your needs and pay as you go with no commitment.</p>
-                            <Link to="/api-pricing" className="mt-6 inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-md transition-colors">View Pricing</Link>
+                            <Link to="/api-pricing" className="mt-6 inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg transition-colors">View Pricing</Link>
                         </div>
                         <div className="flex justify-center">
-                            <img src="https://www.iloveapi.com/img/signature/pricing/looking-tablet.png" alt="Man working on a tablet" className="max-w-sm w-full"/>
+                            <img src="https://www.iloveapi.com/img/signature/pricing/looking-tablet.png" alt="Man working on a tablet" className="max-w-sm w-full" width="384" height="384" loading="lazy" decoding="async"/>
                         </div>
                     </div>
                 </div>
@@ -189,7 +196,7 @@ const ApiSignaturePage: React.FC = () => {
                              <Link to="/api-reference#sign-pdf" className="mt-6 inline-block bg-white text-teal-600 font-bold py-3 px-8 rounded-md transition-colors hover:bg-gray-100">View API Documentation</Link>
                         </div>
                         <div className="flex justify-center">
-                            <img src="https://www.iloveapi.com/img/signature/learn/macbook.png" alt="Laptop showing an API dashboard" className="max-w-lg w-full"/>
+                            <img src="https://www.iloveapi.com/img/signature/learn/macbook.png" alt="Laptop showing an API dashboard" className="max-w-lg w-full" width="512" height="320" loading="lazy" decoding="async"/>
                         </div>
                     </div>
                 </div>

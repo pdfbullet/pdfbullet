@@ -54,7 +54,7 @@ const EducationPage: React.FC = () => {
                             </div>
                         </div>
                         <div className="relative">
-                            <img src="https://www.ilovepdf.com/img/education/productivity.png" alt="Students collaborating" className="rounded-lg shadow-xl" width="570" height="427" loading="lazy" />
+                            <img src="https://www.ilovepdf.com/img/education/productivity.png" alt="Students collaborating" className="rounded-lg shadow-xl" width="570" height="427" loading="lazy" decoding="async"/>
                              {/* Decorative elements */}
                              <div className="absolute -top-4 -left-4 w-16 h-16 bg-yellow-300 rounded-lg -z-10 animate-float-1"></div>
                              <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-blue-300 rounded-full -z-10 animate-float-2"></div>

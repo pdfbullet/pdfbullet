@@ -101,8 +101,16 @@ const DeveloperPage: React.FC = () => {
 
     return (
         <div className="bg-gray-50 dark:bg-black">
-            <div className="relative bg-cover bg-center h-[60vh] text-white" style={{ backgroundImage: "url('https://ik.imagekit.io/fonepay/imgi_25_home.png?updatedAt=1753968278321')" }}>
-                <div className="absolute inset-0 bg-teal-800 bg-opacity-70"></div>
+            <div className="relative bg-teal-800 h-[60vh] text-white">
+                <img 
+                    src="https://ik.imagekit.io/fonepay/imgi_25_home.png?updatedAt=1753968278321" 
+                    alt="Abstract teal background" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-30"
+                    width="1920"
+                    height="1280"
+                    loading="lazy"
+                    decoding="async"
+                />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
                     <h1 className="text-4xl md:text-5xl font-extrabold">All our tools in a REST API for developers</h1>
                     <p className="mt-4 max-w-2xl text-lg text-gray-200">Whether you are a small startup or a large business, I Love PDFLY API is here to help you automate document processes.</p>

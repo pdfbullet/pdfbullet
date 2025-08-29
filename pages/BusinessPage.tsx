@@ -59,7 +59,7 @@ const BusinessPage: React.FC = () => {
                                 src="https://www.ilovepdf.com/img/business/business.png" 
                                 alt="Simplify document management with I Love PDFLY" 
                                 className="w-full h-auto rounded-lg shadow-2xl"
-                                width="570" height="427" loading="lazy"
+                                width="570" height="427" loading="lazy" decoding="async"
                             />
                         </div>
                     </div>
@@ -111,11 +111,11 @@ const BusinessPage: React.FC = () => {
                     <div className="grid lg:grid-cols-2 gap-8">
                         <div className="bg-red-50 dark:bg-red-900/20 p-8 rounded-2xl">
                             <h3 className="text-2xl font-bold mb-4">One platform to work easily</h3>
-                            <img src="https://www.ilovepdf.com/img/business/platform.png" alt="Platform UI screenshot" className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy"/>
+                            <img src="https://www.ilovepdf.com/img/business/platform.png" alt="Platform UI screenshot" className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy" decoding="async"/>
                         </div>
                         <div className="bg-red-50 dark:bg-red-900/20 p-8 rounded-2xl">
                             <h3 className="text-2xl font-bold mb-4">Reshaping productivity for your Business</h3>
-                            <img src="https://www.ilovepdf.com/img/business/productivity.png" alt="Productivity UI screenshot" className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy"/>
+                            <img src="https://www.ilovepdf.com/img/business/productivity.png" alt="Productivity UI screenshot" className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy" decoding="async"/>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@ const BusinessPage: React.FC = () => {
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
                         <div className="bg-gray-50 dark:bg-black p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800">
-                             <img src="https://www.ilovepdf.com/img/business/workflows.png" alt="Streamline workflows illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy"/>
+                             <img src="https://www.ilovepdf.com/img/business/workflows.png" alt="Streamline workflows illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy" decoding="async"/>
                              <h3 className="text-2xl font-bold mb-4">Streamline workflows</h3>
                              <ul className="space-y-2 list-disc list-inside text-gray-600 dark:text-gray-400">
                                  <li>Batch-process documents to save time and improve efficiency.</li>
@@ -137,7 +137,7 @@ const BusinessPage: React.FC = () => {
                              </ul>
                         </div>
                         <div className="bg-gray-50 dark:bg-black p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800">
-                             <img src="https://www.ilovepdf.com/img/business/ai.png" alt="Optimize work with AI illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy"/>
+                             <img src="https://www.ilovepdf.com/img/business/ai.png" alt="Optimize work with AI illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy" decoding="async"/>
                              <h3 className="text-2xl font-bold mb-4">Optimize work with AI</h3>
                              <ul className="space-y-2 list-disc list-inside text-gray-600 dark:text-gray-400">
                                  <li>Extract text from scanned files using AI-powered OCR.</li>
@@ -145,7 +145,7 @@ const BusinessPage: React.FC = () => {
                              </ul>
                         </div>
                         <div className="bg-gray-50 dark:bg-black p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800">
-                             <img src="https://www.ilovepdf.com/img/business/security-level.png" alt="Enterprise level security illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy"/>
+                             <img src="https://www.ilovepdf.com/img/business/security-level.png" alt="Enterprise level security illustration" className="rounded-lg mb-6 w-full h-auto" width="350" height="270" loading="lazy" decoding="async"/>
                              <h3 className="text-2xl font-bold mb-4">Enterprise level security</h3>
                              <ul className="space-y-2 list-disc list-inside text-gray-600 dark:text-gray-400">
                                  <li>Protect data with end-to-end encryption.</li>
@@ -185,7 +185,7 @@ const BusinessPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="order-1 md:order-2">
-                                    <img src={industries[activeIndustry as keyof typeof industries].content.image} alt={industries[activeIndustry as keyof typeof industries].name} className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy"/>
+                                    <img src={industries[activeIndustry as keyof typeof industries].content.image} alt={industries[activeIndustry as keyof typeof industries].name} className="rounded-lg shadow-md w-full h-auto" width="555" height="427" loading="lazy" decoding="async"/>
                                 </div>
                             </div>
                         </div>

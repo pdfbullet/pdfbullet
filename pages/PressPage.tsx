@@ -91,7 +91,7 @@ const PressPage: React.FC = () => {
                                     {item.title === 'I Love PDFLY logos' ? (
                                         <Logo className="h-16 w-auto" />
                                     ) : (
-                                        <img src={item.image} alt={item.title} className="max-h-full max-w-full" />
+                                        <img src={item.image} alt={item.title} className="max-h-full max-w-full" width="200" height="128" loading="lazy" decoding="async" />
                                     )}
                                 </div>
                                 <h3 className="font-semibold text-gray-800 dark:text-gray-100 mb-4">{item.title}</h3>

@@ -56,7 +56,7 @@ const BlogPage: React.FC = () => {
                 filteredPosts.map((post) => (
                     <div key={post.slug} className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-md overflow-hidden group hover:shadow-xl dark:hover:shadow-gray-800/50 transition-all duration-300 flex flex-col md:flex-row border-glow-hover">
                         <Link to={`/blog/${post.slug}`} className="md:w-1/3 block">
-                            <img src={post.image} alt={post.title} className="h-56 w-full object-cover md:h-full" loading="lazy" width="398" height="224" />
+                            <img src={post.image} alt={post.title} className="h-56 w-full object-cover md:h-full" loading="lazy" decoding="async" width="398" height="224" />
                         </Link>
                         <div className="p-6 flex flex-col flex-1 md:w-2/3">
                             <div className="flex items-center gap-2 mb-2">
@@ -80,7 +80,7 @@ const BlogPage: React.FC = () => {
                                         <Logo className="h-8 w-8" />
                                     </div>
                                 ) : (
-                                    <img src={post.authorImage} alt={`Photo of blog author ${post.author}`} className="h-10 w-10 rounded-full object-cover" width="40" height="40" loading="lazy" />
+                                    <img src={post.authorImage} alt={`Photo of blog author ${post.author}`} className="h-10 w-10 rounded-full object-cover" width="40" height="40" loading="lazy" decoding="async"/>
                                 )}
                                 <div>
                                     <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{post.author}</p>
@@ -120,7 +120,7 @@ const BlogPage: React.FC = () => {
                 {recentPosts.map(post => (
                   <li key={post.slug}>
                     <Link to={`/blog/${post.slug}`} className="group flex items-center gap-4">
-                      <img src={post.image} alt={post.title} className="h-16 w-16 object-cover rounded-md flex-shrink-0" width="64" height="64" loading="lazy" />
+                      <img src={post.image} alt={post.title} className="h-16 w-16 object-cover rounded-md flex-shrink-0" width="64" height="64" loading="lazy" decoding="async"/>
                       <div>
                           <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 group-hover:text-brand-red transition-colors">{post.title}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{post.date}</p>

@@ -118,7 +118,6 @@ const BlogPostPage: React.FC = () => {
             <SocialShareButtons url={postUrl} title={post.title} />
           </div>
           
-          {/* FIX: Changed fetchpriority to fetchPriority to fix React property error. */}
           <img src={post.image} alt={post.title} className="w-full max-w-3xl mx-auto h-auto object-contain rounded-lg shadow-lg mb-12" width="1200" height="628" loading="eager" decoding="async" fetchPriority="high" />
 
           <div className="prose lg:prose-xl dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
