@@ -1,5 +1,9 @@
 
 
+
+
+
+
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -15,7 +19,6 @@ import AdminProtectedRoute from './components/AdminProtectedRoute.tsx';
 import UserProtectedRoute from './components/UserProtectedRoute.tsx';
 import CalendarModal from './components/CalendarModal.tsx';
 import CookieConsentBanner from './components/CookieConsentBanner.tsx';
-import Preloader from './components/Preloader.tsx';
 import ChangePasswordModal from './components/ChangePasswordModal.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 
@@ -91,7 +94,6 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -178,7 +180,7 @@ function MainApp() {
         onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
       />
       <main className="flex-grow">
-        <Suspense fallback={<Preloader />}>
+        <Suspense fallback={<div className="w-full py-20" />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -194,7 +196,6 @@ function MainApp() {
             <Route path="/cv-generator" element={<CVGeneratorPage />} />
             <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
             <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-            <Route path="/ai-image-generator" element={<ImageGeneratorPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/api-pricing" element={<ApiPricingPage />} />
             <Route path="/premium-feature" element={<PremiumFeaturePage />} />

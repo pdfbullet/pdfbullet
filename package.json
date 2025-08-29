@@ -16,9 +16,9 @@
     "@imgly/background-removal": "^1.5.0",
     "ag-psd": "^9.1.0",
     "docx": "^8.5.0",
-    "firebase": "^12.0.0",
+    "firebase": "^10.12.0",
     "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.1",
+    "jspdf": "^3.0.2",
     "jszip": "^3.10.1",
     "mammoth": "^1.8.0",
     "pdf-lib": "^1.17.1",
@@ -34,18 +34,17 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/qrcode": "^1.5.5",
     "@types/pixelmatch": "^5.2.6",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
-    "cpx": "^1.2.1",
     "gh-pages": "^6.3.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.2.2",
-    "vite": "^5.3.1",
-    "vite-plugin-pwa": "^0.20.0"
+    "vite": "^7.1.3",
+    "vite-plugin-pwa": "^1.0.3"
   }
 }
