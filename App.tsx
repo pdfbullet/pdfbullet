@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -29,7 +23,7 @@ const DataDeletionPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
+        <div className="py-16 md:py-24">
             <div className="px-6">
                 <div className="max-w-4xl mx-auto bg-white dark:bg-black p-8 md:p-12 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">User Data Deletion Request</h1>
@@ -173,7 +167,7 @@ function MainApp() {
   }, [user, loading, navigate, location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black text-gray-800 dark:text-gray-200">
+    <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
       <Header
         onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
         onOpenSearchModal={() => setSearchModalOpen(true)}

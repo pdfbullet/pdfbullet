@@ -26,7 +26,7 @@ const WhyChooseItem: React.FC<{ title: string; text: string }> = ({ title, text 
 
 const ApiSignaturePage: React.FC = () => {
     return (
-        <div className="bg-gray-50 dark:bg-black">
+        <div>
             {/* Hero Section */}
              <section 
               className="relative bg-cover bg-center text-white py-24 md:py-32" 

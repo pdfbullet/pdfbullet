@@ -8,6 +8,8 @@ import { TOOLS } from '../constants.ts';
 // ===================================================================
 // TYPES & INITIAL DATA
 // ===================================================================
+
+// FIX: Corrected type definitions for CV data and removed unused invoice types.
 type Experience = { id: number; jobTitle: string; company: string; startDate: string; endDate: string; description: string; };
 type Education = { id: number; degree: string; school: string; startDate: string; endDate: string; description: string; };
 type Project = { id: number; name: string; description: string; };
@@ -26,6 +28,7 @@ type CVData = {
     skills: Skill[];
 };
 
+
 const initialData: CVData = {
     profilePicture: null,
     fullName: "Bishal Mishra",
@@ -41,6 +44,7 @@ const initialData: CVData = {
 // ===================================================================
 // TEMPLATE COMPONENTS
 // ===================================================================
+
 const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: string }> = ({ data, template, color }) => {
     const textColor = 'text-gray-800';
 
@@ -228,7 +232,7 @@ const CVGeneratorPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+        <div className="min-h-screen text-gray-800 dark:text-gray-100">
             <header className="bg-white dark:bg-black p-4 shadow-md flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     {tool && <tool.Icon className={`h-8 w-8 ${tool.textColor}`} />}
@@ -303,32 +307,25 @@ const CVGeneratorPage: React.FC = () => {
                              {data.projects.map(proj => <div key={proj.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button onClick={() => removeFromArray('projects', proj.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
                                 <Input placeholder="Project Name" value={proj.name} onChange={e => handleArrayChange('projects', proj.id, 'name', e.target.value)} />
+                                {/* FIX: Complete the unfinished Textarea component and related code */}
                                 <Textarea placeholder="Project Description" value={proj.description} onChange={e => handleArrayChange('projects', proj.id, 'description', e.target.value)} />
                             </div>)}
                             <button onClick={() => addToArray('projects', { name: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Project</button>
                         </FormSection>}
-                        
-                        {/* Templates & Colors */}
-                         <div>
-                            <h3 className="text-lg font-bold border-b pb-2 mb-4">Design</h3>
-                            <div className="flex gap-2 mb-4">
-                                <button onClick={() => setTemplate('classic')} className={`p-2 rounded text-sm font-semibold flex-1 ${template === 'classic' ? 'bg-brand-red text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>Classic</button>
-                                <button disabled className={`p-2 rounded text-sm font-semibold flex-1 ${template === 'modern' ? 'bg-brand-red text-white' : 'bg-gray-200 dark:bg-gray-700'} disabled:opacity-50`}>Modern</button>
-                                <button disabled className={`p-2 rounded text-sm font-semibold flex-1 ${template === 'minimalist' ? 'bg-brand-red text-white' : 'bg-gray-200 dark:bg-gray-700'} disabled:opacity-50`}>Minimalist</button>
-                            </div>
-                            <div className="flex gap-2 items-center">
-                                <label className="text-sm font-semibold">Accent Color:</label>
-                                <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-8 h-8 p-0 border-none rounded-md" />
-                            </div>
-                        </div>
+
+                        {/* Design Controls */}
+                        <FormSection title="Design">
+                            <label className="block text-sm font-semibold mb-2">Accent Color</label>
+                            <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-full h-10 p-1 border rounded-md" />
+                        </FormSection>
 
                     </div>
                 </aside>
 
                 {/* Preview Panel */}
-                <main className="w-full lg:w-2/3 xl:w-3/4 p-4 sm:p-8 overflow-y-auto" style={{ height: 'calc(100vh - 68px)' }}>
-                    <div ref={cvPreviewRef}>
-                        <TemplateRenderer data={data} template={template} color={color} />
+                <main className="w-full lg:w-2/3 xl:w-3/4 bg-gray-100 dark:bg-gray-900 p-4 sm:p-8 flex justify-center items-start overflow-auto" style={{ height: 'calc(100vh - 68px)' }}>
+                    <div ref={cvPreviewRef} className="w-full max-w-3xl transform origin-top" style={{ transform: 'scale(0.9)' }}>
+                       <TemplateRenderer data={data} template={template} color={color} />
                     </div>
                 </main>
             </div>

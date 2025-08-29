@@ -167,3 +167,28 @@ input[type=range].slider::-moz-range-thumb {
     border: 2px solid #2563eb;
     box-shadow: 0 0 0 2px #fff;
 }
+
+/* Custom styles for background SVG */
+.main-background-svg-container {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.main-background-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  height: 150vh;
+  min-width: 150vw;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  opacity: 0.5;
+}
+
+.dark .main-background-svg {
+    opacity: 1;
+}

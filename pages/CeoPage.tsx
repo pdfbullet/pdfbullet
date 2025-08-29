@@ -43,7 +43,7 @@ const CeoPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="bg-white dark:bg-black py-16 md:py-24 overflow-x-hidden">
+        <div className="py-16 md:py-24 overflow-x-hidden">
             <div className="container mx-auto px-6">
                 <div className="max-w-4xl mx-auto">
                     <section className="flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-16">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -73,7 +72,7 @@ const ApiPricingPage: React.FC = () => {
     const allFeatureKeys = Object.keys(plans[0].features);
 
     return (
-        <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
+        <div className="py-16 md:py-24">
             <div className="container mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center mb-12">
                     <ApiIcon className="h-16 w-16 mx-auto text-brand-red mb-4" />

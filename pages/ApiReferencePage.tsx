@@ -188,7 +188,7 @@ const ApiReferencePage: React.FC = () => {
     );
 
     return (
-        <div className="bg-gray-50 dark:bg-black">
+        <div>
             <div className="container mx-auto px-6 py-12">
                  <div className="lg:flex lg:gap-12">
                     <aside className="w-full lg:w-72 lg:sticky lg:top-24 self-start mb-8 lg:mb-0">

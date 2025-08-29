@@ -28,7 +28,7 @@ const ApiImagePage: React.FC = () => {
     const imageTools = TOOLS.filter(tool => tool.api?.category === 'image');
     
     return (
-        <div className="bg-gray-50 dark:bg-black py-16 md:py-24 min-h-[calc(100vh-130px)]">
+        <div className="py-16 md:py-24 min-h-[calc(100vh-130px)]">
             <div className="container mx-auto px-6">
                 <section className="text-center max-w-4xl mx-auto">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">

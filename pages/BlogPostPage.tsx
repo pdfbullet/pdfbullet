@@ -80,7 +80,7 @@ const BlogPostPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-black py-16 md:py-24">
+    <div className="py-16 md:py-24">
       <div className="px-6">
         <div>
           <div className="mb-8">

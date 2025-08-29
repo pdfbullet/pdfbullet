@@ -36,9 +36,9 @@ const BusinessPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-black text-gray-800 dark:text-gray-200">
+        <div className="text-gray-800 dark:text-gray-200">
             {/* Hero Section */}
-            <section className="py-20 md:py-28 bg-gray-50 dark:bg-black">
+            <section className="py-20 md:py-28">
                 <div className="px-6">
                     <div className="grid lg:grid-cols-5 gap-12 items-center">
                         <div className="lg:col-span-2 text-center lg:text-left">
@@ -103,7 +103,7 @@ const BusinessPage: React.FC = () => {
             </section>
 
             {/* All-in-one Platform section */}
-             <section className="py-20 bg-gray-50 dark:bg-black">
+             <section className="py-20">
                 <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold">Your all-in-one platform for your document needs</h2>
@@ -157,7 +157,7 @@ const BusinessPage: React.FC = () => {
             </section>
 
             {/* Industry Solutions section */}
-            <section className="py-20 md:py-28 bg-gray-50 dark:bg-black">
+            <section className="py-20 md:py-28">
                 <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-3xl md:text-4xl font-extrabold">Discover how I Love PDFLY simplifies document management for your business sector</h2>
