@@ -578,7 +578,7 @@ const HomePage: React.FC = () => {
                     {[...blogPosts.slice(0, 6), ...blogPosts.slice(0, 6)].map((post, index) => (
                         <div key={`${post.slug}-${index}`} className="flex-shrink-0 w-80 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                             <Link to={`/blog/${post.slug}`} className="block">
-                                <img src={post.image} alt={post.title} className="h-40 w-full object-cover" loading="lazy" />
+                                <img src={post.image} alt={post.title} className="h-40 w-full object-cover" loading="lazy" decoding="async" width="320" height="160" />
                                 <div className="p-6">
                                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 h-14 overflow-hidden">{post.title}</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 h-10 overflow-hidden text-ellipsis">{post.excerpt}</p>
@@ -605,7 +605,7 @@ const HomePage: React.FC = () => {
                     <div className="flex space-x-8 animate-marquee md:animate-none md:w-max md:px-6">
                         {[...testimonials, ...testimonials].map((testimonial, index) => (
                             <div key={index} className="flex-shrink-0 w-80 bg-white dark:bg-surface-dark p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col items-center">
-                                <img src={testimonial.image} alt={`Photo of ${testimonial.name}`} className="h-20 w-20 rounded-full object-cover mb-4 border-2 border-brand-red p-1" width="80" height="80" loading="lazy" />
+                                <img src={testimonial.image} alt={`Photo of ${testimonial.name}`} className="h-20 w-20 rounded-full object-cover mb-4 border-2 border-brand-red p-1" width="80" height="80" loading="lazy" decoding="async" />
                                 <blockquote className="text-gray-600 dark:text-gray-300 italic text-center text-base leading-relaxed flex-grow">
                                     "{testimonial.text}"
                                 </blockquote>
@@ -639,6 +639,7 @@ const HomePage: React.FC = () => {
                             width="150"
                             height="78"
                             loading="lazy"
+                            decoding="async"
                         />
                     </a>
                 </div>

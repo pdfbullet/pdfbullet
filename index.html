@@ -35,10 +35,23 @@
     <meta property="twitter:description" content="Merge, split, compress, convert, and edit your PDF files for free. Fast, easy, and secure processing right in your browser." />
     <meta property="twitter:image" content="https://ilovepdfly.com/og-image.png" />
 
+    <!-- Preconnect to critical domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&family=Nunito:wght@400;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&family=Nunito:wght@400;700;800&display=swap"></noscript>
+    <link rel="preconnect" href="https://esm.sh">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    <!-- Preload critical UI font -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" media="print" onload="this.media='all'">
+    
+    <!-- Asynchronously load non-critical decorative fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&display=swap" media="print" onload="this.media='all'">
+    
+    <!-- Noscript fallback for all fonts -->
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Homemade+Apple&family=Kalam:wght@300;400;700&family=Nunito:wght@400;700;800&display=swap">
+    </noscript>
     
     <!-- TrustBox script -->
     <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
@@ -180,23 +193,25 @@
     
     <!-- Facebook SDK for JavaScript -->
     <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '1342313423409544',
-          cookie     : false,
-          xfbml      : false,
-          version    : 'v19.0'
-        });
-        FB.AppEvents.logPageView();
-      };
+      window.addEventListener('load', function() {
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '1342313423409544',
+            cookie     : false,
+            xfbml      : false,
+            version    : 'v19.0'
+          });
+          FB.AppEvents.logPageView();
+        };
 
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "https://connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://connect.facebook.net/en_US/sdk.js";
+           fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'facebook-jssdk'));
+      });
     </script>
 </body>
 </html>

@@ -108,7 +108,7 @@ const BlogPostPage: React.FC = () => {
                   <Logo className="h-10 w-10" />
                 </div>
               ) : (
-                <img src={post.authorImage} alt={post.author} className="h-12 w-12 rounded-full object-cover" width="48" height="48" loading="lazy" />
+                <img src={post.authorImage} alt={post.author} className="h-12 w-12 rounded-full object-cover" width="48" height="48" loading="lazy" decoding="async" />
               )}
               <div>
                   <p className="font-bold text-gray-800 dark:text-gray-100">{post.author}</p>
@@ -118,7 +118,8 @@ const BlogPostPage: React.FC = () => {
             <SocialShareButtons url={postUrl} title={post.title} />
           </div>
           
-          <img src={post.image} alt={post.title} className="w-full max-w-3xl mx-auto h-auto object-contain rounded-lg shadow-lg mb-12" width="1200" height="628" loading="lazy" />
+          {/* FIX: Changed fetchpriority to fetchPriority to fix React property error. */}
+          <img src={post.image} alt={post.title} className="w-full max-w-3xl mx-auto h-auto object-contain rounded-lg shadow-lg mb-12" width="1200" height="628" loading="eager" decoding="async" fetchPriority="high" />
 
           <div className="prose lg:prose-xl dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
             {isLongPost && !isExpanded ? (

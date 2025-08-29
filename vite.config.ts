@@ -34,14 +34,12 @@ export default defineConfig(({ mode }) => {
           background_color: '#ffffff',
           theme_color: '#B90B06',
           orientation: 'portrait-primary',
-          // FIX: Changed 'auto' to 'ltr' to satisfy the type definition.
           dir: 'ltr',
           categories: ['productivity', 'utilities', 'business'],
           icons: [
             { src: '/favicon.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
             { src: '/favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
             { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
-            { src: '/apple-touch-icon.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
             { src: '/apple-touch-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
           screenshots: [
@@ -69,7 +67,6 @@ export default defineConfig(({ mode }) => {
               accept: {
                 'application/pdf': ['.pdf'],
               },
-              // FIX: Removed 'launch_type' as it is not recognized by the current type definition. The default behavior is 'single-client'.
             }
           ],
           launch_handler: {
