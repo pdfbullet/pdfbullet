@@ -13,13 +13,27 @@ export default defineConfig(({ mode }) => {
         includeAssets: [
           'favicon.png',
           'apple-touch-icon.png',
-          'desktop-view.jpg', // must be in /public
-          'mobile-view.png',  // must be in /public
+          'desktop-view.jpg',
+          'mobile-view.png',
         ],
         workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB cache limit
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           globPatterns: [
             '**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'
+          ],
+          runtimeCaching: [
+            {
+              urlPattern: ({ request }) =>
+                request.destination === 'script' ||
+                request.destination === 'style',
+              handler: 'StaleWhileRevalidate',
+              options: { cacheName: 'static-resources' },
+            },
+            {
+              urlPattern: ({ request }) => request.destination === 'image',
+              handler: 'CacheFirst',
+              options: { cacheName: 'images' },
+            },
           ],
         },
         manifest: {
@@ -32,73 +46,30 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           display_override: ['window-controls-overlay'],
           background_color: '#ffffff',
-          theme_color: '#B90B06',
+          theme_color: '#7c0a06ff',
           orientation: 'portrait-primary',
           dir: 'auto',
           categories: ['productivity', 'utilities', 'business'],
           icons: [
-            {
-              src: '/favicon.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any',
-            },
-            {
-              src: '/favicon.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any',
-            },
-            {
-              src: '/apple-touch-icon.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'maskable',
-            },
-            {
-              src: '/apple-touch-icon.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'maskable',
-            },
+            { src: '/favicon.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: '/apple-touch-icon.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+            { src: '/apple-touch-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
           screenshots: [
-            {
-              src: '/desktop-view.jpg',
-              sizes: '1280x800',
-              type: 'image/jpeg',
-              form_factor: 'wide',
-              label: 'I Love PDFLY Homepage with all tools',
-            },
-            {
-              src: '/mobile-view.png',
-              sizes: '540x720',
-              type: 'image/png',
-              form_factor: 'narrow',
-              label: 'Mobile view showing PDF tools',
-            },
+            { src: '/desktop-view.jpg', sizes: '1280x800', type: 'image/jpeg', form_factor: 'wide', label: 'Homepage with all tools' },
+            { src: '/mobile-view.png', sizes: '540x720', type: 'image/png', form_factor: 'narrow', label: 'Mobile view' },
           ],
-          edge_side_panel: {
-            preferred_width: 480
-          },
+          edge_side_panel: { preferred_width: 480 },
           file_handlers: [
             {
               action: '/',
-              accept: {
-                'application/pdf': ['.pdf'],
-              },
-              launch_type: 'single-client'
-            }
+              accept: { 'application/pdf': ['.pdf'] },
+              launch_type: 'single-client',
+            },
           ],
-          launch_handler: {
-            client_mode: 'navigate-existing'
-          },
-          protocol_handlers: [
-            {
-              protocol: 'web+pdfly',
-              url: '/?url=%s'
-            }
-          ],
+          launch_handler: { client_mode: 'navigate-existing' },
+          protocol_handlers: [{ protocol: 'web+pdfly', url: '/?url=%s' }],
         },
       }),
     ],
@@ -106,7 +77,16 @@ export default defineConfig(({ mode }) => {
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
     },
     build: {
+      minify: 'esbuild',
+      target: 'esnext',
+      sourcemap: false,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom'], // split vendor
+          },
+        },
         input: {
           main: 'index.html',
         },

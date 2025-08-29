@@ -223,7 +223,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateTwoFactorStatus = async (enabled: boolean) => {
     if (!user) throw new Error("No user is signed in.");
     const userRef = db.collection('users').doc(user.uid);
-    // Corrected the typo here from `cupdate` to `update`
     await userRef.update({ twoFactorEnabled: enabled });
     setUser(prevUser => (prevUser ? { ...prevUser, twoFactorEnabled: enabled } : null));
   };

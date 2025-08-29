@@ -1,7 +1,6 @@
 
 
 import React, { useState, useEffect, useMemo } from 'react';
-// FIX: Import `useNavigate` from `react-router-dom`.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
