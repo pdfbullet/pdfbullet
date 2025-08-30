@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -642,7 +643,7 @@ const ToolPage: React.FC = () => {
 
   const [tool, setTool] = useState<Tool | null>(null);
   const [state, setState] = useState<ProcessingState>(ProcessingState.Idle);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<React.ReactNode>('');
   const [processedFileBlob, setProcessedFileBlob] = useState<Blob | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [toolOptions, setToolOptions] = useState<any>(initialToolOptions);
@@ -1017,10 +1018,39 @@ const ToolPage: React.FC = () => {
           }
           setState(ProcessingState.Idle);
       } catch (e: any) {
-          console.error(e);
-          setErrorMessage('Failed to load PDF. The file might be corrupt or protected.');
-          setState(ProcessingState.Error);
-      } finally {
+        console.error("PDF Preview Error:", e);
+        if (e.name === 'PasswordException') {
+            const unlockTool = TOOLS.find(t => t.id === 'unlock-pdf');
+            setErrorMessage(
+                <div>
+                    <p className="font-semibold">This PDF is password-protected.</p>
+                    {unlockTool && (
+                        <p className="mt-2">
+                            Please use our <Link to={`/${unlockTool.id}`} className="font-bold text-brand-red hover:underline">Unlock PDF</Link> tool first to remove the password.
+                        </p>
+                    )}
+                </div>
+            );
+        } else {
+            const repairTool = TOOLS.find(t => t.id === 'repair-pdf');
+            setErrorMessage(
+                <div>
+                    <p className="font-semibold">Failed to load PDF preview.</p>
+                    <p className="mt-1">The file may be corrupted or in an unsupported format.</p>
+                    {repairTool && (
+                        <div className="mt-3 text-center">
+                            <p className="mb-2">You can try to fix it using our Repair tool:</p>
+                            <Link to={`/${repairTool.id}`} className="inline-flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                                Go to Repair PDF
+                                {repairTool.isPremium && <StarIcon className="h-4 w-4 text-yellow-300" />}
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        setState(ProcessingState.Error);
+    } finally {
           setProgress(null);
       }
   };
@@ -1899,10 +1929,35 @@ const ToolPage: React.FC = () => {
         }
         setState(ProcessingState.Success);
       } catch (e: any) {
-        console.error(e);
-        setErrorMessage(e.message || 'An unknown error occurred during processing.');
+        console.error("Processing Error:", e);
+        const errorMessage = (e.message || 'An unknown error occurred').toLowerCase();
+        
+        let userFriendlyError: React.ReactNode = `An unexpected error occurred during processing. Please try again. Details: ${e.message}`;
+
+        if (tool?.id === 'unlock-pdf' && (errorMessage.includes('password') || errorMessage.includes('encrypted'))) {
+            userFriendlyError = "The password provided is incorrect. Please double-check and try again.";
+        } else if (errorMessage.includes('corrupt') || errorMessage.includes('invalid pdf structure') || errorMessage.includes('format error')) {
+            const repairTool = TOOLS.find(t => t.id === 'repair-pdf');
+            userFriendlyError = (
+                <div>
+                    <p className="font-semibold">The file appears to be corrupted.</p>
+                    {repairTool && (
+                         <p className="mt-2">Please try using our <Link to={`/${repairTool.id}`} className="font-bold text-brand-red hover:underline">Repair PDF</Link> tool to fix it.</p>
+                    )}
+                </div>
+            );
+        } else if (errorMessage.includes('unsupported feature')) {
+            userFriendlyError = "This PDF contains unsupported features that prevent processing. Please try re-saving the PDF from its source application and try again.";
+        } else if (errorMessage.includes('is not a pdf')) {
+            userFriendlyError = `The selected file is not a valid PDF. Please choose a different file.`;
+        } else {
+            // Fallback to the original, more detailed message if no specific case matches.
+            userFriendlyError = e.message || 'An unknown error occurred during processing.';
+        }
+
+        setErrorMessage(userFriendlyError);
         setState(ProcessingState.Error);
-      } finally {
+    } finally {
         setProgress(null);
       }
   };
@@ -2064,129 +2119,133 @@ const ToolPage: React.FC = () => {
         {state === ProcessingState.Error && (
             <div className="text-center p-12 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-xl border border-red-200 dark:border-red-800">
                 <h2 className="text-2xl font-bold text-red-700 dark:text-red-300">An Error Occurred</h2>
-                <p className="mt-2 text-red-600 dark:text-red-400">{errorMessage}</p>
+                <div className="mt-2 text-red-600 dark:text-red-400">{errorMessage}</div>
                 <button onClick={handleReset} className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
             </div>
         )}
         
         {state === ProcessingState.Success && (
-            <div className="text-center w-full max-w-7xl mx-auto py-12">
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                  {getSuccessMessage(tool)}
-                </h2>
-                
-                 {processedFileBlob && (tool.id === 'compress-pdf' || tool.id === 'compress-image' || tool.id === 'resize-file') && originalSize > 0 && processedFileBlob.size < originalSize && (
-                    <p className="mt-4 text-lg text-green-700 dark:text-green-300 font-semibold">
-                        Success! File size reduced from {(originalSize / 1024 / 1024).toFixed(2)} MB to {(processedFileBlob.size / 1024 / 1024).toFixed(2)} MB.
-                    </p>
-                )}
-
-                <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-                    <button onClick={handleDownload} className="flex-grow-0 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg text-xl flex items-center gap-3 transition-colors">
-                        <DownloadIcon className="h-6 w-6" />
-                        {getDownloadButtonText(tool)}
-                    </button>
-                    <div className="flex gap-4">
-                         <button onClick={handleSaveToDropbox} disabled={cloudSaveState.dropbox !== 'idle'} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Save to Dropbox" title="Save to Dropbox">
-                             {cloudSaveState.dropbox === 'saving' ? <svg className="animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : cloudSaveState.dropbox === 'saved' ? <CheckIcon className="h-6 w-6 text-green-500" /> : <DropboxIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />}
-                        </button>
-                        <button onClick={openShareModal} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Share download link" title="Share download link">
-                            <LinkIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
-                        </button>
-                    </div>
+            <div className="text-center w-full max-w-7xl mx-auto py-12 success-animation-container">
+                <div className="success-animation-icon inline-block bg-green-100 dark:bg-green-900/50 p-6 rounded-full">
+                    <CheckIcon className="h-16 w-16 text-green-600 dark:text-green-400" />
                 </div>
+                <div className="success-animation-text">
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-6">
+                        {getSuccessMessage(tool)}
+                    </h2>
+                    
+                    {processedFileBlob && (tool.id === 'compress-pdf' || tool.id === 'compress-image' || tool.id === 'resize-file') && originalSize > 0 && processedFileBlob.size < originalSize && (
+                        <p className="mt-4 text-lg text-green-700 dark:text-green-300 font-semibold">
+                            Success! File size reduced from {(originalSize / 1024 / 1024).toFixed(2)} MB to {(processedFileBlob.size / 1024 / 1024).toFixed(2)} MB.
+                        </p>
+                    )}
 
-                {downloadUrl && (processedFileBlob?.type.startsWith('image/') || processedFileBlob?.type === 'application/pdf') && (
-                    <div className="mt-8 max-w-4xl mx-auto">
-                        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Preview of Your Processed File</h3>
-                        {processedFileBlob?.type.startsWith('image/') ? (
-                            <div className={`inline-block border rounded-lg shadow-lg ${tool.id === 'remove-background' ? 'checkered-bg' : ''}`}>
-                                <img src={downloadUrl} alt="Processed preview" className="max-w-full h-auto max-h-[60vh] rounded-lg" />
+                    <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+                        <button onClick={handleDownload} className="flex-grow-0 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg text-xl flex items-center gap-3 transition-colors">
+                            <DownloadIcon className="h-6 w-6" />
+                            {getDownloadButtonText(tool)}
+                        </button>
+                        <div className="flex gap-4">
+                            <button onClick={handleSaveToDropbox} disabled={cloudSaveState.dropbox !== 'idle'} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Save to Dropbox" title="Save to Dropbox">
+                                {cloudSaveState.dropbox === 'saving' ? <svg className="animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : cloudSaveState.dropbox === 'saved' ? <CheckIcon className="h-6 w-6 text-green-500" /> : <DropboxIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />}
+                            </button>
+                            <button onClick={openShareModal} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Share download link" title="Share download link">
+                                <LinkIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {downloadUrl && (processedFileBlob?.type.startsWith('image/') || processedFileBlob?.type === 'application/pdf') && (
+                        <div className="mt-8 max-w-4xl mx-auto">
+                            <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Preview of Your Processed File</h3>
+                            {processedFileBlob?.type.startsWith('image/') ? (
+                                <div className={`inline-block border rounded-lg shadow-lg ${tool.id === 'remove-background' ? 'checkered-bg' : ''}`}>
+                                    <img src={downloadUrl} alt="Processed preview" className="max-w-full h-auto max-h-[60vh] rounded-lg" />
+                                </div>
+                            ) : processedFileBlob?.type === 'application/pdf' ? (
+                                <iframe src={downloadUrl} className="w-full h-[70vh] rounded-lg shadow-lg border" title="PDF Preview"></iframe>
+                            ) : null}
+                        </div>
+                    )}
+
+                    <div className="mt-12 text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg max-w-5xl mx-auto border border-green-200 dark:border-green-700">
+                        <h3 className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
+                            <LockIcon className="h-6 w-6"/>
+                            <span>Secure. Private. In your control.</span>
+                        </h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">
+                            For your security, your processed files are automatically and permanently deleted from our servers within 2 hours.
+                        </p>
+                    </div>
+
+                    <div className="mt-16 bg-white dark:bg-black p-8 rounded-lg shadow-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
+                        <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Continue to...</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {TOOLS.slice(0, 12).map(t => (
+                                <Link key={t.id} to={`/${t.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                    <div className={`p-2 rounded-md ${t.color}`}>
+                                        <t.Icon className="h-6 w-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-left">{t.title}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-12 text-center p-6 bg-gray-50 dark:bg-black/50 rounded-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
+                        <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">Please share the tool to inspire more productive people!</p>
+                        <div className="mt-6 flex flex-wrap justify-center gap-4">
+                            <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <StarIcon className="h-5 w-5 text-green-500" />
+                                <span>Trustpilot</span>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <FacebookIcon className="h-5 w-5 text-blue-600" />
+                                <span>Facebook</span>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Filovepdfly.com&text=Check%20out%20iLovePDFLY,%20the%20best%20free%20online%20PDF%20toolkit!" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <XIcon className="h-5 w-5" />
+                                <span>Twitter</span>
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <LinkedInIcon className="h-5 w-5 text-blue-700" />
+                                <span>LinkedIn</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div className="mt-12 text-center p-6 rounded-lg max-w-5xl mx-auto">
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">The PDF software trusted by millions of users</h2>
+                        <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
+                            iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
+                        </p>
+                        <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
+                            <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <IOSIcon className="h-16 w-16" />
+                                <span className="font-semibold text-lg">iOS</span>
                             </div>
-                        ) : processedFileBlob?.type === 'application/pdf' ? (
-                            <iframe src={downloadUrl} className="w-full h-[70vh] rounded-lg shadow-lg border" title="PDF Preview"></iframe>
-                        ) : null}
-                    </div>
-                )}
-
-                <div className="mt-12 text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg max-w-5xl mx-auto border border-green-200 dark:border-green-700">
-                    <h3 className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center justify-center gap-2">
-                        <LockIcon className="h-6 w-6"/>
-                        <span>Secure. Private. In your control.</span>
-                    </h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        For your security, your processed files are automatically and permanently deleted from our servers within 2 hours.
-                    </p>
-                </div>
-
-                <div className="mt-16 bg-white dark:bg-black p-8 rounded-lg shadow-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Continue to...</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {TOOLS.slice(0, 12).map(t => (
-                            <Link key={t.id} to={`/${t.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <div className={`p-2 rounded-md ${t.color}`}>
-                                    <t.Icon className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-left">{t.title}</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="mt-12 text-center p-6 bg-gray-50 dark:bg-black/50 rounded-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">Please share the tool to inspire more productive people!</p>
-                    <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <StarIcon className="h-5 w-5 text-green-500" />
-                            <span>Trustpilot</span>
-                        </a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <FacebookIcon className="h-5 w-5 text-blue-600" />
-                            <span>Facebook</span>
-                        </a>
-                        <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Filovepdfly.com&text=Check%20out%20iLovePDFLY,%20the%20best%20free%20online%20PDF%20toolkit!" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <XIcon className="h-5 w-5" />
-                            <span>Twitter</span>
-                        </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <LinkedInIcon className="h-5 w-5 text-blue-700" />
-                            <span>LinkedIn</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div className="mt-12 text-center p-6 rounded-lg max-w-5xl mx-auto">
-                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">The PDF software trusted by millions of users</h2>
-                    <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
-                        iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
-                    </p>
-                    <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
-                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <IOSIcon className="h-16 w-16" />
-                            <span className="font-semibold text-lg">iOS</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <AndroidIcon className="h-16 w-16" />
-                            <span className="font-semibold text-lg">Android</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <MacOSIcon className="h-16 w-16" />
-                            <span className="font-semibold text-lg">MacOS</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <WindowsIcon className="h-14 w-14" />
-                            <span className="font-semibold text-lg">Windows</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <GlobeIcon className="h-16 w-16" />
-                            <span className="font-semibold text-lg">Web</span>
+                            <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <AndroidIcon className="h-16 w-16" />
+                                <span className="font-semibold text-lg">Android</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <MacOSIcon className="h-16 w-16" />
+                                <span className="font-semibold text-lg">MacOS</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <WindowsIcon className="h-14 w-14" />
+                                <span className="font-semibold text-lg">Windows</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <GlobeIcon className="h-16 w-16" />
+                                <span className="font-semibold text-lg">Web</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         )}
 

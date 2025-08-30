@@ -134,7 +134,18 @@ const LessonPlanCreatorPage: React.FC = () => {
 
             setLessonPlan(response.text);
         } catch (e: any) {
-            setError(`Failed to generate lesson plan. ${e.message}`);
+            console.error("AI Lesson Plan Error:", e);
+            const errorMessage = e.message || '';
+            let userFriendlyError = 'An error occurred while generating the lesson plan. Please try again.';
+
+            if (errorMessage.toLowerCase().includes('api key')) {
+                userFriendlyError = 'The AI service is currently unavailable. Please check your API key configuration.';
+            } else if (errorMessage.toLowerCase().includes('safety')) {
+                userFriendlyError = 'Your input may have violated our safety policy. Please modify your input and try again.';
+            } else {
+                userFriendlyError = `Failed to generate lesson plan. ${errorMessage}`;
+            }
+            setError(userFriendlyError);
         } finally {
             setIsLoading(false);
         }

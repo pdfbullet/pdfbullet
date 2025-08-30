@@ -20,6 +20,20 @@ export interface BusinessDetails {
   zipCode: string;
 }
 
+// New type for Problem Reports
+export interface ProblemReport {
+    id: string; // Firestore document ID
+    email: string;
+    url: string;
+    description: string;
+    screenshotUrl?: string;
+    timestamp: firebase.firestore.Timestamp;
+    status: 'New' | 'In Progress' | 'Resolved';
+    userId?: string;
+    userName?: string;
+}
+
+
 // User interface for our app
 interface User {
   uid: string;
@@ -57,6 +71,9 @@ interface AuthContextType {
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
   updateBusinessDetails: (details: BusinessDetails) => Promise<void>;
+  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName'>, screenshot?: File) => Promise<void>;
+  getProblemReports: () => Promise<ProblemReport[]>;
+  updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -233,8 +250,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await userRef.update({ businessDetails: details });
     setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
   };
+  
+  const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName'>, screenshot?: File) => {
+    const report: Omit<ProblemReport, 'id'> = {
+        ...reportData,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp() as firebase.firestore.Timestamp,
+        status: 'New',
+        userId: user?.uid,
+        userName: user?.username,
+    };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, auth };
+    if (screenshot) {
+        const storageRef = storage.ref(`problem_reports/${Date.now()}_${screenshot.name}`);
+        const snapshot = await storageRef.put(screenshot);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        report.screenshotUrl = downloadURL;
+    }
+
+    await db.collection('reports').add(report);
+  };
+
+  const getProblemReports = async (): Promise<ProblemReport[]> => {
+      const reportsCollectionRef = db.collection('reports').orderBy('timestamp', 'desc');
+      const snapshot = await reportsCollectionRef.get();
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProblemReport));
+  };
+
+  const updateReportStatus = async (reportId: string, status: ProblemReport['status']) => {
+      const reportRef = db.collection('reports').doc(reportId);
+      await reportRef.update({ status });
+  };
+
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

@@ -5,9 +5,10 @@ import { Logo } from './Logo.tsx';
 
 interface FooterProps {
   onOpenCalendarModal: () => void;
+  onOpenProblemReportModal: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
+const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemReportModal }) => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterMessage, setNewsletterMessage] = useState('');
 
@@ -98,7 +99,12 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
           {/* Links */}
           <div><h3 className="font-bold text-lg mb-4">Tools</h3><ul className="space-y-2 text-gray-400 text-sm">{topTools.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
           <div><h3 className="font-bold text-lg mb-4">Solutions</h3><ul className="space-y-2 text-gray-400 text-sm">{solutions.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
-          <div><h3 className="font-bold text-lg mb-4">Company</h3><ul className="space-y-2 text-gray-400 text-sm">{company.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
+          <div><h3 className="font-bold text-lg mb-4">Company</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">
+                {company.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}
+                <li><button onClick={onOpenProblemReportModal} title="Report a Problem" className="hover:text-white text-left">Report a Problem</button></li>
+            </ul>
+          </div>
           <div>
             <h3 className="font-bold text-lg mb-4">Resources</h3>
             <ul className="space-y-2 text-gray-400 text-sm">

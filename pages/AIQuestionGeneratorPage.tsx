@@ -85,8 +85,20 @@ const AIQuestionGeneratorPage: React.FC = () => {
             }
 
         } catch (e: any) {
-            console.error(e);
-            setError(`Failed to generate questions. The AI may have had trouble with the input text. ${e.message || 'Please try again.'}`);
+            console.error("AI Question Gen Error:", e);
+            const errorMessage = e.message || '';
+            let userFriendlyError = 'An error occurred. Please try again with different text.';
+
+            if (errorMessage.toLowerCase().includes('api key')) {
+                userFriendlyError = 'The AI service is currently unavailable. Please check your API key configuration.';
+            } else if (errorMessage.toLowerCase().includes('safety')) {
+                userFriendlyError = 'The provided text may have violated our safety policy. Please modify the text and try again.';
+            } else if (errorMessage.toLowerCase().includes('parse')) {
+                userFriendlyError = 'The AI returned an unexpected response. Please try modifying your text or try again later.';
+            } else {
+                userFriendlyError = `Failed to generate questions. ${errorMessage}`;
+            }
+            setError(userFriendlyError);
         } finally {
             setIsLoading(false);
         }

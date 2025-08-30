@@ -262,8 +262,18 @@ const AIAssistant: React.FC = () => {
         setPdfResponse(genAIResponse.text || 'Sorry, no response was generated.');
 
     } catch (e: any) {
-        console.error(e);
-        setPdfError(`Sorry, an error occurred. ${e.message || 'Please try again.'}`);
+        console.error("AI PDF Ask Error:", e);
+        const errorMessage = e.message || '';
+        let userFriendlyError = 'An error occurred while getting the answer. Please try again.';
+
+        if (errorMessage.toLowerCase().includes('api key')) {
+            userFriendlyError = 'The AI service is currently unavailable. Please check your API key configuration.';
+        } else if (errorMessage.toLowerCase().includes('safety')) {
+            userFriendlyError = 'Your question or the PDF content may have violated our safety policy. Please try a different question.';
+        } else {
+            userFriendlyError = `Sorry, an error occurred. ${errorMessage}`;
+        }
+        setPdfError(userFriendlyError);
     } finally {
         setIsPdfLoading(false);
     }
@@ -319,10 +329,22 @@ const AIAssistant: React.FC = () => {
             }
         }
     } catch(e: any) {
-        console.error(e);
-        const errorMsg = `Sorry, an error occurred. ${e.message || 'Please try again.'}`;
-        setChatError(errorMsg);
-        setChatMessages(prev => [...prev, { role: 'model', text: errorMsg }]);
+        console.error("AI Chat Error:", e);
+        const errorMessage = e.message || '';
+        let userFriendlyError = 'An error occurred. Please try again.';
+
+        if (errorMessage.toLowerCase().includes('api key')) {
+            userFriendlyError = 'The AI service is currently unavailable. Please check your API key configuration.';
+        } else if (errorMessage.toLowerCase().includes('safety')) {
+            userFriendlyError = 'Your message may have violated our safety policy. Please try again with a different message.';
+        } else if (errorMessage.toLowerCase().includes('search')) {
+            userFriendlyError = 'There was an issue with the Google Search grounding. Please try again or disable the search option.';
+        } else {
+            userFriendlyError = `Sorry, an error occurred. ${errorMessage}`;
+        }
+
+        setChatError(userFriendlyError);
+        setChatMessages(prev => [...prev, { role: 'model', text: userFriendlyError }]);
     } finally {
         setIsChatLoading(false);
     }
