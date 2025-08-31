@@ -12,7 +12,7 @@ interface UserData {
 }
 
 const AdminDashboardPage: React.FC = () => {
-    const { getAllUsers, updateUserPremiumStatus, updateUserApiPlan, logout, deleteUser, getProblemReports, updateReportStatus } = useAuth();
+    const { getAllUsers, updateUserPremiumStatus, updateUserApiPlan, logout, deleteUser, getProblemReports, updateReportStatus, deleteProblemReport } = useAuth();
     
     const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -96,6 +96,19 @@ const AdminDashboardPage: React.FC = () => {
         }
     };
 
+    const handleDeleteReport = async (reportId: string, description: string) => {
+        if (window.confirm(`Are you sure you want to delete the report: "${description.substring(0, 50)}..."? This action cannot be undone.`)) {
+            setIsUpdating(reportId);
+            try {
+                await deleteProblemReport(reportId);
+                setReports(prev => prev.filter(r => r.id !== reportId));
+            } catch (e) {
+                alert('Failed to delete report.');
+            } finally {
+                setIsUpdating(null);
+            }
+        }
+    };
 
     const handleDeleteUser = async (uid: string, username: string) => {
         if (window.confirm(`Are you sure you want to delete user "${username}"? This will only remove their data record.`)) {
@@ -264,22 +277,23 @@ const AdminDashboardPage: React.FC = () => {
                                         <tr>
                                             <th scope="col" className="px-6 py-3">User</th>
                                             <th scope="col" className="px-6 py-3">Description</th>
-                                            <th scope="col" className="px-6 py-3">Screenshot</th>
+                                            <th scope="col" className="px-6 py-3">Type</th>
                                             <th scope="col" className="px-6 py-3">Date</th>
                                             <th scope="col" className="px-6 py-3">Status</th>
+                                            <th scope="col" className="px-6 py-3 text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {reportsLoading ? (
-                                            <tr><td colSpan={5} className="text-center p-6">Loading reports...</td></tr>
+                                            <tr><td colSpan={6} className="text-center p-6">Loading reports...</td></tr>
                                         ) : reportsError ? (
-                                            <tr><td colSpan={5} className="text-center p-6 text-red-500">{reportsError}</td></tr>
+                                            <tr><td colSpan={6} className="text-center p-6 text-red-500">{reportsError}</td></tr>
                                         ) : filteredReports.length > 0 ? (
                                             filteredReports.map(report => (
                                                 <tr key={report.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                                     <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{report.userName || report.email}</td>
                                                     <td className="px-6 py-4 text-xs max-w-sm"><p className="truncate" title={report.description}>{report.description}</p><a href={report.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Page</a></td>
-                                                    <td className="px-6 py-4">{report.screenshotUrl ? <a href={report.screenshotUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View</a> : 'N/A'}</td>
+                                                    <td className="px-6 py-4 font-semibold">{report.problemType}</td>
                                                     <td className="px-6 py-4">{report.timestamp ? new Date(report.timestamp.toDate()).toLocaleString() : 'N/A'}</td>
                                                     <td className="px-6 py-4">
                                                         <select value={report.status} disabled={isUpdating === report.id} onChange={e => handleReportStatusChange(report.id, e.target.value as ProblemReport['status'])} className={`text-xs rounded-lg p-1.5 border ${report.status === 'New' ? 'bg-orange-100 border-orange-300 text-orange-800' : report.status === 'In Progress' ? 'bg-blue-100 border-blue-300 text-blue-800' : 'bg-green-100 border-green-300 text-green-800'}`}>
@@ -288,10 +302,15 @@ const AdminDashboardPage: React.FC = () => {
                                                             <option value="Resolved">Resolved</option>
                                                         </select>
                                                     </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <button onClick={() => handleDeleteReport(report.id, report.description)} disabled={isUpdating === report.id} title="Delete Report" className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+                                                            <TrashIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))
                                         ) : (
-                                            <tr><td colSpan={5} className="text-center p-6">No reports found.</td></tr>
+                                            <tr><td colSpan={6} className="text-center p-6">No reports found.</td></tr>
                                         )}
                                     </tbody>
                                 </table>

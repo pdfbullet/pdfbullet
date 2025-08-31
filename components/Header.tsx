@@ -5,20 +5,16 @@ import {
   CameraIcon, KeyIcon, LogoutIcon, UserIcon, BookOpenIcon, 
   StarIcon, EmailIcon, BriefcaseIcon, GavelIcon, 
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
-  ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon
+  ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon, ChartBarIcon,
+  DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
+  MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
+  CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
-
-interface CategoryGroup {
-  title: string;
-  order: number;
-  tools: Tool[];
-  key: string;
-}
 
 interface HeaderProps {
   onOpenProfileImageModal: () => void;
@@ -32,12 +28,6 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
-   <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
 const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -45,20 +35,24 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const [isConvertMenuOpen, setConvertMenuOpen] = useState(false);
   const [isAllToolsMenuOpen, setAllToolsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   const gridMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const convertMenuTimeoutRef = useRef<number | null>(null);
   const allToolsMenuTimeoutRef = useRef<number | null>(null);
-  const gridMenuTimeoutRef = useRef<number | null>(null);
 
   const { theme, toggleTheme } = useTheme();
   const { user, logout, auth } = useAuth();
   const navigate = useNavigate();
-  
+
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
   );
+
+  const toggleAccordion = (accordionName: string) => {
+    setOpenAccordion(openAccordion === accordionName ? null : accordionName);
+  };
 
   useEffect(() => {
     const checkAdminStatus = () => {
@@ -98,6 +92,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     setMobileMenuOpen(false);
     setConvertMenuOpen(false);
     setAllToolsMenuOpen(false);
+    setOpenAccordion(null);
   }
 
   const handleMenuEnter = (setter: React.Dispatch<React.SetStateAction<boolean>>, timeoutRef: React.MutableRefObject<number | null>) => {
@@ -114,38 +109,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       }, 200); // 200ms delay
   };
 
-  const categoryConfig: Record<string, Omit<CategoryGroup, 'tools' | 'key'>> = {
-    organize: { title: 'Organize PDF', order: 1 },
-    optimize: { title: 'Optimize PDF', order: 2 },
-    'convert-to': { title: 'Convert to PDF', order: 3 },
-    'convert-from': { title: 'Convert from PDF', order: 4 },
-    edit: { title: 'Edit PDF', order: 5 },
-    security: { title: 'PDF Security', order: 6 },
-    business: { title: 'Business Tools', order: 7 },
-  };
-
-  const groupedTools = TOOLS.reduce((acc: Record<string, Omit<CategoryGroup, 'key'>>, tool) => {
-      const categoryKey = tool.category || 'organize';
-      if (!acc[categoryKey]) {
-        acc[categoryKey] = { ...categoryConfig[categoryKey], tools: [] };
-      }
-      acc[categoryKey].tools.push(tool);
-      return acc;
-  }, {});
-  
-  const sortedCategories = Object.entries(groupedTools)
-    .map(([key, value]) => ({ ...value, key }))
-    .sort((a,b) => a.order - b.order);
-
   const convertToTools = TOOLS.filter(tool => tool.category === 'convert-to');
   const convertFromTools = TOOLS.filter(tool => tool.category === 'convert-from');
-  
-  const mainNavLinks = [
-    { to: '/about', label: 'About', icon: UserIcon },
-    { to: '/blog', label: 'Blog', icon: BookOpenIcon },
-    { to: '/developer', label: 'Developer', icon: ApiIcon },
-    { to: '/api-reference', label: 'API Reference', icon: CodeIcon },
-  ];
   
   const desktopNavLinks = [
     { to: '/merge-pdf', label: 'MERGE PDF' },
@@ -153,15 +118,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     { to: '/compress-pdf', label: 'COMPRESS PDF' },
   ];
   
-  const gridMenuLinks = [
-      { to: '/pricing', label: 'Pricing', icon: DollarIcon },
-      { to: '/education', label: 'Education', icon: StudentIcon },
-      { to: '/business', label: 'Business', icon: BriefcaseIcon },
-      { to: '/press', label: 'Press', icon: NewspaperIcon },
-      { to: '/privacy-policy', label: 'Privacy Policy', icon: GavelIcon },
-      { to: '/terms-of-service', label: 'Terms of Service', icon: HeartbeatIcon },
-  ];
-
   const toolsById = useMemo(() => new Map(TOOLS.map(tool => [tool.id, tool])), []);
 
   const allToolsMenuStructure = useMemo(() => [
@@ -191,13 +147,115 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     }
   ], []);
 
+  const mobileAccordionData = {
+    'OTHER PRODUCTS': [
+        { title: 'iLoveIMG', description: 'Effortless image editing', href: 'https://www.iloveimg.com' },
+        { title: 'iLoveSign', description: 'e-Signing made simple', href: '/#/' },
+        { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer' }
+    ],
+    'SOLUTIONS': [
+        { title: 'Business', description: 'Streamlined PDF editing and workflows', to: '/business' }
+    ],
+    'APPLICATIONS': [
+        { title: 'Desktop App', description: 'Available for Mac and Windows', href: '/#/' },
+        { title: 'Mobile App', description: 'Available for iOS and Android', href: '/#/' }
+    ]
+  };
+
+  const mainMobileLinks = [
+    { to: '/pricing', label: 'Pricing', icon: DollarIcon },
+    { to: '/security-policy', label: 'Security', icon: LockIcon },
+    { to: '/#all-tools', label: 'Features', icon: GridIcon },
+  ];
+
+  const desktopGridMenuData = {
+    products: [
+      { title: 'iLoveIMG', description: 'Effortless image editing', href: 'https://iloveimg.com', icon: HeartbeatIcon, iconColor: 'bg-blue-500' },
+      { title: 'iLoveSign', description: 'e-Signing made simple', href: '/#/', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
+      { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer', icon: HeartbeatIcon, iconColor: 'bg-teal-500' },
+    ],
+    integrations: { title: 'Integrations', description: 'Zapier, Make, Wordpress...', href: '/#/', icon: LinkIcon, bordered: true },
+    solutions: [
+      { title: 'Business', description: 'Streamlined PDF editing and workflows for business teams', to: '/business', icon: ChartBarIcon, iconColor: 'bg-red-500' }
+    ],
+    applications: [
+      { title: 'Desktop App', description: 'Available for Mac and Windows', href: '/#/', icon: DesktopIcon, iconColor: 'bg-red-600' },
+      { title: 'Mobile App', description: 'Available for iOS and Android', href: '/#/', icon: PhoneIcon, iconColor: 'bg-red-700' },
+    ],
+    links: [
+      { title: 'Pricing', to: '/pricing', icon: NewspaperIcon },
+      { title: 'Security', to: '/security-policy', icon: LockIcon },
+      { title: 'Features', to: '/#all-tools', icon: GridIcon },
+      { title: 'About us', to: '/about', icon: HeartbeatIcon },
+    ],
+    bottomLinks: [
+      { title: 'Help', to: '/contact', icon: LeftArrowIcon },
+      { title: 'Language', href: '#', icon: LeftArrowIcon },
+    ]
+  };
+
+  const imageToolIds = new Set(['resize-image', 'remove-background', 'crop-image', 'convert-to-jpg', 'convert-from-jpg', 'compress-image', 'watermark-image']);
+
+  const mobileMenuCategories = [
+      { key: 'organize' as const, title: 'Organize PDF' },
+      { key: 'optimize' as const, title: 'Optimize PDF' },
+      { key: 'convert-to' as const, title: 'Convert to PDF' },
+      { key: 'convert-from' as const, title: 'Convert from PDF' },
+      { key: 'edit' as const, title: 'Edit PDF' },
+      { key: 'security' as const, title: 'PDF Security' },
+      { key: 'business' as const, title: 'Business & AI Tools' },
+  ];
+
+  const mobileMenuStructure = useMemo(() => [
+      ...mobileMenuCategories.map(cat => ({
+          title: cat.title,
+          tools: TOOLS.filter(tool => tool.category === cat.key && !imageToolIds.has(tool.id))
+      })),
+      {
+          title: 'Image Tools',
+          tools: TOOLS.filter(tool => imageToolIds.has(tool.id))
+      }
+  ].filter(category => category.tools.length > 0), []);
+
+  const DesktopGridMenuItem: React.FC<{ item: any }> = ({ item }) => {
+    const content = (
+      <div className={`flex items-start gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group ${item.bordered ? 'border border-gray-200 dark:border-gray-700' : ''}`}>
+        <div className={`${item.iconColor ? `${item.iconColor} p-2 rounded-md` : ''}`}>
+          <item.icon className={`h-6 w-6 ${item.iconColor ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
+        </div>
+        <div>
+          <p className="font-semibold text-gray-800 dark:text-gray-200">{item.title}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+        </div>
+      </div>
+    );
+  
+    if (item.to) {
+      return <Link to={item.to} onClick={closeAllMenus}>{content}</Link>;
+    }
+    return <a href={item.href} onClick={closeAllMenus} target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{content}</a>;
+  };
+
+  const DesktopGridLinkItem: React.FC<{ item: any }> = ({ item }) => {
+    const content = (
+      <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+        <item.icon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+        <p className="font-semibold text-gray-800 dark:text-gray-200">{item.title}</p>
+      </div>
+    );
+    if (item.to) {
+      return <Link to={item.to} onClick={closeAllMenus}>{content}</Link>;
+    }
+    return <a href={item.href} onClick={closeAllMenus} target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{content}</a>;
+  };
+
   return (
     <>
     <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
       <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <button onClick={() => setMobileMenuOpen(true)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Open main menu" title="Open main menu">
                 <MenuIcon className="h-6 w-6" />
               </button>
@@ -205,13 +263,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
               <Logo className="h-8 md:h-10 w-auto" />
             </a>
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
-                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap hidden lg:flex">
+                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
                       {link.label}
                   </Link>
               ))}
-              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap hidden lg:flex">
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
                   DEVELOPER
               </Link>
               {/* Convert PDF Dropdown */}
@@ -278,6 +336,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Search Icon */}
+            <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
+              <SearchIcon className="h-6 w-6" />
+            </button>
+            
+            {/* Profile/Auth Icons & Links */}
             {user ? (
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
@@ -327,108 +391,139 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 )}
               </div>
             ) : (
-              <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
-                <Link to="/login" title="Login" className="text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors font-semibold px-2 text-sm">Login</Link>
-                <Link to="/signup" title="Sign Up" className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-1.5 px-3 text-sm rounded-md transition-colors">Sign up</Link>
-              </div>
+              <>
+                <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
+                  <Link to="/login" title="Login" className="text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors font-semibold px-2 text-sm">Login</Link>
+                  <Link to="/signup" title="Sign Up" className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-1.5 px-3 text-sm rounded-md transition-colors">Sign up</Link>
+                </div>
+                <div className="sm:hidden">
+                  <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-brand-red" aria-label="Login or sign up" title="Login or sign up">
+                    <UserIcon className="h-7 w-7" />
+                  </Link>
+                </div>
+              </>
             )}
-            <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
-              <SearchIcon className="h-6 w-6" />
-            </button>
+            
+            {/* Grid Menu Icon */}
             <div 
-                className="relative block" 
+                className="relative" 
                 ref={gridMenuRef}
-                onMouseEnter={() => handleMenuEnter(setGridMenuOpen, gridMenuTimeoutRef)}
-                onMouseLeave={() => handleMenuLeave(setGridMenuOpen, gridMenuTimeoutRef)}
             >
-              <button className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
-                <GridIcon className="h-8 w-8" />
+              <button onClick={() => setGridMenuOpen(!isGridMenuOpen)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
+                <GridIcon className="h-7 w-7 lg:h-8 lg:w-8" />
               </button>
               {isGridMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2">
-                   {mainNavLinks.map(link => (
-                    <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                        <link.icon className="h-5 w-5"/>
-                        <span>{link.label}</span>
-                    </Link>
-                  ))}
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                  {gridMenuLinks.map(link => (
-                    <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                        <link.icon className="h-5 w-5"/>
-                        <span>{link.label}</span>
-                    </Link>
-                  ))}
-                   <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                   <Link to="/contact" onClick={closeAllMenus} title="Contact" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
-                        <EmailIcon className="h-5 w-5"/>
-                        <span>Contact</span>
-                    </Link>
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                  <Link to="/developer-access" onClick={closeAllMenus} title="Admin Access" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red">Admin Access</Link>
-                  {isAdmin && (
-                    <Link to="/admin-dashboard" onClick={closeAllMenus} title="Admin Dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red">Admin Dashboard</Link>
-                  )}
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                  <button onClick={toggleTheme} title="Toggle Theme" className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red">
-                    <span>Toggle Theme</span>
-                    {theme === 'light' ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
-                  </button>
+                <div className="absolute top-full right-0 mt-2 z-20">
+                  {/* Desktop Menu */}
+                  <div className="hidden lg:block w-[56rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl animate-fade-in-down">
+                    <div className="grid grid-cols-3">
+                      {/* Column 1 */}
+                      <div className="p-6 border-r border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Other Products</h3>
+                        <div className="space-y-2">
+                          {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                          <div className="pt-2"><DesktopGridMenuItem item={desktopGridMenuData.integrations} /></div>
+                        </div>
+                      </div>
+                      {/* Column 2 */}
+                      <div className="p-6 border-r border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Solutions</h3>
+                        <div className="space-y-2">
+                          {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                        </div>
+                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-8 mb-4">Applications</h3>
+                        <div className="space-y-2">
+                          {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                        </div>
+                      </div>
+                      {/* Column 3 */}
+                      <div className="p-6">
+                        <div className="space-y-1">
+                          {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                        </div>
+                        <hr className="my-6 border-gray-200 dark:border-gray-700" />
+                        <div className="space-y-1">
+                          {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Menu */}
+                  <div className="block lg:hidden w-80 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl p-4 animate-fade-in-down">
+                    {Object.keys(mobileAccordionData).map(title => (
+                        <div key={title} className="py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                            <button onClick={() => toggleAccordion(title)} className="w-full flex justify-between items-center py-2 text-left">
+                                <span className="font-semibold text-gray-600 dark:text-gray-400 text-sm uppercase">{title}</span>
+                                {openAccordion === title ? <ChevronUpIcon className="h-5 w-5 text-gray-500"/> : <ChevronDownIcon className="h-5 w-5 text-gray-500"/>}
+                            </button>
+                            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openAccordion === title ? 'max-h-96' : 'max-h-0'}`}>
+                                <div className="pt-2 pb-1 space-y-1">
+                                    {(mobileAccordionData[title as keyof typeof mobileAccordionData] || []).map(item => {
+                                        const content = (
+                                            <div className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{item.title}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+                                            </div>
+                                        );
+                                        if(item.to) {
+                                            return <Link key={item.title} to={item.to} onClick={closeAllMenus}>{content}</Link>
+                                        }
+                                        return <a key={item.title} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeAllMenus}>{content}</a>
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                    <div className="space-y-1">
+                        {mainMobileLinks.map(link => (
+                            <Link key={link.label} to={link.to} onClick={closeAllMenus} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <link.icon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>
+                                <span className="font-semibold text-gray-800 dark:text-gray-200">{link.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+                    {!user && (
+                        <>
+                            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div className="p-2 space-y-2">
+                                <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Login</Link>
+                                <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
+                            </div>
+                        </>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-            {!user && (
-              <div className="sm:hidden">
-                <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-brand-red" aria-label="Login or sign up" title="Login or sign up">
-                  <UserIcon className="h-7 w-7" />
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>
     </header>
     {/* Mobile Menu */}
-    <div className={`fixed inset-0 z-[60] bg-black/50 transition-opacity md:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setMobileMenuOpen(false)}></div>
-    <div className={`fixed top-0 left-0 h-full w-full max-w-xs bg-white dark:bg-black z-[70] transition-transform duration-300 ease-in-out md:hidden transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <div className={`fixed inset-0 z-[60] bg-white dark:bg-black transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                <span className="font-bold text-lg text-gray-800 dark:text-gray-100">All Tools</span>
+            <div className="flex items-center justify-end p-4 border-b border-gray-200 dark:border-gray-700">
                 <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300" aria-label="Close menu" title="Close menu">
-                    <CloseIcon className="h-6 w-6" />
+                    <CloseIcon className="h-8 w-8" />
                 </button>
             </div>
-            <nav className="flex-grow overflow-y-auto p-2">
-                <div className="space-y-4">
-                    {sortedCategories.map(cat => (
-                        <div key={cat.title}>
-                            <h4 className="px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{cat.title}</h4>
-                            <div className="mt-1 space-y-1">
-                                {cat.tools.map(tool => (
-                                    <Link
-                                        key={tool.id}
-                                        to={`/${tool.id}`}
-                                        onClick={closeAllMenus}
-                                        title={tool.title}
-                                        className="flex items-center space-x-4 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                    >
-                                        <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} />
-                                        <span className="font-semibold text-sm">{tool.title}</span>
-                                    </Link>
-                                ))}
-                            </div>
+            <nav className="flex-grow overflow-y-auto px-4 py-2">
+                {mobileMenuStructure.map(category => (
+                    <div key={category.title}>
+                        <h3 className="px-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-6 first:mt-0">{category.title}</h3>
+                        <div className="space-y-1">
+                            {category.tools.map(tool => (
+                                <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                    <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} /> 
+                                    <span className="font-semibold text-sm">{tool.title}</span>
+                                </Link>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </nav>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                {!user && (
-                    <div className="flex items-center space-x-2">
-                        <Link to="/login" onClick={closeAllMenus} title="Login" className="flex-1 text-center font-semibold text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors py-2 px-4 rounded-md border border-gray-300 dark:border-gray-700">Login</Link>
-                        <Link to="/signup" onClick={closeAllMenus} title="Sign Up" className="flex-1 text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
                     </div>
-                )}
-            </div>
+                ))}
+            </nav>
         </div>
     </div>
     </>

@@ -25,8 +25,8 @@ export interface ProblemReport {
     id: string; // Firestore document ID
     email: string;
     url: string;
+    problemType: string;
     description: string;
-    screenshotUrl?: string;
     timestamp: firebase.firestore.Timestamp;
     status: 'New' | 'In Progress' | 'Resolved';
     userId?: string;
@@ -72,9 +72,10 @@ interface AuthContextType {
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
   updateBusinessDetails: (details: BusinessDetails) => Promise<void>;
-  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>, screenshot?: File) => Promise<void>;
+  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>) => Promise<void>;
   getProblemReports: () => Promise<ProblemReport[]>;
   updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
+  deleteProblemReport: (reportId: string) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -252,7 +253,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
   };
   
-  const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>, screenshot?: File) => {
+  const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes' | 'screenshotUrl'>) => {
     const report: Omit<ProblemReport, 'id'> = {
         ...reportData,
         timestamp: firebase.firestore.FieldValue.serverTimestamp() as firebase.firestore.Timestamp,
@@ -261,28 +262,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userName: user?.username,
     };
 
-    const reportRef = await db.collection('reports').add(report);
-
-    if (screenshot) {
-        const storageRef = storage.ref(`problem_reports/${reportRef.id}/${screenshot.name}`);
-        try {
-            // Use async/await directly on the upload task for robustness
-            const uploadTask = await storageRef.put(screenshot);
-            const downloadURL = await uploadTask.ref.getDownloadURL();
-            
-            // Update the report with the screenshot URL
-            await reportRef.update({ screenshotUrl: downloadURL });
-
-        } catch (uploadError) {
-            console.error("Screenshot upload failed, but report was submitted:", uploadError);
-            // Add a note to the Firestore document that the upload failed
-            await reportRef.update({ 
-              notes: `Screenshot upload failed: ${(uploadError as Error).message}` 
-            });
-            // Re-throw the error so the component UI can display a specific message
-            throw uploadError;
-        }
-    }
+    await db.collection('reports').add(report);
   };
 
   const getProblemReports = async (): Promise<ProblemReport[]> => {
@@ -295,9 +275,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const reportRef = db.collection('reports').doc(reportId);
       await reportRef.update({ status });
   };
+  
+  const deleteProblemReport = async (reportId: string) => {
+      const reportRef = db.collection('reports').doc(reportId);
+      await reportRef.delete();
+  };
 
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

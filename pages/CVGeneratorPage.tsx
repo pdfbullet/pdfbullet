@@ -6,7 +6,6 @@ import { jsPDF } from 'jspdf';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { DownloadIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, UserIcon, BriefcaseIcon, StudentIcon, PuzzleIcon, BrainIcon } from '../components/icons.tsx';
 import { TOOLS } from '../constants.ts';
-// FIX: Import RichTextEditor to be used for description fields.
 import RichTextEditor from '../components/RichTextEditor.tsx';
 
 // ===================================================================
@@ -66,11 +65,18 @@ const EditableField: React.FC<{ value: string; onChange: (value: string) => void
     );
 };
 
+interface VisibleSections {
+    experience: boolean;
+    education: boolean;
+    skills: boolean;
+    projects: boolean;
+}
+
 // ===================================================================
 // TEMPLATE COMPONENTS
 // ===================================================================
 
-const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: string }> = ({ data, template, color }) => {
+const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: string, visibleSections: VisibleSections }> = ({ data, template, color, visibleSections }) => {
     const textColor = 'text-gray-800';
 
     const sectionTitleStyle: React.CSSProperties = {
@@ -102,12 +108,14 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
                             <p><strong>LinkedIn:</strong> {data.contact.linkedin}</p>
                         </div>
                     </section>
-                    <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Skills</h3>
-                        <ul className="flex flex-wrap gap-2">
-                            {data.skills.map(skill => <li key={skill.id} style={{ backgroundColor: `${color}1A`, color }} className="text-xs font-semibold px-3 py-1 rounded-full">{skill.name}</li>)}
-                        </ul>
-                    </section>
+                    {visibleSections.skills && data.skills.length > 0 && (
+                        <section>
+                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Skills</h3>
+                            <ul className="flex flex-wrap gap-2">
+                                {data.skills.map(skill => <li key={skill.id} style={{ backgroundColor: `${color}1A`, color }} className="text-xs font-semibold px-3 py-1 rounded-full">{skill.name}</li>)}
+                            </ul>
+                        </section>
+                    )}
                 </aside>
                 
                 {/* Right Column (Summary, Experience, Education, Projects) */}
@@ -116,47 +124,53 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
                         <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Summary</h3>
                         <p className="text-sm leading-relaxed">{data.summary}</p>
                     </section>
-                     <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Work Experience</h3>
-                        <div className="space-y-4">
-                            {data.experiences.map(exp => (
-                                <div key={exp.id}>
-                                    <div className="flex justify-between items-baseline">
-                                        <h4 className="font-bold text-base">{exp.jobTitle}</h4>
-                                        <p className="text-xs font-mono">{exp.startDate} - {exp.endDate}</p>
+                     {visibleSections.experience && data.experiences.length > 0 && (
+                        <section>
+                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Work Experience</h3>
+                            <div className="space-y-4">
+                                {data.experiences.map(exp => (
+                                    <div key={exp.id}>
+                                        <div className="flex justify-between items-baseline">
+                                            <h4 className="font-bold text-base">{exp.jobTitle}</h4>
+                                            <p className="text-xs font-mono">{exp.startDate} - {exp.endDate}</p>
+                                        </div>
+                                        <p className="text-sm font-semibold italic text-gray-600">{exp.company}</p>
+                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: exp.description }} />
                                     </div>
-                                    <p className="text-sm font-semibold italic text-gray-600">{exp.company}</p>
-                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: exp.description }} />
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                    <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Education</h3>
-                        <div className="space-y-4">
-                            {data.educations.map(edu => (
-                                <div key={edu.id}>
-                                    <div className="flex justify-between items-baseline">
-                                        <h4 className="font-bold text-base">{edu.degree}</h4>
-                                        <p className="text-xs font-mono">{edu.startDate} - {edu.endDate}</p>
+                                ))}
+                            </div>
+                        </section>
+                     )}
+                    {visibleSections.education && data.educations.length > 0 && (
+                        <section>
+                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Education</h3>
+                            <div className="space-y-4">
+                                {data.educations.map(edu => (
+                                    <div key={edu.id}>
+                                        <div className="flex justify-between items-baseline">
+                                            <h4 className="font-bold text-base">{edu.degree}</h4>
+                                            <p className="text-xs font-mono">{edu.startDate} - {edu.endDate}</p>
+                                        </div>
+                                        <p className="text-sm font-semibold italic text-gray-600">{edu.school}</p>
+                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />
                                     </div>
-                                    <p className="text-sm font-semibold italic text-gray-600">{edu.school}</p>
-                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                    <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Projects</h3>
-                         <div className="space-y-4">
-                            {data.projects.map(proj => (
-                                <div key={proj.id}>
-                                    <h4 className="font-bold text-base">{proj.name}</h4>
-                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: proj.description }} />
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                    {visibleSections.projects && data.projects.length > 0 && (
+                        <section>
+                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Projects</h3>
+                             <div className="space-y-4">
+                                {data.projects.map(proj => (
+                                    <div key={proj.id}>
+                                        <h4 className="font-bold text-base">{proj.name}</h4>
+                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: proj.description }} />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </main>
             </div>
         </div>
@@ -166,12 +180,31 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
 // ===================================================================
 // FORM COMPONENTS
 // ===================================================================
-const FormSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+
+const ToggleSwitch: React.FC<{ checked: boolean; onChange: () => void }> = ({ checked, onChange }) => (
+    <button
+        type="button"
+        className={`${checked ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'} relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none`}
+        onClick={onChange}
+        aria-checked={checked}
+        role="switch"
+    >
+        <span className={`${checked ? 'translate-x-6' : 'translate-x-1'} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`} />
+    </button>
+);
+
+const FormSection: React.FC<{ title: string; children: React.ReactNode; onToggle?: () => void; isVisible?: boolean; }> = ({ title, children, onToggle, isVisible }) => (
     <div className="space-y-4">
-        <h3 className="text-lg font-bold border-b pb-2 mb-4">{title}</h3>
-        {children}
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h3 className="text-lg font-bold">{title}</h3>
+            {onToggle && typeof isVisible !== 'undefined' && (
+                 <ToggleSwitch checked={isVisible} onChange={onToggle} />
+            )}
+        </div>
+        {(isVisible === true || typeof isVisible === 'undefined') && children}
     </div>
 );
+
 const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
     <input {...props} className="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm" />
 );
@@ -190,10 +223,20 @@ const CVGeneratorPage: React.FC = () => {
     const [color, setColor] = useState('#e53935'); // Default to brand-red
     const cvPreviewRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [visibleSections, setVisibleSections] = useState<VisibleSections>({
+        experience: true,
+        education: true,
+        skills: true,
+        projects: true,
+    });
 
     useEffect(() => {
       document.title = "Free CV Generator | Create a Professional Resume - I Love PDFLY";
     }, []);
+    
+    const handleSectionToggle = (section: keyof VisibleSections) => {
+        setVisibleSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles[0]) {
@@ -290,7 +333,7 @@ const CVGeneratorPage: React.FC = () => {
                             <Input placeholder="LinkedIn" value={data.contact.linkedin} onChange={e => setData(d => ({ ...d, contact: {...d.contact, linkedin: e.target.value} }))} />
                         </FormSection>}
 
-                        {activeSection === 'experience' && <FormSection title="Work Experience">
+                        {activeSection === 'experience' && <FormSection title="Work Experience" onToggle={() => handleSectionToggle('experience')} isVisible={visibleSections.experience}>
                             {data.experiences.map(exp => <div key={exp.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button onClick={() => removeFromArray('experiences', exp.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
                                 <Input placeholder="Job Title" value={exp.jobTitle} onChange={e => handleArrayChange('experiences', exp.id, 'jobTitle', e.target.value)} />
@@ -299,13 +342,12 @@ const CVGeneratorPage: React.FC = () => {
                                     <Input type="month" placeholder="Start Date" value={exp.startDate} onChange={e => handleArrayChange('experiences', exp.id, 'startDate', e.target.value)} />
                                     <Input type="text" placeholder="End Date" value={exp.endDate} onChange={e => handleArrayChange('experiences', exp.id, 'endDate', e.target.value)} />
                                 </div>
-                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
                                 <RichTextEditor placeholder="Description" value={exp.description} onChange={val => handleArrayChange('experiences', exp.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('experiences', { jobTitle: '', company: '', startDate: '', endDate: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Experience</button>
                         </FormSection>}
 
-                        {activeSection === 'education' && <FormSection title="Education">
+                        {activeSection === 'education' && <FormSection title="Education" onToggle={() => handleSectionToggle('education')} isVisible={visibleSections.education}>
                              {data.educations.map(edu => <div key={edu.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button onClick={() => removeFromArray('educations', edu.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
                                 <Input placeholder="Degree" value={edu.degree} onChange={e => handleArrayChange('educations', edu.id, 'degree', e.target.value)} />
@@ -314,13 +356,12 @@ const CVGeneratorPage: React.FC = () => {
                                     <Input type="month" placeholder="Start Date" value={edu.startDate} onChange={e => handleArrayChange('educations', edu.id, 'startDate', e.target.value)} />
                                     <Input type="month" placeholder="End Date" value={edu.endDate} onChange={e => handleArrayChange('educations', edu.id, 'endDate', e.target.value)} />
                                 </div>
-                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
                                 <RichTextEditor placeholder="Description" value={edu.description} onChange={val => handleArrayChange('educations', edu.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('educations', { degree: '', school: '', startDate: '', endDate: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Education</button>
                         </FormSection>}
                         
-                        {activeSection === 'skills' && <FormSection title="Skills">
+                        {activeSection === 'skills' && <FormSection title="Skills" onToggle={() => handleSectionToggle('skills')} isVisible={visibleSections.skills}>
                              {data.skills.map(skill => <div key={skill.id} className="flex items-center gap-2">
                                 <Input placeholder="Skill (e.g., React)" value={skill.name} onChange={e => handleArrayChange('skills', skill.id, 'name', e.target.value)} />
                                 <button onClick={() => removeFromArray('skills', skill.id)} className="p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
@@ -328,11 +369,10 @@ const CVGeneratorPage: React.FC = () => {
                             <button onClick={() => addToArray('skills', { name: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Skill</button>
                         </FormSection>}
 
-                         {activeSection === 'projects' && <FormSection title="Projects">
+                         {activeSection === 'projects' && <FormSection title="Projects" onToggle={() => handleSectionToggle('projects')} isVisible={visibleSections.projects}>
                              {data.projects.map(proj => <div key={proj.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button onClick={() => removeFromArray('projects', proj.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
                                 <Input placeholder="Project Name" value={proj.name} onChange={e => handleArrayChange('projects', proj.id, 'name', e.target.value)} />
-                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
                                 <RichTextEditor placeholder="Project Description" value={proj.description} onChange={val => handleArrayChange('projects', proj.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('projects', { name: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Project</button>
@@ -350,7 +390,7 @@ const CVGeneratorPage: React.FC = () => {
                 {/* Preview Panel */}
                 <main className="w-full lg:w-2/3 xl:w-3/4 bg-gray-100 dark:bg-gray-900 p-4 sm:p-8 flex justify-center items-start overflow-auto" style={{ height: 'calc(100vh - 68px)' }}>
                     <div ref={cvPreviewRef} className="w-full max-w-3xl transform origin-top" style={{ transform: 'scale(0.9)' }}>
-                       <TemplateRenderer data={data} template={template} color={color} />
+                       <TemplateRenderer data={data} template={template} color={color} visibleSections={visibleSections} />
                     </div>
                 </main>
             </div>

@@ -1,7 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { UploadCloudIcon, CheckIcon, PaperAirplaneIcon } from './icons.tsx';
+import { CheckIcon, PaperAirplaneIcon } from './icons.tsx';
 
 interface ProblemReportModalProps {
   isOpen: boolean;
@@ -12,40 +11,14 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
   const { user, auth, submitProblemReport } = useAuth();
   
   const [description, setDescription] = useState('');
-  const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [problemType, setProblemType] = useState('Tool Not Working');
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode>('');
   const [success, setSuccess] = useState(false);
 
-  const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
-    setError('');
-    if (fileRejections.length > 0) {
-        setError('Screenshot must be a valid image file (PNG, JPG, etc.) under 2MB.');
-        return;
-    }
-    if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      setScreenshot(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 'image/*': ['.jpeg', '.png', '.gif'] },
-    maxSize: 2 * 1024 * 1024, // 2MB
-    multiple: false,
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description.trim()) {
-        setError('Please provide a description of the problem.');
-        return;
-    }
 
     setIsLoading(true);
     setError('');
@@ -55,16 +28,13 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
         await submitProblemReport({
             email: auth.currentUser?.email || 'Not logged in',
             url: window.location.href,
-            description: description,
-        }, screenshot || undefined);
+            description: description.trim(),
+            problemType: problemType,
+        });
         setSuccess(true);
         setTimeout(() => handleClose(), 3000);
     } catch (err: any) {
-        if (err.code && err.code.startsWith('storage/')) {
-            setError(<span>Your report description was submitted successfully, but the screenshot upload failed. Please check your internet connection and try again. Error: {err.message}</span>);
-        } else {
-            setError(err.message || 'Failed to submit report. Please try again.');
-        }
+        setError(err.message || 'Failed to submit report. Please try again.');
     } finally {
         setIsLoading(false);
     }
@@ -72,8 +42,7 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
   
   const handleClose = () => {
       setDescription('');
-      setScreenshot(null);
-      setPreview(null);
+      setProblemType('Tool Not Working');
       setError('');
       setSuccess(false);
       setIsLoading(false);
@@ -100,31 +69,22 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
                     <p className="text-gray-600 dark:text-gray-400">Thank you for your feedback! Our team will look into it.</p>
                 </div>
             ) : (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     <main className="p-6 space-y-4">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Found an issue? Please describe it below. The current page URL and your user info (if logged in) will be included automatically.</p>
                         <div>
-                            <label htmlFor="description" className="block text-sm font-bold mb-1 text-gray-700 dark:text-gray-300">Description*</label>
-                            <textarea id="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md" />
+                            <label htmlFor="problemType" className="block text-sm font-bold mb-1 text-gray-700 dark:text-gray-300">Problem Type</label>
+                            <select id="problemType" value={problemType} onChange={e => setProblemType(e.target.value)} className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
+                                <option>Tool Not Working</option>
+                                <option>Visual Bug</option>
+                                <option>Login Issue</option>
+                                <option>Payment Problem</option>
+                                <option>Other</option>
+                            </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold mb-1 text-gray-700 dark:text-gray-300">Screenshot (Optional)</label>
-                            {user ? (
-                                <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                                    <input {...getInputProps()} />
-                                    {preview ? 
-                                        <img src={preview} alt="Screenshot preview" className="max-h-24 mx-auto rounded"/> : 
-                                        <div className="text-gray-500 dark:text-gray-400">
-                                            <UploadCloudIcon className="h-8 w-8 mx-auto" />
-                                            <p>Drop an image or click to upload</p>
-                                        </div>
-                                    }
-                                </div>
-                            ) : (
-                                <div className="p-6 border-2 border-dashed rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Please log in to attach a screenshot.</p>
-                                </div>
-                            )}
+                            <label htmlFor="description" className="block text-sm font-bold mb-1 text-gray-700 dark:text-gray-300">Description*</label>
+                            <textarea id="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md" />
                         </div>
                         {error && <div className="text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</div>}
                     </main>
