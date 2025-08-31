@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
@@ -53,20 +54,16 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
       { path: '/press', name: 'Press' },
       { path: '/contact', name: 'Contact' },
       { path: '/ceo', name: 'Message from CEO' },
+  ];
+  
+  const legal = [
+      { path: '/legal', name: 'Legal Hub' },
       { path: '/privacy-policy', name: 'Privacy Policy' },
       { path: '/terms-of-service', name: 'Terms & Conditions' },
       { path: '/cookies-policy', name: 'Cookies Policy' },
       { path: '/user-data-deletion', name: 'Data Deletion' },
   ];
   
-  const resources = [
-      { path: '/developer', name: 'Developer API' },
-      { path: '/api-reference', name: 'API Reference' },
-      { path: '/api-pdf', name: 'PDF Tools API' },
-      { path: '/api-image', name: 'Image Tools API' },
-      { path: '/api-signature', name: 'Signature API' },
-  ];
-
   const socialAndAppLinks = (
       <>
         <div className="flex space-x-4 mt-5">
@@ -83,10 +80,10 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
   return (
     <footer className="bg-black text-white w-full">
       <div className="px-6 py-12">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
           
           {/* Logo & Socials */}
-          <div className="col-span-2">
+          <div className="col-span-2 lg:col-span-2">
             <a href="/" title="I Love PDFLY Home">
               <Logo className="h-10 w-auto mb-3" variant="dark" />
             </a>
@@ -105,12 +102,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
                 <li><button onClick={onOpenProblemReportModal} title="Report a Problem" className="hover:text-white text-left">Report a Problem</button></li>
             </ul>
           </div>
-          <div>
-            <h3 className="font-bold text-lg mb-4">Resources</h3>
+          <div><h3 className="font-bold text-lg mb-4">Legal</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-                {resources.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white flex items-center gap-2"><CodeIcon className="h-4 w-4"/> {l.name}</Link></li>)}
-                <li><button onClick={onOpenCalendarModal} title="Open Calendar" className="hover:text-white text-left">Calendar</button></li>
-                <li><button onClick={handleDownloadLogo} title="Download Our Logo" className="hover:text-white text-left">Our Logo</button></li>
+                {legal.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}
             </ul>
           </div>
         </div>

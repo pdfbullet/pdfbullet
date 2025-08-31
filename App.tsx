@@ -1,3 +1,5 @@
+
+
 import React, { lazy, Suspense, useState } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -15,6 +17,7 @@ import CalendarModal from './components/CalendarModal.tsx';
 import CookieConsentBanner from './components/CookieConsentBanner.tsx';
 import ChangePasswordModal from './components/ChangePasswordModal.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
+import ProblemReportModal from './components/ProblemReportModal.tsx';
 
 // Inlined component to fix import issue
 const DataDeletionPage: React.FC = () => {
@@ -110,6 +113,8 @@ const PressPage = lazy(() => import('./pages/PressPage.tsx'));
 const WorkflowsPage = lazy(() => import('./pages/WorkflowsPage.tsx'));
 const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
 const UserDashboardLayout = lazy(() => import('./components/UserDashboardLayout.tsx'));
+const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
+const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
@@ -135,6 +140,7 @@ function MainApp() {
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+  const [isProblemReportModalOpen, setProblemReportModalOpen] = useState(false);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -204,6 +210,8 @@ function MainApp() {
             <Route path="/ceo" element={<CeoPage />} />
             <Route path="/press" element={<PressPage />} />
             <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+            <Route path="/legal" element={<LegalPage />} />
+            <Route path="/security-policy" element={<SecurityPolicyPage />} />
             
             {/* API Routes */}
             <Route path="/api-reference" element={<ApiReferencePage />} />
@@ -243,12 +251,16 @@ function MainApp() {
           </Routes>
         </Suspense>
       </main>
-      <Footer onOpenCalendarModal={() => setCalendarModalOpen(true)} />
+      <Footer 
+        onOpenCalendarModal={() => setCalendarModalOpen(true)}
+        onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
+      />
       
       <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
       <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
       <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+      <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
       <ScrollToTopButton />
       <CookieConsentBanner />
       <PWAInstallPrompt />
