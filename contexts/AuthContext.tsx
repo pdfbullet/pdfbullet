@@ -31,6 +31,7 @@ export interface ProblemReport {
     status: 'New' | 'In Progress' | 'Resolved';
     userId?: string;
     userName?: string;
+    notes?: string;
 }
 
 
@@ -71,7 +72,7 @@ interface AuthContextType {
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
   updateBusinessDetails: (details: BusinessDetails) => Promise<void>;
-  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName'>, screenshot?: File) => Promise<void>;
+  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>, screenshot?: File) => Promise<void>;
   getProblemReports: () => Promise<ProblemReport[]>;
   updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
   auth: firebase.auth.Auth;
@@ -251,7 +252,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
   };
   
-  const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName'>, screenshot?: File) => {
+  const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>, screenshot?: File) => {
     const report: Omit<ProblemReport, 'id'> = {
         ...reportData,
         timestamp: firebase.firestore.FieldValue.serverTimestamp() as firebase.firestore.Timestamp,
@@ -260,14 +261,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userName: user?.username,
     };
 
-    if (screenshot) {
-        const storageRef = storage.ref(`problem_reports/${Date.now()}_${screenshot.name}`);
-        const snapshot = await storageRef.put(screenshot);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        report.screenshotUrl = downloadURL;
-    }
+    const reportRef = await db.collection('reports').add(report);
 
-    await db.collection('reports').add(report);
+    if (screenshot) {
+        const storageRef = storage.ref(`problem_reports/${reportRef.id}/${screenshot.name}`);
+        try {
+            // Use async/await directly on the upload task for robustness
+            const uploadTask = await storageRef.put(screenshot);
+            const downloadURL = await uploadTask.ref.getDownloadURL();
+            
+            // Update the report with the screenshot URL
+            await reportRef.update({ screenshotUrl: downloadURL });
+
+        } catch (uploadError) {
+            console.error("Screenshot upload failed, but report was submitted:", uploadError);
+            // Add a note to the Firestore document that the upload failed
+            await reportRef.update({ 
+              notes: `Screenshot upload failed: ${(uploadError as Error).message}` 
+            });
+            // Re-throw the error so the component UI can display a specific message
+            throw uploadError;
+        }
+    }
   };
 
   const getProblemReports = async (): Promise<ProblemReport[]> => {

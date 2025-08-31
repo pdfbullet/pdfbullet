@@ -9,7 +9,6 @@ interface ProblemReportModalProps {
 }
 
 const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose }) => {
-  // FIX: Destructure 'auth' from useAuth to correctly access the current user.
   const { user, auth, submitProblemReport } = useAuth();
   
   const [description, setDescription] = useState('');
@@ -17,7 +16,7 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
   const [preview, setPreview] = useState<string | null>(null);
   
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [success, setSuccess] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
@@ -54,7 +53,6 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
 
     try {
         await submitProblemReport({
-            // FIX: Use 'auth.currentUser' from the useAuth hook instead of 'user.auth'.
             email: auth.currentUser?.email || 'Not logged in',
             url: window.location.href,
             description: description,
@@ -62,7 +60,11 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
         setSuccess(true);
         setTimeout(() => handleClose(), 3000);
     } catch (err: any) {
-        setError(err.message || 'Failed to submit report. Please try again.');
+        if (err.code && err.code.startsWith('storage/')) {
+            setError(<span>Your report description was submitted successfully, but the screenshot upload failed. Please check your internet connection and try again. Error: {err.message}</span>);
+        } else {
+            setError(err.message || 'Failed to submit report. Please try again.');
+        }
     } finally {
         setIsLoading(false);
     }
@@ -107,18 +109,24 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
                         </div>
                         <div>
                             <label className="block text-sm font-bold mb-1 text-gray-700 dark:text-gray-300">Screenshot (Optional)</label>
-                            <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                                <input {...getInputProps()} />
-                                {preview ? 
-                                    <img src={preview} alt="Screenshot preview" className="max-h-24 mx-auto rounded"/> : 
-                                    <div className="text-gray-500 dark:text-gray-400">
-                                        <UploadCloudIcon className="h-8 w-8 mx-auto" />
-                                        <p>Drop an image or click to upload</p>
-                                    </div>
-                                }
-                            </div>
+                            {user ? (
+                                <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                                    <input {...getInputProps()} />
+                                    {preview ? 
+                                        <img src={preview} alt="Screenshot preview" className="max-h-24 mx-auto rounded"/> : 
+                                        <div className="text-gray-500 dark:text-gray-400">
+                                            <UploadCloudIcon className="h-8 w-8 mx-auto" />
+                                            <p>Drop an image or click to upload</p>
+                                        </div>
+                                    }
+                                </div>
+                            ) : (
+                                <div className="p-6 border-2 border-dashed rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Please log in to attach a screenshot.</p>
+                                </div>
+                            )}
                         </div>
-                        {error && <p className="text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
+                        {error && <div className="text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</div>}
                     </main>
                     <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
                         <button type="button" onClick={handleClose} className="px-6 py-2 text-sm font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">Cancel</button>
