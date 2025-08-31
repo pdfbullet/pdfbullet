@@ -1,15 +1,18 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import { TrashIcon, PlusIcon, DownloadIcon, UploadIcon, UserIcon, BriefcaseIcon, StudentIcon, PuzzleIcon, BrainIcon } from '../components/icons.tsx';
+import { jsPDF } from 'jspdf';
+import { useAuth } from '../contexts/AuthContext.tsx';
+import { DownloadIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, UserIcon, BriefcaseIcon, StudentIcon, PuzzleIcon, BrainIcon } from '../components/icons.tsx';
 import { TOOLS } from '../constants.ts';
+// FIX: Import RichTextEditor to be used for description fields.
+import RichTextEditor from '../components/RichTextEditor.tsx';
 
 // ===================================================================
 // TYPES & INITIAL DATA
 // ===================================================================
 
-// FIX: Corrected type definitions for CV data and removed unused invoice types.
 type Experience = { id: number; jobTitle: string; company: string; startDate: string; endDate: string; description: string; };
 type Education = { id: number; degree: string; school: string; startDate: string; endDate: string; description: string; };
 type Project = { id: number; name: string; description: string; };
@@ -35,10 +38,32 @@ const initialData: CVData = {
     professionalTitle: "Senior Frontend Engineer",
     summary: "A passionate and creative senior frontend engineer with over 10 years of experience in building modern, responsive, and user-friendly web applications. Proficient in React, TypeScript, and modern web technologies. Committed to writing clean, high-quality code and creating exceptional user experiences.",
     contact: { email: "bishal@example.com", phone: "+1 234 567 890", address: "Kathmandu, Nepal", website: "bishal.dev", linkedin: "linkedin.com/in/bishal" },
-    experiences: [{ id: 1, jobTitle: "Senior Frontend Engineer", company: "Tech Solutions Inc.", startDate: "2020-01", endDate: "Present", description: "- Led development of a large-scale React application.\n- Mentored junior developers and conducted code reviews." }],
+    experiences: [{ id: 1, jobTitle: "Senior Frontend Engineer", company: "Tech Solutions Inc.", startDate: "2020-01", endDate: "Present", description: "<ul><li>Led development of a large-scale React application.</li><li>Mentored junior developers and conducted code reviews.</li></ul>" }],
     educations: [{ id: 1, degree: "Bachelor of Science in Computer Science", school: "University of Technology", startDate: "2016-08", endDate: "2020-05", description: "Graduated with Honors, GPA: 3.8/4.0" }],
     projects: [{ id: 1, name: "I Love PDFLY", description: "A comprehensive suite of online PDF tools with a focus on privacy and client-side processing." }],
     skills: [{ id: 1, name: "React" }, { id: 2, name: "TypeScript" }, { id: 3, name: "UI/UX Design" }, { id: 4, name: "Node.js" }],
+};
+
+// ===================================================================
+// HELPER COMPONENTS & FUNCTIONS
+// ===================================================================
+
+const formatCurrency = (amount: number, currencySymbol: string) => {
+    return `${currencySymbol}${amount.toFixed(2)}`;
+};
+
+const EditableField: React.FC<{ value: string; onChange: (value: string) => void; placeholder?: string; isTextarea?: boolean; className?: string; type?: string }> = ({ value, onChange, placeholder, isTextarea, className, type = 'text' }) => {
+    const Component = isTextarea ? 'textarea' : 'input';
+    return (
+        <Component
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className={`bg-transparent w-full focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 rounded p-1 text-sm ${className}`}
+            rows={isTextarea ? 2 : undefined}
+            type={type}
+        />
+    );
 };
 
 // ===================================================================
@@ -101,9 +126,7 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
                                         <p className="text-xs font-mono">{exp.startDate} - {exp.endDate}</p>
                                     </div>
                                     <p className="text-sm font-semibold italic text-gray-600">{exp.company}</p>
-                                    <ul className="list-disc list-inside text-sm mt-1 space-y-1">
-                                        {exp.description.split('\n').map((line, i) => line && <li key={i}>{line}</li>)}
-                                    </ul>
+                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: exp.description }} />
                                 </div>
                             ))}
                         </div>
@@ -118,7 +141,7 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
                                         <p className="text-xs font-mono">{edu.startDate} - {edu.endDate}</p>
                                     </div>
                                     <p className="text-sm font-semibold italic text-gray-600">{edu.school}</p>
-                                    <p className="text-sm mt-1">{edu.description}</p>
+                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />
                                 </div>
                             ))}
                         </div>
@@ -129,7 +152,7 @@ const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: stri
                             {data.projects.map(proj => (
                                 <div key={proj.id}>
                                     <h4 className="font-bold text-base">{proj.name}</h4>
-                                    <p className="text-sm mt-1">{proj.description}</p>
+                                    <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: proj.description }} />
                                 </div>
                             ))}
                         </div>
@@ -276,7 +299,8 @@ const CVGeneratorPage: React.FC = () => {
                                     <Input type="month" placeholder="Start Date" value={exp.startDate} onChange={e => handleArrayChange('experiences', exp.id, 'startDate', e.target.value)} />
                                     <Input type="text" placeholder="End Date" value={exp.endDate} onChange={e => handleArrayChange('experiences', exp.id, 'endDate', e.target.value)} />
                                 </div>
-                                <Textarea placeholder="Description" value={exp.description} onChange={e => handleArrayChange('experiences', exp.id, 'description', e.target.value)} />
+                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
+                                <RichTextEditor placeholder="Description" value={exp.description} onChange={val => handleArrayChange('experiences', exp.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('experiences', { jobTitle: '', company: '', startDate: '', endDate: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Experience</button>
                         </FormSection>}
@@ -290,7 +314,8 @@ const CVGeneratorPage: React.FC = () => {
                                     <Input type="month" placeholder="Start Date" value={edu.startDate} onChange={e => handleArrayChange('educations', edu.id, 'startDate', e.target.value)} />
                                     <Input type="month" placeholder="End Date" value={edu.endDate} onChange={e => handleArrayChange('educations', edu.id, 'endDate', e.target.value)} />
                                 </div>
-                                <Textarea placeholder="Description" value={edu.description} onChange={e => handleArrayChange('educations', edu.id, 'description', e.target.value)} />
+                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
+                                <RichTextEditor placeholder="Description" value={edu.description} onChange={val => handleArrayChange('educations', edu.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('educations', { degree: '', school: '', startDate: '', endDate: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Education</button>
                         </FormSection>}
@@ -307,8 +332,8 @@ const CVGeneratorPage: React.FC = () => {
                              {data.projects.map(proj => <div key={proj.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button onClick={() => removeFromArray('projects', proj.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4"/></button>
                                 <Input placeholder="Project Name" value={proj.name} onChange={e => handleArrayChange('projects', proj.id, 'name', e.target.value)} />
-                                {/* FIX: Complete the unfinished Textarea component and related code */}
-                                <Textarea placeholder="Project Description" value={proj.description} onChange={e => handleArrayChange('projects', proj.id, 'description', e.target.value)} />
+                                {/* FIX: Use RichTextEditor for description fields requiring formatting. */}
+                                <RichTextEditor placeholder="Project Description" value={proj.description} onChange={val => handleArrayChange('projects', proj.id, 'description', val)} />
                             </div>)}
                             <button onClick={() => addToArray('projects', { name: '', description: '' })} className="flex items-center gap-2 text-sm font-semibold text-brand-red"><PlusIcon className="h-5 w-5"/> Add Project</button>
                         </FormSection>}

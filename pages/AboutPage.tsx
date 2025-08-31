@@ -2,6 +2,34 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BrainIcon, GlobeIcon, RefreshIcon, StarIcon, UserIcon, LockIcon } from '../components/icons.tsx';
 
+// Define new icons locally to avoid touching other files and ensure this page works correctly.
+const CloudflareIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" color="#F38020">
+    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+  </svg>
+);
+
+const TrashIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+  </svg>
+);
+
+const FonepayIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-label="Fonepay Logo">
+    <rect width="128" height="128" rx="20" fill="#6C3E91"/>
+    <path fill="#fff" d="M38.8 99.4V68.7H25V60.4h13.8V42.3h7.8v18.1H62v8.3H46.6v30.7zM71.2 83.2c-8.2 0-13.6-5.3-13.6-13.8 0-8.8 5.6-14 14.2-14 3.9 0 6.5.7 8.6 1.9l-2.1 6.8c-1.9-1-3.8-1.6-6.3-1.6-4.5 0-6.9 2.6-6.9 7.2 0 4.7 2.7 7.2 7.2 7.2 2.2 0 4.2-.6 6-1.7l2.2 6.6c-2.7 1.3-5.6 2-9.1 2zM89.7 99.4h-7.7V55.8h7.7zM100.6 99.4h-7.7V55.8h7.7zM104.4 51.1c-2.4 0-3.9-1.6-3.9-3.7s1.6-3.7 3.9-3.7c2.4 0 3.9 1.6 3.9 3.7s-1.5 3.7-3.9 3.7z"/>
+  </svg>
+);
+
+const KhaltiIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Khalti Logo">
+    <rect width="100" height="100" rx="15" fill="#5D2E8E"/>
+    <path d="M50 20v60m0-30l25-25m-25 25l25 25m-25-25H25" stroke="#fff" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+
 const AboutPage: React.FC = () => {
     useEffect(() => {
         document.title = "About I Love PDFLY | Our Mission and Story";
@@ -73,6 +101,35 @@ const AboutPage: React.FC = () => {
             </div>
           </section>
           
+          <section>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Trust & Security</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-6 rounded-lg shadow-md text-center border-glow-hover">
+                <LockIcon className="h-10 w-10 mx-auto mb-3 text-green-500" />
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">SSL Encrypted</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">All connections are secured with end-to-end SSL encryption to protect your data.</p>
+              </div>
+              <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-6 rounded-lg shadow-md text-center border-glow-hover">
+                <CloudflareIcon className="h-10 w-10 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">Secured by Cloudflare</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Our infrastructure is protected against DDoS attacks and other threats by Cloudflare.</p>
+              </div>
+              <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-6 rounded-lg shadow-md text-center border-glow-hover">
+                <TrashIcon className="h-10 w-10 mx-auto mb-3 text-red-500" />
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">Auto File Deletion</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">For your privacy, all processed files are automatically deleted from our servers after 2 hours.</p>
+              </div>
+              <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-6 rounded-lg shadow-md text-center border-glow-hover">
+                 <div className="flex justify-center items-center gap-4 h-10 mx-auto mb-3">
+                    <FonepayIcon className="h-8 w-auto" />
+                    <KhaltiIcon className="h-8 w-auto" />
+                 </div>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">Secure Payments</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">We use trusted gateways like FonePay & Khalti for secure and reliable transactions.</p>
+              </div>
+            </div>
+          </section>
+
           <section>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Our Vision for the Future</h2>
             <div className="grid md:grid-cols-3 gap-8 text-center">
