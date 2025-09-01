@@ -166,6 +166,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     { to: '/pricing', label: 'Pricing', icon: DollarIcon },
     { to: '/security-policy', label: 'Security', icon: LockIcon },
     { to: '/#all-tools', label: 'Features', icon: GridIcon },
+    { to: '/developer-access', label: 'Admin Access', icon: CodeIcon },
   ];
 
   const desktopGridMenuData = {
@@ -191,6 +192,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     bottomLinks: [
       { title: 'Help', to: '/contact', icon: LeftArrowIcon },
       { title: 'Language', href: '#', icon: LeftArrowIcon },
+      { title: 'Admin Access', to: '/developer-access', icon: CodeIcon },
     ]
   };
 
@@ -341,6 +343,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               <SearchIcon className="h-6 w-6" />
             </button>
             
+            <button onClick={toggleTheme} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Toggle theme" title="Toggle theme">
+                {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
+            </button>
+            
             {/* Profile/Auth Icons & Links */}
             {user ? (
                <div className="relative" ref={profileMenuRef}>
@@ -445,6 +451,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                         <div className="space-y-1">
                           {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
                         </div>
+                        <div className="mt-4">
+                            <button onClick={toggleTheme} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+                                {theme === 'light' ? <MoonIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" /> : <SunIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />}
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">Toggle Theme</p>
+                            </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -483,6 +495,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                                 <span className="font-semibold text-gray-800 dark:text-gray-200">{link.label}</span>
                             </Link>
                         ))}
+                        <button onClick={() => { toggleTheme(); closeAllMenus(); }} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                            {theme === 'light' ? <MoonIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/> : <SunIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>}
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">Toggle Theme</span>
+                        </button>
                     </div>
                     {!user && (
                         <>
