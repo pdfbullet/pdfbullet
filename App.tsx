@@ -1,9 +1,11 @@
 
 
-import React, { lazy, Suspense, useState } from 'react';
+
+import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
+import { EmailIcon, CheckIcon } from './components/icons.tsx';
 
 // Components that are part of the main layout
 import Header from './components/Header.tsx';
@@ -69,6 +71,87 @@ const DataDeletionPage: React.FC = () => {
                         <p>If you have any questions about this process, please do not hesitate to contact us.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> = ({ isOpen, onClose }) => {
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { auth } = useAuth();
+    const emailInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setEmail('');
+            setError('');
+            setSuccess('');
+            setIsLoading(false);
+            setTimeout(() => emailInputRef.current?.focus(), 100);
+        }
+    }, [isOpen]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setIsLoading(true);
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            setSuccess(`Password reset link sent to ${email}. Please check your inbox (and spam folder).`);
+        } catch (err: any) {
+            if (err.code === 'auth/user-not-found') {
+                setError('No account found with this email address.');
+            } else {
+                setError(err.message || 'Failed to send reset email. Please try again.');
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
+                <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Reset Password</h2>
+                    <button onClick={onClose} aria-label="Close modal" className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors">&times;</button>
+                </header>
+                {success ? (
+                  <div className="p-8 text-center">
+                     <CheckIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                     <p className="text-green-700 dark:text-green-300">{success}</p>
+                     <button onClick={onClose} className="mt-6 w-full bg-brand-red text-white font-bold py-2 px-4 rounded-md">Close</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <main className="p-6 space-y-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Enter your account's email address and we will send you a password reset link.</p>
+                      <div>
+                        <label htmlFor="reset-email" className="sr-only">Email address</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <EmailIcon className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input ref={emailInputRef} type="email" id="reset-email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" className="w-full pl-10 pr-3 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:ring-brand-red focus:border-brand-red" />
+                        </div>
+                      </div>
+                      {error && <p className="text-sm text-red-500">{error}</p>}
+                    </main>
+                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                      <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">Cancel</button>
+                      <button type="submit" disabled={isLoading} className="px-4 py-2 text-sm font-semibold text-white bg-brand-red rounded-md disabled:bg-red-300 hover:bg-brand-red-dark">
+                        {isLoading ? 'Sending...' : 'Send Reset Link'}
+                      </button>
+                    </footer>
+                  </form>
+                )}
             </div>
         </div>
     );
@@ -141,6 +224,7 @@ function MainApp() {
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const [isProblemReportModalOpen, setProblemReportModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setForgotPasswordModalOpen] = useState(false);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -187,7 +271,7 @@ function MainApp() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/developer" element={<DeveloperPage />} />
             <Route path="/faq" element={<FaqPage />} />
@@ -261,6 +345,7 @@ function MainApp() {
       <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
       <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
       <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
+      <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
       <ScrollToTopButton />
       <CookieConsentBanner />
       <PWAInstallPrompt />

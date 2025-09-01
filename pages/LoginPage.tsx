@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { GoogleIcon, EmailIcon, KeyIcon, FacebookIcon } from '../components/icons.tsx';
+import { GoogleIcon, EmailIcon, KeyIcon, FacebookIcon, GitHubIcon } from '../components/icons.tsx';
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onOpenForgotPasswordModal: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isEmailLoading, setIsEmailLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
-  const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithFacebook } = useAuth();
+  const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -63,9 +67,9 @@ const LoginPage: React.FC = () => {
       }
   };
 
-  const handleFacebookSignIn = async () => {
+  const handleGithubSignIn = async () => {
     setError('');
-    setIsFacebookLoading(true);
+    setIsGithubLoading(true);
     try {
       const redirectInfo = { from: location.state?.from, plan: location.state?.plan };
       sessionStorage.setItem('postLoginRedirect', JSON.stringify(redirectInfo));
@@ -76,17 +80,17 @@ const LoginPage: React.FC = () => {
           localStorage.removeItem('pendingInvoiceData');
       }
       
-      await loginOrSignupWithFacebook();
+      await loginOrSignupWithGithub();
     } catch (err: any) {
         if (err.code !== 'auth/popup-closed-by-user') {
-          setError(err.message || 'Failed to sign in with Facebook. Please try again.');
+          setError(err.message || 'Failed to sign in with GitHub. Please try again.');
         }
     } finally {
-      setIsFacebookLoading(false);
+      setIsGithubLoading(false);
     }
   };
 
-  const isLoading = isEmailLoading || isGoogleLoading || isFacebookLoading;
+  const isLoading = isEmailLoading || isGoogleLoading || isGithubLoading;
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-black">
@@ -119,24 +123,24 @@ const LoginPage: React.FC = () => {
                     ) : (
                         <>
                             <GoogleIcon className="h-5 w-5" />
-                            <span>Sign In with Google</span>
+                            <span>Continue with Google</span>
                         </>
                     )}
                 </button>
                 <button
-                    onClick={handleFacebookSignIn}
+                    onClick={handleGithubSignIn}
                     disabled={isLoading}
-                    className="w-full flex justify-center items-center gap-3 rounded-md border border-transparent bg-[#1877F2] py-3 px-4 text-sm font-semibold text-white hover:bg-[#166fe5] focus:outline-none focus:ring-2 focus:ring-[#1877F2] focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                    className="w-full flex justify-center items-center gap-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
                 >
-                    {isFacebookLoading ? (
+                    {isGithubLoading ? (
                         <>
                             <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             <span>Connecting...</span>
                         </>
                     ) : (
                         <>
-                            <FacebookIcon className="h-5 w-5" />
-                            <span>Sign In with Facebook</span>
+                            <GitHubIcon className="h-5 w-5" />
+                            <span>Continue with GitHub</span>
                         </>
                     )}
                 </button>
@@ -161,13 +165,26 @@ const LoginPage: React.FC = () => {
                   placeholder="you@example.com" />
               </div>
 
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <KeyIcon className="h-5 w-5 text-gray-400" />
+              <div>
+                <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <KeyIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-3 pl-10 pr-3 text-sm placeholder-gray-500 focus:z-10 focus:border-brand-red focus:outline-none focus:ring-brand-red"
+                        placeholder="Password" />
                 </div>
-                <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-3 pl-10 pr-3 text-sm placeholder-gray-500 focus:z-10 focus:border-brand-red focus:outline-none focus:ring-brand-red"
-                    placeholder="Password" />
+                <div className="flex items-center justify-end mt-2">
+                    <div className="text-sm">
+                        <button
+                          type="button"
+                          onClick={onOpenForgotPasswordModal}
+                          className="font-medium text-brand-red hover:text-brand-red-dark focus:outline-none"
+                        >
+                          Forgot your password?
+                        </button>
+                    </div>
+                </div>
               </div>
 
               <div>

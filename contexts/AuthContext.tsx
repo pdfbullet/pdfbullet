@@ -1,14 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth, db, storage, firebase } from '../firebase/config.ts';
 
-// Add this at the top of the file
-declare global {
-  interface Window {
-    FB: any;
-    fbAsyncInit: () => void;
-  }
-}
-
 // Add and export this interface
 export interface BusinessDetails {
   companyName: string;
@@ -64,7 +56,7 @@ interface AuthContextType {
   deleteUser: (uid: string) => Promise<void>;
   deleteCurrentUser: () => Promise<void>;
   loginOrSignupWithGoogle: () => Promise<void>;
-  loginOrSignupWithFacebook: () => Promise<void>;
+  loginOrSignupWithGithub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   generateApiKey: () => Promise<string>;
@@ -129,12 +121,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await auth.signInWithPopup(provider);
   };
   
-  const loginOrSignupWithFacebook = async () => {
-    const provider = new firebase.auth.FacebookAuthProvider();
-    provider.addScope('email');
-    provider.addScope('public_profile');
+  const loginOrSignupWithGithub = async () => {
+    const provider = new firebase.auth.GithubAuthProvider();
     await auth.signInWithPopup(provider);
-    // onAuthStateChanged will handle the user state update.
   };
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -282,7 +271,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
