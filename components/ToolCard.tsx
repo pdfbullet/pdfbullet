@@ -12,7 +12,7 @@ interface ToolCardProps {
 }
 
 const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite }) => {
-  const { id, title, description, Icon, color, isNew, isPremium } = tool;
+  const { id, title, description, Icon, isNew, isPremium, textColor } = tool;
   const { t } = useI18n();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -21,8 +21,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
     onToggleFavorite(id);
   };
   
-  const iconColorClass = `text-white`;
-
   return (
     <Link 
       to={`/${id}`} 
@@ -43,8 +41,8 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
         </button>
 
         {/* Icon */}
-        <div className={`p-2.5 rounded-lg ${color} flex-shrink-0`}>
-            <Icon className={`h-6 w-6 ${iconColorClass}`} />
+        <div className="flex-shrink-0">
+            <Icon className={`h-12 w-12 ${textColor}`} />
         </div>
 
       {/* Text Content */}

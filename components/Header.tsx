@@ -9,7 +9,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
-  GlobeIcon
+  GlobeIcon, QuestionMarkIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -38,11 +38,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const [isAllToolsMenuOpen, setAllToolsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
-  const [isLanguageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [gridMenuView, setGridMenuView] = useState<'main' | 'help' | 'language'>('main');
 
   const gridMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const languageMenuRef = useRef<HTMLDivElement>(null);
   const convertMenuTimeoutRef = useRef<number | null>(null);
   const allToolsMenuTimeoutRef = useRef<number | null>(null);
 
@@ -77,7 +76,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     const handleClickOutside = (event: MouseEvent) => {
       if (gridMenuRef.current && !gridMenuRef.current.contains(event.target as Node)) setGridMenuOpen(false);
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) setProfileMenuOpen(false);
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) setLanguageMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -98,15 +96,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     setMobileMenuOpen(false);
     setConvertMenuOpen(false);
     setAllToolsMenuOpen(false);
-    setLanguageMenuOpen(false);
+    setGridMenuView('main');
     setOpenAccordion(null);
   }
-
-  const openLanguageMenu = () => {
-    setGridMenuOpen(false);
-    setLanguageMenuOpen(true);
-    setOpenAccordion(null); // Also reset accordion in mobile grid menu
-  };
 
   const handleMenuEnter = (setter: React.Dispatch<React.SetStateAction<boolean>>, timeoutRef: React.MutableRefObject<number | null>) => {
     if (timeoutRef.current) {
@@ -182,10 +174,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { title: 'About us', to: '/about', icon: HeartbeatIcon },
     ],
     bottomLinks: [
-      { title: 'Help', to: '/contact', icon: LeftArrowIcon },
+      { title: 'Help', onClick: () => setGridMenuView('help'), icon: LeftArrowIcon },
       { title: 'Admin Access', to: '/developer-access', icon: CodeIcon },
     ]
   };
+
+  const helpSubMenuData = [
+    { title: 'FAQ', to: '/faq', icon: QuestionMarkIcon },
+    { title: 'Tools', to: '/how-to-use', icon: BookOpenIcon },
+    { title: 'Legal & Privacy', to: '/legal', icon: GavelIcon },
+    { title: 'Contact', to: '/contact', icon: EmailIcon }
+  ];
 
   const imageToolIds = new Set(['resize-image', 'remove-background', 'crop-image', 'convert-to-jpg', 'convert-from-jpg', 'compress-image', 'watermark-image']);
 
@@ -229,13 +228,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     return <a href={item.href} onClick={closeAllMenus} target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{content}</a>;
   };
 
-  const DesktopGridLinkItem: React.FC<{ item: any }> = ({ item }) => {
+  const DesktopGridLinkItem: React.FC<{ item: any; isSubItem?: boolean }> = ({ item, isSubItem }) => {
     const content = (
       <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
-        <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        <item.icon className={`h-5 w-5 ${isSubItem ? '' : 'text-gray-500 dark:text-gray-400'}`} />
         <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{item.title}</p>
       </div>
     );
+
+    if (item.onClick) {
+      return <button onClick={item.onClick} className="w-full text-left">{content}</button>;
+    }
     if (item.to) {
       return <Link to={item.to} onClick={closeAllMenus}>{content}</Link>;
     }
@@ -418,55 +421,102 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                {isGridMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 z-20">
                   <div className="w-[calc(100vw-2rem)] max-w-sm md:max-w-2xl lg:max-w-[52rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl animate-fade-in-down overflow-y-auto max-h-[calc(100vh-100px)]">
-                    <div className="grid grid-cols-1 md:grid-cols-3">
-                      {/* Column 1 */}
-                      <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
-                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Other Products</h3>
-                        <div className="space-y-1">
-                          {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
-                          <div className="pt-2"><DesktopGridMenuItem item={desktopGridMenuData.integrations} /></div>
+                    {gridMenuView === 'main' && (
+                       <div className="grid grid-cols-1 md:grid-cols-3">
+                        {/* Column 1 */}
+                        <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
+                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Other Products</h3>
+                          <div className="space-y-1">
+                            {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                            <div className="pt-2"><DesktopGridMenuItem item={desktopGridMenuData.integrations} /></div>
+                          </div>
+                        </div>
+                        {/* Column 2 */}
+                        <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
+                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Solutions</h3>
+                          <div className="space-y-1">
+                            {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                          </div>
+                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-6 mb-2">Applications</h3>
+                          <div className="space-y-1">
+                            {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                          </div>
+                        </div>
+                        {/* Column 3 */}
+                        <div className="p-4">
+                          <div className="space-y-1">
+                            {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                          </div>
+                          <hr className="my-4 border-gray-200 dark:border-gray-700" />
+                          <div className="space-y-1">
+                             {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                          </div>
+                          <div className="mt-4">
+                              <button onClick={() => setGridMenuView('language')} className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
+                                  <LeftArrowIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                  <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Select Language</p>
+                              </button>
+                          </div>
+                          {/* Login/Signup for mobile */}
+                          <div className="md:hidden">
+                              {!user && (
+                                  <>
+                                      <hr className="my-4 border-gray-200 dark:border-gray-700" />
+                                      <div className="space-y-2">
+                                          <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
+                                          <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
+                                      </div>
+                                  </>
+                              )}
+                          </div>
                         </div>
                       </div>
-                      {/* Column 2 */}
-                      <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
-                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Solutions</h3>
+                    )}
+                    {gridMenuView === 'help' && (
+                       <div className="p-4">
+                        <button onClick={() => setGridMenuView('main')} className="w-full flex items-center gap-3 p-2 mb-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                          <LeftArrowIcon className="h-5 w-5" />
+                          Help
+                        </button>
                         <div className="space-y-1">
-                          {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
-                        </div>
-                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-6 mb-2">Applications</h3>
-                        <div className="space-y-1">
-                          {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                          {helpSubMenuData.map(item => <DesktopGridLinkItem key={item.title} item={item} isSubItem={true} />)}
                         </div>
                       </div>
-                      {/* Column 3 */}
-                      <div className="p-4">
-                        <div className="space-y-1">
-                          {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                    )}
+                    {gridMenuView === 'language' && (
+                        <div className="p-4">
+                          <button onClick={() => setGridMenuView('main')} className="w-full flex items-center gap-3 p-2 mb-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                              <LeftArrowIcon className="h-5 w-5" />
+                              Language
+                          </button>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+                                <div>
+                                    {langCol1.map(lang => (
+                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                                    </button>
+                                    ))}
+                                </div>
+                                <div>
+                                    {langCol2.map(lang => (
+                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                                    </button>
+                                    ))}
+                                </div>
+                                <div>
+                                    {langCol3.map(lang => (
+                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                                    </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                        <hr className="my-4 border-gray-200 dark:border-gray-700" />
-                        <div className="space-y-1">
-                          {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
-                        </div>
-                        <div className="mt-4">
-                            <button onClick={openLanguageMenu} className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
-                                <GlobeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Select Language</p>
-                            </button>
-                        </div>
-                        {/* Login/Signup for mobile */}
-                        <div className="md:hidden">
-                            {!user && (
-                                <>
-                                    <hr className="my-4 border-gray-200 dark:border-gray-700" />
-                                    <div className="space-y-2">
-                                        <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
-                                        <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -474,36 +524,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
           </div>
         </div>
       </div>
-      {isLanguageMenuOpen && (
-        <div ref={languageMenuRef} className="absolute top-16 right-4 sm:right-6 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-[70] animate-fade-in-down">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-1">
-                <div>
-                    {langCol1.map(lang => (
-                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                    </button>
-                    ))}
-                </div>
-                <div>
-                    {langCol2.map(lang => (
-                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                    </button>
-                    ))}
-                </div>
-                <div>
-                    {langCol3.map(lang => (
-                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                    </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-      )}
     </header>
     {/* Mobile Menu */}
     <div className={`fixed inset-0 z-[60] bg-white dark:bg-black transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
