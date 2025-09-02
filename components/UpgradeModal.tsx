@@ -1,115 +1,135 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CloseIcon, CheckIcon, StarIcon, LockIcon } from './icons.tsx';
+import html2canvas from 'html2canvas';
+import { useAuth } from '../contexts/AuthContext.tsx';
 
-interface UpgradeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface SignatureModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (signatureDataUrl: string, initialsDataUrl: string) => void;
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) => {
-    const [plan, setPlan] = useState<'yearly' | 'monthly'>('yearly');
-    const navigate = useNavigate();
+const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave }) => {
+    const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState<'signature' | 'initials' | 'stamp'>('signature');
+    const [fullName, setFullName] = useState(user?.username || 'ilovepdfly');
+    const [initials, setInitials] = useState('');
+
+    const fonts = ['Pacifico', 'Dancing Script', 'Caveat', 'Great Vibes', 'Homemade Apple', 'Kalam'];
+    const [selectedFont, setSelectedFont] = useState(fonts[0]);
+    const [selectedColor, setSelectedColor] = useState('#000000');
+    const colors = ['#000000', '#0D6EFD', '#DC3545', '#198754'];
 
     useEffect(() => {
-        if (!isOpen) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, onClose]);
+        if (isOpen && user?.username && !fullName) {
+            setFullName(user.username);
+        }
+    }, [isOpen, user, fullName]);
     
-    const handleGoToPayment = () => {
-        const selectedPlan = plan === 'yearly' ? 'premium' : 'pro';
-        navigate('/payment', { state: { plan: selectedPlan } });
-        onClose();
+    useEffect(() => {
+        const words = fullName.trim().split(/\s+/);
+        const first = words[0] ? words[0][0] : '';
+        const last = words.length > 1 ? words[words.length - 1][0] : '';
+        setInitials((first + last).toUpperCase());
+    }, [fullName]);
+    
+    const generateImageFromText = async (text: string, font: string, color: string): Promise<string> => {
+        if (!text) return '';
+        const renderDiv = document.createElement('div');
+        renderDiv.innerText = text;
+        renderDiv.style.fontFamily = `'${font}', cursive`;
+        renderDiv.style.color = color;
+        renderDiv.style.fontSize = '96px';
+        renderDiv.style.padding = '30px';
+        renderDiv.style.display = 'inline-block';
+        document.body.appendChild(renderDiv);
+        
+        try {
+            const canvas = await html2canvas(renderDiv, { backgroundColor: null, scale: 2 });
+            return canvas.toDataURL('image/png');
+        } finally {
+            document.body.removeChild(renderDiv);
+        }
     };
 
+    const handleApply = async () => {
+        const signatureDataUrl = await generateImageFromText(fullName, selectedFont, selectedColor);
+        const initialsDataUrl = await generateImageFromText(initials, selectedFont, selectedColor);
+        onSave(signatureDataUrl, initialsDataUrl);
+    };
+    
     if (!isOpen) return null;
 
     return (
-        <div
-            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-            onClick={onClose}
-        >
-            <div
-                className="bg-white dark:bg-black w-full max-w-4xl rounded-lg shadow-xl"
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="relative p-6 md:p-8">
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <CloseIcon className="h-6 w-6" />
-                    </button>
-                    
-                    <div className="bg-yellow-400/20 dark:bg-yellow-600/20 p-3 rounded-t-lg -mx-6 md:-mx-8 -mt-6 md:-mt-8 mb-6 flex items-center justify-center gap-3">
-                        <StarIcon className="h-6 w-6 text-yellow-500" />
-                        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Upgrade to Premium</h2>
-                    </div>
-
-                    <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-8">
-                        Only Premium users can add members to their team. Get full access to all team features.
-                    </p>
-
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {/* Left Column: Plan Selection */}
-                        <div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <button 
-                                    onClick={() => setPlan('monthly')}
-                                    className={`p-4 border-2 rounded-lg text-left transition-colors ${plan === 'monthly' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
-                                >
-                                    <p className="font-semibold">Monthly</p>
-                                    <p className="text-2xl font-bold">$7</p>
-                                    <p className="text-xs text-gray-500">per month</p>
-                                </button>
-                                <button 
-                                    onClick={() => setPlan('yearly')}
-                                    className={`relative p-4 border-2 rounded-lg text-left transition-colors ${plan === 'yearly' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
-                                >
-                                    <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">-32%</span>
-                                    <p className="font-semibold">Yearly</p>
-                                    <p className="text-2xl font-bold">$48</p>
-                                    <p className="text-xs text-gray-500">$4 / month</p>
-                                </button>
-                            </div>
-                             <div className="mt-8">
-                                <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1">
-                                    <LockIcon className="h-3 w-3"/> Secure, Private, In your control
-                                </p>
-                                <div className="flex justify-center items-center gap-8 mt-4 opacity-50">
-                                    <p className="font-bold text-xs">ISO CERTIFIED</p>
-                                    <p className="font-bold text-xs">GDPR COMPLIANT</p>
-                                    <p className="font-bold text-xs">SECURE</p>
-                                </div>
-                             </div>
-                        </div>
-
-                        {/* Right Column: Fonepay QR */}
-                        <div className="space-y-4">
-                            <h3 className="text-center font-semibold text-gray-700 dark:text-gray-300">Pay with Fonepay QR</h3>
-                            <div className="text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg max-w-xs mx-auto">
-                                <img src="https://ik.imagekit.io/fonepay/fonepay%20qr.png?updatedAt=1752920160699" alt="Fonepay QR Code" className="w-48 h-48 mx-auto" width="192" height="192" />
-                                <p className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-200">Fonepay</p>
-                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Scan with your mobile banking app or wallet.</p>
-                            </div>
-                            <p className="text-center text-xs text-gray-500 dark:text-gray-400">After payment, take a screenshot of the confirmation to complete your upgrade.</p>
-                            <button 
-                                onClick={handleGoToPayment}
-                                className="w-full bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 rounded-lg transition-colors"
-                            >
-                                I Have Paid, Confirm Upgrade
-                            </button>
-                        </div>
-                    </div>
-                     <div className="flex justify-center gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500">
-                        <span className="flex items-center gap-1"><CheckIcon className="h-4 w-4 text-green-500" /> Cancel anytime</span>
-                        <span className="flex items-center gap-1"><CheckIcon className="h-4 w-4 text-green-500" /> Money back guarantee</span>
-                    </div>
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="signature-details-title">
+            <div className="bg-white dark:bg-black w-full max-w-3xl rounded-lg shadow-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 id="signature-details-title" className="text-xl font-bold text-center text-gray-800 dark:text-gray-100">Set your signature details</h2>
                 </div>
+                <div className="p-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
+                         <div>
+                            <label htmlFor="full-name" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Full name:</label>
+                             <input
+                                type="text"
+                                id="full-name"
+                                value={fullName}
+                                onChange={e => setFullName(e.target.value)}
+                                className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="initials" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Initials:</label>
+                            <input
+                                type="text"
+                                id="initials"
+                                value={initials}
+                                readOnly
+                                className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-6 border-b border-gray-200 dark:border-gray-700">
+                         <nav className="-mb-px flex space-x-6">
+                            <button onClick={() => setActiveTab('signature')} className={`py-3 px-1 border-b-2 font-semibold text-sm ${activeTab === 'signature' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-brand-red'}`}>Signature</button>
+                            <button onClick={() => setActiveTab('initials')} className={`py-3 px-1 border-b-2 font-semibold text-sm ${activeTab === 'initials' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-brand-red'}`}>Initials</button>
+                            <button onClick={() => setActiveTab('stamp')} className={`py-3 px-1 border-b-2 font-semibold text-sm ${activeTab === 'stamp' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-brand-red'}`}>Company Stamp</button>
+                        </nav>
+                    </div>
+
+                    <div className="mt-4">
+                        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                            {activeTab !== 'stamp' ? fonts.map(font => (
+                                <div key={font} className={`p-4 rounded-md border-2 ${selectedFont === font ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700'}`}>
+                                    <label className="flex items-center cursor-pointer">
+                                        <input type="radio" name="signature-font" value={font} checked={selectedFont === font} onChange={() => setSelectedFont(font)} className="h-5 w-5 text-brand-red focus:ring-brand-red" />
+                                        <div style={{ fontFamily: font, color: selectedColor }} className="ml-4 text-3xl text-gray-800 dark:text-gray-100">
+                                            {activeTab === 'signature' ? (fullName || "Signature") : (initials || "IN")}
+                                        </div>
+                                    </label>
+                                </div>
+                            )) : (
+                                <div className="text-center p-8 text-gray-500">Company stamp feature coming soon.</div>
+                            )}
+                        </div>
+                         <div className="mt-4 flex items-center gap-4">
+                            <span className="text-sm font-bold mr-3">Color:</span>
+                            {colors.map(color => (
+                                <button key={color} onClick={() => setSelectedColor(color)} className={`w-6 h-6 rounded-full border-2 transition-transform ${selectedColor === color ? 'border-brand-red scale-125' : 'border-transparent'}`} style={{backgroundColor: color}}></button>
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
+                <footer className="flex justify-end items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                    <button onClick={onClose} className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:underline">Cancel</button>
+                    <button onClick={handleApply} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors">
+                        Apply
+                    </button>
+                </footer>
             </div>
         </div>
     );
 };
 
-export default UpgradeModal;
+export default SignatureModal;

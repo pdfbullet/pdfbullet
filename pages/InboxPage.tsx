@@ -38,8 +38,9 @@ const InboxPage: React.FC = () => {
     const { saveSignature } = useSignature();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleSaveSignature = (dataUrl: string) => {
-        saveSignature(dataUrl);
+    // FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
+    const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
+        saveSignature(signatureDataUrl, initialsDataUrl);
         setIsModalOpen(false);
         navigate('/sign-pdf');
     };

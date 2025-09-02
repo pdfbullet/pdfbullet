@@ -197,8 +197,9 @@ const ContactsPage: React.FC = () => {
         }
     }, [contacts]);
 
-    const handleSaveSignature = (dataUrl: string) => {
-        saveSignature(dataUrl);
+    // FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
+    const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
+        saveSignature(signatureDataUrl, initialsDataUrl);
         setIsSignatureModalOpen(false);
         navigate('/sign-pdf');
     };

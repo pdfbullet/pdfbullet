@@ -37,8 +37,8 @@ const SignaturesOverviewPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleSaveSignature = (dataUrl: string) => {
-        saveSignature(dataUrl);
+    const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
+        saveSignature(signatureDataUrl, initialsDataUrl);
         setIsModalOpen(false);
         navigate('/sign-pdf');
     };
@@ -74,9 +74,9 @@ const SignaturesOverviewPage: React.FC = () => {
                     <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                         <h2 className="text-xl font-bold mb-4">Your signature</h2>
                         <div className="relative flex items-center justify-center h-40 bg-gray-50 dark:bg-gray-900/50 rounded-md border border-gray-200 dark:border-gray-700">
-                            {signature ? (
+                            {signature && signature.signature ? (
                                 <>
-                                    <img src={signature} alt="Your saved signature" className="max-h-24" />
+                                    <img src={signature.signature} alt="Your saved signature" className="max-h-24" />
                                     <div className="absolute top-2 right-2">
                                         <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} className="p-2 text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                                             <SettingsIcon className="h-5 w-5" />

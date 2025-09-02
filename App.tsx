@@ -1,4 +1,5 @@
 
+
 import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -159,7 +160,8 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
-const ToolPage = lazy(() => import('./pages/ToolPage.tsx'));
+// FIX: Fix lazy import for ToolPage. The dynamic import resolves to the component directly, not a module with a 'default' property. This wraps the resolved component in the structure React.lazy expects.
+const ToolPage = lazy(() => import('./pages/ToolPage.tsx').then(module => ({ default: (module as any).default || module })));
 const AboutPage = lazy(() => import('./pages/AboutPage.tsx'));
 const BlogPage = lazy(() => import('./pages/BlogPage.tsx'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage.tsx'));

@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -14,6 +13,9 @@ import {
     MacOSIcon, WindowsIcon, GlobeIcon 
 } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
+import WhoWillSignModal from '../components/WhoWillSignModal.tsx';
+import SignatureModal from '../components/SignatureModal.tsx';
+import { useSignature } from '../hooks/useSignature.ts';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -30,17 +32,6 @@ import * as XLSX from 'xlsx';
 import { readPsd } from 'ag-psd';
 import { removeBackground } from '@imgly/background-removal';
 import * as QRCode from 'https://esm.sh/qrcode@1.5.3';
-
-// Setup for pdfjs worker. This is a one-time setup.
-const setupPdfjs = async () => {
-    // Ensure this runs only once
-    if ((window as any).pdfjsWorkerInitialized) return;
-    
-    // Using the version from the loaded module is more robust
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.mjs`;
-    (window as any).pdfjsWorkerInitialized = true;
-};
-setupPdfjs();
 
 // These declarations are needed to access the cloud picker SDKs loaded in index.html
 declare const gapi: any;
@@ -640,6 +631,7 @@ const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { signature, saveSignature } = useSignature();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -666,7 +658,7 @@ const ToolPage: React.FC = () => {
   // States for Visual Editors (Sign, Edit, Redact)
   const [pdfPagePreviews, setPdfPagePreviews] = useState<string[]>([]);
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'signature' | 'text' | 'image'>('signature');
   const [activeDrag, setActiveDrag] = useState<{ id: number; offsetX: number; offsetY: number; } | null>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -686,6 +678,10 @@ const ToolPage: React.FC = () => {
   // State for Compress PDF results
   const [compressionResult, setCompressionResult] = useState<{ originalSize: number, newSize: number } | null>(null);
 
+  // States for Sign PDF flow
+  const [isWhoWillSignModalOpen, setWhoWillSignModalOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  
   const blobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -788,7 +784,7 @@ const ToolPage: React.FC = () => {
     setPdfPages([]);
     setPdfPagePreviews([]);
     setCanvasItems([]);
-    setIsModalOpen(false);
+    setIsEditorModalOpen(false);
     setActiveDrag(null);
     setRedactionAreas([]);
     setIsDrawingRedaction(false);
@@ -797,6 +793,8 @@ const ToolPage: React.FC = () => {
     setComparisonResults([]);
     setOriginalImageSize(null);
     setCompressionResult(null);
+    setWhoWillSignModalOpen(false);
+    setIsSignatureModalOpen(false);
   }, []);
 
   // Capture original meta info on component mount for SEO and handle updates
@@ -989,8 +987,9 @@ const ToolPage: React.FC = () => {
                   canvas.width = viewport.width;
                   canvas.height = viewport.height;
                   const context = canvas.getContext('2d')!;
-                  // FIX: The type definition for page.render seems incorrect, passing the canvas object to satisfy the compiler.
-                  await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                  
+                  // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                  await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                   const dataUrl = canvas.toDataURL(tool.id === 'organize-pdf' ? 'image/png' : 'image/jpeg', 0.8)
                   
                   if(tool.id === 'organize-pdf') pages.push({ originalIndex: i - 1, imageDataUrl: dataUrl });
@@ -1028,16 +1027,69 @@ const ToolPage: React.FC = () => {
     }, [files, tool?.id]);
 
   useEffect(() => {
-    const isVisualTool = ['organize-pdf', 'sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool?.id || '');
+    const isVisualTool = ['organize-pdf', 'edit-pdf', 'redact-pdf'].includes(tool?.id || '');
     if (isVisualTool && files.length === 1) {
         extractPages();
-    } else {
-        if (tool?.id !== 'compare-pdf') {
-            setPdfPages([]);
-            setPdfPagePreviews([]);
-        }
+    } else if (tool?.id !== 'compare-pdf' && tool?.id !== 'sign-pdf') {
+        setPdfPages([]);
+        setPdfPagePreviews([]);
     }
   }, [files, tool?.id]);
+
+  // Sign PDF specific effects and handlers
+  useEffect(() => {
+    if (tool?.id === 'sign-pdf' && files.length > 0 && pdfPagePreviews.length === 0) {
+      setWhoWillSignModalOpen(true);
+    }
+  }, [files, tool, pdfPagePreviews]);
+
+  const handleOnlyMeSign = () => {
+      setWhoWillSignModalOpen(false);
+      if (signature?.signature) {
+          extractPages();
+      } else {
+          setIsSignatureModalOpen(true);
+      }
+  };
+
+  const handleSignatureSave = (signatureDataUrl: string, initialsDataUrl: string) => {
+      saveSignature(signatureDataUrl, initialsDataUrl);
+      setIsSignatureModalOpen(false);
+      extractPages(); 
+  };
+  
+  const addSignatureToCanvas = (type: 'signature' | 'initials') => {
+      if (!signature || (type === 'signature' && !signature.signature) || (type === 'initials' && !signature.initials)) {
+          setIsSignatureModalOpen(true);
+          return;
+      }
+
+      if (previewContainerRef.current) {
+          const firstPage = previewContainerRef.current.querySelector('#pdf-page-0');
+          if (firstPage) {
+              const dataUrl = type === 'signature' ? signature.signature : signature.initials;
+              const isSignature = type === 'signature';
+              const itemWidth = isSignature ? 150 : 60;
+              const itemHeight = isSignature ? 75 : 60;
+
+              const x = (firstPage as HTMLElement).offsetLeft + (firstPage.clientWidth / 2) - (itemWidth / 2);
+              const y = (firstPage as HTMLElement).offsetTop + (firstPage.clientHeight / 2) - (itemHeight / 2);
+              
+              const newItem: CanvasItem = {
+                  id: Date.now(),
+                  type: type,
+                  dataUrl: dataUrl!,
+                  width: itemWidth,
+                  height: itemHeight,
+                  x: x,
+                  y: y,
+                  pageIndex: 0,
+              };
+              
+              setCanvasItems(prev => [...prev, newItem]);
+          }
+      }
+  };
 
   const handleProcess = async () => {
       if (!tool) return;
@@ -1113,8 +1165,9 @@ const ToolPage: React.FC = () => {
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
                     const context = canvas.getContext('2d')!;
-                    // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                    await page.render({ canvas, canvasContext: context, viewport }).promise;
+                    
+                    // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                    await page.render({ canvasContext: context, viewport: viewport } as any).promise;
         
                     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
                     const jpegImageBytes = await fetch(jpegDataUrl).then(res => res.arrayBuffer());
@@ -1264,8 +1317,9 @@ const ToolPage: React.FC = () => {
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
-                // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                
+                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                 
                 const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.9));
                 zip.file(`page_${i}.jpg`, blob);
@@ -1290,8 +1344,9 @@ const ToolPage: React.FC = () => {
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
-                // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                
+                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                 
                 const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/png'));
                 zip.file(`page_${i}.png`, blob);
@@ -1478,8 +1533,9 @@ const ToolPage: React.FC = () => {
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
-                // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                
+                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
 
                 const slide = pptx.addSlide();
                 const imgData = canvas.toDataURL('image/png');
@@ -1565,8 +1621,9 @@ const ToolPage: React.FC = () => {
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
-                // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                
+                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
 
                 const { data: ocrData } = await worker.recognize(canvas);
                 
@@ -1636,8 +1693,9 @@ const ToolPage: React.FC = () => {
                          canvas.width = viewport.width;
                          canvas.height = viewport.height;
                          const context = canvas.getContext('2d')!;
-                         // FIX: The type definition for page.render seems incorrect, passing the canvas object as well to satisfy the compiler.
-                         await page.render({ canvas, canvasContext: context, viewport: viewport }).promise;
+                         
+                         // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
+                         await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                          return canvas;
                     }
                     
@@ -2120,70 +2178,9 @@ const ToolPage: React.FC = () => {
      );
   }
 
-  return (
-    <div className="py-12 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
-        {state !== ProcessingState.Processing && (
-          <div className="text-center mb-10">
-            <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
-              <tool.Icon className="h-12 w-12 text-white" />
-            </div>
-            <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{tool.title}</h1>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{tool.description}</p>
-          </div>
-        )}
-
-        {state === ProcessingState.Idle && (
-            <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
-                 <div className="space-y-6">
-                    {tool.id === 'compress-pdf' && (
-                        <CompressionOptions 
-                            level={toolOptions.compressionLevel}
-                            setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
-                        />
-                    )}
-                    {files.length > 0 && (
-                        <button
-                            onClick={handleProcess}
-                            disabled={isProcessButtonDisabled}
-                            className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
-                        >
-                            {tool.title} <RightArrowIcon className="h-6 w-6" />
-                        </button>
-                    )}
-                </div>
-            </FileUpload>
-        )}
-        
-        {state === ProcessingState.Processing && (
-            <div className="flex flex-col items-center justify-center text-center w-full min-h-[60vh] py-12">
-                <div className="mb-12">
-                    <Logo className="h-12 w-auto" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                    {getProcessingMessage(tool)}
-                </h2>
-                <div className="mt-12">
-                    <div 
-                        className="w-24 h-24 border-[10px] border-gray-200 dark:border-gray-700 rounded-full animate-spin"
-                        style={{ borderTopColor: '#B90B06' }}
-                    ></div>
-                </div>
-                 {progress && (
-                    <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>
-                 )}
-            </div>
-        )}
-
-        {state === ProcessingState.Error && (
-            <div className="text-center p-12 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-xl border border-red-200 dark:border-red-800">
-                <h2 className="text-2xl font-bold text-red-700 dark:text-red-300">An Error Occurred</h2>
-                <p className="mt-2 text-red-600 dark:text-red-400">{errorMessage}</p>
-                <button onClick={handleReset} className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
-            </div>
-        )}
-        
-        {state === ProcessingState.Success && (
+  const renderContent = () => {
+    if (state === ProcessingState.Success) {
+        return (
             <div className="text-center w-full max-w-7xl mx-auto py-12">
                  <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                     {getSuccessMessage(tool, compressionResult)}
@@ -2285,70 +2282,178 @@ const ToolPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
             </div>
-        )}
+        );
+    }
+    
+    if (state === ProcessingState.Error) {
+        return (
+            <div className="text-center p-12 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-xl border border-red-200 dark:border-red-800">
+                <h2 className="text-2xl font-bold text-red-700 dark:text-red-300">An Error Occurred</h2>
+                <p className="mt-2 text-red-600 dark:text-red-400">{errorMessage}</p>
+                <button onClick={handleReset} className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
+            </div>
+        );
+    }
 
-        {isShareModalOpen && (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={closeShareModal}>
-                <div className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
-                    <div className="p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Copy & Send download link</h3>
-                            <button onClick={closeShareModal} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"><CloseIcon className="h-5 w-5"/></button>
-                        </div>
-                        <div className="flex">
-                            <input 
-                                type="text" 
-                                readOnly 
-                                value={shareableUrl.startsWith('Error') ? shareableUrl : shareableUrl.substring(0, 60) + '...'}
-                                placeholder="Generating link..."
-                                className="flex-grow w-full px-3 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-md text-sm truncate text-gray-800 dark:text-gray-200"
+    if (state === ProcessingState.Processing) {
+        return (
+            <div className="flex flex-col items-center justify-center text-center w-full min-h-[60vh] py-12">
+                <div className="mb-12">
+                    <Logo className="h-12 w-auto" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                    {getProcessingMessage(tool)}
+                </h2>
+                <div className="mt-12">
+                    <div 
+                        className="w-24 h-24 border-[10px] border-gray-200 dark:border-gray-700 rounded-full animate-spin"
+                        style={{ borderTopColor: '#B90B06' }}
+                    ></div>
+                </div>
+                 {progress && (
+                    <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>
+                 )}
+            </div>
+        );
+    }
+    
+    // Main View for Idle State (File Upload or Visual Editor)
+    return (
+        <>
+            <div className="text-center mb-10">
+                <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+                <tool.Icon className="h-12 w-12 text-white" />
+                </div>
+                <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{tool.title}</h1>
+                <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{tool.description}</p>
+            </div>
+
+            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && (
+                <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
+                    <div className="space-y-6">
+                        {tool.id === 'compress-pdf' && (
+                            <CompressionOptions 
+                                level={toolOptions.compressionLevel}
+                                setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
                             />
-                            <button 
-                                onClick={handleCopyLink}
-                                disabled={!shareableUrl || isCopying || shareableUrl.startsWith('Error')}
-                                className="bg-brand-red text-white font-bold px-4 rounded-r-md text-sm disabled:bg-red-300 dark:disabled:bg-red-800 w-24"
+                        )}
+                        {files.length > 0 && (
+                            <button
+                                onClick={handleProcess}
+                                disabled={isProcessButtonDisabled}
+                                className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
                             >
-                                {isCopying ? 'Copied!' : 'Copy'}
+                                {tool.title} <RightArrowIcon className="h-6 w-6" />
                             </button>
+                        )}
+                    </div>
+                </FileUpload>
+            )}
+
+            {/* Visual Editor for Sign PDF */}
+            {pdfPagePreviews.length > 0 && tool.id === 'sign-pdf' && state === ProcessingState.Idle && (
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Side: PDF Previews */}
+                    <div className="flex-grow bg-gray-200 dark:bg-gray-900/50 p-4 rounded-lg">
+                        <div ref={previewContainerRef} className="relative w-full border border-gray-300 dark:border-gray-700 rounded-lg overflow-auto max-h-[80vh] bg-white dark:bg-black">
+                            {pdfPagePreviews.map((src, index) => (
+                                <div key={index} id={`pdf-page-${index}`} className="relative border-b dark:border-gray-700 last:border-b-0">
+                                    <img src={src} alt={`Page ${index + 1}`} className="w-full h-auto" />
+                                </div>
+                            ))}
+                            {canvasItems.map(item => (
+                                <div
+                                    key={item.id}
+                                    className="absolute cursor-move"
+                                    style={{ left: item.x, top: item.y, width: item.width, height: item.height }}
+                                    onMouseDown={(e) => {
+                                        const target = e.currentTarget as HTMLDivElement;
+                                        const rect = target.getBoundingClientRect();
+                                        const containerRect = previewContainerRef.current!.getBoundingClientRect();
+                                        setActiveDrag({
+                                            id: item.id,
+                                            offsetX: e.clientX - rect.left,
+                                            offsetY: e.clientY - rect.top
+                                        });
+                                    }}
+                                >
+                                    <img src={item.dataUrl} alt={item.type} className="w-full h-full object-contain" />
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="p-6 border-t border-gray-200 dark:border-gray-700 text-center">
-                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Instantly download to your phone</h3>
-                        <div className="mt-4 bg-white dark:bg-gray-900 p-2 rounded inline-block shadow-md">
-                            {isQrLoading ? (
-                                <div className="w-[150px] h-[150px] flex items-center justify-center text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded">
-                                    <svg className="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </div>
-                            ) : qrCodeError ? (
-                                <div className="w-[150px] h-[150px] flex items-center justify-center p-2 text-sm text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded">
-                                    {qrCodeError}
-                                </div>
-                            ) : (
-                                <img 
-                                    src={qrCodeUrl} 
-                                    alt="QR code for file download"
-                                    width="150"
-                                    height="150"
-                                />
-                            )}
+
+                    {/* Right Side: Signing Options Sidebar */}
+                    <div className="w-full md:w-80 flex-shrink-0">
+                        <div className="sticky top-24 bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                            <h3 className="text-xl font-bold mb-4">Signing options</h3>
+                            <div className="flex border border-gray-300 dark:border-gray-600 rounded-md mb-6">
+                                <button className="flex-1 p-3 text-center border-r border-gray-300 dark:border-gray-600 bg-red-50 dark:bg-red-900/30 text-brand-red font-semibold rounded-l-md">
+                                    Simple Signature
+                                </button>
+                                <button className="flex-1 p-3 text-center text-gray-500 dark:text-gray-400 cursor-not-allowed rounded-r-md" title="Coming soon!">
+                                    Digital Signature
+                                </button>
+                            </div>
+
+                            <div>
+                                <h4 className="font-semibold text-gray-600 dark:text-gray-400 mb-2 text-sm">Required fields</h4>
+                                {signature?.signature ? (
+                                    <div onClick={() => addSignatureToCanvas('signature')} className="p-2 border rounded-md flex items-center gap-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded text-center font-bold">...</div>
+                                        <img src={signature.signature} alt="Signature preview" className="h-10 flex-grow object-contain" />
+                                        <button onClick={(e) => { e.stopPropagation(); setIsSignatureModalOpen(true); }} className="p-1 text-gray-400 hover:text-brand-red"><EditIcon className="h-5 w-5"/></button>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => setIsSignatureModalOpen(true)} className="w-full p-4 border-2 border-dashed rounded text-center text-gray-500 hover:border-brand-red">
+                                        Create Signature
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="mt-4">
+                                <h4 className="font-semibold text-gray-600 dark:text-gray-400 mb-2 text-sm">Optional fields</h4>
+                                {signature?.initials ? (
+                                    <div onClick={() => addSignatureToCanvas('initials')} className="p-2 border rounded-md flex items-center gap-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded text-center font-bold">AC</div>
+                                        <img src={signature.initials} alt="Initials preview" className="h-10 flex-grow object-contain" />
+                                        <button onClick={(e) => { e.stopPropagation(); setIsSignatureModalOpen(true); }} className="p-1 text-gray-400 hover:text-brand-red"><EditIcon className="h-5 w-5"/></button>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-gray-500 p-2">Create a signature to generate initials.</p>
+                                )}
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick={handleProcess}
+                                    disabled={isVisualProcessButtonDisabled}
+                                    className={`w-full flex items-center justify-center gap-2 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
+                                >
+                                    Sign <RightArrowIcon className="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        )}
-        
-        {state !== ProcessingState.Processing && (
-          <div className="mt-12 text-center">
-            <button onClick={handleReset} className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
-              &larr; Process another file
-            </button>
-          </div>
-        )}
+            )}
+            
+            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && files.length > 0 && (
+              <div className="mt-12 text-center">
+                <button onClick={handleReset} className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
+                  &larr; Process another file
+                </button>
+              </div>
+            )}
+        </>
+    );
+  };
+  
+  return (
+    <div className="py-16 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {renderContent()}
       </div>
     </div>
   );

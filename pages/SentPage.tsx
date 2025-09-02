@@ -33,8 +33,9 @@ const SentPage: React.FC = () => {
     const { saveSignature } = useSignature();
     const [isModalOpen, setIsModalOpen] = useState(false);
     
-    const handleSaveSignature = (dataUrl: string) => {
-        saveSignature(dataUrl);
+    // FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
+    const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
+        saveSignature(signatureDataUrl, initialsDataUrl);
         setIsModalOpen(false);
         // After creating a signature, the user should be taken to the sign tool to use it
         navigate('/sign-pdf');
