@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
@@ -315,7 +316,7 @@ const HomePage: React.FC = () => {
                         </p>
                     </>
                 )}
-                <div className={`w-full ${user ? 'mt-2' : 'mt-16'}`}>
+                <div className={`w-full ${user ? 'mt-2' : 'mt-8'}`}>
                     <div className="pb-2">
                         <div className="flex flex-wrap items-center justify-center gap-3">
                             {filterCategories.map(({ labelKey, category }) => (

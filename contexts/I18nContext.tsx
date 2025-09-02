@@ -11,29 +11,23 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 // Define supported languages - this list is now the single source of truth
 export const supportedLanguages = [
-    { code: 'ca', name: 'Català' },
     { code: 'zh-CN', name: '中文 (简体)' },
     { code: 'zh-TW', name: '中文 (繁體)' },
-    { code: 'de', name: 'Deutsch' },
     { code: 'el', name: 'Ελληνικά' },
     { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' },
     { code: 'hi', name: 'हिन्दी' },
-    { code: 'id', name: 'Bahasa Indonesia' },
     { code: 'it', name: 'Italiano' },
     { code: 'ja', name: '日本語' },
     { code: 'ko', name: '한국어' },
     { code: 'ms', name: 'Bahasa Melayu' },
     { code: 'ne', name: 'नेपाली' },
-    { code: 'nl', name: 'Nederlands' },
     { code: 'pl', name: 'Polski' },
     { code: 'pt', name: 'Português' },
-    { code: 'ru', name: 'Русский' },
     { code: 'sv', name: 'Svenska' },
     { code: 'th', name: 'ภาษาไทย' },
     { code: 'tr', name: 'Türkçe' },
-    { code: 'uk', name: 'Українська' },
     { code: 'vi', name: 'Tiếng Việt' },
 ];
 
