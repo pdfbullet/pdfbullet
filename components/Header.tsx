@@ -286,16 +286,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </a>
             <nav className="hidden lg:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
-                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={t(link.labelKey)} className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold text-center">
+                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={t(link.labelKey)} className="px-2 xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs xl:text-sm font-semibold text-center">
                       {t(link.labelKey)}
                   </Link>
               ))}
-              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold text-center">
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-2 xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs xl:text-sm font-semibold text-center">
                   {t('header.developer')}
               </Link>
               {/* Convert PDF Dropdown */}
               <div className="relative" onMouseEnter={() => handleMenuEnter(setConvertMenuOpen, convertMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setConvertMenuOpen, convertMenuTimeoutRef)}>
-                <button title="Convert PDF Tools" className="flex items-center px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold">
+                <button title="Convert PDF Tools" className="flex items-center px-2 xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs xl:text-sm font-semibold">
                   <span>{t('header.convert_pdf')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isConvertMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -328,7 +328,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </div>
               {/* All PDF Tools Dropdown */}
               <div onMouseEnter={() => handleMenuEnter(setAllToolsMenuOpen, allToolsMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setAllToolsMenuOpen, allToolsMenuTimeoutRef)}>
-                 <button title="All PDF Tools" className="flex items-center px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-sm font-semibold">
+                 <button title="All PDF Tools" className="flex items-center px-2 xl:px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-xs xl:text-sm font-semibold">
                   <span>{t('header.all_pdf_tools')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isAllToolsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
