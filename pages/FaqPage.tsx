@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -63,8 +65,6 @@ const getAnswerText = (node: React.ReactNode): string => {
     if (typeof node === 'number') return String(node);
     if (node === null || typeof node === 'boolean' || node === undefined) return '';
     if (Array.isArray(node)) return node.map(getAnswerText).join('');
-    // FIX: Cast node.props to 'any' to safely access the 'children' property.
-    // The 'React.isValidElement' check ensures 'node' is a React element, so 'props' will exist.
     if (React.isValidElement(node) && (node.props as any).children) {
         return getAnswerText((node.props as any).children);
     }
