@@ -1,7 +1,9 @@
+
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Tool } from '../types.ts';
 import { StarIcon, StarOutlineIcon } from './icons.tsx';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 interface ToolCardProps {
   tool: Tool;
@@ -11,6 +13,7 @@ interface ToolCardProps {
 
 const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite }) => {
   const { id, title, description, Icon, color, isNew, isPremium } = tool;
+  const { t } = useI18n();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -23,7 +26,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
   return (
     <Link 
       to={`/${id}`} 
-      title={`Open the ${title} tool`}
+      title={`Open the ${t(title)} tool`}
       className="relative flex flex-row sm:flex-col items-center sm:items-start p-4 bg-white dark:bg-surface-dark border border-gray-300 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-28 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
     >
         <button 
@@ -46,9 +49,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
 
       {/* Text Content */}
       <div className="flex flex-col flex-grow ml-4 sm:ml-0 sm:mt-3 overflow-hidden">
-        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">{title}</h3>
+        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">{t(title)}</h3>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
-            {description}
+            {t(description)}
         </p>
       </div>
 

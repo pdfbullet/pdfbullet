@@ -3,6 +3,7 @@ import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
 import { Logo } from './Logo.tsx';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 interface FooterProps {
   onOpenCalendarModal: () => void;
@@ -12,6 +13,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemReportModal }) => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterMessage, setNewsletterMessage] = useState('');
+  const { t } = useI18n();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,33 +37,33 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
   };
 
   const topTools = [
-      { path: '/merge-pdf', name: 'Merge PDF' },
-      { path: '/compress-pdf', name: 'Compress PDF' },
-      { path: '/jpg-to-pdf', name: 'JPG to PDF' },
-      { path: '/edit-pdf', name: 'Edit PDF' },
-      { path: '/pdf-to-word', name: 'PDF to Word' },
+      { path: '/merge-pdf', nameKey: 'footer.top_tools.merge_pdf' },
+      { path: '/compress-pdf', nameKey: 'footer.top_tools.compress_pdf' },
+      { path: '/jpg-to-pdf', nameKey: 'footer.top_tools.jpg_to_pdf' },
+      { path: '/edit-pdf', nameKey: 'footer.top_tools.edit_pdf' },
+      { path: '/pdf-to-word', nameKey: 'footer.top_tools.pdf_to_word' },
   ];
   
   const solutions = [
-      { path: '/education', name: 'For Education' },
-      { path: '/business', name: 'For Business' },
-      { path: '/how-to-use', name: 'How-to Guides' },
+      { path: '/education', nameKey: 'footer.solution_links.education' },
+      { path: '/business', nameKey: 'footer.solution_links.business' },
+      { path: '/how-to-use', nameKey: 'footer.solution_links.how_to' },
   ];
 
   const company = [
-      { path: '/about', name: 'About' },
-      { path: '/blog', name: 'Blog' },
-      { path: '/press', name: 'Press' },
-      { path: '/contact', name: 'Contact' },
-      { path: '/ceo', name: 'Message from CEO' },
+      { path: '/about', nameKey: 'footer.company_links.about' },
+      { path: '/blog', nameKey: 'footer.company_links.blog' },
+      { path: '/press', nameKey: 'footer.company_links.press' },
+      { path: '/contact', nameKey: 'footer.company_links.contact' },
+      { path: '/ceo', nameKey: 'footer.company_links.ceo_message' },
   ];
   
   const legal = [
-      { path: '/legal', name: 'Legal Hub' },
-      { path: '/privacy-policy', name: 'Privacy Policy' },
-      { path: '/terms-of-service', name: 'Terms & Conditions' },
-      { path: '/cookies-policy', name: 'Cookies Policy' },
-      { path: '/user-data-deletion', name: 'Data Deletion' },
+      { path: '/legal', nameKey: 'footer.legal_links.legal_hub' },
+      { path: '/privacy-policy', nameKey: 'footer.legal_links.privacy' },
+      { path: '/terms-of-service', nameKey: 'footer.legal_links.terms' },
+      { path: '/cookies-policy', nameKey: 'footer.legal_links.cookies' },
+      { path: '/user-data-deletion', nameKey: 'footer.legal_links.data_deletion' },
   ];
   
   const socialAndAppLinks = (
@@ -88,31 +90,31 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
               <Logo className="h-10 w-auto mb-3" variant="dark" />
             </a>
             <p className="text-gray-400 text-sm max-w-xs">
-              Your go-to suite of online tools for PDF and image management.
+              {t('footer.slogan')}
             </p>
             {socialAndAppLinks}
           </div>
           
           {/* Links */}
-          <div><h3 className="font-bold text-lg mb-4">Tools</h3><ul className="space-y-2 text-gray-400 text-sm">{topTools.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
-          <div><h3 className="font-bold text-lg mb-4">Solutions</h3><ul className="space-y-2 text-gray-400 text-sm">{solutions.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}</ul></div>
-          <div><h3 className="font-bold text-lg mb-4">Company</h3>
+          <div><h3 className="font-bold text-lg mb-4">{t('footer.tools')}</h3><ul className="space-y-2 text-gray-400 text-sm">{topTools.map(l => <li key={l.path}><Link to={l.path} title={t(l.nameKey)} className="hover:text-white">{t(l.nameKey)}</Link></li>)}</ul></div>
+          <div><h3 className="font-bold text-lg mb-4">{t('footer.solutions')}</h3><ul className="space-y-2 text-gray-400 text-sm">{solutions.map(l => <li key={l.path}><Link to={l.path} title={t(l.nameKey)} className="hover:text-white">{t(l.nameKey)}</Link></li>)}</ul></div>
+          <div><h3 className="font-bold text-lg mb-4">{t('footer.company')}</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-                {company.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}
-                <li><button onClick={onOpenProblemReportModal} title="Report a Problem" className="hover:text-white text-left">Report a Problem</button></li>
+                {company.map(l => <li key={l.path}><Link to={l.path} title={t(l.nameKey)} className="hover:text-white">{t(l.nameKey)}</Link></li>)}
+                <li><button onClick={onOpenProblemReportModal} title={t('footer.company_links.report_problem')} className="hover:text-white text-left">{t('footer.company_links.report_problem')}</button></li>
             </ul>
           </div>
-          <div><h3 className="font-bold text-lg mb-4">Legal</h3>
+          <div><h3 className="font-bold text-lg mb-4">{t('footer.legal')}</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-                {legal.map(l => <li key={l.path}><Link to={l.path} title={l.name} className="hover:text-white">{l.name}</Link></li>)}
+                {legal.map(l => <li key={l.path}><Link to={l.path} title={t(l.nameKey)} className="hover:text-white">{t(l.nameKey)}</Link></li>)}
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-700 text-center">
-          <h3 className="font-bold text-lg mb-2">Subscribe to our newsletter</h3>
+          <h3 className="font-bold text-lg mb-2">{t('footer.subscribe_title')}</h3>
           <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
-            Get the latest news, articles, and resources, sent to your inbox weekly.
+            {t('footer.subscribe_text')}
           </p>
           <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
             <input 
@@ -128,14 +130,14 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
               type="submit" 
               className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors"
             >
-              Subscribe
+              {t('footer.subscribe_button')}
             </button>
           </form>
           {newsletterMessage && <p className={`text-sm mt-3 ${newsletterMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>{newsletterMessage}</p>}
         </div>
 
         <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-sm">
-          <p className="order-2 sm:order-1 mt-4 sm:mt-0">&copy; {new Date().getFullYear()} I Love PDFLY. All Rights Reserved.</p>
+          <p className="order-2 sm:order-1 mt-4 sm:mt-0">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
            <div className="order-1 sm:order-2">
             <Link to="/sitemap" title="Sitemap" className="hover:text-white transition-colors">Sitemap</Link>
           </div>

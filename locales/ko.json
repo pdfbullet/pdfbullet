@@ -1,0 +1,255 @@
+{
+  "header": {
+    "merge_pdf": "PDF 병합",
+    "split_pdf": "PDF 분할",
+    "compress_pdf": "PDF 압축",
+    "developer": "개발자",
+    "convert_pdf": "PDF 변환",
+    "all_pdf_tools": "모든 PDF 도구",
+    "login": "로그인",
+    "signup": "가입하기",
+    "signed_in_as": "로그인 계정:",
+    "change_photo": "사진 변경",
+    "account_settings": "계정 설정",
+    "change_password": "비밀번호 변경",
+    "logout": "로그아웃"
+  },
+  "footer": {
+    "slogan": "PDF 및 이미지 관리를 위한 온라인 도구 모음입니다.",
+    "tools": "도구",
+    "solutions": "솔루션",
+    "company": "회사",
+    "legal": "법률 정보",
+    "subscribe_title": "뉴스레터 구독",
+    "subscribe_text": "최신 뉴스, 기사, 리소스를 매주 이메일로 받아보세요.",
+    "subscribe_button": "구독하기",
+    "copyright": "© {year} I Love PDFLY. All Rights Reserved.",
+    "top_tools": {
+      "merge_pdf": "PDF 병합",
+      "compress_pdf": "PDF 압축",
+      "jpg_to_pdf": "JPG를 PDF로",
+      "edit_pdf": "PDF 편집",
+      "pdf_to_word": "PDF를 Word로"
+    },
+    "company_links": {
+      "about": "회사 소개",
+      "blog": "블로그",
+      "press": "언론",
+      "contact": "문의하기",
+      "ceo_message": "CEO 메시지",
+      "report_problem": "문제 보고"
+    },
+    "solution_links": {
+      "education": "교육용",
+      "business": "비즈니스용",
+      "how_to": "사용 방법 가이드"
+    },
+    "legal_links": {
+      "legal_hub": "법률 센터",
+      "privacy": "개인정보 처리방침",
+      "terms": "이용 약관",
+      "cookies": "쿠키 정책",
+      "data_deletion": "데이터 삭제"
+    }
+  },
+  "homepage": {
+    "hero_title": "PDF 작업을 위한 모든 도구를 한 곳에서",
+    "hero_subtitle": "PDF 사용에 필요한 모든 도구를 손쉽게 사용할 수 있습니다. 모두 100% 무료이며 사용하기 쉽습니다! 몇 번의 클릭으로 PDF 병합, 분할, 압축, 변환, 회전, 잠금 해제 및 워터마크 추가가 가능합니다.",
+    "filter_all": "모두",
+    "filter_workflows": "워크플로우",
+    "filter_organize": "PDF 정리",
+    "filter_optimize": "PDF 최적화",
+    "filter_convert": "PDF 변환",
+    "filter_edit": "PDF 편집",
+    "filter_security": "PDF 보안",
+    "solutions_title": "당신을 위한 솔루션",
+    "solutions_subtitle": "특정 요구에 맞는 맞춤형 PDF 도구.",
+    "simple_steps_title": "성공을 위한 간단한 단계",
+    "simple_steps_subtitle": "몇 번의 클릭으로 PDF 작업을 완료하세요.",
+    "why_choose_title": "왜 I Love PDFLY를 선택해야 할까요?",
+    "why_choose_subtitle": "모든 PDF 요구 사항을 충족하는 최고의 온라인 툴킷입니다.",
+    "blog_title": "블로그에서",
+    "blog_subtitle": "생산성 향상을 위한 저희 팀의 팁, 요령 및 업데이트.",
+    "premium_title": "프리미엄으로 더 많은 기능 이용하기",
+    "premium_subtitle": "일괄 파일 처리로 프로젝트를 더 빨리 완료하고, OCR로 스캔한 문서를 변환하고, 비즈니스 계약서에 전자 서명하세요.",
+    "get_premium": "프리미엄 이용하기",
+    "faq_title": "자주 묻는 질문"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "PDF 병합",
+      "description": "가장 쉬운 PDF 병합 도구로 원하는 순서대로 PDF를 결합하세요."
+    },
+    "split-pdf": {
+      "title": "PDF 분할",
+      "description": "한 페이지 또는 전체 세트를 분리하여 독립적인 PDF 파일로 쉽게 변환하세요."
+    },
+    "organize-pdf": {
+      "title": "PDF 정리",
+      "description": "PDF 페이지를 정렬, 추가 및 제거합니다. 원하는 대로 문서 페이지를 배열하세요."
+    },
+    "rotate-pdf": {
+      "title": "PDF 회전",
+      "description": "필요한 대로 PDF를 회전하세요. 한 번에 여러 PDF를 회전할 수도 있습니다!"
+    },
+    "zip-maker": {
+      "title": "ZIP 파일 만들기",
+      "description": "여러 파일이나 전체 폴더에서 쉽게 ZIP 아카이브를 만드세요."
+    },
+    "compress-pdf": {
+      "title": "PDF 압축",
+      "description": "최상의 PDF 품질을 위해 최적화하면서 파일 크기를 줄입니다."
+    },
+    "repair-pdf": {
+      "title": "PDF 복구",
+      "description": "손상된 PDF를 복구하고 손상된 PDF에서 데이터를 복구합니다. 복구 도구로 PDF 파일을 수정하세요."
+    },
+    "resize-file": {
+      "title": "파일 크기 조정",
+      "description": "품질과 압축을 조정하여 이미지나 PDF의 파일 크기를 변경합니다."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG를 PDF로",
+      "description": "JPG 이미지를 몇 초 만에 PDF로 변환합니다. 방향과 여백을 쉽게 조정하세요."
+    },
+    "psd-to-pdf": {
+      "title": "PSD를 PDF로",
+      "description": "Adobe Photoshop 파일(PSD)을 PDF 문서로 쉽게 변환합니다."
+    },
+    "word-to-pdf": {
+      "title": "Word를 PDF로",
+      "description": "최상의 품질과 변환으로 WORD 문서를 PDF로 변환합니다."
+    },
+    "powerpoint-to-pdf": {
+      "title": "POWERPOINT를 PDF로 변환",
+      "description": "PPT 및 PPTX 슬라이드쇼를 PDF로 변환하여 쉽게 볼 수 있도록 만듭니다."
+    },
+    "excel-to-pdf": {
+      "title": "Excel을 PDF로",
+      "description": "EXCEL 스프레드시트를 PDF로 변환합니다. XLS 및 XLSX에서 PDF로 변환기."
+    },
+    "html-to-pdf": {
+      "title": "HTML을 PDF로",
+      "description": "HTML 웹페이지를 PDF로 변환합니다. 원하는 페이지의 URL을 복사하여 붙여넣고 클릭 한 번으로 PDF로 변환하세요."
+    },
+    "scan-to-pdf": {
+      "title": "스캔하여 PDF로",
+      "description": "휴대폰을 문서 스캐너로 바꾸세요. 고품질 스캔을 만들기 위해 문서의 원근을 캡처, 편집 및 수정합니다."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF를 JPG로",
+      "description": "PDF에서 이미지를 추출하거나 각 페이지를 JPG로 변환합니다."
+    },
+    "pdf-to-png": {
+      "title": "PDF를 PNG로",
+      "description": "각 PDF 페이지를 고품질 PNG 이미지로 변환합니다."
+    },
+    "pdf-to-word": {
+      "title": "PDF를 Word로",
+      "description": "PDF 파일을 쉽게 편집할 수 있는 DOC 및 DOCX 문서로 쉽게 변환합니다."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF를 PowerPoint로",
+      "description": "PDF 파일을 쉽게 편집할 수 있는 PPT 및 PPTX 슬라이드쇼로 변환합니다."
+    },
+    "pdf-to-excel": {
+      "title": "PDF를 Excel로",
+      "description": "몇 번의 클릭으로 PDF에서 Excel 스프레드시트로 데이터를 직접 가져옵니다."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF를 PDF/A로",
+      "description": "장기 보관을 위한 ISO 표준 버전인 PDF/A로 PDF를 변환합니다."
+    },
+    "extract-text": {
+      "title": "텍스트 추출",
+      "description": "PDF 파일에서 모든 텍스트를 TXT 파일로 추출합니다."
+    },
+    "edit-pdf": {
+      "title": "PDF 편집",
+      "description": "PDF 문서에 텍스트, 이미지, 도형 또는 자유형 주석을 추가합니다."
+    },
+    "page-numbers": {
+      "title": "페이지 번호",
+      "description": "PDF에 페이지 번호를 쉽게 추가합니다. 위치, 크기, 서체를 선택하세요."
+    },
+    "crop-pdf": {
+      "title": "PDF 자르기",
+      "description": "PDF 파일의 여백을 잘라 페이지 크기를 변경하거나 원하지 않는 영역을 제거합니다."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "스캔한 PDF를 검색 및 선택 가능한 문서로 쉽게 변환합니다."
+    },
+    "compare-pdf": {
+      "title": "PDF 비교",
+      "description": "두 PDF 파일을 나란히 비교하여 차이점을 확인합니다."
+    },
+    "redact-pdf": {
+      "title": "PDF 수정",
+      "description": "PDF에서 텍스트와 그래픽을 수정하여 민감한 정보를 영구적으로 제거합니다."
+    },
+    "ai-question-generator": {
+      "title": "AI 질문 생성기",
+      "description": "AI를 사용하여 모든 텍스트에서 자동으로 질문을 만듭니다. 학습 가이드 및 퀴즈에 적합합니다."
+    },
+    "invoice-generator": {
+      "title": "송장 생성기",
+      "description": "전문적인 송장을 무료로 만듭니다. 로고로 사용자 정의하고, 항목을 추가하고, PDF로 다운로드하세요."
+    },
+    "cv-generator": {
+      "title": "이력서 생성기",
+      "description": "세부 정보를 제공하여 전문적인 이력서를 만듭니다. 여러 템플릿 중에서 선택하고 PDF로 다운로드하세요."
+    },
+    "lesson-plan-creator": {
+      "title": "수업 계획 작성기",
+      "description": "어떤 과목이든 상세하고 흥미로운 수업 계획을 몇 초 만에 만듭니다. AI가 활동, 평가, 숙제가 포함된 계획을 만들도록 하세요."
+    },
+    "unlock-pdf": {
+      "title": "PDF 잠금 해제",
+      "description": "PDF 암호 보안을 제거하여 원하는 대로 PDF를 자유롭게 사용할 수 있습니다."
+    },
+    "protect-pdf": {
+      "title": "PDF 보호",
+      "description": "비밀번호로 PDF 파일을 보호합니다. 무단 액세스를 방지하기 위해 PDF 문서를 암호화합니다."
+    },
+    "sign-pdf": {
+      "title": "PDF 서명",
+      "description": "직접 서명하거나 다른 사람에게 전자 서명을 요청합니다."
+    },
+    "watermark-pdf": {
+      "title": "워터마크",
+      "description": "몇 초 만에 PDF에 이미지나 텍스트를 스탬프합니다. 서체, 투명도 및 위치를 선택하세요."
+    },
+    "resize-image": {
+      "title": "이미지 크기 조정",
+      "description": "백분율 또는 픽셀로 크기를 정의하고 JPG, PNG 및 GIF 이미지의 크기를 조정합니다."
+    },
+    "remove-background": {
+      "title": "배경 제거",
+      "description": "한 번의 클릭으로 모든 이미지에서 배경을 자동으로 제거합니다."
+    },
+    "crop-image": {
+      "title": "이미지 자르기",
+      "description": "JPG, PNG 또는 GIF를 쉽게 자릅니다."
+    },
+    "convert-to-jpg": {
+      "title": "JPG로 변환",
+      "description": "PNG, GIF, TIF, PSD, SVG, WEBP 또는 RAW를 JPG로 변환합니다."
+    },
+    "convert-from-jpg": {
+      "title": "JPG에서 변환",
+      "description": "JPG에서 PNG 또는 GIF로 변환합니다."
+    },
+    "compress-image": {
+      "title": "이미지 압축",
+      "description": "최상의 이미지 품질을 위해 최적화하면서 파일 크기를 줄입니다."
+    },
+    "watermark-image": {
+      "title": "이미지 워터마크",
+      "description": "몇 초 만에 이미지에 이미지나 텍스트를 스탬프합니다."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

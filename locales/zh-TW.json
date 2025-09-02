@@ -1,0 +1,255 @@
+{
+  "header": {
+    "merge_pdf": "合併PDF",
+    "split_pdf": "拆分PDF",
+    "compress_pdf": "壓縮PDF",
+    "developer": "開發者",
+    "convert_pdf": "轉換PDF",
+    "all_pdf_tools": "所有PDF工具",
+    "login": "登入",
+    "signup": "註冊",
+    "signed_in_as": "登入為",
+    "change_photo": "更換照片",
+    "account_settings": "帳戶設定",
+    "change_password": "修改密碼",
+    "logout": "登出"
+  },
+  "footer": {
+    "slogan": "您的PDF和圖像管理線上工具套件。",
+    "tools": "工具",
+    "solutions": "解決方案",
+    "company": "公司",
+    "legal": "法律",
+    "subscribe_title": "訂閱我們的新聞通訊",
+    "subscribe_text": "每週將最新的新聞、文章和資源發送到您的收件箱。",
+    "subscribe_button": "訂閱",
+    "copyright": "© {year} I Love PDFLY. 版權所有。",
+    "top_tools": {
+      "merge_pdf": "合併PDF",
+      "compress_pdf": "壓縮PDF",
+      "jpg_to_pdf": "JPG轉PDF",
+      "edit_pdf": "編輯PDF",
+      "pdf_to_word": "PDF轉Word"
+    },
+    "company_links": {
+      "about": "關於我們",
+      "blog": "部落格",
+      "press": "媒體",
+      "contact": "聯繫我們",
+      "ceo_message": "CEO致辭",
+      "report_problem": "報告問題"
+    },
+    "solution_links": {
+      "education": "教育版",
+      "business": "商業版",
+      "how_to": "使用指南"
+    },
+    "legal_links": {
+      "legal_hub": "法律中心",
+      "privacy": "隱私政策",
+      "terms": "服務條款",
+      "cookies": "Cookie政策",
+      "data_deletion": "數據刪除"
+    }
+  },
+  "homepage": {
+    "hero_title": "您處理PDF所需的所有工具，盡在一處",
+    "hero_subtitle": "您使用PDF所需的所有工具，觸手可及。所有工具100%免費且易於使用！只需幾次點擊，即可合併、拆分、壓縮、轉換、旋轉、解鎖和為PDF添加浮水印。",
+    "filter_all": "全部",
+    "filter_workflows": "工作流程",
+    "filter_organize": "整理PDF",
+    "filter_optimize": "優化PDF",
+    "filter_convert": "轉換PDF",
+    "filter_edit": "編輯PDF",
+    "filter_security": "PDF安全",
+    "solutions_title": "為您量身定制的解決方案",
+    "solutions_subtitle": "根據您的特定需求量身定制的PDF工具。",
+    "simple_steps_title": "成功的簡單步驟",
+    "simple_steps_subtitle": "只需幾次點擊即可完成您的PDF任務。",
+    "why_choose_title": "為什麼選擇I Love PDFLY？",
+    "why_choose_subtitle": "滿足您所有PDF需求的終極線上工具包。",
+    "blog_title": "來自我們的部落格",
+    "blog_subtitle": "我們團隊提供的技巧、竅門和更新，幫助您提高工作效率。",
+    "premium_title": "透過高級版獲得更多",
+    "premium_subtitle": "透過批次檔案處理更快地完成專案，使用OCR轉換掃描的文件，並為您的商業協議進行電子簽名。",
+    "get_premium": "獲取高級版",
+    "faq_title": "常見問題"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "合併PDF",
+      "description": "使用最簡單的PDF合併工具，按您想要的順序合併PDF。"
+    },
+    "split-pdf": {
+      "title": "拆分PDF",
+      "description": "分離一頁或一整套頁面，輕鬆轉換為獨立的PDF檔案。"
+    },
+    "organize-pdf": {
+      "title": "整理PDF",
+      "description": "排序、新增和移除PDF頁面。按您的意願排列文件頁面。"
+    },
+    "rotate-pdf": {
+      "title": "旋轉PDF",
+      "description": "按您需要的方式旋轉PDF。您甚至可以一次旋轉多個PDF！"
+    },
+    "zip-maker": {
+      "title": "建立ZIP檔案",
+      "description": "從多個檔案或整個資料夾輕鬆建立ZIP存檔。"
+    },
+    "compress-pdf": {
+      "title": "壓縮PDF",
+      "description": "在優化最大PDF品質的同時減小檔案大小。"
+    },
+    "repair-pdf": {
+      "title": "修復PDF",
+      "description": "修復損壞的PDF並從損壞的PDF中恢復數據。使用我們的修復工具修復PDF檔案。"
+    },
+    "resize-file": {
+      "title": "調整檔案大小",
+      "description": "透過調整品質和壓縮來變更影像或PDF的檔案大小。"
+    },
+    "jpg-to-pdf": {
+      "title": "JPG轉PDF",
+      "description": "在幾秒鐘內將JPG影像轉換為PDF。輕鬆調整方向和邊距。"
+    },
+    "psd-to-pdf": {
+      "title": "PSD轉PDF",
+      "description": "輕鬆將Adobe Photoshop檔案（PSD）轉換為PDF文件。"
+    },
+    "word-to-pdf": {
+      "title": "Word轉PDF",
+      "description": "以最佳品質和轉換效果將您的WORD文件轉換為PDF。"
+    },
+    "powerpoint-to-pdf": {
+      "title": "POWERPOINT轉PDF",
+      "description": "將PPT和PPTX幻燈片轉換為PDF，使其易於查看。"
+    },
+    "excel-to-pdf": {
+      "title": "Excel轉PDF",
+      "description": "將您的EXCEL試算表轉換為PDF。XLS和XLSX到PDF轉換器。"
+    },
+    "html-to-pdf": {
+      "title": "HTML轉PDF",
+      "description": "將HTML網頁轉換為PDF。複製並貼上您想要轉換的頁面的URL，然後一鍵將其轉換為PDF。"
+    },
+    "scan-to-pdf": {
+      "title": "掃描到PDF",
+      "description": "將您的手機變成文件掃描器。捕獲、編輯和校正文件的透視，以建立高品質的掃描件。"
+    },
+    "pdf-to-jpg": {
+      "title": "PDF轉JPG",
+      "description": "從PDF中提取影像或將每個頁面轉換為JPG。"
+    },
+    "pdf-to-png": {
+      "title": "PDF轉PNG",
+      "description": "將每個PDF頁面轉換為高品質的PNG影像。"
+    },
+    "pdf-to-word": {
+      "title": "PDF轉Word",
+      "description": "輕鬆將您的PDF檔案轉換為易於編輯的DOC和DOCX文件。"
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF轉PowerPoint",
+      "description": "將您的PDF檔案轉換為易於編輯的PPT和PPTX幻燈片。"
+    },
+    "pdf-to-excel": {
+      "title": "PDF轉Excel",
+      "description": "只需幾次點擊，即可將數據從PDF直接提取到Excel試算表中。"
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF轉PDF/A",
+      "description": "將您的PDF轉換為PDF/A，這是用於長期存檔的ISO標準化版本。"
+    },
+    "extract-text": {
+      "title": "提取文字",
+      "description": "從PDF檔案中提取所有文字到TXT檔案。"
+    },
+    "edit-pdf": {
+      "title": "編輯PDF",
+      "description": "向PDF文件新增文字、影像、形狀或手寫註釋。"
+    },
+    "page-numbers": {
+      "title": "頁碼",
+      "description": "輕鬆地在PDF中新增頁碼。選擇位置、尺寸、字體。"
+    },
+    "crop-pdf": {
+      "title": "裁剪PDF",
+      "description": "裁剪PDF檔案的頁邊距以變更頁面大小或移除不需要的區域。"
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "輕鬆將掃描的PDF轉換為可搜尋和可選取的文件。"
+    },
+    "compare-pdf": {
+      "title": "比較PDF",
+      "description": "並排比較兩個PDF檔案以發現差異。"
+    },
+    "redact-pdf": {
+      "title": "塗黑PDF",
+      "description": "從PDF中塗黑文字和圖形以永久移除敏感資訊。"
+    },
+    "ai-question-generator": {
+      "title": "AI問題產生器",
+      "description": "使用AI從任何文字自動建立問題。非常適合學習指南和測驗。"
+    },
+    "invoice-generator": {
+      "title": "發票產生器",
+      "description": "免費建立專業發票。使用您的標誌進行自訂，新增項目並下載為PDF。"
+    },
+    "cv-generator": {
+      "title": "履歷產生器",
+      "description": "透過提供您的詳細資訊來建立專業履歷。從多個範本中選擇並下載為PDF。"
+    },
+    "lesson-plan-creator": {
+      "title": "教案建立器",
+      "description": "在幾秒鐘內為任何科目建立詳細、引人入勝的教案。讓AI用活動、評估和作業建立一個計劃。"
+    },
+    "unlock-pdf": {
+      "title": "解鎖PDF",
+      "description": "移除PDF密碼安全，讓您隨心所欲地使用PDF。"
+    },
+    "protect-pdf": {
+      "title": "保護PDF",
+      "description": "用密碼保護PDF檔案。加密PDF文件以防止未經授權的存取。"
+    },
+    "sign-pdf": {
+      "title": "簽署PDF",
+      "description": "自己簽名或向他人請求電子簽名。"
+    },
+    "watermark-pdf": {
+      "title": "浮水印",
+      "description": "在幾秒鐘內為您的PDF新增影像或文字浮水印。選擇字體、透明度和位置。"
+    },
+    "resize-image": {
+      "title": "調整影像大小",
+      "description": "按百分比或像素定義尺寸，並調整JPG、PNG和GIF影像的大小。"
+    },
+    "remove-background": {
+      "title": "移除背景",
+      "description": "一鍵自動從任何影像中移除背景。"
+    },
+    "crop-image": {
+      "title": "裁剪影像",
+      "description": "輕鬆裁剪JPG、PNG或GIF。"
+    },
+    "convert-to-jpg": {
+      "title": "轉換為JPG",
+      "description": "將PNG、GIF、TIF、PSD、SVG、WEBP或RAW轉換為JPG。"
+    },
+    "convert-from-jpg": {
+      "title": "從JPG轉換",
+      "description": "從JPG轉換為PNG或GIF。"
+    },
+    "compress-image": {
+      "title": "壓縮影像",
+      "description": "在優化最大影像品質的同時減小檔案大小。"
+    },
+    "watermark-image": {
+      "title": "影像浮水印",
+      "description": "在幾秒鐘內為您的影像新增影像或文字浮水印。"
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

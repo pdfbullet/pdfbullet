@@ -1,3 +1,5 @@
+
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -8,13 +10,15 @@ import {
   ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon, ChartBarIcon,
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
-  CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon
+  CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
+  GlobeIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
+import { useI18n, supportedLanguages } from '../contexts/I18nContext.tsx';
 
 interface HeaderProps {
   onOpenProfileImageModal: () => void;
@@ -36,14 +40,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const [isAllToolsMenuOpen, setAllToolsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const [isLanguageMenuOpen, setLanguageMenuOpen] = useState(false);
 
   const gridMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const languageMenuRef = useRef<HTMLDivElement>(null);
   const convertMenuTimeoutRef = useRef<number | null>(null);
   const allToolsMenuTimeoutRef = useRef<number | null>(null);
 
   const { theme, toggleTheme } = useTheme();
   const { user, logout, auth } = useAuth();
+  const { locale, setLocale, t } = useI18n();
   const navigate = useNavigate();
 
   const hasPasswordProvider = auth.currentUser?.providerData.some(
@@ -72,6 +79,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     const handleClickOutside = (event: MouseEvent) => {
       if (gridMenuRef.current && !gridMenuRef.current.contains(event.target as Node)) setGridMenuOpen(false);
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) setProfileMenuOpen(false);
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) setLanguageMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -92,8 +100,15 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     setMobileMenuOpen(false);
     setConvertMenuOpen(false);
     setAllToolsMenuOpen(false);
+    setLanguageMenuOpen(false);
     setOpenAccordion(null);
   }
+
+  const openLanguageMenu = () => {
+    setGridMenuOpen(false);
+    setLanguageMenuOpen(true);
+    setOpenAccordion(null); // Also reset accordion in mobile grid menu
+  };
 
   const handleMenuEnter = (setter: React.Dispatch<React.SetStateAction<boolean>>, timeoutRef: React.MutableRefObject<number | null>) => {
     if (timeoutRef.current) {
@@ -113,9 +128,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const convertFromTools = TOOLS.filter(tool => tool.category === 'convert-from');
   
   const desktopNavLinks = [
-    { to: '/merge-pdf', label: 'MERGE PDF' },
-    { to: '/split-pdf', label: 'SPLIT PDF' },
-    { to: '/compress-pdf', label: 'COMPRESS PDF' },
+    { to: '/merge-pdf', labelKey: 'header.merge_pdf' },
+    { to: '/split-pdf', labelKey: 'header.split_pdf' },
+    { to: '/compress-pdf', labelKey: 'header.compress_pdf' },
   ];
   
   const toolsById = useMemo(() => new Map(TOOLS.map(tool => [tool.id, tool])), []);
@@ -191,7 +206,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     ],
     bottomLinks: [
       { title: 'Help', to: '/contact', icon: LeftArrowIcon },
-      { title: 'Language', href: '#', icon: LeftArrowIcon },
       { title: 'Admin Access', to: '/developer-access', icon: CodeIcon },
     ]
   };
@@ -251,6 +265,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     return <a href={item.href} onClick={closeAllMenus} target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{content}</a>;
   };
 
+  const languages = supportedLanguages;
+  const langCol1 = languages.slice(0, 9);
+  const langCol2 = languages.slice(9, 18);
+  const langCol3 = languages.slice(18);
+
   return (
     <>
     <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
@@ -267,17 +286,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </a>
             <nav className="hidden lg:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
-                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={link.label} className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                      {link.label}
+                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={t(link.labelKey)} className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold text-center">
+                      {t(link.labelKey)}
                   </Link>
               ))}
-              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  DEVELOPER
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold text-center">
+                  {t('header.developer')}
               </Link>
               {/* Convert PDF Dropdown */}
               <div className="relative" onMouseEnter={() => handleMenuEnter(setConvertMenuOpen, convertMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setConvertMenuOpen, convertMenuTimeoutRef)}>
-                <button title="Convert PDF Tools" className="flex items-center px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  <span>CONVERT PDF</span>
+                <button title="Convert PDF Tools" className="flex items-center px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-sm font-semibold">
+                  <span>{t('header.convert_pdf')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isConvertMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-20 transition-all duration-200 ease-out origin-top ${isConvertMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
@@ -286,9 +305,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                         <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase">Convert to PDF</h4>
                         <div className="mt-2 space-y-1">
                           {convertToTools.map(tool => (
-                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={t(tool.title)} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                               <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
-                              <span className="font-semibold text-sm whitespace-nowrap">{tool.title}</span>
+                              <span className="font-semibold text-sm whitespace-nowrap">{t(tool.title)}</span>
                             </Link>
                           ))}
                         </div>
@@ -297,9 +316,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                         <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase">Convert from PDF</h4>
                         <div className="mt-2 space-y-1">
                           {convertFromTools.map(tool => (
-                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={t(tool.title)} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                               <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
-                              <span className="font-semibold text-sm whitespace-nowrap">{tool.title}</span>
+                              <span className="font-semibold text-sm whitespace-nowrap">{t(tool.title)}</span>
                             </Link>
                           ))}
                         </div>
@@ -309,8 +328,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </div>
               {/* All PDF Tools Dropdown */}
               <div onMouseEnter={() => handleMenuEnter(setAllToolsMenuOpen, allToolsMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setAllToolsMenuOpen, allToolsMenuTimeoutRef)}>
-                 <button title="All PDF Tools" className="flex items-center px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-sm font-semibold whitespace-nowrap">
-                  <span>ALL PDF TOOLS</span>
+                 <button title="All PDF Tools" className="flex items-center px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-sm font-semibold">
+                  <span>{t('header.all_pdf_tools')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isAllToolsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max max-w-[calc(100vw-2rem)] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 transition-all duration-200 ease-out origin-top ${isAllToolsMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'} overflow-x-auto no-scrollbar`}>
@@ -323,9 +342,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                               const tool = toolsById.get(toolId);
                               if (!tool) return null;
                               return (
-                                <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={tool.title} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} title={t(tool.title)} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                     <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
-                                    <span className="font-semibold text-sm">{tool.title}</span>
+                                    <span className="font-semibold text-sm">{t(tool.title)}</span>
                                 </Link>
                               );
                             })}
@@ -360,7 +379,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 {isProfileMenuOpen && (
                   <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2">
                     <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Signed in as</p>
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('header.signed_in_as')}</p>
                        <div className="flex items-center justify-between mt-1">
                           <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.username}</p>
                           {user.isPremium && (
@@ -372,25 +391,25 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                       </div>
                     </div>
                     <div className="py-1">
-                      <button onClick={() => { onOpenProfileImageModal(); closeAllMenus(); }} title="Change profile photo" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                      <button onClick={() => { onOpenProfileImageModal(); closeAllMenus(); }} title={t('header.change_photo')} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
                         <CameraIcon className="h-5 w-5" />
-                        <span>Change Photo</span>
+                        <span>{t('header.change_photo')}</span>
                       </button>
-                      <button onClick={() => { navigate('/account-settings'); closeAllMenus(); }} title="Account Settings" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                      <button onClick={() => { navigate('/account-settings'); closeAllMenus(); }} title={t('header.account_settings')} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
                         <SettingsIcon className="h-5 w-5" />
-                        <span>Account Settings</span>
+                        <span>{t('header.account_settings')}</span>
                       </button>
                       {hasPasswordProvider && (
-                        <button onClick={() => { onOpenChangePasswordModal(); closeAllMenus(); }} title="Change password" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                        <button onClick={() => { onOpenChangePasswordModal(); closeAllMenus(); }} title={t('header.change_password')} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
                           <KeyIcon className="h-5 w-5" />
-                          <span>Change Password</span>
+                          <span>{t('header.change_password')}</span>
                         </button>
                       )}
                     </div>
                     <div className="border-t border-gray-200 dark:border-gray-700 py-1">
-                      <button onClick={() => { logout(); closeAllMenus(); }} title="Logout" className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
+                      <button onClick={() => { logout(); closeAllMenus(); }} title={t('header.logout')} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-red transition-colors">
                         <LogoutIcon className="h-5 w-5" />
-                        <span>Logout</span>
+                        <span>{t('header.logout')}</span>
                       </button>
                     </div>
                   </div>
@@ -399,8 +418,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             ) : (
               <>
                 <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
-                  <Link to="/login" title="Login" className="text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors font-semibold px-2 text-sm">Login</Link>
-                  <Link to="/signup" title="Sign Up" className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-1.5 px-3 text-sm rounded-md transition-colors">Sign up</Link>
+                  <Link to="/login" title={t('header.login')} className="text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors font-semibold px-2 text-sm">{t('header.login')}</Link>
+                  <Link to="/signup" title={t('header.signup')} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-1.5 px-3 text-sm rounded-md transition-colors">{t('header.signup')}</Link>
                 </div>
                 <div className="sm:hidden">
                   <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-brand-red" aria-label="Login or sign up" title="Login or sign up">
@@ -452,9 +471,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                           {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
                         </div>
                         <div className="mt-4">
-                            <button onClick={toggleTheme} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
-                                {theme === 'light' ? <MoonIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" /> : <SunIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />}
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">Toggle Theme</p>
+                            <button onClick={openLanguageMenu} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
+                                <GlobeIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">Select Language</p>
                             </button>
                         </div>
                       </div>
@@ -495,17 +514,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                                 <span className="font-semibold text-gray-800 dark:text-gray-200">{link.label}</span>
                             </Link>
                         ))}
-                        <button onClick={() => { toggleTheme(); closeAllMenus(); }} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-                            {theme === 'light' ? <MoonIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/> : <SunIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>}
-                            <span className="font-semibold text-gray-800 dark:text-gray-200">Toggle Theme</span>
+                        <button onClick={openLanguageMenu} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <GlobeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">Select Language</span>
                         </button>
                     </div>
                     {!user && (
                         <>
                             <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                             <div className="p-2 space-y-2">
-                                <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Login</Link>
-                                <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">Sign up</Link>
+                                <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
+                                <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
                             </div>
                         </>
                     )}
@@ -516,6 +535,36 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
           </div>
         </div>
       </div>
+      {isLanguageMenuOpen && (
+        <div ref={languageMenuRef} className="absolute top-16 right-4 sm:right-6 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-[70] animate-fade-in-down">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-1">
+                <div>
+                    {langCol1.map(lang => (
+                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                    </button>
+                    ))}
+                </div>
+                <div>
+                    {langCol2.map(lang => (
+                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                    </button>
+                    ))}
+                </div>
+                <div>
+                    {langCol3.map(lang => (
+                    <button key={lang.code} onClick={() => { setLocale(lang.code); setLanguageMenuOpen(false); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
+                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
+                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
+                    </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+      )}
     </header>
     {/* Mobile Menu */}
     <div className={`fixed inset-0 z-[60] bg-white dark:bg-black transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -528,12 +577,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             <nav className="flex-grow overflow-y-auto px-4 py-2">
                 {mobileMenuStructure.map(category => (
                     <div key={category.title}>
-                        <h3 className="px-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-6 first:mt-0">{category.title}</h3>
+                        <h3 className="px-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-6 first:mt-0">{t(category.title)}</h3>
                         <div className="space-y-1">
                             {category.tools.map(tool => (
                                 <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                     <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} /> 
-                                    <span className="font-semibold text-sm">{tool.title}</span>
+                                    <span className="font-semibold text-sm">{t(tool.title)}</span>
                                 </Link>
                             ))}
                         </div>

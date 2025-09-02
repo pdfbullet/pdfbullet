@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
@@ -15,6 +14,7 @@ import {
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useWorkflows } from '../hooks/useWorkflows.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 const useIsVisible = (ref: React.RefObject<HTMLElement>) => {
     const [isIntersecting, setIntersecting] = useState(false);
@@ -161,16 +161,17 @@ const HomePage: React.FC = () => {
     const navigate = useNavigate();
     const { workflows } = useWorkflows();
     const toolsByTitle = useMemo(() => new Map(TOOLS.map(t => [t.title, t])), []);
+    const { t } = useI18n();
 
 
     const filterCategories = [
-        { label: 'All', category: 'All' },
-        { label: 'Workflows', category: 'workflows' },
-        { label: 'Organize PDF', category: 'organize' },
-        { label: 'Optimize PDF', category: 'optimize' },
-        { label: 'Convert PDF', category: 'convert-from' }, // Changed to be more specific
-        { label: 'Edit PDF', category: 'edit' },
-        { label: 'PDF Security', category: 'security' },
+        { labelKey: 'homepage.filter_all', category: 'All' },
+        { labelKey: 'homepage.filter_workflows', category: 'workflows' },
+        { labelKey: 'homepage.filter_organize', category: 'organize' },
+        { labelKey: 'homepage.filter_optimize', category: 'optimize' },
+        { labelKey: 'homepage.filter_convert', category: 'convert-from' },
+        { labelKey: 'homepage.filter_edit', category: 'edit' },
+        { labelKey: 'homepage.filter_security', category: 'security' },
     ];
 
     const handleWorkflowClick = () => {
@@ -307,28 +308,28 @@ const HomePage: React.FC = () => {
                 ) : (
                     <>
                         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-50">
-                            Every tool you need to work with PDFs in one place
+                            {t('homepage.hero_title')}
                         </h1>
                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                            Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
+                            {t('homepage.hero_subtitle')}
                         </p>
                     </>
                 )}
                 <div className={`w-full ${user ? 'mt-2' : 'mt-16'}`}>
                     <div className="pb-2">
                         <div className="flex flex-wrap items-center justify-center gap-3">
-                            {filterCategories.map(({ label, category }) => (
+                            {filterCategories.map(({ labelKey, category }) => (
                                 <button
-                                    key={label}
+                                    key={labelKey}
                                     onClick={() => handleCategoryClick(category)}
-                                    title={`Filter by ${label}`}
+                                    title={`Filter by ${t(labelKey)}`}
                                     className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                                         activeCategory === category
                                             ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
                                             : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'
                                     }`}
                                 >
-                                    {label}
+                                    {t(labelKey)}
                                 </button>
                             ))}
                         </div>
@@ -412,8 +413,8 @@ const HomePage: React.FC = () => {
         <section className="py-20">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Solutions For You</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">PDF tools tailored to your specific needs.</p>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.solutions_title')}</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.solutions_subtitle')}</p>
                 </div>
                 <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
                     <div className="border-b border-gray-200 dark:border-gray-700">
@@ -445,11 +446,11 @@ const HomePage: React.FC = () => {
                                 const tool = TOOLS.find(t => t.id === toolId);
                                 if (!tool) return null;
                                 return (
-                                    <Link key={tool.id} to={`/${tool.id}`} title={tool.title} className="flex flex-col items-center text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md transition-all">
+                                    <Link key={tool.id} to={`/${tool.id}`} title={t(tool.title)} className="flex flex-col items-center text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md transition-all">
                                         <div className={`p-3 rounded-full ${tool.color}`}>
                                             <tool.Icon className="h-6 w-6 text-white" />
                                         </div>
-                                        <span className="mt-2 text-sm font-bold text-gray-800 dark:text-gray-200">{tool.title}</span>
+                                        <span className="mt-2 text-sm font-bold text-gray-800 dark:text-gray-200">{t(tool.title)}</span>
                                     </Link>
                                 );
                             })}
@@ -463,8 +464,8 @@ const HomePage: React.FC = () => {
         <section className="py-20">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Simple Steps to Success</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Get your PDF tasks done in just a few clicks.</p>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.simple_steps_title')}</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.simple_steps_subtitle')}</p>
                 </div>
                 <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700 hidden md:block" style={{transform: 'translateY(-2.5rem)'}}></div>
@@ -553,8 +554,8 @@ const HomePage: React.FC = () => {
         <section className="py-20">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Why Choose I Love PDFLY?</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">The ultimate online toolkit for all your PDF needs.</p>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.why_choose_title')}</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.why_choose_subtitle')}</p>
                 </div>
                 <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
                     <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
@@ -585,9 +586,9 @@ const HomePage: React.FC = () => {
         {/* Blog Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6 text-center">
-                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">From Our Blog</h2>
+                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.blog_title')}</h2>
                 <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                    Tips, tricks, and updates from our team to help you be more productive.
+                    {t('homepage.blog_subtitle')}
                 </p>
                 <div className="mt-8 text-center">
                     <Link to="/blog" title="View All Articles" className="text-brand-red font-semibold hover:underline">
@@ -696,13 +697,13 @@ const HomePage: React.FC = () => {
         <section>
             <div className="bg-white dark:bg-surface-dark shadow-xl overflow-hidden md:flex">
                 <div className="md:w-1/2 p-8 md:p-12 lg:px-24 lg:py-32 flex flex-col justify-center text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">Get more with Premium</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('homepage.premium_title')}</h2>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
-                        Complete projects faster with batch file processing, convert scanned documents with OCR and e-sign your business agreements.
+                        {t('homepage.premium_subtitle')}
                     </p>
                     <div className="mt-6">
                         <Link to="/signup" title="Get Premium" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
-                            Get Premium
+                            {t('homepage.get_premium')}
                         </Link>
                     </div>
                 </div>
@@ -716,7 +717,7 @@ const HomePage: React.FC = () => {
         <section className="py-20">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Frequently Asked Questions</h2>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.faq_title')}</h2>
                 </div>
                 <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     {faqs.map((faq, index) => (

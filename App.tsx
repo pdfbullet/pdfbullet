@@ -1,10 +1,9 @@
 
-
-
 import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
+import { I18nProvider } from './contexts/I18nContext.tsx';
 import { EmailIcon, CheckIcon } from './components/icons.tsx';
 
 // Components that are part of the main layout
@@ -357,7 +356,9 @@ function App() {
     return (
         <ThemeProvider>
             <AuthProvider>
-                <MainApp />
+                <I18nProvider>
+                    <MainApp />
+                </I18nProvider>
             </AuthProvider>
         </ThemeProvider>
     );
