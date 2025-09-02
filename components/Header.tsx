@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -163,28 +160,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     }
   ], []);
 
-  const mobileAccordionData = {
-    'OTHER PRODUCTS': [
-        { title: 'iLoveIMG', description: 'Effortless image editing', href: 'https://www.iloveimg.com' },
-        { title: 'iLoveSign', description: 'e-Signing made simple', href: '/#/' },
-        { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer' }
-    ],
-    'SOLUTIONS': [
-        { title: 'Business', description: 'Streamlined PDF editing and workflows', to: '/business' }
-    ],
-    'APPLICATIONS': [
-        { title: 'Desktop App', description: 'Available for Mac and Windows', href: '/#/' },
-        { title: 'Mobile App', description: 'Available for iOS and Android', href: '/#/' }
-    ]
-  };
-
-  const mainMobileLinks = [
-    { to: '/pricing', label: 'Pricing', icon: DollarIcon },
-    { to: '/security-policy', label: 'Security', icon: LockIcon },
-    { to: '/#all-tools', label: 'Features', icon: GridIcon },
-    { to: '/developer-access', label: 'Admin Access', icon: CodeIcon },
-  ];
-
   const desktopGridMenuData = {
     products: [
       { title: 'iLoveIMG', description: 'Effortless image editing', href: 'https://iloveimg.com', icon: HeartbeatIcon, iconColor: 'bg-blue-500' },
@@ -201,6 +176,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     ],
     links: [
       { title: 'Pricing', to: '/pricing', icon: NewspaperIcon },
+      { title: 'Developer', to: '/developer', icon: ApiIcon },
       { title: 'Security', to: '/security-policy', icon: LockIcon },
       { title: 'Features', to: '/#all-tools', icon: GridIcon },
       { title: 'About us', to: '/about', icon: HeartbeatIcon },
@@ -236,12 +212,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
 
   const DesktopGridMenuItem: React.FC<{ item: any }> = ({ item }) => {
     const content = (
-      <div className={`flex items-start gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group ${item.bordered ? 'border border-gray-200 dark:border-gray-700' : ''}`}>
-        <div className={`${item.iconColor ? `${item.iconColor} p-2 rounded-md` : ''}`}>
-          <item.icon className={`h-6 w-6 ${item.iconColor ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
+      <div className={`flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group ${item.bordered ? 'border border-gray-200 dark:border-gray-700' : ''}`}>
+        <div className={`${item.iconColor ? `${item.iconColor} p-1.5 rounded-md` : ''}`}>
+          <item.icon className={`h-5 w-5 ${item.iconColor ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
         </div>
         <div>
-          <p className="font-semibold text-gray-800 dark:text-gray-200">{item.title}</p>
+          <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{item.title}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
         </div>
       </div>
@@ -255,9 +231,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
 
   const DesktopGridLinkItem: React.FC<{ item: any }> = ({ item }) => {
     const content = (
-      <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
-        <item.icon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
-        <p className="font-semibold text-gray-800 dark:text-gray-200">{item.title}</p>
+      <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+        <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{item.title}</p>
       </div>
     );
     if (item.to) {
@@ -439,97 +415,58 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               <button onClick={() => setGridMenuOpen(!isGridMenuOpen)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
                 <GridIcon className="h-7 w-7 lg:h-8 lg:w-8" />
               </button>
-              {isGridMenuOpen && (
+               {isGridMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 z-20">
-                  {/* Desktop Menu */}
-                  <div className="hidden lg:block w-[56rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl animate-fade-in-down">
-                    <div className="grid grid-cols-3">
+                  <div className="w-[calc(100vw-2rem)] max-w-sm md:max-w-2xl lg:max-w-[52rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl animate-fade-in-down overflow-y-auto max-h-[calc(100vh-100px)]">
+                    <div className="grid grid-cols-1 md:grid-cols-3">
                       {/* Column 1 */}
-                      <div className="p-6 border-r border-gray-200 dark:border-gray-700">
+                      <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
                         <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Other Products</h3>
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
                           <div className="pt-2"><DesktopGridMenuItem item={desktopGridMenuData.integrations} /></div>
                         </div>
                       </div>
                       {/* Column 2 */}
-                      <div className="p-6 border-r border-gray-200 dark:border-gray-700">
+                      <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
                         <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Solutions</h3>
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
                         </div>
-                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-8 mb-4">Applications</h3>
-                        <div className="space-y-2">
+                        <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-6 mb-2">Applications</h3>
+                        <div className="space-y-1">
                           {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
                         </div>
                       </div>
                       {/* Column 3 */}
-                      <div className="p-6">
+                      <div className="p-4">
                         <div className="space-y-1">
                           {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
                         </div>
-                        <hr className="my-6 border-gray-200 dark:border-gray-700" />
+                        <hr className="my-4 border-gray-200 dark:border-gray-700" />
                         <div className="space-y-1">
                           {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
                         </div>
                         <div className="mt-4">
-                            <button onClick={openLanguageMenu} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
-                                <GlobeIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">Select Language</p>
+                            <button onClick={openLanguageMenu} className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
+                                <GlobeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Select Language</p>
                             </button>
+                        </div>
+                        {/* Login/Signup for mobile */}
+                        <div className="md:hidden">
+                            {!user && (
+                                <>
+                                    <hr className="my-4 border-gray-200 dark:border-gray-700" />
+                                    <div className="space-y-2">
+                                        <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
+                                        <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
+                                    </div>
+                                </>
+                            )}
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Mobile Menu */}
-                  <div className="block lg:hidden w-80 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl p-4 animate-fade-in-down">
-                    {Object.keys(mobileAccordionData).map(title => (
-                        <div key={title} className="py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                            <button onClick={() => toggleAccordion(title)} className="w-full flex justify-between items-center py-2 text-left">
-                                <span className="font-semibold text-gray-600 dark:text-gray-400 text-sm uppercase">{title}</span>
-                                {openAccordion === title ? <ChevronUpIcon className="h-5 w-5 text-gray-500"/> : <ChevronDownIcon className="h-5 w-5 text-gray-500"/>}
-                            </button>
-                            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openAccordion === title ? 'max-h-96' : 'max-h-0'}`}>
-                                <div className="pt-2 pb-1 space-y-1">
-                                    {(mobileAccordionData[title as keyof typeof mobileAccordionData] || []).map(item => {
-                                        const content = (
-                                            <div className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{item.title}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
-                                            </div>
-                                        );
-                                        if(item.to) {
-                                            return <Link key={item.title} to={item.to} onClick={closeAllMenus}>{content}</Link>
-                                        }
-                                        return <a key={item.title} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeAllMenus}>{content}</a>
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                    <div className="space-y-1">
-                        {mainMobileLinks.map(link => (
-                            <Link key={link.label} to={link.to} onClick={closeAllMenus} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-                                <link.icon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>
-                                <span className="font-semibold text-gray-800 dark:text-gray-200">{link.label}</span>
-                            </Link>
-                        ))}
-                        <button onClick={openLanguageMenu} className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-                            <GlobeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400"/>
-                            <span className="font-semibold text-gray-800 dark:text-gray-200">Select Language</span>
-                        </button>
-                    </div>
-                    {!user && (
-                        <>
-                            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                            <div className="p-2 space-y-2">
-                                <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
-                                <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
-                            </div>
-                        </>
-                    )}
                   </div>
                 </div>
               )}
