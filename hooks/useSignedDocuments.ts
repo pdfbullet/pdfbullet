@@ -13,8 +13,8 @@ export interface SignedDocument {
     auditTrail: string; // JSON string of audit events
 }
 
-const DB_NAME = 'ilovepdflyDB'; // Using same DB as useLastTasks, but new store
-const DB_VERSION = 2; // Bump version to add new store
+const DB_NAME = 'ilovepdflyDB';
+const DB_VERSION = 2; // Bump version for new store
 const STORE_NAME = 'signedDocuments';
 const LAST_TASKS_STORE_NAME = 'lastTasks';
 

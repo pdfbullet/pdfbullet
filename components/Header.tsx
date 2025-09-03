@@ -170,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { title: 'Pricing', to: '/pricing', icon: NewspaperIcon },
       { title: 'Developer', to: '/developer', icon: ApiIcon },
       { title: 'Security', to: '/security-policy', icon: LockIcon },
-      { title: 'Features', to: '/#all-tools', icon: GridIcon },
+      { title: 'Features', to: '/features', icon: GridIcon },
       { title: 'About us', to: '/about', icon: HeartbeatIcon },
     ],
     bottomLinks: [

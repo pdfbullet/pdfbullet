@@ -25,7 +25,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
     <Link 
       to={`/${id}`} 
       title={`Open the ${t(title)} tool`}
-      className="relative flex flex-row sm:flex-col items-center sm:items-start p-4 bg-white dark:bg-surface-dark border border-gray-300 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-28 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
+      className="relative flex flex-row sm:flex-col items-center sm:items-start p-4 bg-white dark:bg-surface-dark border border-gray-400 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-28 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
     >
         <button 
           onClick={handleFavoriteClick} 

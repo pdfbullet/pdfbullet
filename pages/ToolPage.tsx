@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -16,6 +15,7 @@ import { Logo } from '../components/Logo.tsx';
 import WhoWillSignModal from '../components/WhoWillSignModal.tsx';
 import SignatureModal from '../components/SignatureModal.tsx';
 import { useSignature } from '../hooks/useSignature.ts';
+import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode } from 'pdf-lib';
 import JSZip from 'jszip';
@@ -632,6 +632,7 @@ const ToolPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { signature, saveSignature } = useSignature();
+  const { addSignedDocument } = useSignedDocuments();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -657,6 +658,7 @@ const ToolPage: React.FC = () => {
   
   // States for Visual Editors (Sign, Edit, Redact)
   const [pdfPagePreviews, setPdfPagePreviews] = useState<string[]>([]);
+  const [pdfPageViewports, setPdfPageViewports] = useState<PageViewport[]>([]); // For coordinate transform
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([]);
   const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'signature' | 'text' | 'image'>('signature');
@@ -783,6 +785,7 @@ const ToolPage: React.FC = () => {
     setCloudSaveState({google: 'idle', dropbox: 'idle'});
     setPdfPages([]);
     setPdfPagePreviews([]);
+    setPdfPageViewports([]); // Reset viewports
     setCanvasItems([]);
     setIsEditorModalOpen(false);
     setActiveDrag(null);
@@ -974,6 +977,7 @@ const ToolPage: React.FC = () => {
           if (['organize-pdf', 'sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool.id)) {
               const pages: PdfPage[] = [];
               const previews: string[] = [];
+              const newViewports: PageViewport[] = []; // Store viewports here
               const pdf = await pdfjsLib.getDocument({ data: fileBuffer }).promise;
 
               for (let i = 1; i <= pdf.numPages; i++) {
@@ -988,15 +992,18 @@ const ToolPage: React.FC = () => {
                   canvas.height = viewport.height;
                   const context = canvas.getContext('2d')!;
                   
-                  // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                   await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                   const dataUrl = canvas.toDataURL(tool.id === 'organize-pdf' ? 'image/png' : 'image/jpeg', 0.8)
                   
                   if(tool.id === 'organize-pdf') pages.push({ originalIndex: i - 1, imageDataUrl: dataUrl });
-                  if(['sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool.id)) previews.push(dataUrl);
+                  if(['sign-pdf', 'edit-pdf', 'redact-pdf'].includes(tool.id)) {
+                      previews.push(dataUrl);
+                      newViewports.push(viewport);
+                  }
               }
               setPdfPages(pages);
               setPdfPagePreviews(previews);
+              setPdfPageViewports(newViewports); // Set the viewports state
           }
           setState(ProcessingState.Idle);
       } catch (e: any) {
@@ -1166,7 +1173,6 @@ const ToolPage: React.FC = () => {
                     canvas.height = viewport.height;
                     const context = canvas.getContext('2d')!;
                     
-                    // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                     await page.render({ canvasContext: context, viewport: viewport } as any).promise;
         
                     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
@@ -1318,7 +1324,6 @@ const ToolPage: React.FC = () => {
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
                 
-                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                 await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                 
                 const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.9));
@@ -1345,7 +1350,6 @@ const ToolPage: React.FC = () => {
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
                 
-                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                 await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                 
                 const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/png'));
@@ -1534,7 +1538,6 @@ const ToolPage: React.FC = () => {
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
                 
-                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                 await page.render({ canvasContext: context, viewport: viewport } as any).promise;
 
                 const slide = pptx.addSlide();
@@ -1622,7 +1625,6 @@ const ToolPage: React.FC = () => {
                 canvas.height = viewport.height;
                 const context = canvas.getContext('2d')!;
                 
-                // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                 await page.render({ canvasContext: context, viewport: viewport } as any).promise;
 
                 const { data: ocrData } = await worker.recognize(canvas);
@@ -1694,7 +1696,6 @@ const ToolPage: React.FC = () => {
                          canvas.height = viewport.height;
                          const context = canvas.getContext('2d')!;
                          
-                         // FIX: Cast to 'any' to resolve type mismatch issue with pdfjs-dist RenderParameters.
                          await page.render({ canvasContext: context, viewport: viewport } as any).promise;
                          return canvas;
                     }
@@ -1741,46 +1742,108 @@ const ToolPage: React.FC = () => {
                 setProcessedFileBlob(null); // No download for this tool
                 break;
             }
-            case 'edit-pdf': case 'sign-pdf': {
-                if (files.length !== 1 || canvasItems.length === 0) {
-                    throw new Error("Please upload a PDF and add at least one item (text, image, or signature).");
+            case 'edit-pdf':
+            case 'sign-pdf':
+            case 'redact-pdf': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+
+                const itemsToProcess = tool.id === 'redact-pdf' ? redactionAreas : canvasItems;
+                if (itemsToProcess.length === 0) {
+                    throw new Error("Please add at least one item to the document.");
                 }
+
                 const pdfBytes = await files[0].arrayBuffer();
                 const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-                
-                setProgress({ percentage: 20, status: 'Applying edits...'});
-                for (const [i, item] of canvasItems.entries()) {
-                    setProgress({ percentage: 20 + Math.round((i / canvasItems.length) * 70), status: `Applying item ${i+1}`});
-                    const page = pdfDoc.getPages()[item.pageIndex];
-                    const pageElement = document.getElementById(`pdf-page-${item.pageIndex}`);
-                    if (!page || !pageElement) continue;
+                const pdfLibPages = pdfDoc.getPages();
 
-                    const scale = pageElement.getBoundingClientRect().width / page.getWidth();
+                // Group items by page index
+                const itemsByPage = itemsToProcess.reduce((acc, item) => {
+                    (acc[item.pageIndex] = acc[item.pageIndex] || []).push(item);
+                    return acc;
+                }, {} as { [key: number]: (CanvasItem | typeof redactionAreas[0])[] });
 
-                    const itemXOnPage = item.x - pageElement.offsetLeft;
-                    const itemYOnPage = item.y - pageElement.offsetTop;
+                for (const pageIndexStr in itemsByPage) {
+                    const pageIndex = parseInt(pageIndexStr, 10);
+                    const pageItems = itemsByPage[pageIndex];
 
-                    const pdfX = itemXOnPage / scale;
-                    const pdfY = page.getHeight() - (itemYOnPage / scale) - (item.height / scale);
+                    const pageElement = document.getElementById(`pdf-page-${pageIndex}`);
+                    const viewport = pdfPageViewports[pageIndex];
+                    if (!pageElement || !viewport) continue;
+
+                    // Create a temporary off-screen container for html2canvas
+                    const canvasContainer = document.createElement('div');
+                    canvasContainer.style.position = 'absolute';
+                    canvasContainer.style.left = '-9999px'; // Hide it
+                    canvasContainer.style.width = `${viewport.width}px`;
+                    canvasContainer.style.height = `${viewport.height}px`;
+                    canvasContainer.style.overflow = 'hidden';
+                    document.body.appendChild(canvasContainer);
                     
-                    if (item.dataUrl) {
-                        const imageBytes = await fetch(item.dataUrl).then(res => res.arrayBuffer());
-                        const embeddedImage = item.dataUrl.startsWith('data:image/png') 
-                           ? await pdfDoc.embedPng(imageBytes) 
-                           : await pdfDoc.embedJpg(imageBytes);
-                       page.drawImage(embeddedImage, {
-                           x: pdfX, y: pdfY,
-                           width: item.width / scale, height: item.height / scale,
-                       });
+                    // Add each item to this container, scaling its position and size
+                    for (const item of pageItems) {
+                        const displayRect = pageElement.getBoundingClientRect();
+                        const scaleX = viewport.width / displayRect.width;
+                        const scaleY = viewport.height / displayRect.height;
+                        
+                        const itemRelX = item.x - pageElement.offsetLeft;
+                        const itemRelY = item.y - pageElement.offsetTop;
+
+                        const newElement = document.createElement(tool.id === 'redact-pdf' ? 'div' : 'img');
+                        newElement.style.position = 'absolute';
+                        newElement.style.left = `${itemRelX * scaleX}px`;
+                        newElement.style.top = `${itemRelY * scaleY}px`;
+                        newElement.style.width = `${item.width * scaleX}px`;
+                        newElement.style.height = `${item.height * scaleY}px`;
+                        
+                        if (tool.id === 'redact-pdf') {
+                            newElement.style.backgroundColor = 'black';
+                        } else {
+                            (newElement as HTMLImageElement).src = (item as CanvasItem).dataUrl!;
+                        }
+                        canvasContainer.appendChild(newElement);
                     }
+
+                    const canvas = await html2canvas(canvasContainer, {
+                        backgroundColor: null,
+                        width: viewport.width,
+                        height: viewport.height,
+                    });
+                    
+                    document.body.removeChild(canvasContainer);
+
+                    const overlayImageBytes = await fetch(canvas.toDataURL()).then(res => res.arrayBuffer());
+                    const overlayImage = await pdfDoc.embedPng(overlayImageBytes);
+
+                    const pdfLibPage = pdfLibPages[pageIndex];
+                    const { width, height } = pdfLibPage.getSize();
+                    pdfLibPage.drawImage(overlayImage, { x: 0, y: 0, width, height, blendMode: BlendMode.Normal });
                 }
-                
-                setProgress({ percentage: 100, status: 'Saving document...'});
+
                 const finalBytes = await pdfDoc.save();
                 setProcessedFileBlob(new Blob([finalBytes], { type: 'application/pdf' }));
+
+                if (tool.id === 'sign-pdf' && user) {
+                    const originalFile = files[0];
+                    const signedBlob = new Blob([finalBytes], { type: 'application/pdf' });
+            
+                    await addSignedDocument({
+                        originator: user.username,
+                        originalFile: originalFile,
+                        originalFileName: originalFile.name,
+                        signedFile: signedBlob,
+                        signedFileName: getOutputFilename(tool.id, files, toolOptions),
+                        signers: [{ name: user.username, signedAt: new Date().toISOString() }],
+                        status: 'Signed',
+                        auditTrail: JSON.stringify([
+                            { event: 'Document Created', user: user.username, timestamp: new Date().toISOString() },
+                            { event: 'Document Signed', user: user.username, timestamp: new Date().toISOString() }
+                        ])
+                    });
+                }
                 break;
             }
-            case 'remove-background': {
+            
+          case 'remove-background': {
                 if (files.length !== 1) throw new Error("Please select one image file to remove the background.");
                 setProgress({ percentage: 10, status: 'Loading model... This might take a moment.'});
                 setProgress({ percentage: 50, status: 'Processing image...'});
@@ -1819,45 +1882,6 @@ const ToolPage: React.FC = () => {
             setProgress({ percentage: 70, status: 'Re-saving with standardized metadata...'});
             const pdfaBytes = await pdfDoc.save();
             setProcessedFileBlob(new Blob([pdfaBytes], { type: 'application/pdf' }));
-            break;
-          }
-          case 'redact-pdf': {
-            if (files.length !== 1) throw new Error("Please select one PDF file to redact.");
-            if (redactionAreas.length === 0) throw new Error("Please draw at least one redaction area.");
-            
-            const pdfBytes = await files[0].arrayBuffer();
-            const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-
-            setProgress({ percentage: 20, status: 'Applying redactions...'});
-
-            for (const [i, area] of redactionAreas.entries()) {
-                setProgress({ percentage: 20 + Math.round((i / redactionAreas.length) * 70), status: `Redacting area ${i+1}`});
-                const page = pdfDoc.getPages()[area.pageIndex];
-                const pageElement = document.getElementById(`pdf-page-${area.pageIndex}`);
-                if (!page || !pageElement) continue;
-
-                const scale = pageElement.getBoundingClientRect().width / page.getWidth();
-                
-                const areaXOnPage = area.x - pageElement.offsetLeft;
-                const areaYOnPage = area.y - pageElement.offsetTop;
-
-                const pdfX = areaXOnPage / scale;
-                const pdfY = page.getHeight() - (areaYOnPage / scale) - (area.height / scale);
-                const pdfWidth = area.width / scale;
-                const pdfHeight = area.height / scale;
-
-                page.drawRectangle({
-                    x: pdfX,
-                    y: pdfY,
-                    width: pdfWidth,
-                    height: pdfHeight,
-                    color: rgb(0, 0, 0),
-                });
-            }
-            
-            setProgress({ percentage: 100, status: 'Saving document...'});
-            const redactedBytes = await pdfDoc.save();
-            setProcessedFileBlob(new Blob([redactedBytes], { type: 'application/pdf' }));
             break;
           }
           case 'psd-to-pdf': {
@@ -2043,14 +2067,11 @@ const ToolPage: React.FC = () => {
         }
 
         try {
-            // Using a client-side library is more robust, private, and removes the network dependency.
-            // Using 'L' for low errorCorrectionLevel to maximize data capacity.
             const generatedUrl = await QRCode.toDataURL(dataUrl, { width: 150, errorCorrectionLevel: 'L' });
             setQrCodeUrl(generatedUrl);
             setQrCodeError('');
         } catch (error) {
             console.error("Error generating QR code:", error);
-            // This error typically happens if the data URL is too long for the QR code standard.
             setQrCodeError("This file is too large to generate a scannable QR code. Please use the 'Copy' button to share the download link.");
         } finally {
             setIsQrLoading(false);
@@ -2365,12 +2386,11 @@ const ToolPage: React.FC = () => {
                             {canvasItems.map(item => (
                                 <div
                                     key={item.id}
-                                    className="absolute cursor-move"
+                                    className="absolute cursor-move border-2 border-dashed border-blue-500 hover:border-blue-700"
                                     style={{ left: item.x, top: item.y, width: item.width, height: item.height }}
                                     onMouseDown={(e) => {
                                         const target = e.currentTarget as HTMLDivElement;
                                         const rect = target.getBoundingClientRect();
-                                        const containerRect = previewContainerRef.current!.getBoundingClientRect();
                                         setActiveDrag({
                                             id: item.id,
                                             offsetX: e.clientX - rect.left,
@@ -2379,6 +2399,7 @@ const ToolPage: React.FC = () => {
                                     }}
                                 >
                                     <img src={item.dataUrl} alt={item.type} className="w-full h-full object-contain" />
+                                     <button onClick={() => setCanvasItems(prev => prev.filter(i => i.id !== item.id))} className="absolute -top-2 -right-2 p-1 bg-red-600 text-white rounded-full"><CloseIcon className="h-3 w-3" /></button>
                                 </div>
                             ))}
                         </div>
@@ -2386,7 +2407,7 @@ const ToolPage: React.FC = () => {
 
                     {/* Right Side: Signing Options Sidebar */}
                     <div className="w-full md:w-80 flex-shrink-0">
-                        <div className="sticky top-24 bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                        <div className="sticky top-24 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                             <h3 className="text-xl font-bold mb-4">Signing options</h3>
                             <div className="flex border border-gray-300 dark:border-gray-600 rounded-md mb-6">
                                 <button className="flex-1 p-3 text-center border-r border-gray-300 dark:border-gray-600 bg-red-50 dark:bg-red-900/30 text-brand-red font-semibold rounded-l-md">
@@ -2455,6 +2476,31 @@ const ToolPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {renderContent()}
       </div>
+      <WhoWillSignModal 
+        isOpen={isWhoWillSignModalOpen}
+        onClose={handleReset}
+        onOnlyMe={() => {
+            if (!user) {
+                navigate('/login', { state: { from: `/sign-pdf` } });
+                return;
+            }
+            setWhoWillSignModalOpen(false);
+            if (signature?.signature) {
+                extractPages();
+            } else {
+                setIsSignatureModalOpen(true);
+            }
+        }}
+        onSeveralPeople={() => alert("Inviting others to sign is a premium feature coming soon!")}
+      />
+      <SignatureModal
+        isOpen={isSignatureModalOpen}
+        onClose={() => {
+            setIsSignatureModalOpen(false);
+            if (!signature?.signature) handleReset();
+        }}
+        onSave={handleSignatureSave}
+      />
     </div>
   );
 };

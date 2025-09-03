@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { UserIcon } from './icons.tsx';
 
 interface SignatureModalProps {
     isOpen: boolean;
@@ -21,10 +20,10 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
     const colors = ['#000000', '#0D6EFD', '#DC3545', '#198754'];
 
     useEffect(() => {
-        if (user?.username) {
+        if (isOpen && user?.username && !fullName) {
             setFullName(user.username);
         }
-    }, [user]);
+    }, [isOpen, user, fullName]);
     
     useEffect(() => {
         const words = fullName.trim().split(/\s+/);
@@ -100,7 +99,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
 
                     <div className="mt-4">
                         <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                            {fonts.map(font => (
+                            {activeTab !== 'stamp' ? fonts.map(font => (
                                 <div key={font} className={`p-4 rounded-md border-2 ${selectedFont === font ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700'}`}>
                                     <label className="flex items-center cursor-pointer">
                                         <input type="radio" name="signature-font" value={font} checked={selectedFont === font} onChange={() => setSelectedFont(font)} className="h-5 w-5 text-brand-red focus:ring-brand-red" />
@@ -109,7 +108,9 @@ const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave
                                         </div>
                                     </label>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="text-center p-8 text-gray-500">Company stamp feature coming soon.</div>
+                            )}
                         </div>
                          <div className="mt-4 flex items-center gap-4">
                             <span className="text-sm font-bold mr-3">Color:</span>
