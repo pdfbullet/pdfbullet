@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { Tool } from '../types.ts';

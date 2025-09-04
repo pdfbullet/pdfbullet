@@ -1,5 +1,4 @@
 
-
 import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -160,8 +159,7 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
-// FIX: Fix lazy import for ToolPage. The dynamic import resolves to the component directly, not a module with a 'default' property. This wraps the resolved component in the structure React.lazy expects.
-const ToolPage = lazy(() => import('./pages/ToolPage.tsx').then(module => ({ default: (module as any).default || module })));
+const ToolPage = lazy(() => import('./pages/ToolPage.tsx'));
 const AboutPage = lazy(() => import('./pages/AboutPage.tsx'));
 const BlogPage = lazy(() => import('./pages/BlogPage.tsx'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage.tsx'));
@@ -171,10 +169,6 @@ const SignUpPage = lazy(() => import('./pages/SignUpPage.tsx'));
 const DeveloperPage = lazy(() => import('./pages/DeveloperPage.tsx'));
 const FaqPage = lazy(() => import('./pages/FaqPage.tsx'));
 const SitemapPage = lazy(() => import('./pages/SitemapPage.tsx'));
-const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx'));
-const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
-const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
-const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -242,7 +236,8 @@ function MainApp() {
         const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
         if (pendingDataStr) {
           sessionStorage.removeItem('pendingInvoiceDataRedirect');
-          navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
+          const restoredData = JSON.parse(pendingDataStr);
+          navigate('/invoice-generator', { state: { restoredData }, replace: true });
         } else if (redirectInfo.from === 'pricing') {
           navigate('/payment', { state: { plan: redirectInfo.plan } });
         } else if (redirectInfo.from === 'developer') {
@@ -278,10 +273,6 @@ function MainApp() {
             <Route path="/developer" element={<DeveloperPage />} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/sitemap" element={<SitemapPage />} />
-            <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
-            <Route path="/cv-generator" element={<CVGeneratorPage />} />
-            <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
-            <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/api-pricing" element={<ApiPricingPage />} />
             <Route path="/premium-feature" element={<PremiumFeaturePage />} />
@@ -333,7 +324,7 @@ function MainApp() {
                 </Route>
             </Route>
             
-            {/* ToolPage should be last to catch dynamic tool IDs */}
+            {/* ToolPage dispatcher should be last to catch all dynamic tool IDs */}
             <Route path="/:toolId" element={<ToolPage />} />
           </Routes>
         </Suspense>

@@ -21,7 +21,7 @@ import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, B
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, PageViewport } from 'pdfjs-dist';
-import { Document, Packer, Paragraph } from 'docx';
+import { Document, Packer, Paragraph, TextRun, ImageRun, SectionType } from 'docx';
 import mammoth from 'mammoth';
 import PptxGenJS from 'pptxgenjs';
 import Tesseract from 'tesseract.js';
@@ -683,6 +683,35 @@ const ToolPage: React.FC = () => {
   // States for Sign PDF flow
   const [isWhoWillSignModalOpen, setWhoWillSignModalOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  
+  // State for PDF to Word conversion mode
+  const [conversionMode, setConversionMode] = useState<'no-ocr' | 'ocr'>('no-ocr');
+
+  // FIX: Moved wrapText function to component scope to make it accessible by multiple tool handlers.
+  const wrapText = (text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] => {
+      const lines: string[] = [];
+      const paragraphs = text.split('\n');
+      for (const paragraph of paragraphs) {
+          const words = paragraph.split(' ');
+          let currentLine = '';
+          if (words.length === 0) {
+              lines.push('');
+              continue;
+          }
+          for (const word of words) {
+              const testLine = currentLine.length > 0 ? `${currentLine} ${word}` : word;
+              const textWidth = font.widthOfTextAtSize(testLine, fontSize);
+              if (textWidth > maxWidth && currentLine.length > 0) {
+                  lines.push(currentLine);
+                  currentLine = word;
+              } else {
+                  currentLine = testLine;
+              }
+          }
+          lines.push(currentLine);
+      }
+      return lines;
+  };
   
   const blobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -1360,82 +1389,216 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'pdf-to-word': {
+            if (conversionMode === 'ocr' && !user?.isPremium) {
+              navigate('/premium-feature', { state: { toolId: tool.id } });
+              setState(ProcessingState.Idle);
+              return;
+            }
             if (files.length !== 1) throw new Error("Please select one PDF file.");
+            
             const file = files[0];
             const pdfData = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-            let fullText = '';
+            const sections: any[] = [];
             const numPages = pdf.numPages;
+            
+            let worker: Tesseract.Worker | null = null;
+            if (conversionMode === 'ocr') {
+              worker = await Tesseract.createWorker('eng', 1, {
+                  logger: m => setProgress({ percentage: Math.round(m.progress * 80), status: m.status })
+              });
+            }
+
             for (let i = 1; i <= numPages; i++) {
-                setProgress({ percentage: Math.round(((i - 1) / numPages) * 90), status: `Extracting text from page ${i}` });
+                setProgress({ percentage: Math.round(((i-1)/numPages)*80), status: `Processing page ${i}` });
                 const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
-                fullText += pageText + '\n\n';
+                const viewport = page.getViewport({ scale: 2.0 });
+                const pageChildren: (Paragraph | ImageRun)[] = [];
+
+                if (conversionMode === 'ocr' && worker) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const context = canvas.getContext('2d')!;
+                    await page.render({ canvasContext: context, viewport: viewport } as any).promise;
+                    const { data: ocrData } = await worker.recognize(canvas);
+                    if ((ocrData as any).paragraphs) {
+                        (ocrData as any).paragraphs.forEach((p: { text: string }) => {
+                            pageChildren.push(new Paragraph(p.text));
+                        });
+                    }
+                } else {
+                  // Advanced NO OCR Logic with layout and image preservation
+                    const textContent = await page.getTextContent();
+                    const operatorList = await page.getOperatorList();
+                    
+                    type ContentItem = { y: number, x: number, type: 'text' | 'image', content: any, height?: number };
+                    const contentItems: ContentItem[] = [];
+
+                    textContent.items.forEach((item: any) => {
+                        contentItems.push({
+                            y: item.transform[5],
+                            x: item.transform[4],
+                            type: 'text',
+                            content: {
+                                text: item.str,
+                                fontName: item.fontName,
+                                size: item.height * 0.75,
+                            },
+                            height: item.height,
+                        });
+                    });
+
+                    const fns = operatorList.fnArray;
+                    const args = operatorList.argsArray;
+                    for (let opIdx = 0; opIdx < fns.length; opIdx++) {
+                        if (fns[opIdx] === pdfjsLib.OPS.paintImageXObject) {
+                            const imgKey = args[opIdx][0];
+                            try {
+                                const imgData = await page.objs.get(imgKey);
+                                if (imgData && imgData.data) {
+                                    contentItems.push({
+                                        y: 0, x: 0, type: 'image',
+                                        content: { data: imgData.data, width: imgData.width, height: imgData.height }
+                                    });
+                                }
+                            } catch (e) {
+                                console.warn(`Could not extract image ${imgKey}:`, e);
+                            }
+                        }
+                    }
+                    
+                    contentItems.sort((a, b) => {
+                        if (Math.abs(a.y - b.y) < 5) return a.x - b.x;
+                        return b.y - a.y;
+                    });
+                    
+                    let currentLine: TextRun[] = [];
+                    for (let k = 0; k < contentItems.length; k++) {
+                        const item = contentItems[k];
+                        if (item.type === 'text') {
+                            currentLine.push(new TextRun({
+                                text: item.content.text,
+                                bold: item.content.fontName.toLowerCase().includes('bold'),
+                                size: item.content.size * 2,
+                            }));
+                            const nextItem = contentItems[k + 1];
+                            if (!nextItem || nextItem.type === 'image' || Math.abs(item.y - nextItem.y) > (item.height || 10) * 0.5) {
+                                pageChildren.push(new Paragraph({ children: currentLine, spacing: { after: 100 } }));
+                                currentLine = [];
+                            }
+                        } else if (item.type === 'image') {
+                            if (currentLine.length > 0) {
+                                pageChildren.push(new Paragraph({ children: currentLine }));
+                                currentLine = [];
+                            }
+                            try {
+                                pageChildren.push(new Paragraph({
+                                    children: [new ImageRun({
+                                        // FIX: The 'docx' library's ImageRun expects the image data under the 'data' property, not 'buffer'.
+                                        data: item.content.data,
+                                        transformation: {
+                                            width: item.content.width,
+                                            height: item.content.height,
+                                        },
+                                    })],
+                                }));
+                            } catch (imgErr) {
+                                console.warn("Error embedding image:", imgErr);
+                            }
+                        }
+                    }
+                    if (currentLine.length > 0) {
+                        pageChildren.push(new Paragraph({ children: currentLine }));
+                    }
+                }
+
+                sections.push({
+                    properties: { type: SectionType.NEXT_PAGE, pageSize: { width: viewport.width * (72/96), height: viewport.height * (72/96) } },
+                    children: pageChildren as any,
+                });
             }
             
-            setProgress({ percentage: 100, status: 'Building Word document...' });
-            const doc = new Document({
-                sections: [{ children: fullText.split('\n').map(line => new Paragraph(line)) }]
-            });
+            if (worker) await worker.terminate();
+
+            setProgress({ percentage: 95, status: 'Building Word document...' });
+            const doc = new Document({ sections });
             const blob = await Packer.toBlob(doc);
             setProcessedFileBlob(blob);
             break;
           }
-          case 'word-to-pdf': {
-             if (files.length !== 1) throw new Error("Please select one DOCX file.");
-             const file = files[0];
-             const arrayBuffer = await file.arrayBuffer();
-             
-             setProgress({ percentage: 20, status: 'Converting DOCX to HTML...' });
-             let html;
-             try {
-                 const result = await mammoth.convertToHtml({ arrayBuffer });
-                 html = result.value;
-             } catch (e: any) {
-                const errorMessage = String(e?.message || '');
-                if (errorMessage.includes('Could not find the body element')) {
-                    throw new Error("Invalid DOCX file. The file might be corrupted or an old .doc format. Please save it as .docx and try again.");
+         case 'word-to-pdf': {
+            if (files.length !== 1) throw new Error("Please select one DOCX file.");
+            const file = files[0];
+            const arrayBuffer = await file.arrayBuffer();
+
+            setProgress({ percentage: 20, status: 'Parsing Word document...' });
+            const { value: html } = await mammoth.convertToHtml({ arrayBuffer });
+
+            setProgress({ percentage: 50, status: 'Building high-fidelity PDF...' });
+
+            const pdfDoc = await PDFDocument.create();
+            let page = pdfDoc.addPage(PageSizes.A4);
+            const { width, height } = page.getSize();
+            const margin = 50;
+            const maxWidth = width - 2 * margin;
+
+            const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+            const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+
+            let y = height - margin;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            const nodes = Array.from(tempDiv.childNodes);
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i] as HTMLElement;
+                if (!node.tagName) continue;
+
+                let text = node.textContent || '';
+                if (text.trim() === '') {
+                    y -= 12 * 1.2; // Add space for empty paragraphs
+                    continue;
                 }
-                throw new Error(`Failed to process Word file. The file may be corrupted. Error: ${errorMessage}`);
-             }
 
-             const container = document.createElement('div');
-             container.innerHTML = html;
-             container.style.padding = '20px';
-             container.style.width = '210mm'; // A4 width
-             container.style.background = 'white';
-             document.body.appendChild(container);
+                let fontSize = 12;
+                let font = timesRomanFont;
+                const style = node.getAttribute('style') || '';
+                const isCentered = style.includes('text-align: center');
 
-             setProgress({ percentage: 60, status: 'Rendering document...' });
-             const canvas = await html2canvas(container, { scale: 2 });
-             document.body.removeChild(container);
-             
-             setProgress({ percentage: 90, status: 'Generating PDF...' });
-             const imgData = canvas.toDataURL('image/png');
-             const pdf = new jsPDF('p', 'mm', 'a4');
-             const pdfWidth = pdf.internal.pageSize.getWidth();
-             const pdfHeight = pdf.internal.pageSize.getHeight();
-             const canvasWidth = canvas.width;
-             const canvasHeight = canvas.height;
-             const ratio = canvasWidth / pdfWidth;
-             const scaledHeight = canvasHeight / ratio;
-             
-             let heightLeft = scaledHeight;
-             let position = 0;
-             
-             pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
-             heightLeft -= pdfHeight;
+                switch (node.tagName.toUpperCase()) {
+                    case 'H1': fontSize = 24; font = timesRomanBoldFont; break;
+                    case 'H2': fontSize = 18; font = timesRomanBoldFont; break;
+                    case 'H3': fontSize = 16; font = timesRomanBoldFont; break;
+                    case 'P': fontSize = 12; font = timesRomanFont; break;
+                    default: continue;
+                }
 
-             while (heightLeft > 0) {
-                 position = heightLeft - scaledHeight;
-                 pdf.addPage();
-                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
-                 heightLeft -= pdfHeight;
-             }
-             const blob = pdf.output('blob');
-             setProcessedFileBlob(blob);
-             break;
+                const lines = wrapText(text, font, fontSize, maxWidth);
+
+                for (const line of lines) {
+                    if (y < margin + fontSize) {
+                        page = pdfDoc.addPage(PageSizes.A4);
+                        y = height - margin;
+                    }
+
+                    const lineWidth = font.widthOfTextAtSize(line, fontSize);
+                    let x = margin;
+                    if (isCentered) {
+                        x = (width - lineWidth) / 2;
+                    }
+
+                    page.drawText(line, { x, y, font, size: fontSize, color: rgb(0, 0, 0) });
+                    y -= fontSize * 1.2;
+                }
+                y -= 10;
+            }
+
+            setProgress({ percentage: 95, status: 'Saving PDF...' });
+            const pdfBytes = await pdfDoc.save();
+            setProcessedFileBlob(new Blob([pdfBytes], { type: 'application/pdf' }));
+            break;
           }
           case 'pdf-to-excel': {
             if (files.length !== 1) throw new Error("Please select one PDF file.");
@@ -1464,61 +1627,68 @@ const ToolPage: React.FC = () => {
             if (files.length !== 1) throw new Error("Please select one Excel file.");
             const file = files[0];
             const arrayBuffer = await file.arrayBuffer();
-            
+        
             setProgress({ percentage: 20, status: 'Reading Excel file...' });
-            let workbook;
-            try {
-                workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            } catch (e: any) {
-                const errorMessage = String(e?.message || 'Unknown error');
-                throw new Error(`Failed to read the Excel file. It might be corrupted or in an unsupported format. Error: ${errorMessage}`);
-            }
-            
-            if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-                throw new Error("The selected Excel file appears to be empty or contains no sheets.");
-            }
-
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const html = XLSX.utils.sheet_to_html(worksheet);
-
-            setProgress({ percentage: 60, status: 'Rendering spreadsheet...' });
-            const container = document.createElement('div');
-            container.innerHTML = `<style>table { border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 10px; } th, td { border: 1px solid #dddddd; text-align: left; padding: 4px; } th { background-color: #f2f2f2; }</style>${html}`;
-            container.style.padding = '10px';
-            container.style.width = 'fit-content';
-            container.style.background = 'white';
-            document.body.appendChild(container);
-
-            const canvas = await html2canvas(container, { scale: 2 });
-            document.body.removeChild(container);
-
-            setProgress({ percentage: 90, status: 'Generating PDF...' });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'l' : 'p', unit: 'mm', format: 'a4' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / pdfWidth;
-            const scaledHeight = canvasHeight / ratio;
-
-            let heightLeft = scaledHeight;
-            let position = 0;
+            const data = XLSX.utils.sheet_to_json<any[]>(worksheet, { header: 1 });
+        
+            setProgress({ percentage: 50, status: 'Building PDF table...' });
+            const pdfDoc = await PDFDocument.create();
+            let page = pdfDoc.addPage(PageSizes.A4);
+            let { width, height } = page.getSize();
+            const margin = 40;
             
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
-            heightLeft -= pdfHeight;
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const fontSize = 8;
+            const lineHeight = fontSize * 1.5;
+            let y = height - margin;
+            
+            if (data.length > 0) {
+                const colCount = data[0].length;
+                const colWidth = (width - 2 * margin) / colCount;
 
-            while (heightLeft > 0) {
-                position = heightLeft - scaledHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
-                heightLeft -= pdfHeight;
+                for (const row of data) {
+                    if (y < margin + lineHeight) {
+                        page = pdfDoc.addPage(PageSizes.A4);
+                        y = height - margin;
+                    }
+                    let x = margin;
+                    let maxRowHeight = lineHeight;
+                    
+                    // Pre-calculate wrapped lines to determine row height
+                    const rowLines = row.map(cell => {
+                       const text = String(cell || '');
+                       return wrapText(text, font, fontSize, colWidth - 8); // 4px padding
+                    });
+                    const maxLinesInRow = Math.max(...rowLines.map(lines => lines.length));
+                    maxRowHeight = maxLinesInRow * fontSize * 1.2;
+
+                    if (y < margin + maxRowHeight) {
+                        page = pdfDoc.addPage(PageSizes.A4);
+                        y = height - margin;
+                    }
+
+                    for (let i = 0; i < row.length; i++) {
+                        const lines = rowLines[i];
+                        let cellY = y;
+                        for (const line of lines) {
+                           page.drawText(line, { x: x + 4, y: cellY - fontSize, font, size: fontSize, color: rgb(0,0,0) });
+                           cellY -= fontSize * 1.2;
+                        }
+                        page.drawRectangle({ x, y: y - maxRowHeight, width: colWidth, height: maxRowHeight, borderColor: rgb(0.8, 0.8, 0.8), borderWidth: 0.5 });
+                        x += colWidth;
+                    }
+                    y -= maxRowHeight;
+                }
             }
-            const blob = pdf.output('blob');
-            setProcessedFileBlob(blob);
+        
+            setProgress({ percentage: 95, status: 'Saving PDF...' });
+            const pdfBytes = await pdfDoc.save();
+            setProcessedFileBlob(new Blob([pdfBytes], { type: 'application/pdf' }));
             break;
-          }
+        }
           case 'pdf-to-powerpoint': {
             if (files.length !== 1) throw new Error("Please select one PDF file.");
             const file = files[0];
@@ -2318,6 +2488,23 @@ const ToolPage: React.FC = () => {
     }
 
     if (state === ProcessingState.Processing) {
+        if (tool?.id === 'pdf-to-word' && files.length > 0) {
+            return (
+              <div className="text-center w-full max-w-2xl mx-auto py-12">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                  Converting to Word...
+                </h2>
+                <div className="mt-8 bg-white dark:bg-black p-6 rounded-lg shadow-lg border dark:border-gray-700">
+                  <p className="font-semibold truncate">{files[0].name}</p>
+                  <p className="text-sm text-gray-500">{formatBytes(files[0].size)}</p>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-4">
+                    <div className="bg-brand-red h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress?.percentage || 0}%` }}></div>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{progress?.status || 'Starting...'}</p>
+                </div>
+              </div>
+            );
+          }
         return (
             <div className="flex flex-col items-center justify-center text-center w-full min-h-[60vh] py-12">
                 <div className="mb-12">
@@ -2352,23 +2539,53 @@ const ToolPage: React.FC = () => {
 
             {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && (
                 <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
-                    <div className="space-y-6">
-                        {tool.id === 'compress-pdf' && (
-                            <CompressionOptions 
-                                level={toolOptions.compressionLevel}
-                                setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
-                            />
-                        )}
-                        {files.length > 0 && (
-                            <button
-                                onClick={handleProcess}
-                                disabled={isProcessButtonDisabled}
-                                className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
-                            >
-                                {tool.title} <RightArrowIcon className="h-6 w-6" />
+                     {tool.id === 'pdf-to-word' ? (
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">PDF to Word</h3>
+                            <div onClick={() => setConversionMode('no-ocr')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${conversionMode === 'no-ocr' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-semibold text-gray-800 dark:text-gray-200">NO OCR</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert PDFs with selectable text into editable Word files.</p>
+                                    </div>
+                                    {conversionMode === 'no-ocr' && <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0"><CheckIcon className="h-4 w-4 text-white" /></div>}
+                                </div>
+                            </div>
+                            <div onClick={() => setConversionMode('ocr')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${conversionMode === 'ocr' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-semibold text-gray-800 dark:text-gray-200">OCR</p>
+                                            <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">Premium</span>
+                                        </div>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert scanned PDFs with non-selectable text into editable Word files.</p>
+                                    </div>
+                                    {conversionMode === 'ocr' && <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0"><CheckIcon className="h-4 w-4 text-white" /></div>}
+                                </div>
+                            </div>
+                            <button onClick={handleProcess} disabled={isProcessButtonDisabled} className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400`}>
+                                Convert to WORD <RightArrowIcon className="h-6 w-6" />
                             </button>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {tool.id === 'compress-pdf' && (
+                                <CompressionOptions 
+                                    level={toolOptions.compressionLevel}
+                                    setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
+                                />
+                            )}
+                            {files.length > 0 && (
+                                <button
+                                    onClick={handleProcess}
+                                    disabled={isProcessButtonDisabled}
+                                    className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
+                                >
+                                    {tool.title} <RightArrowIcon className="h-6 w-6" />
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </FileUpload>
             )}
 
@@ -2460,7 +2677,7 @@ const ToolPage: React.FC = () => {
                 </div>
             )}
             
-            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && files.length > 0 && (
+            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && files.length > 0 && tool.id !== 'pdf-to-word' && (
               <div className="mt-12 text-center">
                 <button onClick={handleReset} className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
                   &larr; Process another file

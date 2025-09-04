@@ -133,7 +133,7 @@ const SignPdf: React.FC = () => {
             extractPages();
         }
     };
-
+    
     const addSignatureToCanvas = (type: 'signature' | 'initials') => {
         if (!signature || (type === 'signature' && !signature.signature) || (type === 'initials' && !signature.initials)) {
             setIsSignatureModalOpen(true);
@@ -206,7 +206,8 @@ const SignPdf: React.FC = () => {
                     windowHeight: document.documentElement.scrollHeight,
                     onclone: (clonedDoc) => {
                         Array.from(clonedDoc.querySelectorAll('.canvas-item')).forEach(el => {
-                            const id = parseInt(el.getAttribute('data-id') || '0', 10);
+                            // FIX: Cast the element to Element type to access getAttribute method. This resolves the TypeScript error where `el` was of type `unknown`.
+                            const id = parseInt((el as Element).getAttribute('data-id') || '0', 10);
                             if (!pageItems.some(item => item.id === id)) {
                                 (el as HTMLElement).style.display = 'none';
                             }
@@ -293,7 +294,7 @@ const SignPdf: React.FC = () => {
                                 <div
                                     key={item.id}
                                     data-id={item.id}
-                                    className="absolute cursor-move border-2 border-dashed border-blue-500 hover:border-blue-700 canvas-item"
+                                    className="absolute cursor-move border-2 border-dashed border-blue-500 hover:border-blue-700 canvas-item group"
                                     style={{ left: item.x, top: item.y, width: item.width, height: item.height }}
                                     onMouseDown={(e) => {
                                         const target = e.currentTarget as HTMLDivElement;
