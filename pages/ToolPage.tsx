@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -21,13 +22,12 @@ import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, B
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, PageViewport } from 'pdfjs-dist';
-import { Document, Packer, Paragraph, TextRun, ImageRun, SectionType } from 'docx';
-import mammoth from 'mammoth';
+import { Document, Packer, Paragraph, TextRun, ImageRun, SectionType, AlignmentType } from 'docx';
 import PptxGenJS from 'pptxgenjs';
 import Tesseract from 'tesseract.js';
 import pixelmatch from 'pixelmatch';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import { readPsd } from 'ag-psd';
 import { removeBackground } from '@imgly/background-removal';
@@ -515,7 +515,7 @@ const getOutputFilename = (toolId: string, files: File[], options: any): string 
     case 'pdf-to-excel': return `${baseName}.xlsx`;
     case 'excel-to-pdf': return `${baseName}.pdf`;
     case 'pdf-to-powerpoint': return `${baseName}.pptx`;
-    case 'powerpoint-to-pdf': return `${baseName}.pdf`;
+    case 'powerpoint-to-pdf': return `${baseName}.pptx`;
     case 'crop-pdf': return `${baseName}_cropped.pdf`;
     case 'redact-pdf': return `${baseName}_redacted.pdf`;
     case 'repair-pdf': return `${baseName}_repaired.pdf`;
@@ -685,34 +685,38 @@ const ToolPage: React.FC = () => {
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   
   // State for PDF to Word conversion mode
-  const [conversionMode, setConversionMode] = useState<'no-ocr' | 'ocr'>('no-ocr');
+  const [pdfToWordMode, setPdfToWordMode] = useState<'editable' | 'exact'>('editable');
+  const [useOcr, setUseOcr] = useState(false);
 
-  // FIX: Moved wrapText function to component scope to make it accessible by multiple tool handlers.
-  const wrapText = (text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] => {
-      const lines: string[] = [];
-      const paragraphs = text.split('\n');
-      for (const paragraph of paragraphs) {
-          const words = paragraph.split(' ');
-          let currentLine = '';
-          if (words.length === 0) {
-              lines.push('');
-              continue;
-          }
-          for (const word of words) {
-              const testLine = currentLine.length > 0 ? `${currentLine} ${word}` : word;
-              const textWidth = font.widthOfTextAtSize(testLine, fontSize);
-              if (textWidth > maxWidth && currentLine.length > 0) {
-                  lines.push(currentLine);
-                  currentLine = word;
-              } else {
-                  currentLine = testLine;
-              }
-          }
-          lines.push(currentLine);
-      }
-      return lines;
-  };
+  // New states for processing speed and time
+  const [processingStartTime, setProcessingStartTime] = useState<number | null>(null);
+  const [processingSpeed, setProcessingSpeed] = useState<number>(0);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   
+  const totalSize = useMemo(() => files.reduce((acc, file) => acc + file.size, 0), [files]);
+
+  useEffect(() => {
+    if (state === ProcessingState.Processing && progress && processingStartTime && totalSize > 0 && progress.percentage > 0) {
+        const elapsedTime = (Date.now() - processingStartTime) / 1000; // in seconds
+        
+        const processedBytes = totalSize * (progress.percentage / 100);
+        
+        const currentSpeed = elapsedTime > 0 ? processedBytes / elapsedTime : 0;
+        setProcessingSpeed(currentSpeed);
+        
+        if (progress.percentage > 5) { // Only estimate after a bit of progress
+            const estimatedTotalTime = (elapsedTime / progress.percentage) * 100;
+            const remainingTime = Math.max(0, estimatedTotalTime - elapsedTime);
+            setTimeRemaining(remainingTime);
+        }
+        
+    } else if (state !== ProcessingState.Processing) {
+        setProcessingStartTime(null);
+        setProcessingSpeed(0);
+        setTimeRemaining(null);
+    }
+  }, [progress, state, processingStartTime, totalSize]);
+
   const blobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -827,9 +831,11 @@ const ToolPage: React.FC = () => {
     setCompressionResult(null);
     setWhoWillSignModalOpen(false);
     setIsSignatureModalOpen(false);
+    setProcessingStartTime(null);
+    setProcessingSpeed(0);
+    setTimeRemaining(null);
   }, []);
 
-  // Capture original meta info on component mount for SEO and handle updates
   useEffect(() => {
     if (!originalMetas.current) {
         const metaDesc = document.getElementById('meta-description') as HTMLMetaElement;
@@ -843,7 +849,6 @@ const ToolPage: React.FC = () => {
     
     const currentTool = TOOLS.find(t => t.id === toolId);
     
-    // Cleanup function runs before next effect or on unmount
     const cleanupSeo = () => {
         const scriptToRemove = document.getElementById('tool-structured-data');
         if (scriptToRemove) scriptToRemove.remove();
@@ -857,7 +862,6 @@ const ToolPage: React.FC = () => {
       setTool(currentTool);
       handleReset();
 
-       // SEO Updates
       const newTitle = `${currentTool.title} – I Love PDFLY`;
       const newDescription = toolSeoDescriptions[currentTool.id] || `Use the ${currentTool.title} tool on I Love PDFLY. ${currentTool.description} Fast, free, and secure.`;
       
@@ -888,7 +892,6 @@ const ToolPage: React.FC = () => {
       if (metaDesc) metaDesc.content = newDescription;
       if (metaKeywords) metaKeywords.content = toolKeywords;
 
-      // Add/Update JSON-LD structured data
       const scriptId = 'tool-structured-data';
       let script = document.getElementById(scriptId) as HTMLScriptElement | null;
       if (!script) {
@@ -1081,6 +1084,10 @@ const ToolPage: React.FC = () => {
 
   const handleOnlyMeSign = () => {
       setWhoWillSignModalOpen(false);
+      if (!user) {
+          navigate('/login', { state: { from: `/sign-pdf` } });
+          return;
+      }
       if (signature?.signature) {
           extractPages();
       } else {
@@ -1133,6 +1140,7 @@ const ToolPage: React.FC = () => {
       if (files.length === 0 && !isVisualTool) return;
       
       setState(ProcessingState.Processing);
+      setProcessingStartTime(Date.now());
       setErrorMessage('');
       setProcessedFileBlob(null);
       setProgress({ percentage: 0, status: 'Starting process...'});
@@ -1389,137 +1397,128 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'pdf-to-word': {
-            if (conversionMode === 'ocr' && !user?.isPremium) {
-              navigate('/premium-feature', { state: { toolId: tool.id } });
-              setState(ProcessingState.Idle);
-              return;
+            if (pdfToWordMode === 'editable' && useOcr && !user?.isPremium) {
+                navigate('/premium-feature', { state: { toolId: tool.id } });
+                setState(ProcessingState.Idle);
+                return;
             }
             if (files.length !== 1) throw new Error("Please select one PDF file.");
-            
+
             const file = files[0];
             const pdfData = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
             const sections: any[] = [];
             const numPages = pdf.numPages;
+
+            if (pdfToWordMode === 'exact') {
+                const A4_WIDTH_POINTS = 595.28;
+                const A4_HEIGHT_POINTS = 841.89;
+                const MARGIN_POINTS = 72;
             
-            let worker: Tesseract.Worker | null = null;
-            if (conversionMode === 'ocr') {
-              worker = await Tesseract.createWorker('eng', 1, {
-                  logger: m => setProgress({ percentage: Math.round(m.progress * 80), status: m.status })
-              });
-            }
+                for (let i = 1; i <= numPages; i++) {
+                    setProgress({ percentage: Math.round(((i - 1) / numPages) * 100), status: `Processing page ${i}` });
+                    const page = await pdf.getPage(i);
+                    const originalViewport = page.getViewport({ scale: 1.0 });
+            
+                    const isPortrait = originalViewport.width < originalViewport.height;
+            
+                    const pageWidthPoints = isPortrait ? A4_WIDTH_POINTS : A4_HEIGHT_POINTS;
+                    const pageHeightPoints = isPortrait ? A4_HEIGHT_POINTS : A4_WIDTH_POINTS;
+                    const orientation = isPortrait ? 'portrait' : 'landscape';
+            
+                    const availableWidthPoints = pageWidthPoints - (2 * MARGIN_POINTS);
+                    const availableHeightPoints = pageHeightPoints - (2 * MARGIN_POINTS);
+            
+                    const scale = Math.min(
+                        availableWidthPoints / originalViewport.width,
+                        availableHeightPoints / originalViewport.height
+                    );
 
-            for (let i = 1; i <= numPages; i++) {
-                setProgress({ percentage: Math.round(((i-1)/numPages)*80), status: `Processing page ${i}` });
-                const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 2.0 });
-                const pageChildren: (Paragraph | ImageRun)[] = [];
-
-                if (conversionMode === 'ocr' && worker) {
+                    const finalWidthPx = Math.floor(originalViewport.width * scale);
+                    const finalHeightPx = Math.floor(originalViewport.height * scale);
+            
+                    const renderScale = 2.0;
+                    const renderViewport = page.getViewport({ scale: renderScale });
                     const canvas = document.createElement('canvas');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+                    canvas.width = renderViewport.width;
+                    canvas.height = renderViewport.height;
                     const context = canvas.getContext('2d')!;
-                    await page.render({ canvasContext: context, viewport: viewport } as any).promise;
-                    const { data: ocrData } = await worker.recognize(canvas);
-                    if ((ocrData as any).paragraphs) {
-                        (ocrData as any).paragraphs.forEach((p: { text: string }) => {
-                            pageChildren.push(new Paragraph(p.text));
-                        });
-                    }
-                } else {
-                  // Advanced NO OCR Logic with layout and image preservation
-                    const textContent = await page.getTextContent();
-                    const operatorList = await page.getOperatorList();
-                    
-                    type ContentItem = { y: number, x: number, type: 'text' | 'image', content: any, height?: number };
-                    const contentItems: ContentItem[] = [];
-
-                    textContent.items.forEach((item: any) => {
-                        contentItems.push({
-                            y: item.transform[5],
-                            x: item.transform[4],
-                            type: 'text',
-                            content: {
-                                text: item.str,
-                                fontName: item.fontName,
-                                size: item.height * 0.75,
+                    await page.render({ canvasContext: context, viewport: renderViewport } as any).promise;
+                    const imgData = canvas.toDataURL('image/png');
+                    const imageBuffer = await fetch(imgData).then(res => res.arrayBuffer());
+            
+                    sections.push({
+                        properties: {
+                            type: i === 1 ? SectionType.CONTINUOUS : SectionType.NEXT_PAGE,
+                            pageSize: {
+                                width: pageWidthPoints * 20,
+                                height: pageHeightPoints * 20,
+                                orientation: orientation as any,
                             },
-                            height: item.height,
-                        });
+                            margins: {
+                                top: MARGIN_POINTS * 20,
+                                right: MARGIN_POINTS * 20,
+                                bottom: MARGIN_POINTS * 20,
+                                left: MARGIN_POINTS * 20,
+                            },
+                        },
+                        children: [new Paragraph({
+                            children: [new ImageRun({
+                                data: imageBuffer,
+                                transformation: {
+                                    width: finalWidthPx,
+                                    height: finalHeightPx,
+                                },
+                            } as any)],
+                            alignment: AlignmentType.CENTER, 
+                        })]
                     });
-
-                    const fns = operatorList.fnArray;
-                    const args = operatorList.argsArray;
-                    for (let opIdx = 0; opIdx < fns.length; opIdx++) {
-                        if (fns[opIdx] === pdfjsLib.OPS.paintImageXObject) {
-                            const imgKey = args[opIdx][0];
-                            try {
-                                const imgData = await page.objs.get(imgKey);
-                                if (imgData && imgData.data) {
-                                    contentItems.push({
-                                        y: 0, x: 0, type: 'image',
-                                        content: { data: imgData.data, width: imgData.width, height: imgData.height }
-                                    });
-                                }
-                            } catch (e) {
-                                console.warn(`Could not extract image ${imgKey}:`, e);
-                            }
-                        }
-                    }
-                    
-                    contentItems.sort((a, b) => {
-                        if (Math.abs(a.y - b.y) < 5) return a.x - b.x;
-                        return b.y - a.y;
+                }
+            } else { // 'editable' mode
+                let worker: Tesseract.Worker | null = null;
+                if (useOcr) {
+                    worker = await Tesseract.createWorker('eng', 1, {
+                        logger: m => setProgress({ percentage: Math.round(m.progress * 80), status: m.status })
                     });
-                    
-                    let currentLine: TextRun[] = [];
-                    for (let k = 0; k < contentItems.length; k++) {
-                        const item = contentItems[k];
-                        if (item.type === 'text') {
-                            currentLine.push(new TextRun({
-                                text: item.content.text,
-                                bold: item.content.fontName.toLowerCase().includes('bold'),
-                                size: item.content.size * 2,
-                            }));
-                            const nextItem = contentItems[k + 1];
-                            if (!nextItem || nextItem.type === 'image' || Math.abs(item.y - nextItem.y) > (item.height || 10) * 0.5) {
-                                pageChildren.push(new Paragraph({ children: currentLine, spacing: { after: 100 } }));
-                                currentLine = [];
-                            }
-                        } else if (item.type === 'image') {
-                            if (currentLine.length > 0) {
-                                pageChildren.push(new Paragraph({ children: currentLine }));
-                                currentLine = [];
-                            }
-                            try {
-                                pageChildren.push(new Paragraph({
-                                    children: [new ImageRun({
-                                        // FIX: The 'docx' library's ImageRun expects the image data under the 'data' property, not 'buffer'.
-                                        data: item.content.data,
-                                        transformation: {
-                                            width: item.content.width,
-                                            height: item.content.height,
-                                        },
-                                    })],
-                                }));
-                            } catch (imgErr) {
-                                console.warn("Error embedding image:", imgErr);
-                            }
-                        }
-                    }
-                    if (currentLine.length > 0) {
-                        pageChildren.push(new Paragraph({ children: currentLine }));
-                    }
                 }
 
-                sections.push({
-                    properties: { type: SectionType.NEXT_PAGE, pageSize: { width: viewport.width * (72/96), height: viewport.height * (72/96) } },
-                    children: pageChildren as any,
-                });
+                for (let i = 1; i <= numPages; i++) {
+                    setProgress({ percentage: Math.round(((i - 1) / numPages) * 80), status: `Processing page ${i}` });
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    const pageChildren: (Paragraph | ImageRun)[] = [];
+
+                    if (useOcr && worker) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const context = canvas.getContext('2d')!;
+                        await page.render({ canvasContext: context, viewport: viewport } as any).promise;
+                        const { data: ocrData } = await worker.recognize(canvas);
+                        if ((ocrData as any).paragraphs) {
+                            (ocrData as any).paragraphs.forEach((p: { text: string }) => {
+                                pageChildren.push(new Paragraph(p.text));
+                            });
+                        }
+                    } else {
+                        const textContent = await page.getTextContent();
+                        textContent.items.forEach((item: any) => {
+                            pageChildren.push(new Paragraph({
+                                children: [new TextRun({
+                                    text: item.str,
+                                    bold: item.fontName.toLowerCase().includes('bold'),
+                                    size: item.height * 2,
+                                })],
+                            }));
+                        });
+                    }
+                    sections.push({
+                        properties: { type: SectionType.NEXT_PAGE, pageSize: { width: viewport.width * 12700, height: viewport.height * 12700 } },
+                        children: pageChildren as any,
+                    });
+                }
+                if (worker) await worker.terminate();
             }
-            
-            if (worker) await worker.terminate();
 
             setProgress({ percentage: 95, status: 'Building Word document...' });
             const doc = new Document({ sections });
@@ -1527,77 +1526,107 @@ const ToolPage: React.FC = () => {
             setProcessedFileBlob(blob);
             break;
           }
-         case 'word-to-pdf': {
+          case 'word-to-pdf': {
             if (files.length !== 1) throw new Error("Please select one DOCX file.");
             const file = files[0];
             const arrayBuffer = await file.arrayBuffer();
 
-            setProgress({ percentage: 20, status: 'Parsing Word document...' });
-            const { value: html } = await mammoth.convertToHtml({ arrayBuffer });
+            setProgress({ percentage: 20, status: 'Preparing document preview...' });
 
-            setProgress({ percentage: 50, status: 'Building high-fidelity PDF...' });
+            const { renderAsync } = await import('https://esm.sh/docx-preview@0.3.2');
+            
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '8.27in';
+            container.style.padding = '1in';
+            container.style.background = 'white';
+            container.style.boxSizing = 'content-box';
+            document.body.appendChild(container);
 
-            const pdfDoc = await PDFDocument.create();
-            let page = pdfDoc.addPage(PageSizes.A4);
-            const { width, height } = page.getSize();
-            const margin = 50;
-            const maxWidth = width - 2 * margin;
+            try {
+              setProgress({ percentage: 50, status: 'Rendering document...' });
+              
+              await renderAsync(arrayBuffer, container, null, {
+                  inWrapper: true,
+                  ignoreWidth: false,
+                  ignoreHeight: true,
+                  useMathMLPolyfill: true,
+              } as any);
+              
+              setProgress({ percentage: 65, status: 'Waiting for fonts and images to load...' });
+              
+              const images = Array.from(container.getElementsByTagName('img'));
+              const imageLoadPromises = images.map(img => {
+                  if (img.complete) return Promise.resolve();
+                  return new Promise(resolve => {
+                      img.onload = resolve;
+                      img.onerror = resolve; 
+                  });
+              });
 
-            const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-            const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+              await Promise.all([
+                  ...imageLoadPromises,
+                  document.fonts.ready,
+              ]);
+              
+              // Add a more robust delay to ensure all rendering is complete, especially for complex highlights.
+              await new Promise(resolve => setTimeout(resolve, 1000));
 
-            let y = height - margin;
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
+              setProgress({ percentage: 75, status: 'Capturing document...' });
+              
+              const canvas = await html2canvas(container, {
+                  scale: 2.5,
+                  useCORS: true,
+                  width: container.scrollWidth,
+                  height: container.scrollHeight,
+                  backgroundColor: '#ffffff',
+              });
+          
+              setProgress({ percentage: 90, status: 'Generating PDF...' });
+              
+              const pdf = new jsPDF('p', 'mm', 'a4');
+              const pdfWidth = pdf.internal.pageSize.getWidth();
+              const pdfHeight = pdf.internal.pageSize.getHeight();
+              const canvasWidth = canvas.width;
+              const canvasHeight = canvas.height;
+              
+              const pageCanvasHeight = canvasWidth * (pdfHeight / pdfWidth);
+              let currentPosition = 0;
+              let pageCount = 0;
+          
+              while (currentPosition < canvasHeight) {
+                  if (pageCount > 0) {
+                      pdf.addPage();
+                  }
+                  
+                  const sliceCanvas = document.createElement('canvas');
+                  sliceCanvas.width = canvasWidth;
+                  sliceCanvas.height = Math.min(pageCanvasHeight, canvasHeight - currentPosition);
+                  const sliceCtx = sliceCanvas.getContext('2d')!;
+          
+                  sliceCtx.drawImage(canvas, 0, currentPosition, canvasWidth, sliceCanvas.height, 0, 0, canvasWidth, sliceCanvas.height);
+                  
+                  const imageData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+                  
+                  const imgProps = pdf.getImageProperties(imageData);
+                  const imgHeight = pdfWidth * (imgProps.height / imgProps.width);
 
-            const nodes = Array.from(tempDiv.childNodes);
-            for (let i = 0; i < nodes.length; i++) {
-                const node = nodes[i] as HTMLElement;
-                if (!node.tagName) continue;
+                  pdf.addImage(imageData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+                  
+                  currentPosition += pageCanvasHeight;
+                  pageCount++;
+              }
+          
+              setProgress({ percentage: 95, status: 'Saving PDF...' });
+              const pdfBlob = pdf.output('blob');
+              setProcessedFileBlob(pdfBlob);
 
-                let text = node.textContent || '';
-                if (text.trim() === '') {
-                    y -= 12 * 1.2; // Add space for empty paragraphs
-                    continue;
-                }
-
-                let fontSize = 12;
-                let font = timesRomanFont;
-                const style = node.getAttribute('style') || '';
-                const isCentered = style.includes('text-align: center');
-
-                switch (node.tagName.toUpperCase()) {
-                    case 'H1': fontSize = 24; font = timesRomanBoldFont; break;
-                    case 'H2': fontSize = 18; font = timesRomanBoldFont; break;
-                    case 'H3': fontSize = 16; font = timesRomanBoldFont; break;
-                    case 'P': fontSize = 12; font = timesRomanFont; break;
-                    default: continue;
-                }
-
-                const lines = wrapText(text, font, fontSize, maxWidth);
-
-                for (const line of lines) {
-                    if (y < margin + fontSize) {
-                        page = pdfDoc.addPage(PageSizes.A4);
-                        y = height - margin;
-                    }
-
-                    const lineWidth = font.widthOfTextAtSize(line, fontSize);
-                    let x = margin;
-                    if (isCentered) {
-                        x = (width - lineWidth) / 2;
-                    }
-
-                    page.drawText(line, { x, y, font, size: fontSize, color: rgb(0, 0, 0) });
-                    y -= fontSize * 1.2;
-                }
-                y -= 10;
+            } finally {
+              document.body.removeChild(container);
             }
-
-            setProgress({ percentage: 95, status: 'Saving PDF...' });
-            const pdfBytes = await pdfDoc.save();
-            setProcessedFileBlob(new Blob([pdfBytes], { type: 'application/pdf' }));
             break;
           }
           case 'pdf-to-excel': {
@@ -1657,9 +1686,24 @@ const ToolPage: React.FC = () => {
                     let x = margin;
                     let maxRowHeight = lineHeight;
                     
-                    // Pre-calculate wrapped lines to determine row height
                     const rowLines = row.map(cell => {
                        const text = String(cell || '');
+                       const wrapText = (text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] => {
+                           const lines: string[] = [];
+                           const words = text.split(' ');
+                           let currentLine = '';
+                           for (const word of words) {
+                               const testLine = currentLine ? `${currentLine} ${word}` : word;
+                               if (font.widthOfTextAtSize(testLine, fontSize) > maxWidth) {
+                                   lines.push(currentLine);
+                                   currentLine = word;
+                               } else {
+                                   currentLine = testLine;
+                               }
+                           }
+                           lines.push(currentLine);
+                           return lines;
+                       };
                        return wrapText(text, font, fontSize, colWidth - 8); // 4px padding
                     });
                     const maxLinesInRow = Math.max(...rowLines.map(lines => lines.length));
@@ -1789,7 +1833,7 @@ const ToolPage: React.FC = () => {
             for (let i = 1; i <= numPages; i++) {
                 setProgress({ percentage: Math.round(((i-1)/numPages)*90), status: `Processing page ${i} of ${numPages}`});
                 const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 2 }); // Higher scale for better OCR
+                const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR
                 const canvas = document.createElement('canvas');
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
@@ -2177,8 +2221,6 @@ const ToolPage: React.FC = () => {
   };
 
   if (!tool) {
-    // This can happen briefly on load, or if the toolId is invalid.
-    // A loading spinner could be shown here.
     return (
         <div className="flex items-center justify-center h-screen">
            <div className="text-center">
@@ -2187,6 +2229,16 @@ const ToolPage: React.FC = () => {
         </div>
     );
   }
+
+  const formatTime = (seconds: number | null): string => {
+    if (seconds === null || !isFinite(seconds) || seconds < 0) return 'Calculating...';
+    if (seconds < 1) return '< 1 second remaining';
+    if (seconds < 60) return `${Math.round(seconds)} second(s) remaining`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    if (minutes < 1) return `${remainingSeconds} second(s) remaining`;
+    return `${minutes} minute(s), ${remainingSeconds} second(s) remaining`;
+  };
   
   const handleDownload = () => {
     if (!downloadUrl) return;
@@ -2488,40 +2540,40 @@ const ToolPage: React.FC = () => {
     }
 
     if (state === ProcessingState.Processing) {
-        if (tool?.id === 'pdf-to-word' && files.length > 0) {
-            return (
-              <div className="text-center w-full max-w-2xl mx-auto py-12">
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                  Converting to Word...
-                </h2>
-                <div className="mt-8 bg-white dark:bg-black p-6 rounded-lg shadow-lg border dark:border-gray-700">
-                  <p className="font-semibold truncate">{files[0].name}</p>
-                  <p className="text-sm text-gray-500">{formatBytes(files[0].size)}</p>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-4">
-                    <div className="bg-brand-red h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress?.percentage || 0}%` }}></div>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{progress?.status || 'Starting...'}</p>
-                </div>
-              </div>
-            );
-          }
+        const hasProgress = progress && processingStartTime && progress.percentage > 0;
         return (
-            <div className="flex flex-col items-center justify-center text-center w-full min-h-[60vh] py-12">
+            <div className="flex flex-col items-center justify-center text-center w-full max-w-2xl mx-auto py-12">
                 <div className="mb-12">
                     <Logo className="h-12 w-auto" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                     {getProcessingMessage(tool)}
                 </h2>
-                <div className="mt-12">
-                    <div 
-                        className="w-24 h-24 border-[10px] border-gray-200 dark:border-gray-700 rounded-full animate-spin"
-                        style={{ borderTopColor: '#B90B06' }}
-                    ></div>
-                </div>
-                 {progress && (
-                    <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>
-                 )}
+                
+                {files.length > 0 && progress ? (
+                     <div className="mt-8 bg-white dark:bg-black p-6 rounded-lg shadow-lg border dark:border-gray-700 w-full">
+                        <p className="font-semibold truncate">{files.length === 1 ? files[0].name : `${files.length} files`}</p>
+                        <p className="text-sm text-gray-500">{formatBytes(totalSize)}</p>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-4">
+                            <div className="bg-brand-red h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress.percentage || 0}%` }}></div>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{progress.status || 'Starting...'}</p>
+                        {hasProgress && (
+                            <div className="mt-4 text-xs text-gray-500 flex justify-between">
+                                <span>{formatBytes(processingSpeed)}/s</span>
+                                <span>{formatTime(timeRemaining)}</span>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="mt-12">
+                        <div 
+                            className="w-24 h-24 border-[10px] border-gray-200 dark:border-gray-700 rounded-full animate-spin"
+                            style={{ borderTopColor: '#B90B06' }}
+                        ></div>
+                        {progress && <p className="mt-8 text-gray-600 dark:text-gray-400">{progress.status}</p>}
+                    </div>
+                )}
             </div>
         );
     }
@@ -2541,31 +2593,26 @@ const ToolPage: React.FC = () => {
                 <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
                      {tool.id === 'pdf-to-word' ? (
                         <div className="space-y-4">
-                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">PDF to Word</h3>
-                            <div onClick={() => setConversionMode('no-ocr')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${conversionMode === 'no-ocr' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-semibold text-gray-800 dark:text-gray-200">NO OCR</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert PDFs with selectable text into editable Word files.</p>
-                                    </div>
-                                    {conversionMode === 'no-ocr' && <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0"><CheckIcon className="h-4 w-4 text-white" /></div>}
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Conversion Options</h3>
+                            <div onClick={() => setPdfToWordMode('editable')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'editable' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">Editable Text (Basic Layout)</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Extracts text for editing. Best for text changes, but complex layouts and colors may be altered.</p>
+                                <div className="mt-3 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                     <label className="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" checked={useOcr} onChange={(e) => setUseOcr(e.target.checked)} className="h-4 w-4 rounded text-brand-red focus:ring-brand-red" />
+                                        <span className="text-sm">Use OCR</span>
+                                        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">Premium</span>
+                                     </label>
+                                     <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">For scanned documents with non-selectable text.</p>
                                 </div>
                             </div>
-                            <div onClick={() => setConversionMode('ocr')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${conversionMode === 'ocr' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-gray-800 dark:text-gray-200">OCR</p>
-                                            <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">Premium</span>
-                                        </div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert scanned PDFs with non-selectable text into editable Word files.</p>
-                                    </div>
-                                    {conversionMode === 'ocr' && <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0"><CheckIcon className="h-4 w-4 text-white" /></div>}
-                                </div>
+                            <div onClick={() => setPdfToWordMode('exact')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'exact' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">Exact Copy (Pages as Images)</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Preserves 100% of original formatting, colors, and images. Text within images will not be editable.</p>
                             </div>
-                            <button onClick={handleProcess} disabled={isProcessButtonDisabled} className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400`}>
+                            {files.length > 0 && <button onClick={handleProcess} disabled={isProcessButtonDisabled} className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400`}>
                                 Convert to WORD <RightArrowIcon className="h-6 w-6" />
-                            </button>
+                            </button>}
                         </div>
                     ) : (
                         <div className="space-y-6">
@@ -2723,3 +2770,4 @@ const ToolPage: React.FC = () => {
 };
 
 export default ToolPage;
+
