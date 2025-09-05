@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
-import { SearchIcon, BookOpenIcon, UserIcon } from './icons.tsx';
+import { SearchIcon, BookOpenIcon, UserIcon, BriefcaseIcon, StudentIcon, GavelIcon, NewspaperIcon, CodeIcon, StarIcon } from './icons.tsx';
 import { Tool } from '../types.ts';
 
 interface SearchModalProps {
@@ -10,11 +10,20 @@ interface SearchModalProps {
 }
 
 const mainPages = [
-  { path: "/about", title: "About Us", description: "Learn about our mission and story.", Icon: UserIcon, color: 'bg-blue-500' },
-  { path: "/contact", title: "Contact", description: "Get in touch with our team.", Icon: UserIcon, color: 'bg-green-500' },
-  { path: "/faq", title: "FAQ", description: "Find answers to frequently asked questions.", Icon: UserIcon, color: 'bg-yellow-500' },
-  { path: "/pricing", title: "Pricing", description: "View our flexible pricing plans.", Icon: UserIcon, color: 'bg-purple-500' },
-  { path: "/developer", title: "Developer API", description: "Integrate our tools with your applications.", Icon: UserIcon, color: 'bg-teal-500' },
+  { path: "/about", title: "About Us", description: "Learn about our mission, values, and the story behind I Love PDFLY.", Icon: UserIcon, color: 'bg-blue-500' },
+  { path: "/contact", title: "Contact", description: "Get in touch with our team for support or inquiries.", Icon: UserIcon, color: 'bg-green-500' },
+  { path: "/faq", title: "FAQ", description: "Find answers to frequently asked questions about our tools and services.", Icon: UserIcon, color: 'bg-yellow-500' },
+  { path: "/pricing", title: "Pricing", description: "View our flexible pricing plans for users.", Icon: StarIcon, color: 'bg-purple-500' },
+  { path: "/developer", title: "Developer Hub", description: "Integrate our powerful tools into your applications with our REST API.", Icon: CodeIcon, color: 'bg-teal-500' },
+  { path: "/sitemap", title: "Sitemap", description: "A complete overview of all pages and tools available on our site.", Icon: UserIcon, color: 'bg-gray-500' },
+  { path: "/ceo", title: "Message from the CEO", description: "Read a letter from our founder, Bishal Mishra.", Icon: UserIcon, color: 'bg-indigo-500' },
+  { path: "/legal", title: "Legal & Privacy Hub", description: "Find our Terms of Service, Privacy Policy, and Cookie Policy.", Icon: GavelIcon, color: 'bg-slate-500' },
+  { path: "/education", title: "For Education", description: "Solutions and tools tailored for students and educators.", Icon: StudentIcon, color: 'bg-pink-500' },
+  { path: "/business", title: "For Business", description: "Streamline document workflows for your company.", Icon: BriefcaseIcon, color: 'bg-cyan-500' },
+  { path: "/press", title: "Press Kit", description: "Media kits, logos, and information for the press.", Icon: NewspaperIcon, color: 'bg-rose-500' },
+  { path: "/features", title: "Features", description: "Explore all the powerful features of our platform.", Icon: UserIcon, color: 'bg-fuchsia-500' },
+  { path: "/api-pricing", title: "API Pricing", description: "View pricing plans for our developer API.", Icon: StarIcon, color: 'bg-purple-500' },
+  { path: "/api-reference", title: "API Reference", description: "Detailed documentation for all API endpoints and libraries.", Icon: BookOpenIcon, color: 'bg-gray-500' },
 ];
 
 type SearchableItem = {

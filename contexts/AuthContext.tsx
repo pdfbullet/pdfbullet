@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth, db, storage, firebase } from '../firebase/config.ts';
+import Preloader from '../components/Preloader.tsx';
 
 // Add and export this interface
 export interface BusinessDetails {
@@ -273,7 +274,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
