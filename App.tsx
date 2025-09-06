@@ -1,11 +1,11 @@
-
-
 import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider } from './contexts/I18nContext.tsx';
 import { EmailIcon, CheckIcon } from './components/icons.tsx';
+import { GoogleGenAI, Chat } from '@google/genai';
+import { Logo } from './components/Logo.tsx';
 
 // Components that are part of the main layout
 import Header from './components/Header.tsx';
@@ -157,6 +157,254 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
     );
 };
 
+// ===================================================================
+// CHATBOT WIDGET COMPONENT
+// ===================================================================
+const ChatbotIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
+    </svg>
+);
+
+const CloseIconForChat: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const SendIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+    </svg>
+);
+
+const PaperclipIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.735l-7.662 7.662a4.5 4.5 0 01-6.364-6.364l7.662-7.662a3 3 0 014.242 4.242l-7.662 7.662a1.5 1.5 0 01-2.121-2.121l7.662-7.662" />
+  </svg>
+);
+
+type ChatMessage = {
+    role: 'user' | 'model';
+    text: string;
+};
+
+const MarkdownRenderer: React.FC<{ text: string }> = ({ text }) => {
+    const navigate = useNavigate();
+    // A simple markdown parser for **bold** and links.
+    // This regex tries to match relative paths starting with /
+    const formattedText = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(\s|^)(\/[-a-zA-Z0-9_/?=&]+)/g, '$1<a href="$2" class="text-blue-500 hover:underline" data-internal-link="true">$2</a>');
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'A' && target.dataset.internalLink === 'true') {
+            e.preventDefault();
+            const path = target.getAttribute('href');
+            if (path) {
+                navigate(path);
+            }
+        }
+    };
+
+    return <div style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: formattedText }} onClick={handleClick} />;
+};
+
+const faqs = [
+    { q: "How do I merge PDF files?", icon: "📄" },
+    { q: "Can I edit text in a PDF?", icon: "✏️" },
+    { q: "Is this service secure?", icon: "🔒" },
+    { q: "What are the premium features?", icon: "⭐" },
+];
+
+const ChatbotWidget: React.FC = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [conversationStarted, setConversationStarted] = useState(false);
+    const [messages, setMessages] = useState<ChatMessage[]>([
+        { role: 'model', text: 'Hi 👋 I’m your support assistant. How can I help you today?' }
+    ]);
+    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [chat, setChat] = useState<Chat | null>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const hasOpened = sessionStorage.getItem('chatWidgetAutoOpened');
+        if (!hasOpened && !isOpen) {
+            const timer = setTimeout(() => {
+                setIsOpen(true);
+                sessionStorage.setItem('chatWidgetAutoOpened', 'true');
+            }, 3000); // 3 second delay
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+    
+    useEffect(() => {
+        if (isOpen && !chat) {
+            try {
+                const apiKey = process.env.API_KEY;
+                if (!apiKey) {
+                    throw new Error("API key is not configured.");
+                }
+                const ai = new GoogleGenAI({ apiKey });
+                const chatSession = ai.chats.create({
+                    model: 'gemini-2.5-flash',
+                    config: {
+                        systemInstruction: `You are an expert, friendly, and helpful customer support assistant for a website called 'iLovePDFLY'. Your name is Bishal, and you represent the company. Your goal is to provide accurate information, guide users on how to use the site, and answer frequently asked questions.
+
+**Your Identity:**
+- **Your Persona:** You are Bishal, the founder. Be confident, knowledgeable, and professional, yet approachable and friendly. Use emojis to add a warm touch where appropriate. ✨
+- **Your Creator:** You were created by the development team at iLovePDFLY, led by founder and CEO, **Bishal Mishra**. When asked about yourself, you can embody this persona.
+
+**Key Information about iLovePDFLY:**
+- **Website:** The official website is ilovepdfly.com.
+- **Mission:** To provide a comprehensive online toolkit for PDF and image management that is FREE, fast, secure, and private.
+- **Privacy:** A key feature is client-side processing. Files are processed in the user's browser, ensuring they are 100% private. This is a major selling point.
+- **Tools:** The site offers a wide range of tools for PDFs (Merge, Split, Compress, Convert, Edit, Sign, Watermark, etc.) and Images (Background Remover, Resize, Crop). There are also AI tools like an Invoice Generator, CV Generator, and Lesson Plan Creator.
+- **Premium Features:** While most tools are free, some advanced features (like higher limits, OCR in PDF to Word, batch processing, no ads, team features) require a Premium subscription.
+
+**Interaction Guidelines:**
+- **Answering FAQs:** Users may click pre-defined FAQ buttons. Answer these questions directly and helpfully. For example, if asked "How to merge PDFs?", explain the simple steps: go to the Merge PDF tool, upload files, reorder them, and click the merge button.
+- **Providing Links:** Always provide relative links (e.g., /about, /pricing, /merge-pdf) when a user asks for a specific page or tool. Do not say you cannot provide links. Format links simply as text paths, for example: "You can find our pricing details on our pricing page: /pricing".
+- **Formatting:** Use Markdown for emphasis. Use double asterisks for bolding: \`**this is bold**\`. This is important for highlighting tool names, key features, or links. Keep paragraphs short.
+- **Exclusivity:** You are an assistant for **iLovePDFLY** only. If asked about competitors (like 'iLovePDF'), politely clarify that you only have information about iLovePDFLY and its unique features, like its strong focus on privacy.`,
+                    },
+                });
+                setChat(chatSession);
+            } catch (e: any) {
+                console.error("Failed to initialize Gemini Chat:", e);
+                setError("Could not connect to the AI assistant. Please try again later.");
+            }
+        }
+    }, [isOpen, chat]);
+
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [messages, isLoading]);
+
+    const handleSendMessage = async (messageText?: string) => {
+        const textToSend = (messageText || inputValue).trim();
+        if (!textToSend || isLoading || !chat) return;
+        
+        setConversationStarted(true);
+        const userMessage: ChatMessage = { role: 'user', text: textToSend };
+        setMessages(prev => [...prev, userMessage]);
+        setInputValue('');
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await chat.sendMessage({ message: userMessage.text });
+            const botMessage: ChatMessage = { role: 'model', text: response.text };
+            setMessages(prev => [...prev, botMessage]);
+        } catch (e: any) {
+            console.error("Gemini API error:", e);
+            const errorMessage = "Sorry, I couldn't get a response. Please check your connection or try again later.";
+            setError(errorMessage);
+            setMessages(prev => [...prev, { role: 'model', text: errorMessage }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            // Simulate attaching the file by sending a message
+            handleSendMessage(`(User attached file: ${file.name}, size: ${Math.round(file.size / 1024)} KB)`);
+        }
+    };
+
+    return (
+        <div className="fixed bottom-4 left-4 z-[99] pointer-events-none">
+            <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+                <div className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800">
+                    <div className="flex-shrink-0 p-4 flex justify-between items-center bg-gradient-to-r from-red-600 to-orange-500 rounded-t-2xl">
+                        <p className="font-bold text-white">iLovePDFly Support</p>
+                        <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white">
+                            <CloseIconForChat className="h-6 w-6" />
+                        </button>
+                    </div>
+                    <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`flex items-end gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
+                                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
+                                    {msg.role === 'model' ? <MarkdownRenderer text={msg.text} /> : <p style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>}
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                             <div className="flex items-end gap-2.5 justify-start">
+                                <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
+                                <div className="p-3 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center rounded-bl-none">
+                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1.5"></span>
+                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce"></span>
+                                </div>
+                            </div>
+                        )}
+                         {!conversationStarted && !isLoading && (
+                            <div className="pt-2">
+                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Or ask about:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {faqs.map((faq, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleSendMessage(faq.q)}
+                                            className="flex items-center gap-2 text-xs text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors"
+                                        >
+                                            <span>{faq.icon}</span>
+                                            <span className="font-medium text-gray-700 dark:text-gray-300">{faq.q}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {error && <p className="text-xs text-red-500 text-center px-4 pb-2">{error}</p>}
+                     <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="relative flex items-center">
+                             <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} />
+                             <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-brand-red transition-colors"
+                                aria-label="Attach file"
+                            >
+                                <PaperclipIcon className="h-5 w-5" />
+                            </button>
+                            <input
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                placeholder="Type a message..."
+                                className="flex-grow w-full px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-full focus:ring-brand-red focus:border-brand-red text-sm"
+                                disabled={isLoading}
+                            />
+                            <button onClick={() => handleSendMessage()} disabled={isLoading || !inputValue.trim()} className="p-2.5 ml-2 bg-brand-red text-white rounded-full disabled:bg-red-300 transition-colors flex-shrink-0">
+                                <SendIcon className="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button
+                onClick={() => setIsOpen(true)}
+                className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+            >
+                <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
+                <ChatbotIcon className="h-6 w-6 relative" />
+            </button>
+        </div>
+    );
+};
 
 // Lazy-loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));
@@ -352,6 +600,7 @@ function MainApp() {
       <ScrollToTopButton />
       <CookieConsentBanner />
       <PWAInstallPrompt />
+      <ChatbotWidget />
     </div>
   );
 }

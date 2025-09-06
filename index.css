@@ -331,3 +331,13 @@ input[type=range].slider::-moz-range-thumb {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes ping-slow {
+  75%, 100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+.animate-ping-slow {
+  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
