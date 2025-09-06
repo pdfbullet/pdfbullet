@@ -23,7 +23,9 @@ const ApiPricingPage: React.FC = () => {
             description: 'For testing and personal projects',
             features: {
                 "API Calls": "100 / day",
-                "All Tools Access": true,
+                "Basic PDF & Image Tools": true,
+                "Premium PDF & Image Tools": false,
+                "Signature API": false,
                 "File Size Limit": "Standard",
                 "Processing Speed": "Standard",
                 "Support": "Community",
@@ -40,7 +42,9 @@ const ApiPricingPage: React.FC = () => {
             description: 'For production applications',
             features: {
                 "API Calls": "1,000 / day",
-                "All Tools Access": true,
+                "Basic PDF & Image Tools": true,
+                "Premium PDF & Image Tools": true,
+                "Signature API": false,
                 "File Size Limit": "Increased",
                 "Processing Speed": "Fast",
                 "Support": "Email Support",
@@ -57,7 +61,9 @@ const ApiPricingPage: React.FC = () => {
             description: 'For large-scale applications',
             features: {
                 "API Calls": "10,000 / day",
-                "All Tools Access": true,
+                "Basic PDF & Image Tools": true,
+                "Premium PDF & Image Tools": true,
+                "Signature API": true,
                 "File Size Limit": "Largest",
                 "Processing Speed": "Priority",
                 "Support": "Priority Email & Chat",
@@ -72,7 +78,7 @@ const ApiPricingPage: React.FC = () => {
     const allFeatureKeys = Object.keys(plans[0].features);
 
     return (
-        <div className="py-16 md:py-24">
+        <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
             <div className="container mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center mb-12">
                     <ApiIcon className="h-16 w-16 mx-auto text-brand-red mb-4" />
