@@ -9,7 +9,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
-  GlobeIcon, QuestionMarkIcon
+  GlobeIcon, QuestionMarkIcon, QrCodeIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -22,6 +22,7 @@ interface HeaderProps {
   onOpenProfileImageModal: () => void;
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
+  onOpenQrCodeModal: () => void;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -30,7 +31,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -343,6 +344,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               <SearchIcon className="h-6 w-6" />
             </button>
             
+            {/* QR Code Icon */}
+            <button onClick={onOpenQrCodeModal} className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
+                <QrCodeIcon className="h-6 w-6" />
+            </button>
+
             <button onClick={toggleTheme} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Toggle theme" title="Toggle theme">
                 {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
             </button>

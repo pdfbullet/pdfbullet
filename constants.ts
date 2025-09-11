@@ -641,7 +641,7 @@ export const blogPosts = [
     image: 'https://ik.imagekit.io/fonepay/social%20media%20band%20in%20nepal%20ilovepdfly.png?updatedAt=1757078313764',
     author: 'The I Love PDFLY Team',
     authorImage: '/logo.svg',
-    tags: ['Nepal', 'Social Media Ban', 'Facebook Ban', 'Digital Rights', 'Internet Freedom', 'Tech Policy', 'Government Regulation'],
+    tags: ['Social Media Ban', 'Facebook Ban', 'Internet Freedom', 'Government Regulation'],
     },
     {
     slug: 'neb-class-12-result-2081-2082',

@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
 import { Tool } from '../types.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 const SitemapPage: React.FC = () => {
-
+    const { t } = useI18n();
+    
     useEffect(() => {
       document.title = "Sitemap | I Love PDFLY";
       const metaDesc = document.querySelector('meta[name="description"]');
@@ -24,10 +26,10 @@ const SitemapPage: React.FC = () => {
         image: { title: 'Image Tools', tools: [] },
     };
     
-    const imageToolIds = ['resize-image', 'remove-background', 'crop-image', 'convert-to-jpg', 'convert-from-jpg', 'compress-image', 'watermark-image'];
+    const imageToolIds = new Set(['resize-image', 'remove-background', 'crop-image', 'convert-to-jpg', 'convert-from-jpg', 'compress-image', 'watermark-image']);
 
     TOOLS.forEach(tool => {
-        if (imageToolIds.includes(tool.id)) {
+        if (imageToolIds.has(tool.id)) {
             toolCategories.image.tools.push(tool);
         } else if (tool.category) {
             if (!toolCategories[tool.category]) {
@@ -48,13 +50,16 @@ const SitemapPage: React.FC = () => {
       { path: "/faq", name: "FAQ" },
       { path: "/pricing", name: "Pricing" },
       { path: "/press", name: "Press" },
+      { path: "/features", name: "Features" },
     ];
     
     const legalPages = [
+      { path: "/legal", name: "Legal Hub" },
       { path: "/privacy-policy", name: "Privacy Policy" },
       { path: "/terms-of-service", name: "Terms of Service" },
       { path: "/cookies-policy", name: "Cookies Policy" },
       { path: "/user-data-deletion", name: "Data Deletion" },
+      { path: "/security-policy", name: "Security Policy" },
     ];
     
      const solutionPages = [
@@ -84,7 +89,7 @@ const SitemapPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Column 1: Main Pages */}
+            {/* Column 1: Main Pages & Others */}
             <div className="space-y-8">
                 <div>
                   <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Main Pages</h2>
@@ -98,7 +103,13 @@ const SitemapPage: React.FC = () => {
                      {solutionPages.map(page => <li key={page.path}><Link to={page.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{page.name}</Link></li>)}
                   </ul>
                 </div>
-                <div>
+                 <div>
+                  <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Developer</h2>
+                   <ul className="space-y-2">
+                     {developerPages.map(page => <li key={page.path}><Link to={page.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{page.name}</Link></li>)}
+                  </ul>
+                </div>
+                 <div>
                   <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Legal</h2>
                    <ul className="space-y-2">
                      {legalPages.map(page => <li key={page.path}><Link to={page.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{page.name}</Link></li>)}
@@ -117,7 +128,7 @@ const SitemapPage: React.FC = () => {
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                                 {category.tools.map(tool => (
                                     <li key={tool.id}>
-                                        <Link to={`/${tool.id}`} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{tool.title}</Link>
+                                        <Link to={`/${tool.id}`} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{t(tool.title)}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -126,27 +137,20 @@ const SitemapPage: React.FC = () => {
                 })}
             </div>
 
-            {/* Column 4: Others */}
-             <div className="space-y-8">
-                 <div>
-                  <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Developer</h2>
-                   <ul className="space-y-2">
-                     {developerPages.map(page => <li key={page.path}><Link to={page.path} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{page.name}</Link></li>)}
+            {/* Column 4: Blog */}
+            <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Blog Articles</h2>
+                  <ul className="space-y-2">
+                    {blogPosts.map(post => (
+                      <li key={post.slug}>
+                        <Link to={`/blog/${post.slug}`} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{post.title}</Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
             </div>
-            
-            {/* Blog Posts */}
-            <div className="lg:col-span-4 mt-8">
-              <h2 className="text-2xl font-bold text-brand-red border-b-2 border-brand-red/30 pb-2 mb-4">Blog Articles</h2>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2">
-                {blogPosts.map(post => (
-                  <li key={post.slug}>
-                    <Link to={`/blog/${post.slug}`} className="text-gray-700 dark:text-gray-300 hover:text-brand-red transition-colors">{post.title}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
           </div>
         </div>
       </div>
