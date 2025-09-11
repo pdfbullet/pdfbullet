@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: [
-          'favicon.png',
+          'favicon.svg',
           'apple-touch-icon.png',
           'desktop-view.jpg', // must be in /public
           'mobile-view.png',  // must be in /public
@@ -20,6 +20,39 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB cache limit
           globPatterns: [
             '**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'
+          ],
+          runtimeCaching: [
+            {
+              urlPattern: ({ request }) => request.destination === 'script' || request.destination === 'style',
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'static-resources',
+                expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 }, // 30 Days
+              },
+            },
+            {
+              urlPattern: ({ request }) => request.destination === 'image',
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images',
+                expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 }, // 30 Days
+              },
+            },
+            {
+              urlPattern: new RegExp('^https://fonts\\.googleapis\\.com/.*', 'i'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+              },
+            },
+            {
+              urlPattern: new RegExp('^https://fonts\\.gstatic\\.com/.*', 'i'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: { maxEntries: 30, maxAgeSeconds: 365 * 24 * 60 * 60 }, // 1 Year
+              },
+            },
           ],
         },
         manifest: {
@@ -32,7 +65,7 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           display_override: ['window-controls-overlay'],
           background_color: '#ffffff',
-          theme_color: '#B90B06',
+          theme_color: '#da9707ff',
           orientation: 'portrait-primary',
           dir: 'ltr',
           categories: ['productivity', 'utilities', 'business'],
@@ -47,15 +80,11 @@ export default defineConfig(({ mode }) => {
               src: '/desktop-view.jpg',
               sizes: '1280x800',
               type: 'image/jpeg',
-              form_factor: 'wide',
-              label: 'I Love PDFLY Homepage with all tools',
             },
             {
               src: '/mobile-view.png',
               sizes: '540x720',
               type: 'image/png',
-              form_factor: 'narrow',
-              label: 'Mobile view showing PDF tools',
             },
           ],
           edge_side_panel: {

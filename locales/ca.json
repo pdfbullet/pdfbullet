@@ -1,0 +1,255 @@
+{
+  "header": {
+    "merge_pdf": "UNIR PDF",
+    "split_pdf": "DIVIDIR PDF",
+    "compress_pdf": "COMPRIMIR PDF",
+    "developer": "DESENVOLUPADOR",
+    "convert_pdf": "CONVERTIR PDF",
+    "all_pdf_tools": "TOTES LES EINES PDF",
+    "login": "Inicia la sessió",
+    "signup": "Registra't",
+    "signed_in_as": "Sessió iniciada com",
+    "change_photo": "Canvia la foto",
+    "account_settings": "Configuració del compte",
+    "change_password": "Canvia la contrasenya",
+    "logout": "Tanca la sessió"
+  },
+  "footer": {
+    "slogan": "El teu conjunt d'eines en línia per a la gestió de PDF i imatges.",
+    "tools": "Eines",
+    "solutions": "Solucions",
+    "company": "Empresa",
+    "legal": "Legal",
+    "subscribe_title": "Subscriu-te al nostre butlletí",
+    "subscribe_text": "Rep les últimes notícies, articles i recursos, enviats a la teva bústia de correu setmanalment.",
+    "subscribe_button": "Subscriu-te",
+    "copyright": "© {year} I Love PDFLY. Tots els drets reservats.",
+    "top_tools": {
+      "merge_pdf": "Unir PDF",
+      "compress_pdf": "Comprimir PDF",
+      "jpg_to_pdf": "JPG a PDF",
+      "edit_pdf": "Editar PDF",
+      "pdf_to_word": "PDF a Word"
+    },
+    "company_links": {
+      "about": "Sobre nosaltres",
+      "blog": "Blog",
+      "press": "Premsa",
+      "contact": "Contacte",
+      "ceo_message": "Missatge del CEO",
+      "report_problem": "Informa d'un problema"
+    },
+    "solution_links": {
+      "education": "Per a Educació",
+      "business": "Per a Empreses",
+      "how_to": "Guies d'ús"
+    },
+    "legal_links": {
+      "legal_hub": "Centre Legal",
+      "privacy": "Política de Privacitat",
+      "terms": "Termes i Condicions",
+      "cookies": "Política de Cookies",
+      "data_deletion": "Eliminació de Dades"
+    }
+  },
+  "homepage": {
+    "hero_title": "Totes les eines que necessites per treballar amb PDF en un sol lloc",
+    "hero_subtitle": "Totes les eines que necessites per utilitzar PDF, al teu abast. Totes són 100% GRATUÏTES i fàcils d'utilitzar! Uneix, divideix, comprimeix, converteix, rota, desbloqueja i afegeix filigranes a PDF amb només uns clics.",
+    "filter_all": "Tot",
+    "filter_workflows": "Fluxos de treball",
+    "filter_organize": "Organitzar PDF",
+    "filter_optimize": "Optimitzar PDF",
+    "filter_convert": "Convertir PDF",
+    "filter_edit": "Editar PDF",
+    "filter_security": "Seguretat PDF",
+    "solutions_title": "Solucions per a tu",
+    "solutions_subtitle": "Eines PDF adaptades a les teves necessitats específiques.",
+    "simple_steps_title": "Passos senzills cap a l'èxit",
+    "simple_steps_subtitle": "Fes les teves tasques amb PDF en només uns clics.",
+    "why_choose_title": "Per què escollir I Love PDFLY?",
+    "why_choose_subtitle": "El conjunt d'eines en línia definitiu per a totes les teves necessitats de PDF.",
+    "blog_title": "Del nostre blog",
+    "blog_subtitle": "Consells, trucs i actualitzacions del nostre equip per ajudar-te a ser més productiu.",
+    "premium_title": "Aconsegueix més amb Premium",
+    "premium_subtitle": "Completa projectes més ràpid amb el processament de fitxers per lots, converteix documents escanejats amb OCR i signa electrònicament els teus acords comercials.",
+    "get_premium": "Aconsegueix Premium",
+    "faq_title": "Preguntes Freqüents"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "Unir PDF",
+      "description": "Combina PDF en l'ordre que vulguis amb el fusor de PDF més fàcil disponible."
+    },
+    "split-pdf": {
+      "title": "Dividir PDF",
+      "description": "Separa una pàgina o un conjunt complet per a una fàcil conversió en fitxers PDF independents."
+    },
+    "organize-pdf": {
+      "title": "Organitzar PDF",
+      "description": "Ordena, afegeix i elimina pàgines de PDF. Organitza les pàgines del teu document com vulguis."
+    },
+    "rotate-pdf": {
+      "title": "Rotar PDF",
+      "description": "Gira els teus PDF de la manera que els necessitis. Fins i tot pots rotar diversos PDF alhora!"
+    },
+    "zip-maker": {
+      "title": "Crear arxiu ZIP",
+      "description": "Crea fàcilment un arxiu ZIP a partir de múltiples fitxers o una carpeta sencera."
+    },
+    "compress-pdf": {
+      "title": "Comprimir PDF",
+      "description": "Redueix la mida del fitxer mentre optimitzes per a una qualitat de PDF màxima."
+    },
+    "repair-pdf": {
+      "title": "Reparar PDF",
+      "description": "Repara un PDF danyat i recupera dades d'un PDF corrupte. Arregla fitxers PDF amb la nostra eina de Reparació."
+    },
+    "resize-file": {
+      "title": "Canviar la mida del fitxer",
+      "description": "Canvia la mida del fitxer d'imatges o PDF ajustant la qualitat i la compressió."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG a PDF",
+      "description": "Converteix imatges JPG a PDF en segons. Ajusta fàcilment l'orientació i els marges."
+    },
+    "psd-to-pdf": {
+      "title": "PSD a PDF",
+      "description": "Converteix fitxers d'Adobe Photoshop (PSD) a documents PDF fàcilment."
+    },
+    "word-to-pdf": {
+      "title": "Word a PDF",
+      "description": "Converteix els teus documents WORD a PDF amb la millor qualitat i conversió."
+    },
+    "powerpoint-to-pdf": {
+      "title": "Convertir POWERPOINT a PDF",
+      "description": "Fes que les presentacions de diapositives PPT i PPTX siguin fàcils de veure convertint-les a PDF."
+    },
+    "excel-to-pdf": {
+      "title": "Excel a PDF",
+      "description": "Converteix els teus fulls de càlcul d'EXCEL a PDF. Convertidor de XLS i XLSX a PDF."
+    },
+    "html-to-pdf": {
+      "title": "HTML a PDF",
+      "description": "Converteix pàgines web en HTML a PDF. Copia i enganxa l'URL de la pàgina que vols i converteix-la a PDF amb un clic."
+    },
+    "scan-to-pdf": {
+      "title": "Escanejar a PDF",
+      "description": "Converteix el teu telèfon en un escàner de documents. Captura, edita i corregeix la perspectiva dels teus documents per crear escanejos d'alta qualitat."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF a JPG",
+      "description": "Extreu imatges del teu PDF o converteix cada pàgina en un JPG."
+    },
+    "pdf-to-png": {
+      "title": "PDF a PNG",
+      "description": "Converteix cada pàgina de PDF en una imatge PNG d'alta qualitat."
+    },
+    "pdf-to-word": {
+      "title": "PDF a Word",
+      "description": "Converteix fàcilment els teus fitxers PDF en documents DOC i DOCX fàcils d'editar."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF a PowerPoint",
+      "description": "Converteix els teus fitxers PDF en presentacions de diapositives PPT i PPTX fàcils d'editar."
+    },
+    "pdf-to-excel": {
+      "title": "PDF a Excel",
+      "description": "Extreu dades directament de PDF a fulls de càlcul d'Excel en pocs clics."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF a PDF/A",
+      "description": "Transforma el teu PDF a PDF/A, la versió estandarditzada per ISO per a l'arxiu a llarg termini."
+    },
+    "extract-text": {
+      "title": "Extreure text",
+      "description": "Extreu tot el text d'un fitxer PDF a un fitxer TXT."
+    },
+    "edit-pdf": {
+      "title": "Editar PDF",
+      "description": "Afegeix text, imatges, formes o anotacions a mà alçada a un document PDF."
+    },
+    "page-numbers": {
+      "title": "Números de pàgina",
+      "description": "Afegeix números de pàgina als PDF amb facilitat. Tria posicions, dimensions, tipografia."
+    },
+    "crop-pdf": {
+      "title": "Retallar PDF",
+      "description": "Retalla els marges dels fitxers PDF per canviar la mida de la pàgina o eliminar àrees no desitjades."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Converteix fàcilment PDF escanejats en documents amb capacitat de cerca i selecció."
+    },
+    "compare-pdf": {
+      "title": "Comparar PDF",
+      "description": "Mostra una comparació costat a costat de dos fitxers PDF per detectar les diferències."
+    },
+    "redact-pdf": {
+      "title": "Redactar PDF",
+      "description": "Redacta text i gràfics del teu PDF per eliminar permanentment informació sensible."
+    },
+    "ai-question-generator": {
+      "title": "Generador de Preguntes amb IA",
+      "description": "Crea preguntes automàticament a partir de qualsevol text usant IA. Perfecte per a guies d'estudi i qüestionaris."
+    },
+    "invoice-generator": {
+      "title": "Generador de Factures",
+      "description": "Crea factures professionals de forma gratuïta. Personalitza amb el teu logo, afegeix articles i descarrega com a PDF."
+    },
+    "cv-generator": {
+      "title": "Generador de CV",
+      "description": "Crea un CV professional proporcionant les teves dades. Tria entre múltiples plantilles i descarrega com a PDF."
+    },
+    "lesson-plan-creator": {
+      "title": "Creador de Plans de Lliçó",
+      "description": "Crea plans de lliçó detallats i atractius per a qualsevol matèria en segons. Deixa que la IA construeixi un pla amb activitats, avaluacions i tasques."
+    },
+    "unlock-pdf": {
+      "title": "Desbloquejar PDF",
+      "description": "Elimina la seguretat de la contrasenya del PDF, donant-te la llibertat d'usar els teus PDF com vulguis."
+    },
+    "protect-pdf": {
+      "title": "Protegir PDF",
+      "description": "Protegeix els fitxers PDF amb una contrasenya. Xifra els documents PDF per evitar l'accés no autoritzat."
+    },
+    "sign-pdf": {
+      "title": "Signar PDF",
+      "description": "Signa tu mateix o sol·licita signatures electròniques a altres."
+    },
+    "watermark-pdf": {
+      "title": "Filigrana",
+      "description": "Estampa una imatge o text sobre el teu PDF en segons. Tria la tipografia, la transparència i la posició."
+    },
+    "resize-image": {
+      "title": "Redimensionar imatge",
+      "description": "Defineix les teves dimensions, per percentatge o píxel, i redimensiona les teves imatges JPG, PNG i GIF."
+    },
+    "remove-background": {
+      "title": "Eliminar fons",
+      "description": "Elimina automàticament el fons de qualsevol imatge amb un sol clic."
+    },
+    "crop-image": {
+      "title": "Retallar imatge",
+      "description": "Retalla JPG, PNG o GIF amb facilitat."
+    },
+    "convert-to-jpg": {
+      "title": "Convertir a JPG",
+      "description": "Converteix PNG, GIF, TIF, PSD, SVG, WEBP o RAW a JPG."
+    },
+    "convert-from-jpg": {
+      "title": "Convertir des de JPG",
+      "description": "Converteix de JPG a PNG o GIF."
+    },
+    "compress-image": {
+      "title": "Comprimir Imatge",
+      "description": "Redueix la mida del fitxer mentre optimitzes per a una qualitat d'imatge màxima."
+    },
+    "watermark-image": {
+      "title": "Filigrana a Imatge",
+      "description": "Estampa una imatge o text sobre les teves imatges en segons."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS } from '../constants.ts';
@@ -10,7 +10,7 @@ import {
     TrashIcon, UploadCloudIcon, EditIcon, ImageIcon, CameraIcon, CloseIcon, UploadIcon, RotateIcon, LockIcon, 
     UnlockIcon, EmailIcon, WhatsAppIcon, RightArrowIcon, LeftArrowIcon, DownloadIcon, GoogleDriveIcon, LinkIcon, 
     DropboxIcon, CheckIcon, CopyIcon, StarIcon, FacebookIcon, XIcon, LinkedInIcon, IOSIcon, AndroidIcon, 
-    MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, UpDownArrowIcon, AddPageIcon, DesktopIcon
+    MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, UpDownArrowIcon, AddPageIcon, DesktopIcon, SettingsIcon
 } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 import WhoWillSignModal from '../components/WhoWillSignModal.tsx';
@@ -18,8 +18,10 @@ import SignatureModal from '../components/SignatureModal.tsx';
 import { useSignature } from '../hooks/useSignature.ts';
 import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
+import { LayoutContext } from '../App.tsx';
 
 
+// FIX: Removed unused and incorrect 'Perms' type from pdf-lib import.
 import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode, grayscale } from 'pdf-lib';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -371,10 +373,10 @@ const getOutputFilename = (toolId: string, files: File[], options: any): string 
     case 'pdf-to-excel': return `${baseName}.xlsx`;
     case 'excel-to-pdf': return `${baseName}.pdf`;
     case 'pdf-to-powerpoint': return `${baseName}.pptx`;
-    case 'powerpoint-to-pdf': return `${baseName}.pdf`;
+    case 'powerpoint-to-pdf': return `${baseName}.pptx`;
     case 'crop-pdf': return `${baseName}_cropped.pdf`;
     case 'redact-pdf': return `${baseName}_redacted.pdf`;
-    case 'repair-pdf': return `${baseName}_repaired.pdf`;
+    case 'repair-pdf': return files.length > 1 ? 'repaired_files.zip' : `${baseName}_repaired.pdf`;
     case 'pdf-to-pdfa': return `${baseName}_pdfa.pdf`;
     case 'edit-pdf': return `${baseName}_edited.pdf`;
     case 'sign-pdf': return `${baseName}_signed.pdf`;
@@ -468,12 +470,12 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
                 setLoadingMessage(`Extracting page ${pagesProcessed} of ${totalPages}...`);
                 const page = await pdf.getPage(i);
                 const viewport = page.getViewport({ scale: 0.4 });
-                const canvas = document.createElement('canvas');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                const context = canvas.getContext('2d')!;
-                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
-                const dataUrl = canvas.toDataURL('image/png');
+                const canvasEl = document.createElement('canvas');
+                canvasEl.width = viewport.width;
+                canvasEl.height = viewport.height;
+                // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                await page.render({ canvasContext: canvasEl.getContext('2d')!, viewport } as any);
+                const dataUrl = canvasEl.toDataURL('image/png');
                 allPages.push({ id: Date.now() + allPages.length, originalIndex: i - 1, imageDataUrl: dataUrl, rotation: 0, sourceFileIndex: fileIndex, fileName: file.name });
             }
         }
@@ -636,7 +638,6 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
     );
 };
 
-// FIX: Define toolSeoDescriptions to provide SEO-friendly descriptions for each tool.
 const toolSeoDescriptions: { [key: string]: string } = {
   'merge-pdf': 'Combine multiple PDF files into one single PDF document with I Love PDFLY\'s free online PDF merger. Easy to use, no installation needed.',
   'split-pdf': 'Split a large PDF file into separate pages or extract a specific range of pages into a new PDF document. Fast and secure splitting tool.',
@@ -668,7 +669,7 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'remove-background': 'Automatically remove the background from any image with a single click. Get a transparent PNG output.',
   'psd-to-pdf': 'Convert Adobe Photoshop (PSD) files to PDF format.',
   'pdf-to-png': 'Convert PDF pages to high-quality PNG images.',
-  'extract-text': 'Extract all text content from a PDF file into a simple TXT file.',
+  'extract-text': 'Extract all text from a PDF file into a simple TXT file.',
   'zip-maker': 'Create a ZIP archive from multiple files. Compress your files for easy storage and sharing.',
   'resize-file': 'Resize PDF documents or images to reduce file size or change dimensions.',
   'resize-image': 'Resize images by pixels or percentage. Maintain aspect ratio and choose output format.',
@@ -677,48 +678,6 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'convert-from-jpg': 'Convert JPG images to other formats like PNG or GIF.',
   'compress-image': 'Compress images to reduce their file size without significant quality loss.',
   'watermark-image': 'Add a text or image watermark to your photos and images.',
-};
-
-// FIX: Define getSuccessMessage to provide appropriate success messages for different tools.
-const getSuccessMessage = (tool: Tool, compressionResult: { originalSize: number, newSize: number } | null): string => {
-  switch (tool.id) {
-    case 'compress-pdf':
-      return compressionResult && compressionResult.newSize < compressionResult.originalSize 
-        ? 'Your PDF has been successfully compressed!' 
-        : 'Your PDF is already optimized!';
-    case 'split-pdf':
-      return 'The PDF has been split!';
-    case 'merge-pdf':
-      return 'The PDFs have been merged!';
-    case 'sign-pdf':
-      return 'The document has been signed!';
-    case 'pdf-to-word':
-    case 'pdf-to-excel':
-    case 'pdf-to-powerpoint':
-    case 'pdf-to-jpg':
-    case 'word-to-pdf':
-    case 'excel-to-pdf':
-    case 'powerpoint-to-pdf':
-    case 'jpg-to-pdf':
-      return 'The files have been converted!';
-    default:
-      return 'Your files have been processed successfully!';
-  }
-};
-
-// FIX: Define getDownloadButtonText to provide context-specific download button labels.
-const getDownloadButtonText = (tool: Tool, t: (key: string) => string): string => {
-    switch (tool.id) {
-        case 'merge-pdf': return t('tool.download_merged_pdf');
-        case 'split-pdf': return t('tool.download_split_files');
-        case 'compress-pdf': return t('tool.download_compressed_pdf');
-        case 'pdf-to-word': return t('tool.download_word');
-        case 'pdf-to-powerpoint': return t('tool.download_powerpoint');
-        case 'pdf-to-excel': return t('tool.download_excel');
-        case 'pdf-to-jpg': return t('tool.download_jpg_images');
-        case 'sign-pdf': return t('tool.download_signed_pdf');
-        default: return t('tool.download_processed_file');
-    }
 };
 
 const ToolPageContext = React.createContext<{ tool: Tool | null }>({ tool: null });
@@ -733,6 +692,7 @@ const ToolPage: React.FC = () => {
   const { addSignedDocument } = useSignedDocuments();
   const { addTask } = useLastTasks();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
+  const { setShowFooter } = useContext(LayoutContext);
 
   const [tool, setTool] = useState<Tool | null>(null);
   const [state, setState] = useState<ProcessingState>(ProcessingState.Idle);
@@ -787,28 +747,167 @@ const ToolPage: React.FC = () => {
   const [processingSpeed, setProcessingSpeed] = useState<number>(0);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   
+  // New state for Repair PDF tool previews
+  const [repairPreviews, setRepairPreviews] = useState<{ fileIndex: number; fileName: string; dataUrl: string; }[]>([]);
+  const [isGeneratingPreviews, setIsGeneratingPreviews] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // State for Repair PDF dropdown
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+
+
   const totalSize = useMemo(() => files.reduce((acc, file) => acc + file.size, 0), [files]);
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        setFiles(prevFiles => [...prevFiles, ...acceptedFiles].filter((file, index, self) =>
-            index === self.findIndex((f) => (
-                f.name === file.name && f.size === file.size
-            ))
-        ));
-    }, []);
+  // Cloud Picker States and Logic
+  const [gapiLoaded, setGapiLoaded] = useState(false);
+  const [oauthToken, setOauthToken] = useState<any>(null);
 
-    const { open } = useDropzone({ onDrop, noClick: true, noKeyboard: true });
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+      setFiles(prevFiles => [...prevFiles, ...acceptedFiles].filter((file, index, self) =>
+          index === self.findIndex((f) => (
+              f.name === file.name && f.size === file.size
+          ))
+      ));
+  }, []);
+
+  const { getRootProps, getInputProps, open } = useDropzone({ onDrop, noClick: true, noKeyboard: true, accept: tool?.accept || { 'application/pdf': ['.pdf'] } });
+  const addMoreDropzone = useDropzone({ onDrop, accept: tool?.accept || { 'application/pdf': ['.pdf'] } });
+
+  useEffect(() => {
+    if (gapi) {
+      gapi.load('client:picker', () => setGapiLoaded(true));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+        if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+            setIsAddMenuOpen(false);
+        }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  
+  const handleCloudFile = async (url: string, name: string, token?: string) => {
+    try {
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const response = await fetch(url, { headers });
+      if (!response.ok) throw new Error(`Failed to fetch file: ${response.statusText}`);
+      const blob = await response.blob();
+      const file = new File([blob], name, { type: blob.type });
+      onDrop([file]);
+    } catch (error) {
+      console.error("Error fetching cloud file:", error);
+      setErrorMessage("Could not download file from cloud storage.");
+      setState(ProcessingState.Error);
+    }
+  };
+  
+  const createPicker = (token: string) => {
+    const view = new google.picker.View(google.picker.ViewId.DOCS);
+    if (tool?.accept) {
+      const mimeTypes = Object.keys(tool.accept).join(',');
+      if (mimeTypes) view.setMimeTypes(mimeTypes);
+    } else {
+      view.setMimeTypes('application/pdf');
+    }
+    
+    const picker = new google.picker.PickerBuilder()
+      .setApiKey(GOOGLE_API_KEY)
+      .setOAuthToken(token)
+      .addView(view)
+      .setCallback((data: any) => {
+        if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+          const docs = data[google.picker.Response.DOCUMENTS];
+          docs.forEach((doc: any) => {
+            const url = `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`;
+            handleCloudFile(url, doc.name, token);
+          });
+        }
+      })
+      .build();
+    picker.setVisible(true);
+  };
+
+  const handleGoogleDriveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!gapiLoaded) {
+        alert("Google Drive integration is still loading. Please try again in a moment.");
+        return;
+    }
+    gapi.auth.authorize(
+      { client_id: GOOGLE_CLIENT_ID, scope: ['https://www.googleapis.com/auth/drive.readonly'], immediate: false },
+      (authResult: any) => {
+        if (authResult && !authResult.error) {
+          setOauthToken(authResult);
+          createPicker(authResult.access_token);
+        } else {
+          console.error("Google Auth Error:", authResult?.error);
+          alert("Could not authenticate with Google Drive. Please try again.");
+        }
+      }
+    );
+  };
+  
+  const handleDropboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    Dropbox.choose({
+      success: (dropboxFiles: any[]) => {
+        dropboxFiles.forEach(file => handleCloudFile(file.link, file.name));
+      },
+      linkType: "direct",
+      multiselect: true,
+    });
+  };
+  
+  const handleSort = () => {
+    const sortedFiles = [...files].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
+        if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+    setFiles(sortedFiles);
+
+    const sortedPreviews = [...repairPreviews].sort((a, b) => {
+         const nameA = a.fileName.toLowerCase();
+        const nameB = b.fileName.toLowerCase();
+        if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
+        if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+    setRepairPreviews(sortedPreviews);
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
+  useEffect(() => {
+        if (state === ProcessingState.Success) {
+            setShowFooter(true); 
+        } else {
+            setShowFooter(false);
+        }
+        
+        return () => {
+            setShowFooter(true);
+        };
+  }, [state, setShowFooter]);
 
   useEffect(() => {
     if (state === ProcessingState.Processing && progress && processingStartTime && totalSize > 0 && progress.percentage > 0) {
-        const elapsedTime = (Date.now() - processingStartTime) / 1000; // in seconds
-        
+        const elapsedTime = (Date.now() - processingStartTime) / 1000;
         const processedBytes = totalSize * (progress.percentage / 100);
-        
         const currentSpeed = elapsedTime > 0 ? processedBytes / elapsedTime : 0;
         setProcessingSpeed(currentSpeed);
         
-        if (progress.percentage > 5) { // Only estimate after a bit of progress
+        if (progress.percentage > 5) {
             const estimatedTotalTime = (elapsedTime / progress.percentage) * 100;
             const remainingTime = Math.max(0, estimatedTotalTime - elapsedTime);
             setTimeRemaining(remainingTime);
@@ -840,6 +939,12 @@ const ToolPage: React.FC = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, []);
+
+  useEffect(() => {
+    if (state === ProcessingState.Success && processedFileBlob && tool) {
+      downloadBlob(processedFileBlob, getOutputFilename(tool.id, files, toolOptions));
+    }
+  }, [state, processedFileBlob, tool, files, toolOptions, downloadBlob]);
 
   const getProcessingMessage = (tool: Tool | null): React.ReactNode => {
     if (!tool) return 'Processing...';
@@ -874,7 +979,7 @@ const ToolPage: React.FC = () => {
   };
 
   const isProcessButtonDisabled = useMemo(() => {
-    if (!tool || state === ProcessingState.Processing) return true;
+    if (!tool || state === ProcessingState.Processing || files.length === 0) return true;
     switch (tool.id) {
         case 'protect-pdf':
             return !toolOptions.password || toolOptions.password.length === 0;
@@ -930,6 +1035,8 @@ const ToolPage: React.FC = () => {
     setProcessingStartTime(null);
     setProcessingSpeed(0);
     setTimeRemaining(null);
+    setRepairPreviews([]);
+    setIsGeneratingPreviews(false);
   }, []);
 
   useEffect(() => {
@@ -1013,7 +1120,7 @@ const ToolPage: React.FC = () => {
           "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.8",
-              "reviewCount": "2500" // Example value
+              "reviewCount": "2500"
           },
           "publisher": {
             "@type": "Organization",
@@ -1058,9 +1165,9 @@ const ToolPage: React.FC = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
-                const context = canvas.getContext('2d')!;
                 
-                await page.render({ canvasContext: context, viewport: viewport } as any).promise;
+                // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
                 const dataUrl = canvas.toDataURL('image/png');
 
                 previews.push(dataUrl);
@@ -1103,10 +1210,45 @@ const ToolPage: React.FC = () => {
     const isVisualTool = ['edit-pdf', 'redact-pdf'].includes(tool?.id || '');
     if (isVisualTool && files.length > 0) {
         extractPagesForVisualEditor();
-    } else if (tool?.id !== 'compare-pdf' && tool?.id !== 'sign-pdf' && tool?.id !== 'organize-pdf') {
+    } else if (tool?.id !== 'compare-pdf' && tool?.id !== 'sign-pdf' && tool?.id !== 'organize-pdf' && tool?.id !== 'repair-pdf') {
         setPdfPagePreviews([]);
     }
   }, [files, tool?.id, extractPagesForVisualEditor]);
+  
+  useEffect(() => {
+    if (tool?.id === 'repair-pdf' && files.length > 0) {
+        const generatePreviews = async () => {
+            setIsGeneratingPreviews(true);
+            const allPreviews: { fileIndex: number, fileName: string, dataUrl: string }[] = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const file = files[i];
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    const page = await pdf.getPage(1); // Preview first page
+                    const viewport = page.getViewport({ scale: 0.5 });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const context = canvas.getContext('2d');
+                    if (context) {
+                        // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                        await page.render({ canvasContext: context, viewport } as any);
+                        allPreviews.push({ fileIndex: i, fileName: file.name, dataUrl: canvas.toDataURL() });
+                    }
+                } catch (e) {
+                    console.error("Could not generate preview for", files[i].name, e);
+                }
+            }
+            setRepairPreviews(allPreviews);
+            setIsGeneratingPreviews(false);
+        };
+        generatePreviews();
+    } else {
+        setRepairPreviews([]);
+    }
+  }, [files, tool?.id]);
+
 
   // Sign PDF specific effects and handlers
   useEffect(() => {
@@ -1226,7 +1368,7 @@ const ToolPage: React.FC = () => {
                 setProgress({ percentage: 50, status: 'Applying light compression...'});
                 const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
                 compressedBytes = await pdfDoc.save({ useObjectStreams: true });
-            } else { // 'recommended' or 'extreme'
+            } else { 
                 const isExtreme = toolOptions.compressionLevel === 'extreme';
                 const quality = isExtreme ? 0.6 : 0.8;
                 const scale = isExtreme ? 1.0 : 1.5;
@@ -1246,7 +1388,8 @@ const ToolPage: React.FC = () => {
                     context.fillStyle = 'white';
                     context.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    await page.render({ canvasContext: context, viewport: viewport } as any).promise;
+                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                    await page.render({ canvasContext: context, viewport } as any);
         
                     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
                     const jpegImageBytes = await fetch(jpegDataUrl).then(res => res.arrayBuffer());
@@ -1275,7 +1418,6 @@ const ToolPage: React.FC = () => {
             }
             break;
         }
-          // Other tool cases from original file...
           case 'rotate-pdf': {
             if (files.length !== 1) throw new Error("Please select one PDF file to rotate.");
             const file = files[0];
@@ -1284,6 +1426,44 @@ const ToolPage: React.FC = () => {
             pdfDoc.getPages().forEach(page => page.setRotation(degrees(page.getRotation().angle + toolOptions.rotation)));
             const newPdfBytes = await pdfDoc.save();
             blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+            break;
+          }
+          case 'repair-pdf': {
+            if (files.length === 0) throw new Error("Please select at least one PDF file to repair.");
+            const zip = new JSZip();
+            let filesProcessed = 0;
+        
+            for (const file of files) {
+                filesProcessed++;
+                setProgress({ percentage: Math.round((filesProcessed / files.length) * 90), status: `Attempting to repair ${file.name}...` });
+                try {
+                    const pdfBytes = await file.arrayBuffer();
+                    const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true, updateMetadata: false });
+                    const repairedPdfBytes = await pdfDoc.save();
+                    zip.file(file.name.replace(/\.pdf$/i, '_repaired.pdf'), repairedPdfBytes);
+                } catch (err) {
+                    console.error(`Could not repair ${file.name}:`, err);
+                    zip.file(`${file.name.replace(/\.pdf$/i, '')}_REPAIR_FAILED.txt`, `We were unable to repair this file. It might be too corrupted or in an unsupported format.`);
+                }
+            }
+        
+            setProgress({ percentage: 100, status: `Packaging files...` });
+        
+            if (files.length > 1) {
+                blob = await zip.generateAsync({ type: 'blob' });
+            } else {
+                const firstFileName = Object.keys(zip.files)[0];
+                if (firstFileName && firstFileName.endsWith('.pdf')) {
+                    const singleFileBytes = await zip.file(firstFileName)?.async('uint8array');
+                    if (singleFileBytes) {
+                        blob = new Blob([singleFileBytes], { type: 'application/pdf' });
+                    } else {
+                        throw new Error("Failed to extract the repaired file.");
+                    }
+                } else {
+                    blob = await zip.generateAsync({type: 'blob'});
+                }
+            }
             break;
           }
           case 'sign-pdf': {
@@ -1341,9 +1521,9 @@ const ToolPage: React.FC = () => {
                         slides.push(path);
                     }
                 }
-                slides.sort(); // sort to get slides in order
+                slides.sort(); 
 
-                const pdf = new jsPDF('l', 'px', 'a4'); // landscape
+                const pdf = new jsPDF('l', 'px', 'a4');
                 for (let i = 0; i < slides.length; i++) {
                     if (i > 0) pdf.addPage();
                     const slideXml = await zip.file(slides[i])!.async("string");
@@ -1371,8 +1551,11 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'zip-maker': {
+                if (files.length === 0) throw new Error("Please select files to zip.");
                 const zip = new JSZip();
-                for (const file of files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    setProgress({percentage: Math.round((i+1)/files.length * 100), status: `Adding ${file.name}`});
                     zip.file(file.name, file);
                 }
                 blob = await zip.generateAsync({type: 'blob'});
@@ -1381,29 +1564,323 @@ const ToolPage: React.FC = () => {
              case 'remove-background': {
                 if (files.length !== 1) throw new Error("Please select one image file.");
                 const file = files[0];
+                setProgress({ percentage: 50, status: 'Removing background...'});
                 const imageBlob = await removeBackground(file);
                 blob = imageBlob;
+                break;
+            }
+            case 'jpg-to-pdf': {
+                const pdfDoc = await PDFDocument.create();
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    setProgress({ percentage: Math.round(((i + 1) / files.length) * 100), status: `Adding ${file.name}` });
+                    const imageBytes = await file.arrayBuffer();
+                    let image;
+                    if (file.type === 'image/jpeg') {
+                        image = await pdfDoc.embedJpg(imageBytes);
+                    } else if (file.type === 'image/png') {
+                        image = await pdfDoc.embedPng(imageBytes);
+                    } else {
+                        throw new Error(`Unsupported image type: ${file.type}`);
+                    }
+                    const { width, height } = image.scale(1);
+                    const page = pdfDoc.addPage([width, height]);
+                    page.drawImage(image, { x: 0, y: 0, width, height });
+                }
+                const pdfBytes = await pdfDoc.save();
+                blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                break;
+            }
+            case 'word-to-pdf':
+            case 'excel-to-pdf': {
+                if (files.length !== 1) throw new Error(`Please select one ${tool.id === 'word-to-pdf' ? 'Word' : 'Excel'} file.`);
+                const file = files[0];
+                const arrayBuffer = await file.arrayBuffer();
+                setProgress({ percentage: 20, status: 'Converting to HTML...' });
+                
+                let html = '';
+                if(tool.id === 'word-to-pdf') {
+                    const result = await mammoth.convertToHtml({ arrayBuffer });
+                    if (!result.value || result.value.trim() === '') {
+                       throw new Error("The Word document appears to be empty or could not be read. Please try a different file.");
+                    }
+                    html = `<div style="font-family: 'Times New Roman', Times, serif; line-height: 1.5; font-size: 12pt; color: black; background-color: white;">${result.value}</div>`;
+                } else { // Excel
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    html = `
+                        <style>
+                            table { border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 10px; color: black; background-color: white; }
+                            th, td { border: 1px solid #dddddd; text-align: left; padding: 4px; }
+                            th { background-color: #f2f2f2; }
+                        </style>
+                        ${XLSX.utils.sheet_to_html(worksheet)}
+                    `;
+                }
+            
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.left = '-9999px';
+                container.style.padding = '15mm';
+                container.style.backgroundColor = 'white';
+                container.innerHTML = html;
+                document.body.appendChild(container);
+                container.style.width = tool.id === 'excel-to-pdf' ? container.scrollWidth + 'px' : '210mm';
+
+                setProgress({ percentage: 60, status: 'Capturing document...' });
+            
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    width: container.scrollWidth,
+                    height: container.scrollHeight,
+                });
+            
+                document.body.removeChild(container);
+            
+                setProgress({ percentage: 80, status: 'Generating PDF...' });
+            
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = imgWidth / imgHeight;
+                
+                let imgPdfWidth = pdfWidth;
+                let imgPdfHeight = imgPdfWidth / ratio;
+                let heightLeft = imgPdfHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgPdfWidth, imgPdfHeight);
+                heightLeft -= pdfHeight;
+
+                while (heightLeft > 0) {
+                    position -= pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgPdfWidth, imgPdfHeight);
+                    heightLeft -= pdfHeight;
+                }
+                
+                blob = pdf.output('blob');
+                break;
+            }
+            case 'pdf-to-jpg': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const zip = new JSZip();
+                const pdfBytes = await file.arrayBuffer();
+                const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+
+                for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+                    setProgress({ percentage: Math.round((i / pdfjsDoc.numPages) * 100), status: `Converting page ${i}` });
+                    const page = await pdfjsDoc.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                    await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
+                    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    const imageBlob = await (await fetch(imageDataUrl)).blob();
+                    zip.file(`${file.name.replace('.pdf', '')}_page_${i}.jpg`, imageBlob);
+                }
+                blob = await zip.generateAsync({ type: 'blob' });
+                break;
+            }
+            case 'pdf-to-png': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const zip = new JSZip();
+                const pdfBytes = await file.arrayBuffer();
+                const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+            
+                for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+                    setProgress({ percentage: Math.round((i / pdfjsDoc.numPages) * 100), status: `Converting page ${i}` });
+                    const page = await pdfjsDoc.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                    await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
+                    const imageDataUrl = canvas.toDataURL('image/png');
+                    const imageBlob = await (await fetch(imageDataUrl)).blob();
+                    zip.file(`${file.name.replace('.pdf', '')}_page_${i}.png`, imageBlob);
+                }
+                blob = await zip.generateAsync({ type: 'blob' });
+                break;
+            }
+            case 'pdf-to-word': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const pdfBytes = await file.arrayBuffer();
+                const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes, password: toolOptions.password || '' }).promise;
+                
+                let sections = [];
+                
+                if (pdfToWordMode === 'exact') {
+                    for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+                        setProgress({ percentage: Math.round((i / pdfjsDoc.numPages) * 100), status: `Converting page ${i}` });
+                        const page = await pdfjsDoc.getPage(i);
+                        const viewport = page.getViewport({ scale: 1.5 });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
+                        await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
+                        const imageDataUrl = canvas.toDataURL('image/png');
+                        const imageBuffer = await fetch(imageDataUrl).then(res => res.arrayBuffer());
+
+                        sections.push({
+                            children: [new Paragraph({
+                                children: [
+                                    // FIX: Added 'type: "buffer"' to the ImageRun constructor options to align with the docx library's updated API.
+                                    new ImageRun({
+                                        type: "buffer",
+                                        data: imageBuffer,
+                                        transformation: {
+                                            width: viewport.width * 0.75, // Convert px to points
+                                            height: viewport.height * 0.75,
+                                        },
+                                    }),
+                                ],
+                            })],
+                            properties: { type: i < pdfjsDoc.numPages ? SectionType.NEXT_PAGE : SectionType.CONTINUOUS },
+                        });
+                    }
+                } else {
+                    let fullText = '';
+                    if (useOcr) {
+                        const { data: { text } } = await Tesseract.recognize(
+                            file,
+                            'eng',
+                            { logger: m => setProgress({ percentage: (m.progress || 0) * 100, status: m.status }) }
+                        );
+                        fullText = text;
+                    } else {
+                         for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+                            setProgress({ percentage: Math.round((i / pdfjsDoc.numPages) * 100), status: `Extracting text from page ${i}` });
+                            const page = await pdfjsDoc.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
+                            fullText += pageText + '\n\n';
+                        }
+                    }
+                    
+                    sections.push({
+                        children: fullText.split('\n').map(pText => new Paragraph({ children: [new TextRun(pText)] })),
+                    });
+                }
+                
+                const finalDoc = new Document({ sections });
+                blob = await Packer.toBlob(finalDoc);
+                break;
+            }
+             case 'pdf-to-excel': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const pdfBytes = await file.arrayBuffer();
+                const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+                const wb = XLSX.utils.book_new();
+
+                for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+                    setProgress({ percentage: Math.round((i / pdfjsDoc.numPages) * 100), status: `Processing page ${i}` });
+                    const page = await pdfjsDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const rows = textContent.items.map(item => 'str' in item ? [item.str] : []);
+                    const ws = XLSX.utils.aoa_to_sheet(rows);
+                    XLSX.utils.book_append_sheet(wb, ws, `Page ${i}`);
+                }
+                
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                blob = new Blob([wbout], { type: 'application/octet-stream' });
+                break;
+            }
+            case 'unlock-pdf': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const pdfBytes = await file.arrayBuffer();
+                try {
+                    const pdfDoc = await PDFDocument.load(pdfBytes, { password: toolOptions.password || undefined, ignoreEncryption: false } as any);
+                    const unlockedBytes = await pdfDoc.save();
+                    blob = new Blob([unlockedBytes], { type: 'application/pdf' });
+                } catch (e) {
+                    throw new Error("Incorrect password or unsupported encryption.");
+                }
+                break;
+            }
+            case 'protect-pdf': {
+                if (files.length !== 1) throw new Error("Please select one PDF file.");
+                const file = files[0];
+                const pdfBytes = await file.arrayBuffer();
+                const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+                
+                // FIX: Removed the incorrect 'Perms' type annotation.
+                const permissions = {
+                    printing: toolOptions.allowPrinting,
+                    copying: toolOptions.allowCopying,
+                    modifying: toolOptions.allowModifying,
+                };
+        
+                const protectedBytes = await (pdfDoc as any).encrypt({
+                    userPassword: toolOptions.password,
+                    ownerPassword: toolOptions.password,
+                    permissions,
+                });
+                blob = new Blob([protectedBytes], { type: 'application/pdf' });
+                break;
+            }
+            case 'psd-to-pdf': {
+                if (files.length !== 1) throw new Error("Please select one PSD file.");
+                const file = files[0];
+                const buffer = await file.arrayBuffer();
+                setProgress({percentage: 50, status: "Rendering PSD..."});
+                const psd = readPsd(buffer);
+                if (!psd.canvas) throw new Error("Could not render PSD file.");
+                const canvas = psd.canvas;
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [canvas.width, canvas.height]
+                });
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                blob = pdf.output('blob');
                 break;
             }
         }
         
         if (blob) {
             setProcessedFileBlob(blob);
+            setState(ProcessingState.Success);
             addTask({
                 toolId: tool.id,
                 toolTitle: t(tool.title),
                 outputFilename: getOutputFilename(tool.id, files, toolOptions),
                 fileBlob: blob
             });
+        } else if (state !== ProcessingState.Error) {
+             if (!['word-to-pdf', 'excel-to-pdf', 'pdf-to-word'].includes(tool.id)) {
+                 setState(ProcessingState.Success);
+             }
         }
-        
-        setState(ProcessingState.Success);
       } catch (e: any) {
         console.error(e);
         setErrorMessage(e.message || 'An unknown error occurred during processing.');
         setState(ProcessingState.Error);
       } finally {
-        setProgress(null);
+        if(!['word-to-pdf', 'excel-to-pdf', 'pdf-to-word'].includes(tool.id)) {
+            setProgress(null);
+        }
       }
   };
 
@@ -1594,27 +2071,60 @@ const ToolPage: React.FC = () => {
   const renderContent = () => {
     if (state === ProcessingState.Success) {
         return (
-            <div className="text-center w-full max-w-7xl mx-auto py-12">
-                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                    {getSuccessMessage(tool, compressionResult)}
+            <div className="text-center w-full max-w-7xl mx-auto py-12 success-screen">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                    This task has been processed successfully.
                 </h2>
                 
                 {tool.id === 'compress-pdf' && compressionResult && (
                     <CompressionResultDisplay result={compressionResult} />
                 )}
                 
-                <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-                    <button onClick={handleDownload} className="flex-grow-0 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-4 px-8 rounded-lg text-xl flex items-center gap-3 transition-colors">
-                        <DownloadIcon className="h-6 w-6" />
-                        {getDownloadButtonText(tool, (key) => t(key, {}))}
+                <div className="mt-8 success-actions-wrapper">
+                    <button onClick={handleReset} className="success-back-btn" aria-label="Go back" title="Process another file">
+                        <LeftArrowIcon className="h-6 w-6" />
                     </button>
-                    <div className="flex gap-4">
-                         <button onClick={handleSaveToDropbox} disabled={cloudSaveState.dropbox !== 'idle'} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Save to Dropbox" title="Save to Dropbox">
-                             {cloudSaveState.dropbox === 'saving' ? <svg className="animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : cloudSaveState.dropbox === 'saved' ? <CheckIcon className="h-6 w-6 text-green-500" /> : <DropboxIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />}
+
+                    <div className="success-main-actions">
+                        <button onClick={handleDownload} className="success-download-btn">
+                            <DownloadIcon className="h-6 w-6" />
+                            <span>Download file</span>
                         </button>
-                        <button onClick={openShareModal} className="p-4 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Share download link" title="Share download link">
-                            <LinkIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
-                        </button>
+                        <div className="success-secondary-actions">
+                            <button
+                                onClick={() => alert('Save to Google Drive coming soon!')}
+                                className="success-action-btn"
+                                aria-label="Save to Google Drive"
+                                title="Save to Google Drive"
+                            >
+                                <GoogleDriveIcon className="h-6 w-6" />
+                            </button>
+                            <button
+                                onClick={openShareModal}
+                                className="success-action-btn"
+                                aria-label="Share file"
+                                title="Share file"
+                            >
+                                <LinkIcon className="h-6 w-6" />
+                            </button>
+                            <button
+                                onClick={handleSaveToDropbox}
+                                disabled={cloudSaveState.dropbox !== 'idle'}
+                                className="success-action-btn"
+                                aria-label="Save to Dropbox"
+                                title="Save to Dropbox"
+                            >
+                                {cloudSaveState.dropbox === 'saving' ? <svg className="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : cloudSaveState.dropbox === 'saved' ? <CheckIcon className="h-6 w-6" /> : <DropboxIcon className="h-6 w-6" />}
+                            </button>
+                            <button
+                                onClick={handleReset}
+                                className="success-action-btn"
+                                aria-label="Delete and start over"
+                                title="Delete and start over"
+                            >
+                                <TrashIcon className="h-6 w-6" />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1631,13 +2141,13 @@ const ToolPage: React.FC = () => {
                 <div className="mt-16 bg-white dark:bg-black p-8 rounded-lg shadow-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Continue to...</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {TOOLS.slice(0, 12).map(t => (
-                            <Link key={t.id} to={`/${t.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <div className={`p-2 rounded-md ${t.color}`}>
-                                    <t.Icon className="h-6 w-6 text-white" />
+                        {TOOLS.slice(0, 12).map(toolItem => (
+                            <Link key={toolItem.id} to={`/${toolItem.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div className={`p-2 rounded-md ${toolItem.color}`}>
+                                    <toolItem.Icon className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-left">{t.title}</p>
+                                    <p className="font-semibold text-left">{t(toolItem.title)}</p>
                                 </div>
                             </Link>
                         ))}
@@ -1645,7 +2155,7 @@ const ToolPage: React.FC = () => {
                 </div>
 
                 <div className="mt-12 text-center p-6 bg-gray-50 dark:bg-black/50 rounded-lg max-w-5xl mx-auto border border-gray-200 dark:border-gray-800">
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h3>
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">Please share the tool to inspire more productive people!</p>
                     <div className="mt-6 flex flex-wrap justify-center gap-4">
                         <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -1748,35 +2258,6 @@ const ToolPage: React.FC = () => {
         );
     }
     
-    // Main View for Idle State (File Upload or Visual Editor)
-    
-    // Special UI for Scan to PDF
-    if (tool.id === 'scan-to-pdf') {
-      return (
-          <ToolPageContext.Provider value={{ tool }}>
-              <div className="text-center mb-10">
-                  <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
-                      <tool.Icon className="h-12 w-12 text-white" />
-                  </div>
-                  <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
-                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
-              </div>
-              <DocumentScannerUI
-                  tool={tool}
-                  onProcessStart={() => setState(ProcessingState.Processing)}
-                  onProcessSuccess={(blob) => {
-                      setProcessedFileBlob(blob);
-                      setState(ProcessingState.Success);
-                  }}
-                  onProcessError={(message) => {
-                      setErrorMessage(message);
-                      setState(ProcessingState.Error);
-                  }}
-              />
-          </ToolPageContext.Provider>
-      );
-    }
-
     if (tool.id === 'organize-pdf' && files.length > 0) {
         return (
             <ToolPageContext.Provider value={{ tool }}>
@@ -1865,7 +2346,6 @@ const ToolPage: React.FC = () => {
             {/* Visual Editor for Sign PDF */}
             {pdfPagePreviews.length > 0 && tool.id === 'sign-pdf' && state === ProcessingState.Idle && (
                 <div className="flex flex-col md:flex-row gap-8">
-                    {/* Left Side: PDF Previews */}
                     <div className="flex-grow bg-gray-200 dark:bg-gray-900/50 p-4 rounded-lg">
                         <div ref={previewContainerRef} className="relative w-full border border-gray-300 dark:border-gray-700 rounded-lg overflow-auto max-h-[80vh] bg-white dark:bg-black">
                             {pdfPagePreviews.map((src, index) => (
@@ -1875,8 +2355,6 @@ const ToolPage: React.FC = () => {
                             ))}
                         </div>
                     </div>
-
-                    {/* Right Side: Signing Options Sidebar */}
                     <div className="w-full md:w-80 flex-shrink-0">
                         <div className="sticky top-24 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                             <h3 className="text-xl font-bold mb-4">Signing options</h3>
@@ -1888,7 +2366,6 @@ const ToolPage: React.FC = () => {
                                     Digital Signature
                                 </button>
                             </div>
-
                             <div>
                                 <h4 className="font-semibold text-gray-600 dark:text-gray-400 mb-2 text-sm">Required fields</h4>
                                 {signature?.signature ? (
@@ -1903,7 +2380,6 @@ const ToolPage: React.FC = () => {
                                     </button>
                                 )}
                             </div>
-
                             <div className="mt-4">
                                 <h4 className="font-semibold text-gray-600 dark:text-gray-400 mb-2 text-sm">Optional fields</h4>
                                 {signature?.initials ? (
@@ -1916,7 +2392,6 @@ const ToolPage: React.FC = () => {
                                     <p className="text-xs text-gray-500 p-2">Create a signature to generate initials.</p>
                                 )}
                             </div>
-
                             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                                 <button
                                     onClick={handleProcess}
@@ -1931,7 +2406,7 @@ const ToolPage: React.FC = () => {
                 </div>
             )}
             
-            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && files.length > 0 && tool.id !== 'pdf-to-word' && tool.id !== 'organize-pdf' && (
+            {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && files.length > 0 && tool.id !== 'pdf-to-word' && tool.id !== 'organize-pdf' && tool.id !== 'repair-pdf' && (
               <div className="mt-12 text-center">
                 <button onClick={handleReset} className="text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red font-medium transition-colors">
                   &larr; Process another file

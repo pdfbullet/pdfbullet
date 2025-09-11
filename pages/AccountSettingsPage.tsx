@@ -196,5 +196,4 @@ const AccountSettingsPage: React.FC = () => {
         </div>
     );
 };
-// FIX: Add default export to the component.
 export default AccountSettingsPage;

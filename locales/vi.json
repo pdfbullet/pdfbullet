@@ -1,0 +1,256 @@
+
+{
+  "header": {
+    "merge_pdf": "GỘP PDF",
+    "split_pdf": "TÁCH PDF",
+    "compress_pdf": "NÉN PDF",
+    "developer": "NHÀ PHÁT TRIỂN",
+    "convert_pdf": "CHUYỂN ĐỔI PDF",
+    "all_pdf_tools": "TẤT CẢ CÔNG CỤ PDF",
+    "login": "Đăng nhập",
+    "signup": "Đăng ký",
+    "signed_in_as": "Đã đăng nhập với tên",
+    "change_photo": "Thay đổi ảnh",
+    "account_settings": "Cài đặt tài khoản",
+    "change_password": "Đổi mật khẩu",
+    "logout": "Đăng xuất"
+  },
+  "footer": {
+    "slogan": "Bộ công cụ trực tuyến của bạn để quản lý PDF và hình ảnh.",
+    "tools": "Công cụ",
+    "solutions": "Giải pháp",
+    "company": "Công ty",
+    "legal": "Pháp lý",
+    "subscribe_title": "Đăng ký nhận bản tin của chúng tôi",
+    "subscribe_text": "Nhận tin tức, bài viết và tài nguyên mới nhất, được gửi đến hộp thư của bạn hàng tuần.",
+    "subscribe_button": "Đăng ký",
+    "copyright": "© {year} I Love PDFLY. Mọi quyền được bảo lưu.",
+    "top_tools": {
+      "merge_pdf": "Gộp PDF",
+      "compress_pdf": "Nén PDF",
+      "jpg_to_pdf": "JPG sang PDF",
+      "edit_pdf": "Chỉnh sửa PDF",
+      "pdf_to_word": "PDF sang Word"
+    },
+    "company_links": {
+      "about": "Về chúng tôi",
+      "blog": "Blog",
+      "press": "Báo chí",
+      "contact": "Liên hệ",
+      "ceo_message": "Thông điệp từ CEO",
+      "report_problem": "Báo cáo sự cố"
+    },
+    "solution_links": {
+      "education": "Cho Giáo dục",
+      "business": "Cho Doanh nghiệp",
+      "how_to": "Hướng dẫn sử dụng"
+    },
+    "legal_links": {
+      "legal_hub": "Trung tâm pháp lý",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản & Điều kiện",
+      "cookies": "Chính sách cookie",
+      "data_deletion": "Xóa dữ liệu"
+    }
+  },
+  "homepage": {
+    "hero_title": "Tất cả công cụ bạn cần để làm việc với PDF ở một nơi",
+    "hero_subtitle": "Tất cả công cụ bạn cần để sử dụng PDF, ngay trong tầm tay. Tất cả đều MIỄN PHÍ 100% và dễ sử dụng! Gộp, tách, nén, chuyển đổi, xoay, mở khóa và đóng dấu PDF chỉ với vài cú nhấp chuột.",
+    "filter_all": "Tất cả",
+    "filter_workflows": "Quy trình làm việc",
+    "filter_organize": "Sắp xếp PDF",
+    "filter_optimize": "Tối ưu hóa PDF",
+    "filter_convert": "Chuyển đổi PDF",
+    "filter_edit": "Chỉnh sửa PDF",
+    "filter_security": "Bảo mật PDF",
+    "solutions_title": "Giải pháp cho bạn",
+    "solutions_subtitle": "Các công cụ PDF phù hợp với nhu cầu cụ thể của bạn.",
+    "simple_steps_title": "Các bước đơn giản để thành công",
+    "simple_steps_subtitle": "Hoàn thành các tác vụ PDF của bạn chỉ trong vài cú nhấp chuột.",
+    "why_choose_title": "Tại sao chọn I Love PDFLY?",
+    "why_choose_subtitle": "Bộ công cụ trực tuyến tối ưu cho mọi nhu cầu PDF của bạn.",
+    "blog_title": "Từ blog của chúng tôi",
+    "blog_subtitle": "Mẹo, thủ thuật và cập nhật từ nhóm của chúng tôi để giúp bạn làm việc hiệu quả hơn.",
+    "premium_title": "Nhận nhiều hơn với Premium",
+    "premium_subtitle": "Hoàn thành dự án nhanh hơn với xử lý tệp hàng loạt, chuyển đổi tài liệu được quét bằng OCR và ký điện tử các thỏa thuận kinh doanh của bạn.",
+    "get_premium": "Nhận Premium",
+    "faq_title": "Câu hỏi thường gặp"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "Gộp PDF",
+      "description": "Kết hợp các tệp PDF theo thứ tự bạn muốn với công cụ gộp PDF dễ sử dụng nhất."
+    },
+    "split-pdf": {
+      "title": "Tách PDF",
+      "description": "Tách một trang hoặc cả một bộ để dễ dàng chuyển đổi thành các tệp PDF độc lập."
+    },
+    "organize-pdf": {
+      "title": "Sắp xếp PDF",
+      "description": "Sắp xếp, thêm và xóa các trang PDF. Sắp xếp các trang tài liệu của bạn theo ý muốn."
+    },
+    "rotate-pdf": {
+      "title": "Xoay PDF",
+      "description": "Xoay các tệp PDF của bạn theo cách bạn cần. Bạn thậm chí có thể xoay nhiều tệp PDF cùng một lúc!"
+    },
+    "zip-maker": {
+      "title": "Tạo tệp ZIP",
+      "description": "Dễ dàng tạo một kho lưu trữ ZIP từ nhiều tệp hoặc toàn bộ thư mục."
+    },
+    "compress-pdf": {
+      "title": "Nén PDF",
+      "description": "Giảm kích thước tệp trong khi tối ưu hóa chất lượng PDF tối đa."
+    },
+    "repair-pdf": {
+      "title": "Sửa chữa PDF",
+      "description": "Sửa chữa một tệp PDF bị hỏng và khôi phục dữ liệu từ PDF bị lỗi. Sửa các tệp PDF bằng công cụ Sửa chữa của chúng tôi."
+    },
+    "resize-file": {
+      "title": "Thay đổi kích thước tệp",
+      "description": "Thay đổi kích thước tệp của hình ảnh hoặc PDF bằng cách điều chỉnh chất lượng và nén."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG sang PDF",
+      "description": "Chuyển đổi hình ảnh JPG sang PDF trong vài giây. Dễ dàng điều chỉnh hướng và lề."
+    },
+    "psd-to-pdf": {
+      "title": "PSD sang PDF",
+      "description": "Dễ dàng chuyển đổi tệp Adobe Photoshop (PSD) sang tài liệu PDF."
+    },
+    "word-to-pdf": {
+      "title": "Word sang PDF",
+      "description": "Chuyển đổi tài liệu WORD của bạn sang PDF với chất lượng và chuyển đổi tốt nhất."
+    },
+    "powerpoint-to-pdf": {
+      "title": "Chuyển đổi POWERPOINT sang PDF",
+      "description": "Làm cho các trình chiếu PPT và PPTX dễ xem bằng cách chuyển đổi chúng sang PDF."
+    },
+    "excel-to-pdf": {
+      "title": "Excel sang PDF",
+      "description": "Chuyển đổi bảng tính EXCEL của bạn sang PDF. Công cụ chuyển đổi XLS và XLSX sang PDF."
+    },
+    "html-to-pdf": {
+      "title": "HTML sang PDF",
+      "description": "Chuyển đổi các trang web HTML sang PDF. Sao chép và dán URL của trang bạn muốn và chuyển đổi nó sang PDF chỉ bằng một cú nhấp chuột."
+    },
+    "scan-to-pdf": {
+      "title": "Quét sang PDF",
+      "description": "Biến điện thoại của bạn thành một máy quét tài liệu. Chụp, chỉnh sửa và sửa phối cảnh của tài liệu để tạo ra các bản quét chất lượng cao."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF sang JPG",
+      "description": "Trích xuất hình ảnh từ PDF của bạn hoặc chuyển đổi mỗi trang thành một tệp JPG."
+    },
+    "pdf-to-png": {
+      "title": "PDF sang PNG",
+      "description": "Chuyển đổi mỗi trang PDF thành một hình ảnh PNG chất lượng cao."
+    },
+    "pdf-to-word": {
+      "title": "PDF sang Word",
+      "description": "Dễ dàng chuyển đổi các tệp PDF của bạn thành các tài liệu DOC và DOCX có thể chỉnh sửa."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF sang PowerPoint",
+      "description": "Biến các tệp PDF của bạn thành các trình chiếu PPT và PPTX có thể chỉnh sửa."
+    },
+    "pdf-to-excel": {
+      "title": "PDF sang Excel",
+      "description": "Kéo dữ liệu trực tiếp từ PDF vào bảng tính Excel chỉ trong vài cú nhấp chuột."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF sang PDF/A",
+      "description": "Chuyển đổi PDF của bạn sang PDF/A, phiên bản được tiêu chuẩn hóa ISO để lưu trữ lâu dài."
+    },
+    "extract-text": {
+      "title": "Trích xuất văn bản",
+      "description": "Trích xuất tất cả văn bản từ một tệp PDF sang một tệp TXT."
+    },
+    "edit-pdf": {
+      "title": "Chỉnh sửa PDF",
+      "description": "Thêm văn bản, hình ảnh, hình dạng hoặc chú thích tự do vào tài liệu PDF."
+    },
+    "page-numbers": {
+      "title": "Số trang",
+      "description": "Thêm số trang vào PDF một cách dễ dàng. Chọn vị trí, kích thước, kiểu chữ."
+    },
+    "crop-pdf": {
+      "title": "Cắt PDF",
+      "description": "Cắt lề của các tệp PDF để thay đổi kích thước trang hoặc xóa các vùng không mong muốn."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Dễ dàng chuyển đổi các tệp PDF được quét thành tài liệu có thể tìm kiếm và chọn."
+    },
+    "compare-pdf": {
+      "title": "So sánh PDF",
+      "description": "Hiển thị so sánh song song của hai tệp PDF để phát hiện sự khác biệt."
+    },
+    "redact-pdf": {
+      "title": "Che PDF",
+      "description": "Che văn bản và đồ họa khỏi PDF của bạn để xóa vĩnh viễn thông tin nhạy cảm."
+    },
+    "ai-question-generator": {
+      "title": "Trình tạo câu hỏi AI",
+      "description": "Tự động tạo câu hỏi từ bất kỳ văn bản nào bằng AI. Hoàn hảo cho hướng dẫn học tập và câu đố."
+    },
+    "invoice-generator": {
+      "title": "Trình tạo hóa đơn",
+      "description": "Tạo hóa đơn chuyên nghiệp miễn phí. Tùy chỉnh với logo của bạn, thêm các mục và tải xuống dưới dạng PDF."
+    },
+    "cv-generator": {
+      "title": "Trình tạo CV",
+      "description": "Tạo một CV chuyên nghiệp bằng cách cung cấp thông tin chi tiết của bạn. Chọn từ nhiều mẫu và tải xuống dưới dạng PDF."
+    },
+    "lesson-plan-creator": {
+      "title": "Trình tạo kế hoạch bài giảng",
+      "description": "Tạo kế hoạch bài giảng chi tiết, hấp dẫn cho bất kỳ môn học nào trong vài giây. Hãy để AI xây dựng một kế hoạch với các hoạt động, đánh giá và bài tập về nhà."
+    },
+    "unlock-pdf": {
+      "title": "Mở khóa PDF",
+      "description": "Xóa bảo mật mật khẩu PDF, cho phép bạn tự do sử dụng các tệp PDF của mình theo ý muốn."
+    },
+    "protect-pdf": {
+      "title": "Bảo vệ PDF",
+      "description": "Bảo vệ các tệp PDF bằng mật khẩu. Mã hóa các tài liệu PDF để ngăn chặn truy cập trái phép."
+    },
+    "sign-pdf": {
+      "title": "Ký PDF",
+      "description": "Tự ký hoặc yêu cầu chữ ký điện tử từ người khác."
+    },
+    "watermark-pdf": {
+      "title": "Dấu bản quyền",
+      "description": "Đóng dấu một hình ảnh hoặc văn bản lên PDF của bạn trong vài giây. Chọn kiểu chữ, độ trong suốt và vị trí."
+    },
+    "resize-image": {
+      "title": "Thay đổi kích thước hình ảnh",
+      "description": "Xác định kích thước của bạn, theo tỷ lệ phần trăm hoặc pixel, và thay đổi kích thước hình ảnh JPG, PNG và GIF của bạn."
+    },
+    "remove-background": {
+      "title": "Xóa nền",
+      "description": "Tự động xóa nền khỏi bất kỳ hình ảnh nào chỉ bằng một cú nhấp chuột."
+    },
+    "crop-image": {
+      "title": "Cắt hình ảnh",
+      "description": "Dễ dàng cắt các tệp JPG, PNG hoặc GIF."
+    },
+    "convert-to-jpg": {
+      "title": "Chuyển đổi sang JPG",
+      "description": "Chuyển đổi PNG, GIF, TIF, PSD, SVG, WEBP hoặc RAW sang JPG."
+    },
+    "convert-from-jpg": {
+      "title": "Chuyển đổi từ JPG",
+      "description": "Chuyển đổi từ JPG sang PNG hoặc GIF."
+    },
+    "compress-image": {
+      "title": "Nén hình ảnh",
+      "description": "Giảm kích thước tệp trong khi tối ưu hóa chất lượng hình ảnh tối đa."
+    },
+    "watermark-image": {
+      "title": "Dấu bản quyền hình ảnh",
+      "description": "Đóng dấu một hình ảnh hoặc văn bản lên hình ảnh của bạn trong vài giây."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

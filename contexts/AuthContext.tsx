@@ -58,6 +58,7 @@ interface AuthContextType {
   deleteCurrentUser: () => Promise<void>;
   loginOrSignupWithGoogle: () => Promise<void>;
   loginOrSignupWithGithub: () => Promise<void>;
+  loginOrSignupWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   generateApiKey: () => Promise<string>;
@@ -124,6 +125,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const loginOrSignupWithGithub = async () => {
     const provider = new firebase.auth.GithubAuthProvider();
+    await auth.signInWithPopup(provider);
+  };
+
+  const loginOrSignupWithFacebook = async () => {
+    const provider = new firebase.auth.FacebookAuthProvider();
     await auth.signInWithPopup(provider);
   };
 
@@ -272,7 +278,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, loginOrSignupWithFacebook, signInWithEmail, signUpWithEmail, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
 
   return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };

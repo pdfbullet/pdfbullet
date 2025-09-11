@@ -47,12 +47,14 @@ const SitemapPage: React.FC = () => {
       { path: "/contact", name: "Contact" },
       { path: "/faq", name: "FAQ" },
       { path: "/pricing", name: "Pricing" },
+      { path: "/press", name: "Press" },
     ];
     
     const legalPages = [
       { path: "/privacy-policy", name: "Privacy Policy" },
       { path: "/terms-of-service", name: "Terms of Service" },
       { path: "/cookies-policy", name: "Cookies Policy" },
+      { path: "/user-data-deletion", name: "Data Deletion" },
     ];
     
      const solutionPages = [

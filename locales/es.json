@@ -1,0 +1,255 @@
+{
+  "header": {
+    "merge_pdf": "UNIR PDF",
+    "split_pdf": "DIVIDIR PDF",
+    "compress_pdf": "COMPRIMIR PDF",
+    "developer": "DESARROLLADOR",
+    "convert_pdf": "CONVERTIR PDF",
+    "all_pdf_tools": "TODAS LAS HERRAMIENTAS PDF",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "signed_in_as": "Sesión iniciada como",
+    "change_photo": "Cambiar foto",
+    "account_settings": "Configuración de la cuenta",
+    "change_password": "Cambiar contraseña",
+    "logout": "Cerrar sesión"
+  },
+  "footer": {
+    "slogan": "Tu conjunto de herramientas en línea para la gestión de PDF e imágenes.",
+    "tools": "Herramientas",
+    "solutions": "Soluciones",
+    "company": "Empresa",
+    "legal": "Legal",
+    "subscribe_title": "Suscríbete a nuestro boletín",
+    "subscribe_text": "Recibe las últimas noticias, artículos y recursos, enviados a tu bandeja de entrada semanalmente.",
+    "subscribe_button": "Suscribirse",
+    "copyright": "© {year} I Love PDFLY. Todos los derechos reservados.",
+    "top_tools": {
+      "merge_pdf": "Unir PDF",
+      "compress_pdf": "Comprimir PDF",
+      "jpg_to_pdf": "JPG a PDF",
+      "edit_pdf": "Editar PDF",
+      "pdf_to_word": "PDF a Word"
+    },
+    "company_links": {
+      "about": "Sobre nosotros",
+      "blog": "Blog",
+      "press": "Prensa",
+      "contact": "Contacto",
+      "ceo_message": "Mensaje del CEO",
+      "report_problem": "Reportar un problema"
+    },
+    "solution_links": {
+      "education": "Para Educación",
+      "business": "Para Empresas",
+      "how_to": "Guías de uso"
+    },
+    "legal_links": {
+      "legal_hub": "Centro Legal",
+      "privacy": "Política de Privacidad",
+      "terms": "Términos y Condiciones",
+      "cookies": "Política de Cookies",
+      "data_deletion": "Eliminación de Datos"
+    }
+  },
+  "homepage": {
+    "hero_title": "Todas las herramientas que necesitas para trabajar con PDFs en un solo lugar",
+    "hero_subtitle": "Todas las herramientas que necesitas para usar PDFs, al alcance de tu mano. ¡Todas son 100% GRATIS y fáciles de usar! Une, divide, comprime, convierte, rota, desbloquea y añade marcas de agua a tus PDFs con solo unos clics.",
+    "filter_all": "Todo",
+    "filter_workflows": "Flujos de trabajo",
+    "filter_organize": "Organizar PDF",
+    "filter_optimize": "Optimizar PDF",
+    "filter_convert": "Convertir PDF",
+    "filter_edit": "Editar PDF",
+    "filter_security": "Seguridad PDF",
+    "solutions_title": "Soluciones para ti",
+    "solutions_subtitle": "Herramientas PDF adaptadas a tus necesidades específicas.",
+    "simple_steps_title": "Pasos sencillos hacia el éxito",
+    "simple_steps_subtitle": "Realiza tus tareas con PDF en solo unos pocos clics.",
+    "why_choose_title": "¿Por qué elegir I Love PDFLY?",
+    "why_choose_subtitle": "El conjunto de herramientas en línea definitivo para todas tus necesidades de PDF.",
+    "blog_title": "De nuestro blog",
+    "blog_subtitle": "Consejos, trucos y actualizaciones de nuestro equipo para ayudarte a ser más productivo.",
+    "premium_title": "Obtén más con Premium",
+    "premium_subtitle": "Completa proyectos más rápido con el procesamiento de archivos por lotes, convierte documentos escaneados con OCR y firma electrónicamente tus acuerdos comerciales.",
+    "get_premium": "Obtener Premium",
+    "faq_title": "Preguntas Frecuentes"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "Unir PDF",
+      "description": "Combina PDFs en el orden que desees con el fusor de PDF más fácil disponible."
+    },
+    "split-pdf": {
+      "title": "Dividir PDF",
+      "description": "Separa una página o un conjunto completo para una fácil conversión en archivos PDF independientes."
+    },
+    "organize-pdf": {
+      "title": "Organizar PDF",
+      "description": "Ordena, añade y elimina páginas de PDF. Organiza las páginas de tu documento como desees."
+    },
+    "rotate-pdf": {
+      "title": "Rotar PDF",
+      "description": "Gira tus PDFs de la manera que los necesites. ¡Incluso puedes rotar varios PDFs a la vez!"
+    },
+    "zip-maker": {
+      "title": "Crear archivo ZIP",
+      "description": "Crea fácilmente un archivo ZIP a partir de múltiples archivos o una carpeta completa."
+    },
+    "compress-pdf": {
+      "title": "Comprimir PDF",
+      "description": "Reduce el tamaño del archivo mientras optimizas para una calidad de PDF máxima."
+    },
+    "repair-pdf": {
+      "title": "Reparar PDF",
+      "description": "Repara un PDF dañado y recupera datos de un PDF corrupto. Arregla archivos PDF con nuestra herramienta de Reparación."
+    },
+    "resize-file": {
+      "title": "Cambiar tamaño de archivo",
+      "description": "Cambia el tamaño de archivo de imágenes o PDFs ajustando la calidad y la compresión."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG a PDF",
+      "description": "Convierte imágenes JPG a PDF en segundos. Ajusta fácilmente la orientación y los márgenes."
+    },
+    "psd-to-pdf": {
+      "title": "PSD a PDF",
+      "description": "Convierte archivos de Adobe Photoshop (PSD) a documentos PDF fácilmente."
+    },
+    "word-to-pdf": {
+      "title": "Word a PDF",
+      "description": "Convierte tus documentos WORD a PDF con la mejor calidad y conversión."
+    },
+    "powerpoint-to-pdf": {
+      "title": "Convertir POWERPOINT a PDF",
+      "description": "Haz que las presentaciones de diapositivas PPT y PPTX sean fáciles de ver convirtiéndolas a PDF."
+    },
+    "excel-to-pdf": {
+      "title": "Excel a PDF",
+      "description": "Convierte tus hojas de cálculo de EXCEL a PDF. Convertidor de XLS y XLSX a PDF."
+    },
+    "html-to-pdf": {
+      "title": "HTML a PDF",
+      "description": "Convierte páginas web en HTML a PDF. Copia y pega la URL de la página que quieres y conviértela a PDF con un clic."
+    },
+    "scan-to-pdf": {
+      "title": "Escanear a PDF",
+      "description": "Convierte tu teléfono en un escáner de documentos. Captura, edita y corrige la perspectiva de tus documentos para crear escaneos de alta calidad."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF a JPG",
+      "description": "Extrae imágenes de tu PDF o convierte cada página en un JPG."
+    },
+    "pdf-to-png": {
+      "title": "PDF a PNG",
+      "description": "Convierte cada página de PDF en una imagen PNG de alta calidad."
+    },
+    "pdf-to-word": {
+      "title": "PDF a Word",
+      "description": "Convierte fácilmente tus archivos PDF en documentos DOC y DOCX fáciles de editar."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF a PowerPoint",
+      "description": "Convierte tus archivos PDF en presentaciones de diapositivas PPT y PPTX fáciles de editar."
+    },
+    "pdf-to-excel": {
+      "title": "PDF a Excel",
+      "description": "Extrae datos directamente de PDFs a hojas de cálculo de Excel en pocos clics."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF a PDF/A",
+      "description": "Transforma tu PDF a PDF/A, la versión estandarizada por ISO para el archivo a largo plazo."
+    },
+    "extract-text": {
+      "title": "Extraer texto",
+      "description": "Extrae todo el texto de un archivo PDF a un archivo TXT."
+    },
+    "edit-pdf": {
+      "title": "Editar PDF",
+      "description": "Añade texto, imágenes, formas o anotaciones a mano alzada a un documento PDF."
+    },
+    "page-numbers": {
+      "title": "Números de página",
+      "description": "Añade números de página a los PDFs con facilidad. Elige posiciones, dimensiones, tipografía."
+    },
+    "crop-pdf": {
+      "title": "Recortar PDF",
+      "description": "Recorta los márgenes de los archivos PDF para cambiar el tamaño de la página o eliminar áreas no deseadas."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Convierte fácilmente PDF escaneados en documentos con capacidad de búsqueda y selección."
+    },
+    "compare-pdf": {
+      "title": "Comparar PDF",
+      "description": "Muestra una comparación lado a lado de dos archivos PDF para detectar las diferencias."
+    },
+    "redact-pdf": {
+      "title": "Redactar PDF",
+      "description": "Redacta texto y gráficos de tu PDF para eliminar permanentemente información sensible."
+    },
+    "ai-question-generator": {
+      "title": "Generador de Preguntas con IA",
+      "description": "Crea preguntas automáticamente a partir de cualquier texto usando IA. Perfecto para guías de estudio y cuestionarios."
+    },
+    "invoice-generator": {
+      "title": "Generador de Facturas",
+      "description": "Crea facturas profesionales de forma gratuita. Personaliza con tu logo, añade artículos y descarga como PDF."
+    },
+    "cv-generator": {
+      "title": "Generador de CV",
+      "description": "Crea un CV profesional proporcionando tus datos. Elige entre múltiples plantillas y descarga como PDF."
+    },
+    "lesson-plan-creator": {
+      "title": "Creador de Planes de Lección",
+      "description": "Crea planes de lección detallados y atractivos para cualquier materia en segundos. Deja que la IA construya un plan con actividades, evaluaciones y tareas."
+    },
+    "unlock-pdf": {
+      "title": "Desbloquear PDF",
+      "description": "Elimina la seguridad de la contraseña del PDF, dándote la libertad de usar tus PDFs como quieras."
+    },
+    "protect-pdf": {
+      "title": "Proteger PDF",
+      "description": "Protege los archivos PDF con una contraseña. Cifra los documentos PDF para evitar el acceso no autorizado."
+    },
+    "sign-pdf": {
+      "title": "Firmar PDF",
+      "description": "Firma tú mismo o solicita firmas electrónicas a otros."
+    },
+    "watermark-pdf": {
+      "title": "Marca de agua",
+      "description": "Estampa una imagen o texto sobre tu PDF en segundos. Elige la tipografía, la transparencia y la posición."
+    },
+    "resize-image": {
+      "title": "Redimensionar imagen",
+      "description": "Define tus dimensiones, por porcentaje o píxel, y redimensiona tus imágenes JPG, PNG y GIF."
+    },
+    "remove-background": {
+      "title": "Eliminar fondo",
+      "description": "Elimina automáticamente el fondo de cualquier imagen con un solo clic."
+    },
+    "crop-image": {
+      "title": "Recortar imagen",
+      "description": "Recorta JPG, PNG o GIFs con facilidad."
+    },
+    "convert-to-jpg": {
+      "title": "Convertir a JPG",
+      "description": "Convierte PNG, GIF, TIF, PSD, SVG, WEBP o RAW a JPG."
+    },
+    "convert-from-jpg": {
+      "title": "Convertir desde JPG",
+      "description": "Convierte de JPG a PNG o GIF."
+    },
+    "compress-image": {
+      "title": "Comprimir Imagen",
+      "description": "Reduce el tamaño del archivo mientras optimizas para una calidad de imagen máxima."
+    },
+    "watermark-image": {
+      "title": "Marca de agua en Imagen",
+      "description": "Estampa una imagen o texto sobre tus imágenes en segundos."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

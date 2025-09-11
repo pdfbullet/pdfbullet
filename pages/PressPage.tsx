@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+// FIX: Replaced placeholder icons with the newly added Press-specific icons.
 import { DownloadIcon, HeartbeatIcon, GlobeIcon, PressMobileIcon, PressDesktopIcon, PressUpdatesIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 
@@ -52,7 +53,7 @@ const PressPage: React.FC = () => {
         {
             icon: HeartbeatIcon,
             title: 'What do we do?',
-            content: "Our site provides users with a free toolkit to make a wide range of edits to PDF files. What began as a simple website to merge and split PDFs; today offers more than 25 tools to organize, optimize, edit, convert, and secure PDFs."
+            content: "Our site provides users with a free toolkit to make a wide range of edits to a wide range of files. What began as a simple website to merge and split PDFs; today offers more than 25 tools to organize, optimize, edit, convert, and secure PDFs."
         },
         {
             icon: GlobeIcon,

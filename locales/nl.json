@@ -1,0 +1,255 @@
+{
+  "header": {
+    "merge_pdf": "PDF SAMENVOEGEN",
+    "split_pdf": "PDF SPLITSEN",
+    "compress_pdf": "PDF COMPRIMEREN",
+    "developer": "ONTWIKKELAAR",
+    "convert_pdf": "PDF CONVERTEREN",
+    "all_pdf_tools": "ALLE PDF-TOOLS",
+    "login": "Inloggen",
+    "signup": "Aanmelden",
+    "signed_in_as": "Ingelogd als",
+    "change_photo": "Foto wijzigen",
+    "account_settings": "Accountinstellingen",
+    "change_password": "Wachtwoord wijzigen",
+    "logout": "Uitloggen"
+  },
+  "footer": {
+    "slogan": "Uw online suite met tools voor PDF- en afbeeldingsbeheer.",
+    "tools": "Tools",
+    "solutions": "Oplossingen",
+    "company": "Bedrijf",
+    "legal": "Juridisch",
+    "subscribe_title": "Abonneer u op onze nieuwsbrief",
+    "subscribe_text": "Ontvang het laatste nieuws, artikelen en bronnen wekelijks in uw inbox.",
+    "subscribe_button": "Abonneren",
+    "copyright": "© {year} I Love PDFLY. Alle rechten voorbehouden.",
+    "top_tools": {
+      "merge_pdf": "PDF samenvoegen",
+      "compress_pdf": "PDF comprimeren",
+      "jpg_to_pdf": "JPG naar PDF",
+      "edit_pdf": "PDF bewerken",
+      "pdf_to_word": "PDF naar Word"
+    },
+    "company_links": {
+      "about": "Over ons",
+      "blog": "Blog",
+      "press": "Pers",
+      "contact": "Contact",
+      "ceo_message": "Bericht van de CEO",
+      "report_problem": "Een probleem melden"
+    },
+    "solution_links": {
+      "education": "Voor Onderwijs",
+      "business": "Voor Bedrijven",
+      "how_to": "Handleidingen"
+    },
+    "legal_links": {
+      "legal_hub": "Juridisch Centrum",
+      "privacy": "Privacybeleid",
+      "terms": "Servicevoorwaarden",
+      "cookies": "Cookiebeleid",
+      "data_deletion": "Gegevensverwijdering"
+    }
+  },
+  "homepage": {
+    "hero_title": "Alle tools die u nodig hebt om met PDF's te werken op één plek",
+    "hero_subtitle": "Alle tools die u nodig hebt om PDF's te gebruiken, binnen handbereik. Allemaal 100% GRATIS en eenvoudig in gebruik! Voeg samen, splits, comprimeer, converteer, roteer, ontgrendel en watermerk PDF's met slechts een paar klikken.",
+    "filter_all": "Alles",
+    "filter_workflows": "Workflows",
+    "filter_organize": "PDF organiseren",
+    "filter_optimize": "PDF optimaliseren",
+    "filter_convert": "PDF converteren",
+    "filter_edit": "PDF bewerken",
+    "filter_security": "PDF-beveiliging",
+    "solutions_title": "Oplossingen voor u",
+    "solutions_subtitle": "PDF-tools afgestemd op uw specifieke behoeften.",
+    "simple_steps_title": "Eenvoudige stappen naar succes",
+    "simple_steps_subtitle": "Klaar uw PDF-taken in slechts een paar klikken.",
+    "why_choose_title": "Waarom kiezen voor I Love PDFLY?",
+    "why_choose_subtitle": "De ultieme online toolkit voor al uw PDF-behoeften.",
+    "blog_title": "Van onze blog",
+    "blog_subtitle": "Tips, trucs en updates van ons team om u productiever te maken.",
+    "premium_title": "Krijg meer met Premium",
+    "premium_subtitle": "Voltooi projecten sneller met batchverwerking van bestanden, converteer gescande documenten met OCR en onderteken uw zakelijke overeenkomsten elektronisch.",
+    "get_premium": "Premium verkrijgen",
+    "faq_title": "Veelgestelde Vragen"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "PDF samenvoegen",
+      "description": "Combineer PDF's in de gewenste volgorde met de eenvoudigste beschikbare PDF-samenvoeger."
+    },
+    "split-pdf": {
+      "title": "PDF splitsen",
+      "description": "Splits een pagina of een hele set voor eenvoudige conversie naar onafhankelijke PDF-bestanden."
+    },
+    "organize-pdf": {
+      "title": "PDF organiseren",
+      "description": "Sorteer, voeg toe en verwijder PDF-pagina's. Schik uw documentpagina's zoals u dat wilt."
+    },
+    "rotate-pdf": {
+      "title": "PDF roteren",
+      "description": "Roteer uw PDF's zoals u ze nodig hebt. U kunt zelfs meerdere PDF's tegelijk roteren!"
+    },
+    "zip-maker": {
+      "title": "ZIP-bestand maken",
+      "description": "Maak eenvoudig een ZIP-archief van meerdere bestanden of een hele map."
+    },
+    "compress-pdf": {
+      "title": "PDF comprimeren",
+      "description": "Verklein de bestandsgrootte en optimaliseer voor maximale PDF-kwaliteit."
+    },
+    "repair-pdf": {
+      "title": "PDF repareren",
+      "description": "Repareer een beschadigde PDF en herstel gegevens van een corrupte PDF. Repareer PDF-bestanden met onze reparatietool."
+    },
+    "resize-file": {
+      "title": "Bestandsgrootte wijzigen",
+      "description": "Wijzig de bestandsgrootte van afbeeldingen of PDF's door de kwaliteit en compressie aan te passen."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG naar PDF",
+      "description": "Converteer JPG-afbeeldingen in seconden naar PDF. Pas eenvoudig de oriëntatie en marges aan."
+    },
+    "psd-to-pdf": {
+      "title": "PSD naar PDF",
+      "description": "Converteer Adobe Photoshop-bestanden (PSD) eenvoudig naar PDF-documenten."
+    },
+    "word-to-pdf": {
+      "title": "Word naar PDF",
+      "description": "Converteer uw WORD-documenten naar PDF met de beste kwaliteit en conversie."
+    },
+    "powerpoint-to-pdf": {
+      "title": "POWERPOINT naar PDF converteren",
+      "description": "Maak PPT- en PPTX-diavoorstellingen gemakkelijk te bekijken door ze naar PDF te converteren."
+    },
+    "excel-to-pdf": {
+      "title": "Excel naar PDF",
+      "description": "Converteer uw EXCEL-spreadsheets naar PDF. XLS- en XLSX-naar-PDF-converter."
+    },
+    "html-to-pdf": {
+      "title": "HTML naar PDF",
+      "description": "Converteer webpagina's in HTML naar PDF. Kopieer en plak de URL van de pagina die u wilt en converteer deze met één klik naar PDF."
+    },
+    "scan-to-pdf": {
+      "title": "Scannen naar PDF",
+      "description": "Verander uw telefoon in een documentscanner. Leg uw documenten vast, bewerk ze en corrigeer het perspectief om scans van hoge kwaliteit te maken."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF naar JPG",
+      "description": "Extraheer afbeeldingen uit uw PDF of converteer elke pagina naar een JPG."
+    },
+    "pdf-to-png": {
+      "title": "PDF naar PNG",
+      "description": "Converteer elke PDF-pagina naar een PNG-afbeelding van hoge kwaliteit."
+    },
+    "pdf-to-word": {
+      "title": "PDF naar Word",
+      "description": "Converteer uw PDF-bestanden eenvoudig naar gemakkelijk te bewerken DOC- en DOCX-documenten."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF naar PowerPoint",
+      "description": "Verander uw PDF-bestanden in gemakkelijk te bewerken PPT- en PPTX-diavoorstellingen."
+    },
+    "pdf-to-excel": {
+      "title": "PDF naar Excel",
+      "description": "Haal met een paar klikken gegevens rechtstreeks uit PDF's naar Excel-spreadsheets."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF naar PDF/A",
+      "description": "Transformeer uw PDF naar PDF/A, de ISO-gestandaardiseerde versie voor langdurige archivering."
+    },
+    "extract-text": {
+      "title": "Tekst extraheren",
+      "description": "Extraheer alle tekst uit een PDF-bestand naar een TXT-bestand."
+    },
+    "edit-pdf": {
+      "title": "PDF bewerken",
+      "description": "Voeg tekst, afbeeldingen, vormen of vrije-handannotaties toe aan een PDF-document."
+    },
+    "page-numbers": {
+      "title": "Paginanummers",
+      "description": "Voeg eenvoudig paginanummers toe aan PDF's. Kies uw posities, afmetingen, typografie."
+    },
+    "crop-pdf": {
+      "title": "PDF bijsnijden",
+      "description": "Snijd de marges van PDF-bestanden bij om het paginaformaat te wijzigen of ongewenste gebieden te verwijderen."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Converteer gescande PDF's eenvoudig naar doorzoekbare en selecteerbare documenten."
+    },
+    "compare-pdf": {
+      "title": "PDF vergelijken",
+      "description": "Toon een zij-aan-zij vergelijking van twee PDF-bestanden om de verschillen te zien."
+    },
+    "redact-pdf": {
+      "title": "PDF redigeren",
+      "description": "Redigeer tekst en afbeeldingen uit uw PDF om gevoelige informatie permanent te verwijderen."
+    },
+    "ai-question-generator": {
+      "title": "AI Vragengenerator",
+      "description": "Maak automatisch vragen van elke tekst met behulp van AI. Perfect voor studiegidsen en quizzen."
+    },
+    "invoice-generator": {
+      "title": "Factuurgenerator",
+      "description": "Maak gratis professionele facturen. Personaliseer met uw logo, voeg items toe en download als PDF."
+    },
+    "cv-generator": {
+      "title": "CV-generator",
+      "description": "Maak een professioneel CV door uw gegevens op te geven. Kies uit meerdere sjablonen en download als PDF."
+    },
+    "lesson-plan-creator": {
+      "title": "Lesplanmaker",
+      "description": "Maak in enkele seconden gedetailleerde, boeiende lesplannen voor elk onderwerp. Laat AI een plan opstellen met activiteiten, beoordelingen en huiswerk."
+    },
+    "unlock-pdf": {
+      "title": "PDF ontgrendelen",
+      "description": "Verwijder PDF-wachtwoordbeveiliging, zodat u uw PDF's kunt gebruiken zoals u wilt."
+    },
+    "protect-pdf": {
+      "title": "PDF beveiligen",
+      "description": "Beveilig PDF-bestanden met een wachtwoord. Versleutel PDF-documenten om ongeautoriseerde toegang te voorkomen."
+    },
+    "sign-pdf": {
+      "title": "PDF ondertekenen",
+      "description": "Onderteken zelf of vraag elektronische handtekeningen aan van anderen."
+    },
+    "watermark-pdf": {
+      "title": "Watermerk",
+      "description": "Stempel in seconden een afbeelding of tekst over uw PDF. Kies de typografie, transparantie en positie."
+    },
+    "resize-image": {
+      "title": "Afbeelding formaat wijzigen",
+      "description": "Definieer uw afmetingen, per percentage of pixel, en wijzig het formaat van uw JPG-, PNG- en GIF-afbeeldingen."
+    },
+    "remove-background": {
+      "title": "Achtergrond verwijderen",
+      "description": "Verwijder automatisch de achtergrond van elke afbeelding met een enkele klik."
+    },
+    "crop-image": {
+      "title": "Afbeelding bijsnijden",
+      "description": "Snijd JPG, PNG of GIF's gemakkelijk bij."
+    },
+    "convert-to-jpg": {
+      "title": "Converteren naar JPG",
+      "description": "Converteer PNG, GIF, TIF, PSD, SVG, WEBP of RAW naar JPG."
+    },
+    "convert-from-jpg": {
+      "title": "Converteren van JPG",
+      "description": "Converteer van JPG naar PNG of GIF."
+    },
+    "compress-image": {
+      "title": "Afbeelding comprimeren",
+      "description": "Verklein de bestandsgrootte en optimaliseer voor maximale beeldkwaliteit."
+    },
+    "watermark-image": {
+      "title": "Watermerk afbeelding",
+      "description": "Stempel in seconden een afbeelding of tekst over uw afbeeldingen."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

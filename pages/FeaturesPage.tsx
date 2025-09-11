@@ -5,6 +5,12 @@ import {
     UsersIcon
 } from '../components/icons.tsx';
 
+// Placeholder for a generic icon from the screenshot
+const PlaceholderAppIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <div className={`w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-700 ${className}`}></div>
+);
+
+
 const FeaturesPage: React.FC = () => {
     useEffect(() => {
         document.title = "Features | I Love PDFLY";
@@ -23,12 +29,13 @@ const FeaturesPage: React.FC = () => {
                         <div>
                             <h1 className="text-4xl md:text-5xl font-extrabold">Our features</h1>
                             <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
-                                Not so computer-savvy? No problem. Even if it's your first time using iLovePDFLY, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks.
+                                Not so computer-savvy? No problem. Even if it's your first time using iLovePDF, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks.
                             </p>
                         </div>
                         <div className="flex justify-center">
-                             {/* Image from user request */}
-                            <img src="https://www.ilovepdf.com/img/features/features.svg" alt="User-friendly interface illustration" className="w-full max-w-lg h-auto" />
+                            <div className="relative w-full max-w-md h-64 bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800 p-6 flex items-center justify-center">
+                                <p className="text-gray-400">Illustration</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -39,8 +46,9 @@ const FeaturesPage: React.FC = () => {
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="flex justify-center order-2 md:order-1">
-                            {/* Image from user request */}
-                           <img src="https://www.ilovepdf.com/img/features/files.svg" alt="Time saving illustration" className="w-full max-w-lg h-auto" />
+                            <div className="relative w-full max-w-md h-64 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6 flex items-center justify-center">
+                                <div className="w-40 h-40 border-8 border-green-500 rounded-full flex items-center justify-center text-3xl font-bold text-green-500">80%</div>
+                            </div>
                         </div>
                         <div className="order-1 md:order-2">
                             <h2 className="text-4xl md:text-5xl font-extrabold">Enjoy a wiser use of time</h2>
@@ -88,14 +96,15 @@ const FeaturesPage: React.FC = () => {
              <section className="py-20 md:py-28 bg-white dark:bg-black">
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
-                         <div className="flex justify-center">
-                           {/* Image from user request */}
-                            <img src="https://www.ilovepdf.com/img/features/team.png" alt="Team features illustration" className="w-full max-w-lg h-auto" />
+                        <div className="flex justify-center">
+                            <div className="relative w-full max-w-md h-64 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6 flex items-center justify-center">
+                               <UsersIcon className="h-20 w-20 text-brand-red" />
+                            </div>
                         </div>
                         <div>
                              <h2 className="text-4xl md:text-5xl font-extrabold">Get even more with Premium</h2>
                             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-                                Sometimes you just require a little something extra. Upgrade your iLovePDFLY experience and boost your document productivity.
+                                Sometimes you just require a little something extra. Upgrade your iLovePDF experience and boost your document productivity.
                             </p>
                             <div className="mt-8 space-y-6">
                                 <div>
@@ -128,18 +137,24 @@ const FeaturesPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold">Edit on the go</h3>
-                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Because business doesn't stop while you are on the go, you can edit and convert your PDFs on your smartphone with iLovePDFLY Mobile App. Available for iOS and Android.</p>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Because business doesn't stop while you are on the go, you can edit and convert your PDFs on your smartphone with iLovePDF Mobile App. Available for iOS and Android.</p>
                                 </div>
                                  <div>
                                     <h3 className="text-xl font-bold">Bring our tools to your Desktop</h3>
-                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Compress, merge, split, convert and edit your PDF files offline for maximum privacy with iLovePDFLY Desktop. Process your files directly on your computer and speed up editing performance.</p>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Compress, merge, split, convert and edit your PDF files offline for maximum privacy with iLovePDF Desktop. Process your files directly on your computer and speed up editing performance.</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex justify-center">
-                             {/* Image from user request */}
-                            <img src="https://www.ilovepdf.com/img/features/mobile.svg" alt="Multi-platform support illustration" className="w-full max-w-lg h-auto" />
-                        </div>
+                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 items-center justify-center p-8">
+                            <GoogleDriveIcon className="w-16 h-16" />
+                            <DropboxIcon className="w-16 h-16" />
+                            <WindowsIcon className="w-16 h-16" />
+                            <MacOSIcon className="w-16 h-16" />
+                            <AndroidIcon className="w-16 h-16" />
+                            <IOSIcon className="w-16 h-16" />
+                            <PlaceholderAppIcon />
+                            <PlaceholderAppIcon />
+                         </div>
                     </div>
                 </div>
             </section>

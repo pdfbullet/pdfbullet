@@ -188,9 +188,9 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                        <nav className="flex space-x-8">
-                            <button onClick={() => { setActiveTab('users'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>User Management</button>
-                            <button onClick={() => { setActiveTab('reports'); setSearchTerm(''); }} className={`relative py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'reports' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+                        <nav className="-mb-px flex space-x-8">
+                            <button onClick={() => { setActiveTab('users'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>User Management</button>
+                            <button onClick={() => { setActiveTab('reports'); setSearchTerm(''); }} className={`relative py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'reports' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                                 Problem Reports
                                 {stats.newReports > 0 && <span className="absolute -top-1 -right-4 bg-brand-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{stats.newReports}</span>}
                             </button>

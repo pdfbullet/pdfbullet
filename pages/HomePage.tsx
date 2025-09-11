@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
@@ -7,7 +5,7 @@ import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import { 
     ProtectIcon, RefreshIcon, ShoppingBagIcon, EditIcon, DownloadIcon,
-    StarIcon, OcrPdfIcon, StudentIcon, BriefcaseIcon, BookOpenIcon, UploadCloudIcon,
+    StarIcon, OcrPdfIcon, UploadCloudIcon,
     UsersIcon, ChartBarIcon, HeartbeatIcon, LockIcon, QuestionMarkIcon,
     IOSIcon, AndroidIcon, MacOSIcon, WindowsIcon, GlobeIcon, PlusIcon, RightArrowIcon,
     WorkflowPathIcon
@@ -57,7 +55,7 @@ const HomeFaqItem: React.FC<{
     </div>
 );
 
-const PremiumIllustration = () => (
+const PremiumIllustration = memo(() => (
     <div className="relative w-full h-full">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
             {/* Document 1 */}
@@ -90,7 +88,7 @@ const PremiumIllustration = () => (
             </div>
         </div>
     </div>
-);
+));
 
 const StatCard: React.FC<{ icon: React.FC<any>, value: number, label: string, suffix?: string }> = ({ icon: Icon, value, label, suffix }) => {
     const [count, setCount] = useState(0);
@@ -151,11 +149,108 @@ const StatCard: React.FC<{ icon: React.FC<any>, value: number, label: string, su
     );
 };
 
+const AdvantageSection = memo(() => {
+    const sectionRef = useRef<HTMLElement>(null);
+    const isVisible = useIsVisible(sectionRef);
+
+    const advantages = [
+        {
+            icon: LockIcon,
+            title: 'Secure & Private',
+            description: 'Your files are processed client-side. Nothing is ever uploaded, guaranteeing 100% privacy.'
+        },
+        {
+            icon: RefreshIcon,
+            title: 'Blazing Fast',
+            description: "Because all processing happens in your browser, there are no upload or download delays. Get results instantly."
+        },
+        {
+            icon: ShoppingBagIcon,
+            title: 'Completely Free',
+            description: "All our core tools are free to use, without limits. No hidden fees, no sign-up required for most features."
+        }
+    ];
+
+    return (
+        <section ref={sectionRef} className={`py-20 bg-white dark:bg-black scroll-animate ${isVisible ? 'visible' : ''}`}>
+            <div className="container max-w-screen-2xl mx-auto px-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The iLovePDFLY Advantage</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Secure, fast, and easy-to-use tools, right in your browser.</p>
+                </div>
+                <div className="max-w-7xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {advantages.map((adv, index) => (
+                        <div key={index} className="bg-gray-50 dark:bg-surface-dark p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 text-center transform hover:-translate-y-2 transition-transform duration-300">
+                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-brand-red/10 mb-6">
+                                <adv.icon className="h-8 w-8 text-brand-red" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{adv.title}</h3>
+                            <p className="mt-2 text-gray-600 dark:text-gray-400">{adv.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+});
+
+
+const EcosystemSection = memo(() => {
+    const sectionRef = useRef<HTMLElement>(null);
+    const isVisible = useIsVisible(sectionRef);
+    
+    const solutions = [
+        { title: 'I Love PDFLY Desktop', description: 'Download the', linkText: 'I Love PDFLY Desktop App', descriptionAfter: 'to work with your favorite PDF tools on your Mac or Windows PC. Get a lightweight PDF app that helps you process heavy PDF tasks offline in seconds.' },
+        { title: 'I Love PDFLY Mobile', description: 'Get the', linkText: 'I Love PDFLY Mobile App', descriptionAfter: 'to manage documents remotely or on the move. Turn your Android or iPhone device into a PDF Editor & Scanner to annotate, sign, and share documents with ease.' },
+        { title: 'iLoveIMG', description: '', linkText: 'iLoveIMG', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
+    ];
+    
+    const platforms = [
+        { name: 'iOS', icon: IOSIcon },
+        { name: 'Android', icon: AndroidIcon },
+        { name: 'MacOS', icon: MacOSIcon },
+        { name: 'Windows', icon: WindowsIcon },
+        { name: 'Web', icon: GlobeIcon }
+    ];
+
+    return (
+        <section ref={sectionRef} className={`py-20 scroll-animate ${isVisible ? 'visible' : ''}`}>
+            <div className="container max-w-screen-2xl mx-auto px-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50 flex items-center justify-center gap-4">
+                        <span>Our Ecosystem: Beyond the Browser</span>
+                    </h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Manage your documents seamlessly across all your devices.</p>
+                </div>
+                <div className="max-w-7xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
+                    {solutions.map((solution, index) => (
+                         <div key={index} className="text-center p-8">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{solution.title}</h3>
+                            <p className="mt-2 text-gray-600 dark:text-gray-400">
+                                {solution.description}{' '}
+                                <a href="#" className="text-brand-red hover:underline font-semibold">{solution.linkText}</a>{' '}
+                                {solution.descriptionAfter}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+                 <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
+                    {platforms.map(platform => (
+                        <div key={platform.name} className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
+                            <platform.icon className="h-16 w-16" />
+                            <span className="font-semibold text-lg">{platform.name}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+});
+
 
 const HomePage: React.FC = () => {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [activeCategory, setActiveCategory] = useState<string>('All');
-    const [activeSolutionTab, setActiveSolutionTab] = useState<'students' | 'business' | 'educators'>('students');
     
     const { isFavorite, toggleFavorite } = useFavorites();
     const { user } = useAuth();
@@ -240,12 +335,6 @@ const HomePage: React.FC = () => {
       { name: 'Emily Carter', role: 'University Professor', text: 'I recommend I Love PDFLY to all my students. It’s an essential tool for organizing research papers and compressing presentations. The fact that it\'s free is incredible.', image: 'https://i.pravatar.cc/150?u=emily' },
     ];
     
-    const solutions = [
-        { title: 'I Love PDFLY Desktop', description: 'Download the', linkText: 'I Love PDFLY Desktop App', descriptionAfter: 'to work with your favorite PDF tools on your Mac or Windows PC. Get a lightweight PDF app that helps you process heavy PDF tasks offline in seconds.' },
-        { title: 'I Love PDFLY Mobile', description: 'Get the', linkText: 'I Love PDFLY Mobile App', descriptionAfter: 'to manage documents remotely or on the move. Turn your Android or iPhone device into a PDF Editor & Scanner to annotate, sign, and share documents with ease.' },
-        { title: 'iLoveIMG', description: '', linkText: 'iLoveIMG', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
-    ];
-    
     const faqs = [
         { q: "Is I Love PDFLY completely free?", a: "Yes! Most of our tools are 100% free for standard use. We offer Premium plans for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience." },
         { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within 2 hours." },
@@ -283,12 +372,6 @@ const HomePage: React.FC = () => {
             }
         };
     }, [faqs]);
-
-    const solutionsData = {
-      students: { icon: StudentIcon, title: 'For Students', description: 'Combine research papers, compress large presentations, and convert your assignments to PDF for easy submission.', tools: ['merge-pdf', 'compress-pdf', 'pdf-to-word', 'ocr-pdf'] },
-      business: { icon: BriefcaseIcon, title: 'For Business Professionals', description: 'Sign contracts, protect sensitive reports, convert data to Excel, and add your company watermark.', tools: ['sign-pdf', 'protect-pdf', 'pdf-to-excel', 'watermark-pdf'] },
-      educators: { icon: BookOpenIcon, title: 'For Educators', description: 'Split textbook chapters, organize lesson plans, add page numbers to materials, and edit worksheets.', tools: ['split-pdf', 'organize-pdf', 'page-numbers', 'edit-pdf'] },
-    };
 
     const stats = [
         { icon: UsersIcon, value: 250000, label: "Happy Users", suffix: "+" },
@@ -410,59 +493,11 @@ const HomePage: React.FC = () => {
             </div>
         </section>
 
-        {/* Solutions For You Section */}
-        <section className="py-20">
-            <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.solutions_title')}</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.solutions_subtitle')}</p>
-                </div>
-                <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
-                    <div className="border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex overflow-x-auto pb-2 -mb-2 no-scrollbar">
-                            {Object.keys(solutionsData).map((key) => {
-                                const solution = solutionsData[key as keyof typeof solutionsData];
-                                return (
-                                    <button
-                                        key={key}
-                                        onClick={() => setActiveSolutionTab(key as keyof typeof solutionsData)}
-                                        title={solution.title}
-                                        className={`flex-shrink-0 flex items-center gap-2 px-3 py-3 sm:px-6 font-semibold border-b-2 transition-colors focus:outline-none ${
-                                            activeSolutionTab === key
-                                                ? 'border-brand-red text-brand-red'
-                                                : 'border-transparent text-gray-500 hover:text-brand-red'
-                                        }`}
-                                    >
-                                        <solution.icon className="h-5 w-5" />
-                                        <span>{solution.title}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    <div className="p-8">
-                        <p className="text-center text-gray-600 dark:text-gray-300 mb-6">{solutionsData[activeSolutionTab].description}</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {solutionsData[activeSolutionTab].tools.map(toolId => {
-                                const tool = TOOLS.find(t => t.id === toolId);
-                                if (!tool) return null;
-                                return (
-                                    <Link key={tool.id} to={`/${tool.id}`} title={t(tool.title)} className="flex flex-col items-center text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md transition-all">
-                                        <div className={`p-3 rounded-full ${tool.color}`}>
-                                            <tool.Icon className="h-6 w-6 text-white" />
-                                        </div>
-                                        <span className="mt-2 text-sm font-bold text-gray-800 dark:text-gray-200">{t(tool.title)}</span>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
+        {/* The iLovePDFLY Advantage Section */}
+        <AdvantageSection />
+
         {/* Simple Steps Section */}
-        <section className="py-20">
+        <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.simple_steps_title')}</h2>
@@ -495,9 +530,9 @@ const HomePage: React.FC = () => {
                 </div>
             </div>
         </section>
-        
+
         {/* Our Impact Section */}
-        <section className="py-20">
+        <section className="py-20 bg-white dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Our Impact in Numbers</h2>
@@ -519,71 +554,58 @@ const HomePage: React.FC = () => {
             </div>
         </section>
 
-        {/* Trusted by Millions Section */}
-        <section className="py-20">
-            <div className="container max-w-screen-2xl mx-auto px-6 text-center">
-                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The PDF software trusted by millions of users</h2>
-                <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
-                    iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
-                </p>
-                <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
-                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <IOSIcon className="h-16 w-16" />
-                        <span className="font-semibold text-lg">iOS</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <AndroidIcon className="h-16 w-16" />
-                        <span className="font-semibold text-lg">Android</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <MacOSIcon className="h-16 w-16" />
-                        <span className="font-semibold text-lg">MacOS</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <WindowsIcon className="h-14 w-14" />
-                        <span className="font-semibold text-lg">Windows</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <GlobeIcon className="h-16 w-16" />
-                        <span className="font-semibold text-lg">Web</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {/* Ecosystem Section */}
+        <EcosystemSection />
 
-        {/* Why Choose Section */}
-        <section className="py-20">
+        {/* Testimonials Section */}
+        <section className="py-20 overflow-hidden bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.why_choose_title')}</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.why_choose_subtitle')}</p>
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Trusted by Professionals Worldwide</h2>
                 </div>
-                <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <LockIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Secure. Private. In your control.</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">Your files are processed client-side. Nothing is ever uploaded to our servers, guaranteeing 100% privacy.</p>
+            </div>
+            <div className="mt-12 relative">
+                <div className="md:overflow-x-auto no-scrollbar md:max-w-5xl md:mx-auto">
+                    <div className="flex space-x-8 animate-marquee md:animate-none md:w-max md:px-6">
+                        {[...testimonials, ...testimonials].map((testimonial, index) => (
+                            <div key={index} className="flex-shrink-0 w-80 bg-white dark:bg-surface-dark p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col items-center">
+                                <img src={testimonial.image} alt={`Photo of ${testimonial.name}`} className="h-20 w-20 rounded-full object-cover mb-4 border-2 border-brand-red p-1" width="80" height="80" loading="lazy" decoding="async" />
+                                <blockquote className="text-gray-600 dark:text-gray-300 italic text-center text-base leading-relaxed flex-grow">
+                                    "{testimonial.text}"
+                                </blockquote>
+                                <div className="mt-4 text-center">
+                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{testimonial.name}</p>
+                                    <p className="text-xs font-normal text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <RefreshIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Blazing Fast</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">Because all processing happens in your browser, there's no upload/download time. Get results instantly.</p>
+                </div>
+                <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-gray-50 dark:from-black to-transparent pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-gray-50 dark:from-black to-transparent pointer-events-none"></div>
+            </div>
+        </section>
+        
+        {/* Premium Section */}
+        <section>
+            <div className="bg-white dark:bg-surface-dark shadow-xl overflow-hidden md:flex">
+                <div className="md:w-1/2 p-8 md:p-12 lg:px-24 lg:py-32 flex flex-col justify-center text-center md:text-left">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('homepage.premium_title')}</h2>
+                    <p className="mt-4 text-gray-600 dark:text-gray-400">
+                        {t('homepage.premium_subtitle')}
+                    </p>
+                    <div className="mt-6">
+                        <Link to="/signup" title="Get Premium" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
+                            {t('homepage.get_premium')}
+                        </Link>
                     </div>
-                    <div className="text-center p-8 bg-white dark:bg-surface-dark rounded-xl">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
-                            <ShoppingBagIcon className="h-8 w-8 text-brand-red"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Completely Free</h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">All our core tools are free to use, without limits. No hidden fees, no sign-up required for most features.</p>
-                    </div>
+                </div>
+                <div className="md:w-1/2 relative min-h-[300px] md:min-h-0" aria-hidden="true">
+                    <PremiumIllustration />
                 </div>
             </div>
         </section>
-
+        
         {/* Blog Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6 text-center">
@@ -616,38 +638,9 @@ const HomePage: React.FC = () => {
                 <div className="absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-gray-50 dark:from-black to-transparent pointer-events-none"></div>
             </div>
         </section>
-
-        {/* Testimonials Section */}
-        <section className="py-20 overflow-hidden">
-            <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Trusted by Professionals Worldwide</h2>
-                </div>
-            </div>
-            <div className="mt-12 relative">
-                <div className="md:overflow-x-auto no-scrollbar md:max-w-5xl md:mx-auto">
-                    <div className="flex space-x-8 animate-marquee md:animate-none md:w-max md:px-6">
-                        {[...testimonials, ...testimonials].map((testimonial, index) => (
-                            <div key={index} className="flex-shrink-0 w-80 bg-white dark:bg-surface-dark p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col items-center">
-                                <img src={testimonial.image} alt={`Photo of ${testimonial.name}`} className="h-20 w-20 rounded-full object-cover mb-4 border-2 border-brand-red p-1" width="80" height="80" loading="lazy" decoding="async" />
-                                <blockquote className="text-gray-600 dark:text-gray-300 italic text-center text-base leading-relaxed flex-grow">
-                                    "{testimonial.text}"
-                                </blockquote>
-                                <div className="mt-4 text-center">
-                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{testimonial.name}</p>
-                                    <p className="text-xs font-normal text-gray-500 dark:text-gray-400">{testimonial.role}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-creamy dark:from-soft-dark to-transparent pointer-events-none"></div>
-                <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-creamy dark:from-soft-dark to-transparent pointer-events-none"></div>
-            </div>
-        </section>
         
         {/* Trustpilot Section */}
-        <section className="py-20">
+        <section className="py-20 bg-white dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Review Us on Trustpilot</h2>
@@ -669,53 +662,9 @@ const HomePage: React.FC = () => {
                 </div>
             </div>
         </section>
-
-        {/* Other Solutions Section */}
-        <section className="py-20">
-            <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50 flex items-center justify-center gap-4">
-                        <QuestionMarkIcon className="h-10 w-10 text-brand-red" />
-                        <span>Looking for another solution?</span>
-                    </h2>
-                </div>
-                <div className="max-w-7xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
-                    {solutions.map((solution, index) => (
-                         <div key={index} className="text-center p-8">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{solution.title}</h3>
-                            <p className="mt-2 text-gray-600 dark:text-gray-400">
-                                {solution.description}{' '}
-                                <a href="#" className="text-brand-red hover:underline font-semibold">{solution.linkText}</a>{' '}
-                                {solution.descriptionAfter}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-
-        {/* Premium Section */}
-        <section>
-            <div className="bg-white dark:bg-surface-dark shadow-xl overflow-hidden md:flex">
-                <div className="md:w-1/2 p-8 md:p-12 lg:px-24 lg:py-32 flex flex-col justify-center text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('homepage.premium_title')}</h2>
-                    <p className="mt-4 text-gray-600 dark:text-gray-400">
-                        {t('homepage.premium_subtitle')}
-                    </p>
-                    <div className="mt-6">
-                        <Link to="/signup" title="Get Premium" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
-                            {t('homepage.get_premium')}
-                        </Link>
-                    </div>
-                </div>
-                <div className="md:w-1/2 relative min-h-[300px] md:min-h-0" aria-hidden="true">
-                    <PremiumIllustration />
-                </div>
-            </div>
-        </section>
-
+        
         {/* FAQ Section */}
-        <section className="py-20">
+        <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.faq_title')}</h2>

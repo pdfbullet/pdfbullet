@@ -1,0 +1,256 @@
+
+{
+  "header": {
+    "merge_pdf": "PDF BİRLEŞTİR",
+    "split_pdf": "PDF BÖL",
+    "compress_pdf": "PDF SIKIŞTIR",
+    "developer": "GELİŞTİRİCİ",
+    "convert_pdf": "PDF DÖNÜŞTÜR",
+    "all_pdf_tools": "TÜM PDF ARAÇLARI",
+    "login": "Giriş Yap",
+    "signup": "Kaydol",
+    "signed_in_as": "Giriş yapıldı:",
+    "change_photo": "Fotoğrafı Değiştir",
+    "account_settings": "Hesap Ayarları",
+    "change_password": "Şifre Değiştir",
+    "logout": "Çıkış Yap"
+  },
+  "footer": {
+    "slogan": "PDF ve resim yönetimi için çevrimiçi araç setiniz.",
+    "tools": "Araçlar",
+    "solutions": "Çözümler",
+    "company": "Şirket",
+    "legal": "Yasal",
+    "subscribe_title": "Bültenimize abone olun",
+    "subscribe_text": "En son haberleri, makaleleri ve kaynakları haftalık olarak gelen kutunuza alın.",
+    "subscribe_button": "Abone Ol",
+    "copyright": "© {year} I Love PDFLY. Tüm Hakları Saklıdır.",
+    "top_tools": {
+      "merge_pdf": "PDF Birleştir",
+      "compress_pdf": "PDF Sıkıştır",
+      "jpg_to_pdf": "JPG'den PDF'e",
+      "edit_pdf": "PDF Düzenle",
+      "pdf_to_word": "PDF'den Word'e"
+    },
+    "company_links": {
+      "about": "Hakkımızda",
+      "blog": "Blog",
+      "press": "Basın",
+      "contact": "İletişim",
+      "ceo_message": "CEO'dan Mesaj",
+      "report_problem": "Sorun Bildir"
+    },
+    "solution_links": {
+      "education": "Eğitim İçin",
+      "business": "İşletmeler İçin",
+      "how_to": "Nasıl Yapılır Kılavuzları"
+    },
+    "legal_links": {
+      "legal_hub": "Yasal Merkez",
+      "privacy": "Gizlilik Politikası",
+      "terms": "Hizmet Şartları",
+      "cookies": "Çerez Politikası",
+      "data_deletion": "Veri Silme"
+    }
+  },
+  "homepage": {
+    "hero_title": "PDF'lerle çalışmak için ihtiyacınız olan tüm araçlar tek bir yerde",
+    "hero_subtitle": "PDF'leri kullanmak için ihtiyacınız olan tüm araçlar parmaklarınızın ucunda. Hepsi %100 ÜCRETSİZ ve kullanımı kolay! Sadece birkaç tıklama ile PDF'leri birleştirin, bölün, sıkıştırın, dönüştürün, döndürün, kilidini açın ve filigran ekleyin.",
+    "filter_all": "Tümü",
+    "filter_workflows": "İş Akışları",
+    "filter_organize": "PDF Düzenle",
+    "filter_optimize": "PDF Optimize Et",
+    "filter_convert": "PDF Dönüştür",
+    "filter_edit": "PDF Düzenle",
+    "filter_security": "PDF Güvenliği",
+    "solutions_title": "Sizin İçin Çözümler",
+    "solutions_subtitle": "Özel ihtiyaçlarınıza göre uyarlanmış PDF araçları.",
+    "simple_steps_title": "Başarıya Giden Basit Adımlar",
+    "simple_steps_subtitle": "PDF görevlerinizi sadece birkaç tıklama ile tamamlayın.",
+    "why_choose_title": "Neden I Love PDFLY'ı Seçmelisiniz?",
+    "why_choose_subtitle": "Tüm PDF ihtiyaçlarınız için en iyi çevrimiçi araç seti.",
+    "blog_title": "Blogumuzdan",
+    "blog_subtitle": "Ekibimizden daha verimli olmanıza yardımcı olacak ipuçları, püf noktaları ve güncellemeler.",
+    "premium_title": "Premium ile Daha Fazlasını Elde Edin",
+    "premium_subtitle": "Toplu dosya işleme ile projeleri daha hızlı tamamlayın, OCR ile taranmış belgeleri dönüştürün ve iş anlaşmalarınızı elektronik olarak imzalayın.",
+    "get_premium": "Premium'u Alın",
+    "faq_title": "Sıkça Sorulan Sorular"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "PDF Birleştir",
+      "description": "PDF'leri mevcut en kolay PDF birleştirici ile istediğiniz sırada birleştirin."
+    },
+    "split-pdf": {
+      "title": "PDF Böl",
+      "description": "Bağımsız PDF dosyalarına kolayca dönüştürmek için bir sayfayı veya tüm bir seti ayırın."
+    },
+    "organize-pdf": {
+      "title": "PDF Düzenle",
+      "description": "PDF sayfalarını sıralayın, ekleyin ve kaldırın. Belge sayfalarınızı istediğiniz gibi düzenleyin."
+    },
+    "rotate-pdf": {
+      "title": "PDF Döndür",
+      "description": "PDF'lerinizi ihtiyacınız olan şekilde döndürün. Hatta birden fazla PDF'i aynı anda döndürebilirsiniz!"
+    },
+    "zip-maker": {
+      "title": "ZIP dosyası oluştur",
+      "description": "Birden çok dosyadan veya tüm bir klasörden kolayca bir ZIP arşivi oluşturun."
+    },
+    "compress-pdf": {
+      "title": "PDF Sıkıştır",
+      "description": "Maksimum PDF kalitesi için optimize ederken dosya boyutunu küçültün."
+    },
+    "repair-pdf": {
+      "title": "PDF Onar",
+      "description": "Hasarlı bir PDF'yi onarın ve bozuk PDF'den veri kurtarın. Onarım aracımızla PDF dosyalarını düzeltin."
+    },
+    "resize-file": {
+      "title": "Dosya Boyutunu Değiştir",
+      "description": "Kaliteyi ve sıkıştırmayı ayarlayarak resimlerin veya PDF'lerin dosya boyutunu değiştirin."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG'den PDF'e",
+      "description": "JPG resimlerini saniyeler içinde PDF'e dönüştürün. Yönlendirmeyi ve kenar boşluklarını kolayca ayarlayın."
+    },
+    "psd-to-pdf": {
+      "title": "PSD'den PDF'e",
+      "description": "Adobe Photoshop dosyalarını (PSD) kolayca PDF belgelerine dönüştürün."
+    },
+    "word-to-pdf": {
+      "title": "Word'den PDF'e",
+      "description": "WORD belgelerinizi en iyi kalite ve dönüşümle PDF'e dönüştürün."
+    },
+    "powerpoint-to-pdf": {
+      "title": "POWERPOINT'i PDF'e dönüştür",
+      "description": "PPT ve PPTX slayt gösterilerini PDF'e dönüştürerek kolayca görüntülenebilir hale getirin."
+    },
+    "excel-to-pdf": {
+      "title": "Excel'den PDF'e",
+      "description": "EXCEL elektronik tablolarınızı PDF'e dönüştürün. XLS ve XLSX'den PDF'e dönüştürücü."
+    },
+    "html-to-pdf": {
+      "title": "HTML'den PDF'e",
+      "description": "HTML'deki web sayfalarını PDF'e dönüştürün. İstediğiniz sayfanın URL'sini kopyalayıp yapıştırın ve tek bir tıklamayla PDF'e dönüştürün."
+    },
+    "scan-to-pdf": {
+      "title": "PDF'e Tara",
+      "description": "Telefonunuzu bir belge tarayıcısına dönüştürün. Yüksek kaliteli taramalar oluşturmak için belgelerinizin perspektifini yakalayın, düzenleyin ve düzeltin."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF'den JPG'ye",
+      "description": "PDF'nizden resimleri ayıklayın veya her sayfayı bir JPG'ye dönüştürün."
+    },
+    "pdf-to-png": {
+      "title": "PDF'den PNG'ye",
+      "description": "Her PDF sayfasını yüksek kaliteli bir PNG resmine dönüştürün."
+    },
+    "pdf-to-word": {
+      "title": "PDF'den Word'e",
+      "description": "PDF dosyalarınızı kolayca düzenlenebilir DOC ve DOCX belgelerine dönüştürün."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF'den PowerPoint'e",
+      "description": "PDF dosyalarınızı kolayca düzenlenebilir PPT ve PPTX slayt gösterilerine dönüştürün."
+    },
+    "pdf-to-excel": {
+      "title": "PDF'den Excel'e",
+      "description": "Birkaç tıklamayla verileri doğrudan PDF'lerden Excel elektronik tablolarına çekin."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF'den PDF/A'ya",
+      "description": "PDF'nizi uzun süreli arşivleme için ISO standartlaştırılmış sürüm olan PDF/A'ya dönüştürün."
+    },
+    "extract-text": {
+      "title": "Metin çıkar",
+      "description": "Bir PDF dosyasındaki tüm metni bir TXT dosyasına çıkarın."
+    },
+    "edit-pdf": {
+      "title": "PDF Düzenle",
+      "description": "Bir PDF belgesine metin, resim, şekil veya serbest el notları ekleyin."
+    },
+    "page-numbers": {
+      "title": "Sayfa numaraları",
+      "description": "PDF'lere kolayca sayfa numaraları ekleyin. Pozisyonlarınızı, boyutlarınızı, tipografinizi seçin."
+    },
+    "crop-pdf": {
+      "title": "PDF Kırp",
+      "description": "Sayfa boyutunu değiştirmek veya istenmeyen alanları kaldırmak için PDF dosyalarının kenar boşluklarını kırpın."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Taranmış PDF'leri kolayca aranabilir ve seçilebilir belgelere dönüştürün."
+    },
+    "compare-pdf": {
+      "title": "PDF Karşılaştır",
+      "description": "Farklılıkları tespit etmek için iki PDF dosyasının yan yana karşılaştırmasını gösterin."
+    },
+    "redact-pdf": {
+      "title": "PDF Redakte Et",
+      "description": "Hassas bilgileri kalıcı olarak kaldırmak için PDF'nizden metin ve grafikleri redakte edin."
+    },
+    "ai-question-generator": {
+      "title": "Yapay Zeka Soru Üretici",
+      "description": "Yapay zeka kullanarak herhangi bir metinden otomatik olarak sorular oluşturun. Çalışma kılavuzları ve sınavlar için mükemmel."
+    },
+    "invoice-generator": {
+      "title": "Fatura Üretici",
+      "description": "Ücretsiz olarak profesyonel faturalar oluşturun. Logonuzla özelleştirin, ürün ekleyin ve PDF olarak indirin."
+    },
+    "cv-generator": {
+      "title": "CV Üretici",
+      "description": "Bilgilerinizi girerek profesyonel bir CV oluşturun. Birden çok şablondan birini seçin ve PDF olarak indirin."
+    },
+    "lesson-plan-creator": {
+      "title": "Ders Planı Oluşturucu",
+      "description": "Herhangi bir ders için saniyeler içinde ayrıntılı, ilgi çekici ders planları oluşturun. Yapay zekanın etkinlikler, değerlendirmeler ve ödevlerle bir plan oluşturmasına izin verin."
+    },
+    "unlock-pdf": {
+      "title": "PDF Kilidini Aç",
+      "description": "PDF şifre güvenliğini kaldırın, PDF'lerinizi istediğiniz gibi kullanma özgürlüğü verin."
+    },
+    "protect-pdf": {
+      "title": "PDF Koru",
+      "description": "PDF dosyalarını bir şifre ile koruyun. Yetkisiz erişimi önlemek için PDF belgelerini şifreleyin."
+    },
+    "sign-pdf": {
+      "title": "PDF İmzala",
+      "description": "Kendiniz imzalayın veya başkalarından elektronik imza isteyin."
+    },
+    "watermark-pdf": {
+      "title": "Filigran",
+      "description": "Saniyeler içinde PDF'nizin üzerine bir resim veya metin damgalayın. Tipografiyi, şeffaflığı ve konumu seçin."
+    },
+    "resize-image": {
+      "title": "Resim boyutunu değiştir",
+      "description": "Boyutlarınızı yüzde veya piksel olarak tanımlayın ve JPG, PNG ve GIF resimlerinizin boyutunu değiştirin."
+    },
+    "remove-background": {
+      "title": "Arka planı kaldır",
+      "description": "Tek bir tıklamayla herhangi bir resimden arka planı otomatik olarak kaldırın."
+    },
+    "crop-image": {
+      "title": "Resmi kırp",
+      "description": "JPG, PNG veya GIF'leri kolayca kırpın."
+    },
+    "convert-to-jpg": {
+      "title": "JPG'ye dönüştür",
+      "description": "PNG, GIF, TIF, PSD, SVG, WEBP veya RAW'ı JPG'ye dönüştürün."
+    },
+    "convert-from-jpg": {
+      "title": "JPG'den dönüştür",
+      "description": "JPG'den PNG veya GIF'e dönüştürün."
+    },
+    "compress-image": {
+      "title": "Resmi Sıkıştır",
+      "description": "Maksimum resim kalitesi için optimize ederken dosya boyutunu küçültün."
+    },
+    "watermark-image": {
+      "title": "Resme Filigran Ekle",
+      "description": "Saniyeler içinde resimlerinizin üzerine bir resim veya metin damgalayın."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}

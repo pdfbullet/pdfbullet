@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
 
-// Icons
 const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -15,7 +15,6 @@ const MinusIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-// FAQ Component
 const FaqItem: React.FC<{
     item: { question: string, answer: string },
     isOpen: boolean,
@@ -34,23 +33,8 @@ const FaqItem: React.FC<{
     </div>
 );
 
-// Feature Component for comparison table
-const Feature: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className="flex items-center gap-3">
-        <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0" />
-        <span>{children}</span>
-    </div>
-);
-
-const NoFeature: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-     <div className="flex items-center gap-3 text-gray-400">
-        <MinusIcon className="h-5 w-5 flex-shrink-0" />
-        <span>{children}</span>
-    </div>
-);
-
-// Main Pricing Page Component
 const PricingPage: React.FC = () => {
+    const [planType, setPlanType] = useState<'user' | 'api'>('user');
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -84,7 +68,37 @@ const PricingPage: React.FC = () => {
         if (metaDesc) {
             metaDesc.setAttribute("content", "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with I Love PDFLY.");
         }
-    }, []);
+
+        const faqSchema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqData.map(faq => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.answer
+                }
+            }))
+        };
+        
+        const scriptId = 'faq-schema-pricing';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(faqSchema);
+
+        return () => {
+            const scriptToRemove = document.getElementById(scriptId);
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, [faqData]);
 
     const handleChoosePlan = (plan: string) => {
         if (user) {
@@ -98,71 +112,17 @@ const PricingPage: React.FC = () => {
         setOpenFaq(openFaq === index ? null : index);
     };
     
-    // Detailed User Plans
-    const userPlans = [
-        { 
-            name: 'Basic', 
-            price: 'Free', 
-            description: 'For simple, occasional use',
-            features: {
-                "Document Processing": "Limited tasks per day",
-                "File Size": "Standard",
-                "Access to Standard Tools": <Feature>Merge, Split, Basic Compress, JPG to PDF, Word to PDF</Feature>,
-                "Premium Tools": <NoFeature>Edit, OCR, Sign, Compare, etc.</NoFeature>,
-                "Work on Web, Mobile & Desktop": <NoFeature>Web only</NoFeature>,
-                "Ads": "Contains Ads",
-                "Sign PDF": <NoFeature>Not available</NoFeature>,
-                "Workflows": <NoFeature>Not available</NoFeature>,
-                "AI Assistant": "Limited queries",
-                "Customer Support": <NoFeature>Community support</NoFeature>,
-            },
-            action: () => navigate('/signup'),
-            actionText: 'Start for free',
-            isPopular: false,
-        },
-        { 
-            name: 'Premium', 
-            price: '$5/year', 
-            description: 'For advanced, regular use',
-            features: {
-                "Document Processing": "Unlimited tasks",
-                "File Size": "Increased",
-                "Access to Standard Tools": <Feature>All standard tools</Feature>,
-                "Premium Tools": <Feature>Full access to all tools (Edit, OCR, etc.)</Feature>,
-                "Work on Web, Mobile & Desktop": <Feature>All platforms</Feature>,
-                "Ads": <NoFeature>No Ads</NoFeature>,
-                "Sign PDF": <Feature>Simple Signatures (5/month)</Feature>,
-                "Workflows": <Feature>Up to 5 custom workflows</Feature>,
-                "AI Assistant": "Standard access",
-                "Customer Support": <Feature>Email & Chat support</Feature>,
-            },
-            action: () => handleChoosePlan('premium'),
-            actionText: 'Go Premium',
-            isPopular: true,
-        },
-        { 
-            name: 'Pro', 
-            price: '$10/lifetime', 
-            description: 'For power users and teams',
-             features: {
-                "Document Processing": "Unlimited tasks with priority",
-                "File Size": "Largest",
-                "Access to Standard Tools": <Feature>All standard tools</Feature>,
-                "Premium Tools": <Feature>Full access to all tools</Feature>,
-                "Work on Web, Mobile & Desktop": <Feature>All platforms with offline access</Feature>,
-                "Ads": <NoFeature>No Ads</NoFeature>,
-                "Sign PDF": <Feature>Advanced Signatures & Audit Trail (20/month)</Feature>,
-                "Workflows": <Feature>Unlimited custom workflows</Feature>,
-                "AI Assistant": "Unlimited queries",
-                "Customer Support": <Feature>Priority support</Feature>,
-            },
-            action: () => handleChoosePlan('pro'),
-            actionText: 'Go Pro',
-            isPopular: false,
-        }
-    ];
-
-    const allUserFeatureKeys = Object.keys(userPlans[0].features);
+    const userPlans = {
+        basic: { name: 'Basic', price: 'Free', features: ['Access to most tools', '100 uses per day', 'Work on Web'] },
+        premium: { name: 'Premium', price: '$5/year', features: ['Full access to all tools', 'Unlimited document processing', 'Work on Web, Mobile and Desktop', 'No Ads', 'Customer support'] },
+        pro: { name: 'Pro', price: '$10/lifetime', features: ['All Premium features', 'Largest file size limits', 'Unlimited AI Assistant queries', 'Dedicated servers for faster processing', 'Priority customer support'] }
+    };
+    
+    const apiPlans = {
+        free: { name: 'Free', price: '$0/month', features: ['100 API calls/day', 'Access to standard tools', 'Community support'] },
+        developer: { name: 'Developer', price: '$10/month', features: ['1,000 API calls/day', 'Access to all tools', 'Email support', 'No "Powered by" branding'] },
+        business: { name: 'Business', price: '$50/month', features: ['10,000 API calls/day', 'Access to all tools', 'Priority email & chat support', 'Custom integrations available'] }
+    };
 
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
@@ -194,52 +154,76 @@ const PricingPage: React.FC = () => {
                 </section>
                 <div className="flex justify-center mb-12">
                     <div className="p-1 bg-gray-200 dark:bg-gray-800 rounded-full flex gap-1">
-                        <button className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors bg-white dark:bg-black text-brand-red`}>User Plans</button>
-                        <Link to="/api-pricing" className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors text-gray-600 dark:text-gray-300`}>API Plans</Link>
+                        <button onClick={() => setPlanType('user')} className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors ${planType === 'user' ? 'bg-white dark:bg-black text-brand-red' : 'text-gray-600 dark:text-gray-300'}`}>User Plans</button>
+                        <button onClick={() => setPlanType('api')} className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors ${planType === 'api' ? 'bg-white dark:bg-black text-brand-red' : 'text-gray-600 dark:text-gray-300'}`}>API Plans</button>
                     </div>
                 </div>
 
-                 <div className="max-w-7xl mx-auto animate-fade-in-down">
-                    <div className="hidden lg:grid lg:grid-cols-4 gap-8">
-                        <div className="pt-20"> {/* Empty corner */}
-                            <ul>
-                                {allUserFeatureKeys.map(key => <li key={key} className="h-14 flex items-center font-semibold">{key}</li>)}
+                {planType === 'user' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto animate-fade-in-down">
+                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-8 flex flex-col animated-border">
+                            <h2 className="text-2xl font-bold">{userPlans.basic.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{userPlans.basic.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For simple, occasional use</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {userPlans.basic.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
                             </ul>
+                            <Link to="/signup" className="w-full text-center mt-auto bg-white dark:bg-gray-800 border border-brand-red text-brand-red font-bold py-3 px-6 rounded-lg hover:bg-red-50 dark:hover:bg-brand-red/10">Start for free</Link>
                         </div>
-                        {userPlans.map(plan => (
-                            <div key={plan.name} className={`p-8 text-center rounded-lg ${plan.isPopular ? 'bg-red-50 dark:bg-red-900/10' : ''}`}>
-                                <h2 className={`text-2xl font-bold ${plan.isPopular ? 'text-brand-red' : ''}`}>{plan.name}</h2>
-                                <p className="text-4xl font-extrabold my-4">{plan.price}</p>
-                                <p className="text-gray-500 dark:text-gray-400 mb-6 h-12">{plan.description}</p>
-                                <button onClick={plan.action} className={`w-full text-center mt-auto font-bold py-3 px-6 rounded-lg ${plan.isPopular ? 'bg-brand-red hover:bg-brand-red-dark text-white' : 'bg-white dark:bg-gray-800 border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-brand-red/10'}`}>
-                                    {plan.actionText}
-                                </button>
-                                <ul className="mt-8 space-y-3">
-                                     {allUserFeatureKeys.map(key => <li key={key} className="h-14 flex items-center justify-center">{plan.features[key as keyof typeof plan.features]}</li>)}
-                                </ul>
-                            </div>
-                        ))}
+                        <div className="bg-white dark:bg-black border-2 border-brand-red rounded-lg p-8 flex flex-col relative animated-border">
+                            <span className="absolute top-0 right-0 bg-brand-red text-white text-xs font-bold px-8 py-1 rounded-bl-lg">Most Popular</span>
+                            <h2 className="text-2xl font-bold text-brand-red">{userPlans.premium.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{userPlans.premium.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For advanced, regular use</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {userPlans.premium.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
+                            </ul>
+                            <button onClick={() => handleChoosePlan('premium')} className="w-full text-center mt-auto bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg">Go Premium</button>
+                        </div>
+                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-8 flex flex-col animated-border">
+                            <h2 className="text-2xl font-bold text-blue-600">{userPlans.pro.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{userPlans.pro.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For power users and teams</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {userPlans.pro.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
+                            </ul>
+                            <button onClick={() => handleChoosePlan('pro')} className="w-full text-center mt-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">Go Pro</button>
+                        </div>
                     </div>
-                    
-                    {/* Mobile/Tablet view */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:hidden">
-                         {userPlans.map(plan => (
-                            <div key={plan.name} className={`bg-white dark:bg-black border rounded-lg p-8 flex flex-col relative ${plan.isPopular ? 'border-2 border-brand-red' : 'border-gray-200 dark:border-gray-800'}`}>
-                                {plan.isPopular && <span className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-brand-red text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">Most Popular</span>}
-                                <h2 className={`text-2xl font-bold text-center ${plan.isPopular ? 'text-brand-red' : ''}`}>{plan.name}</h2>
-                                <p className="text-4xl font-extrabold my-4 text-center">{plan.price}</p>
-                                <p className="text-gray-500 dark:text-gray-400 mb-6 text-center h-12">{plan.description}</p>
-                                <ul className="space-y-3 mb-8 flex-grow">
-                                     {allUserFeatureKeys.map(key => <li key={key} className="border-t pt-3 first:border-t-0">{plan.features[key as keyof typeof plan.features]}</li>)}
-                                </ul>
-                                <button onClick={plan.action} className={`w-full text-center mt-auto font-bold py-3 px-6 rounded-lg ${plan.isPopular ? 'bg-brand-red hover:bg-brand-red-dark text-white' : 'bg-white dark:bg-gray-800 border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-brand-red/10'}`}>
-                                    {plan.actionText}
-                                </button>
-                            </div>
-                        ))}
+                )}
+                
+                 {planType === 'api' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto animate-fade-in-down">
+                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-8 flex flex-col animated-border">
+                            <h2 className="text-2xl font-bold">{apiPlans.free.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{apiPlans.free.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For testing and personal projects</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {apiPlans.free.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
+                            </ul>
+                            <Link to="/developer" className="w-full text-center mt-auto bg-white dark:bg-gray-800 border border-brand-red text-brand-red font-bold py-3 px-6 rounded-lg hover:bg-red-50 dark:hover:bg-brand-red/10">Get Started</Link>
+                        </div>
+                        <div className="bg-white dark:bg-black border-2 border-brand-red rounded-lg p-8 flex flex-col relative animated-border">
+                             <span className="absolute top-0 right-0 bg-brand-red text-white text-xs font-bold px-8 py-1 rounded-bl-lg">Recommended</span>
+                            <h2 className="text-2xl font-bold text-brand-red">{apiPlans.developer.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{apiPlans.developer.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For production applications</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {apiPlans.developer.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
+                            </ul>
+                            <button onClick={() => handleChoosePlan('api-developer')} className="w-full text-center mt-auto bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg">Choose Developer</button>
+                        </div>
+                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-8 flex flex-col animated-border">
+                            <h2 className="text-2xl font-bold text-blue-600">{apiPlans.business.name}</h2>
+                            <p className="text-4xl font-extrabold my-4">{apiPlans.business.price}</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">For large-scale applications</p>
+                            <ul className="space-y-3 mb-8 flex-grow">
+                                {apiPlans.business.features.map(f => <li key={f} className="flex items-center gap-3"><CheckIcon className="h-5 w-5 text-green-500" /><span>{f}</span></li>)}
+                            </ul>
+                            <button onClick={() => handleChoosePlan('api-business')} className="w-full text-center mt-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">Choose Business</button>
+                        </div>
                     </div>
-
-                </div>
+                )}
 
                 <section className="mt-16 md:mt-24">
                     <div className="max-w-4xl mx-auto">
