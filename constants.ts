@@ -134,21 +134,6 @@ export const TOOLS: Tool[] = [
     fileTypeDisplayName: 'PDF',
     fileTypeNounPlural: 'files',
   },
-  {
-    id: 'resize-file',
-    title: 'tool.resize-file.title',
-    description: 'tool.resize-file.description',
-    Icon: ResizeIcon,
-    color: 'bg-cyan-500',
-    hoverColor: 'hover:bg-cyan-600',
-    textColor: 'text-cyan-600',
-    category: 'optimize',
-    isNew: true,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg'], 'application/pdf': ['.pdf'] },
-    api: { category: 'utility' },
-    fileTypeDisplayName: 'files',
-    fileTypeNounPlural: 'files',
-  },
 
   // Convert To
   {
@@ -428,6 +413,8 @@ export const TOOLS: Tool[] = [
     fileTypeDisplayName: 'PDF',
     fileTypeNounPlural: 'files',
   },
+  
+  // Business
   {
     id: 'ai-question-generator',
     title: 'tool.ai-question-generator.title',
@@ -437,10 +424,20 @@ export const TOOLS: Tool[] = [
     hoverColor: 'hover:bg-purple-600',
     textColor: 'text-purple-600',
     isNew: true,
-    category: 'edit',
+    category: 'business',
   },
-  
-  // Business
+  {
+    id: 'ai-image-generator',
+    title: 'tool.ai-image-generator.title',
+    description: 'tool.ai-image-generator.description',
+    Icon: ImageIcon,
+    color: 'bg-violet-500',
+    hoverColor: 'hover:bg-violet-600',
+    textColor: 'text-violet-600',
+    isNew: true,
+    isPremium: true,
+    category: 'business',
+  },
   {
     id: 'invoice-generator',
     title: 'tool.invoice-generator.title',
@@ -641,7 +638,7 @@ export const blogPosts = [
     image: 'https://ik.imagekit.io/fonepay/social%20media%20band%20in%20nepal%20ilovepdfly.png?updatedAt=1757078313764',
     author: 'The I Love PDFLY Team',
     authorImage: '/logo.svg',
-    tags: ['Social Media Ban', 'Facebook Ban', 'Internet Freedom', 'Government Regulation'],
+    tags: ['Nepal', 'Social Media Ban', 'Facebook Ban', 'Digital Rights', 'Internet Freedom', 'Tech Policy', 'Government Regulation'],
     },
     {
     slug: 'neb-class-12-result-2081-2082',

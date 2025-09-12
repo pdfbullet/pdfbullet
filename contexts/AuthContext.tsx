@@ -42,6 +42,7 @@ interface User {
   country?: string; // e.g., 'US'
   twoFactorEnabled?: boolean;
   businessDetails?: BusinessDetails;
+  trialEnds?: number;
 }
 
 // Auth Context Type
@@ -101,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               lastName: '',
               country: '',
               twoFactorEnabled: false,
+              trialEnds: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7-day free trial
             };
             await userRef.set(newUserProfile);
             setUser(newUserProfile);

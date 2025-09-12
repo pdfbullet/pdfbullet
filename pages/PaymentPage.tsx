@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloudIcon, CheckIcon, DollarIcon, WhatsAppIcon } from '../components/icons.tsx';
+import { UploadCloudIcon, CheckIcon, DollarIcon, WhatsAppIcon, LockIcon } from '../components/icons.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
 
 const PaymentPage: React.FC = () => {
@@ -16,14 +16,14 @@ const PaymentPage: React.FC = () => {
         }
     }, [user, navigate, plan]);
 
-    const planDetails: { [key: string]: { name: string, price: string } } = {
-        'premium': { name: 'Premium Yearly', price: '$5' },
-        'pro': { name: 'Pro Lifetime', price: '$10' },
-        'api-developer': { name: 'API Developer Plan', price: '$10/month' },
-        'api-business': { name: 'API Business Plan', price: '$50/month' },
+    const planDetails: { [key: string]: { name: string, price: string, features: string[] } } = {
+        'premium': { name: 'Premium Yearly', price: '$5', features: ['Unlimited documents', 'All Premium tools', 'No Ads'] },
+        'pro': { name: 'Pro Lifetime', price: '$10', features: ['All Premium features', 'Team features', 'Priority support'] },
+        'api-developer': { name: 'API Developer Plan', price: '$10/month', features: ['1,000 API calls/day', 'Access to all tools', 'Email support'] },
+        'api-business': { name: 'API Business Plan', price: '$50/month', features: ['10,000 API calls/day', 'Priority support', 'Custom integrations'] },
     };
     
-    const currentPlan = planDetails[plan] || { name: 'Selected Plan', price: 'N/A' };
+    const currentPlan = planDetails[plan] || { name: 'Selected Plan', price: 'N/A', features: [] };
 
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -63,19 +63,6 @@ const PaymentPage: React.FC = () => {
         setCurrentStep(4);
     };
 
-    const StepHeader: React.FC<{ step: number; title: string; currentStep: number; }> = ({ step, title, currentStep }) => {
-        const isActive = currentStep === step;
-        const isCompleted = currentStep > step;
-        return (
-            <div className={`flex items-center gap-4 mb-4 transition-opacity duration-500 ${isActive || isCompleted ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${isActive || isCompleted ? 'bg-brand-red' : 'bg-gray-400'}`}>
-                    {isCompleted ? <CheckIcon className="h-5 w-5"/> : step}
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{title}</h3>
-            </div>
-        );
-    };
-
     if (!user) {
         return <div className="py-24 text-center">Redirecting to login...</div>;
     }
@@ -90,64 +77,90 @@ const PaymentPage: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="max-w-3xl mx-auto bg-white dark:bg-black p-6 md:p-8 rounded-lg shadow-xl space-y-8 animated-border">
-                    {/* Step 1: Payment */}
-                    <div>
-                        <StepHeader step={1} title="Make Payment" currentStep={currentStep} />
-                        <div className={`pl-12 transition-all duration-500 overflow-hidden ${currentStep === 1 ? 'max-h-screen' : 'max-h-0'}`}>
-                            <p className="mb-4 text-gray-600 dark:text-gray-300"><strong>Step 1:</strong> Scan the Fonepay QR code below to pay <strong>{currentPlan.price}</strong> for the <strong>{currentPlan.name}</strong> plan. Make sure to take a screenshot of the successful payment confirmation.</p>
-                            <div className="text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg max-w-xs mx-auto">
-                                <img src="https://ik.imagekit.io/fonepay/fonepay%20qr.png?updatedAt=1752920160699" alt="Fonepay QR Code" className="w-48 h-48 mx-auto" width="192" height="192" />
-                                <p className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-200">Fonepay</p>
-                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Scan with your mobile banking app</p>
+                <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                    {/* Left Column: Order Summary */}
+                    <div className="bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 h-fit">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-4">Order Summary</h2>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 dark:text-gray-300">{currentPlan.name}</span>
+                                <span className="font-bold">{currentPlan.price}</span>
                             </div>
-                            <div className="mt-6 text-center">
-                                <button onClick={() => setCurrentStep(2)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
-                                    <DollarIcon className="h-5 w-5"/> I Have Paid, Next Step
-                                </button>
-                            </div>
+                             <ul className="pl-5 space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                                {currentPlan.features.map(f => <li key={f} className="list-disc">{f}</li>)}
+                             </ul>
+                             <div className="border-t pt-4 mt-4 flex justify-between font-bold text-xl">
+                                <span>Total</span>
+                                <span>{currentPlan.price}</span>
+                             </div>
                         </div>
+                         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 text-sm text-center">
+                            <p className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400"><LockIcon className="h-4 w-4 text-green-500"/> Secure Payment Process</p>
+                            <p className="text-gray-500 dark:text-gray-500">Your transaction is verified manually for added security.</p>
+                         </div>
                     </div>
 
-                    {/* Step 2: Upload */}
-                    <div>
-                        <StepHeader step={2} title="Upload Proof of Payment" currentStep={currentStep} />
-                        <div className={`pl-12 transition-all duration-500 overflow-hidden ${currentStep === 2 ? 'max-h-screen' : 'max-h-0'}`}>
-                            <p className="mb-4 text-gray-600 dark:text-gray-300"><strong>Step 2:</strong> Please upload the screenshot of your successful payment transaction.</p>
-                            <div {...getRootProps()} className={`flex-grow flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors duration-300 ${isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-brand-red'}`}>
-                                <input {...getInputProps()} />
-                                <UploadCloudIcon className="h-10 w-10 text-gray-400 mb-2" />
-                                <p className="font-semibold text-gray-700 dark:text-gray-200">Drag & drop or click</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">to upload your payment screenshot</p>
-                            </div>
-                        </div>
-                    </div>
-
-                     {/* Step 3: Confirm */}
-                     <div>
-                        <StepHeader step={3} title="Confirm & Activate" currentStep={currentStep} />
-                         <div className={`pl-12 transition-all duration-500 overflow-hidden ${currentStep === 3 ? 'max-h-screen' : 'max-h-0'}`}>
-                            {preview && (
-                                <div className="mb-4">
-                                    <p className="mb-2 text-gray-600 dark:text-gray-300"><strong>Uploaded Proof:</strong></p>
-                                    <img src={preview} alt="Payment proof preview" className="max-w-xs mx-auto rounded-lg border border-gray-200 dark:border-gray-700" />
+                    {/* Right Column: Steps */}
+                    <div className="bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                       {currentStep < 4 ? (
+                         <ol className="space-y-8">
+                            {/* Step 1 */}
+                            <li className="flex gap-4">
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${currentStep >= 1 ? 'bg-brand-red' : 'bg-gray-300'}`}>{currentStep > 1 ? <CheckIcon className="h-6 w-6"/> : '1'}</div>
+                                    <div className="w-px h-full bg-gray-200 dark:border-gray-700"></div>
                                 </div>
-                            )}
-                            <p className="my-4 text-gray-600 dark:text-gray-300"><strong>Step 3:</strong> Click the button below to open WhatsApp. Please send the payment screenshot you've just uploaded to our support team for verification. Your account will be activated shortly after.</p>
-                            <button onClick={handleContactSupport} disabled={!file} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                Contact Support on WhatsApp
-                                <WhatsAppIcon className="h-5 w-5" />
-                            </button>
+                                <div>
+                                    <h3 className="font-bold text-lg">Make Payment via QR</h3>
+                                    <p className="text-sm text-gray-500 mb-4">Scan the Fonepay QR code to pay <strong>{currentPlan.price}</strong> and take a screenshot of the confirmation.</p>
+                                    <div className="text-center p-4 border rounded-lg max-w-xs">
+                                        <img src="https://ik.imagekit.io/fonepay/fonepay%20qr.png?updatedAt=1752920160699" alt="Fonepay QR Code" className="w-40 h-40 mx-auto" />
+                                        <p className="mt-2 text-sm font-semibold">Fonepay</p>
+                                    </div>
+                                    {currentStep === 1 && <button onClick={() => setCurrentStep(2)} className="mt-4 bg-green-600 text-white font-semibold py-2 px-4 rounded-md">I Have Paid</button>}
+                                </div>
+                            </li>
+                             {/* Step 2 */}
+                             <li className={`flex gap-4 transition-opacity duration-500 ${currentStep < 2 ? 'opacity-50' : 'opacity-100'}`}>
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${currentStep >= 2 ? 'bg-brand-red' : 'bg-gray-300'}`}>{currentStep > 2 ? <CheckIcon className="h-6 w-6"/> : '2'}</div>
+                                    <div className="w-px h-full bg-gray-200 dark:border-gray-700"></div>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg">Upload Proof</h3>
+                                    {currentStep === 2 && (
+                                        <div {...getRootProps()} className={`mt-2 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer ${isDragActive ? 'border-brand-red bg-red-50' : 'border-gray-300 hover:border-brand-red'}`}>
+                                            <input {...getInputProps()} />
+                                            <UploadCloudIcon className="h-8 w-8 text-gray-400 mb-2" />
+                                            <p className="text-sm">Drop screenshot here or click to upload</p>
+                                        </div>
+                                    )}
+                                     {currentStep > 2 && (
+                                         <div className="mt-2 flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-800 rounded-md">
+                                            <img src={preview!} alt="Proof preview" className="h-12 w-12 object-cover rounded"/>
+                                            <span className="text-sm font-semibold">Screenshot uploaded</span>
+                                         </div>
+                                     )}
+                                </div>
+                             </li>
+                              {/* Step 3 */}
+                              <li className={`flex gap-4 transition-opacity duration-500 ${currentStep < 3 ? 'opacity-50' : 'opacity-100'}`}>
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-brand-red flex-shrink-0">{currentStep > 3 ? <CheckIcon className="h-6 w-6"/> : '3'}</div>
+                                <div>
+                                    <h3 className="font-bold text-lg">Confirm via WhatsApp</h3>
+                                    <p className="text-sm text-gray-500 mb-4">Contact our support on WhatsApp with your payment proof to activate your plan instantly.</p>
+                                    {currentStep === 3 && <button onClick={handleContactSupport} disabled={!file} className="bg-green-500 text-white font-semibold py-2 px-4 rounded-md flex items-center gap-2"><WhatsAppIcon className="h-5 w-5"/> Contact Support</button>}
+                                </div>
+                             </li>
+                         </ol>
+                       ) : (
+                         <div className="text-center p-8">
+                            <CheckIcon className="h-16 w-16 text-green-500 mx-auto mb-4"/>
+                            <h3 className="text-2xl font-bold">Activation Pending</h3>
+                            <p className="mt-2 text-gray-600 dark:text-gray-400">Our team will verify your payment and activate your plan shortly. Thank you!</p>
                         </div>
+                       )}
                     </div>
-                    
-                    {/* Step 4: Pending */}
-                    {currentStep === 4 && (
-                        <div className="text-center p-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                            <h3 className="text-2xl font-bold text-blue-800 dark:text-blue-300">Activation Pending</h3>
-                            <p className="mt-2 text-gray-700 dark:text-gray-400">We have received your request. Our team will verify your payment and activate your <strong>{currentPlan.name}</strong> plan shortly. Thank you for your patience!</p>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

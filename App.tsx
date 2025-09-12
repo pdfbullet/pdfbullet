@@ -1,17 +1,17 @@
 
 
-import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useContext, useMemo } from 'react';
+import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider } from './contexts/I18nContext.tsx';
-// FIX: Import CloseIcon from icons.tsx
-import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, QrCodeIcon, CloseIcon } from './components/icons.tsx';
+import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 
 // Components that are part of the main layout
-import Header from './components/Header.tsx';
+// FIX: Changed the import of the Header component to a named import.
+import { Header } from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
@@ -25,10 +25,8 @@ import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 import ProblemReportModal from './components/ProblemReportModal.tsx';
 import QrCodeModal from './components/QrCodeModal.tsx';
 import Preloader from './components/Preloader.tsx';
-// FIX: Removed conflicting direct import of UserDashboardLayout, which is lazy-loaded later.
-import PlaceholderPage from './components/PlaceholderPage.tsx';
 
-// FIX: Create and export LayoutContext to manage shared layout state across components.
+// Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
 export const LayoutContext = createContext<{
   setShowFooter: (show: boolean) => void;
@@ -181,8 +179,6 @@ const ChatbotIcon: React.FC<{ className?: string }> = ({ className }) => (
         <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
     </svg>
 );
-
-// FIX: Removed local CloseIconForChat as CloseIcon is now imported from icons.tsx
 
 const SendIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -529,6 +525,7 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
+const AIImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -569,8 +566,6 @@ const SignatureSettingsPage = lazy(() => import('./pages/SignatureSettingsPage.t
 const PlansAndPackagesPage = lazy(() => import('./pages/PlansAndPackagesPage.tsx'));
 const BusinessDetailsPage = lazy(() => import('./pages/BusinessDetailsPage.tsx'));
 const InvoicesPage = lazy(() => import('./pages/InvoicesPage.tsx'));
-
-// FIX: Removed duplicate LayoutContext declaration.
 
 function AppContent() {
   const location = useLocation();
@@ -644,6 +639,7 @@ function AppContent() {
               <Route path="/cv-generator" element={<CVGeneratorPage />} />
               <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
               <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+              <Route path="/ai-image-generator" element={<AIImageGeneratorPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/api-pricing" element={<ApiPricingPage />} />
               <Route path="/premium-feature" element={<PremiumFeaturePage />} />

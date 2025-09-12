@@ -55,6 +55,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     (provider) => provider.providerId === 'password'
   );
 
+  const onTrial = user && !user.isPremium && user.trialEnds && user.trialEnds > Date.now();
+  const trialDaysRemaining = onTrial ? Math.ceil((user.trialEnds! - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+
   const toggleAccordion = (accordionName: string) => {
     setOpenAccordion(openAccordion === accordionName ? null : accordionName);
   };
@@ -369,12 +372,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                       <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('header.signed_in_as')}</p>
                        <div className="flex items-center justify-between mt-1">
                           <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.username}</p>
-                          {user.isPremium && (
+                          {user.isPremium ? (
                               <span className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">
                                   <StarIcon className="h-3 w-3" />
                                   Premium
                               </span>
-                          )}
+                          ) : onTrial ? (
+                              <span className="flex items-center gap-1 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-green-400 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">
+                                  Trial ({trialDaysRemaining}d left)
+                              </span>
+                          ) : null}
                       </div>
                     </div>
                     <div className="py-1">
@@ -426,102 +433,68 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
                {isGridMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 z-20">
-                  <div className="w-[calc(100vw-2rem)] max-w-sm md:max-w-2xl lg:max-w-[52rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl animate-fade-in-down overflow-y-auto max-h-[calc(100vh-100px)]">
+                  <div className="w-[calc(100vw-2rem)] max-w-sm md:max-w-2xl lg:max-w-[52rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                     {gridMenuView === 'main' && (
-                       <div className="grid grid-cols-1 md:grid-cols-3">
-                        {/* Column 1 */}
-                        <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
-                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Other Products</h3>
-                          <div className="space-y-1">
-                            {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
-                            <div className="pt-2"><DesktopGridMenuItem item={desktopGridMenuData.integrations} /></div>
+                       <div className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              <div className="lg:col-span-1 space-y-4">
+                                  <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2">PRODUCTS</h3>
+                                  {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                                  <DesktopGridMenuItem item={desktopGridMenuData.integrations} />
+                              </div>
+                              <div className="lg:col-span-1 space-y-4">
+                                  <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2">SOLUTIONS</h3>
+                                  {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                                   <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2 pt-2">APPLICATIONS</h3>
+                                  {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                              </div>
+                              <div className="lg:col-span-1 space-y-4">
+                                   <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2">COMPANY</h3>
+                                   <div className="space-y-1">
+                                      {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                                   </div>
+                              </div>
                           </div>
-                        </div>
-                        {/* Column 2 */}
-                        <div className="p-4 md:border-r border-gray-200 dark:border-gray-700">
-                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-4">Solutions</h3>
-                          <div className="space-y-1">
-                            {desktopGridMenuData.solutions.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
+                          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                             <div className="space-y-1">
+                                {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                             </div>
+                             {isAdmin && <span className="text-xs bg-green-100 text-green-800 font-semibold px-2 py-0.5 rounded-full">Admin mode active</span>}
+                             <button onClick={() => setGridMenuView('language')} className="flex items-center gap-2 p-2 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <GlobeIcon className="h-5 w-5" /> {languages.find(l => l.code === locale)?.name} <RightArrowIcon className="h-4 w-4" />
+                             </button>
                           </div>
-                          <h3 className="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider mt-6 mb-2">Applications</h3>
-                          <div className="space-y-1">
-                            {desktopGridMenuData.applications.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
-                          </div>
-                        </div>
-                        {/* Column 3 */}
-                        <div className="p-4">
-                          <div className="space-y-1">
-                            {desktopGridMenuData.links.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
-                          </div>
-                          <hr className="my-4 border-gray-200 dark:border-gray-700" />
-                          <div className="space-y-1">
-                             {desktopGridMenuData.bottomLinks.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
-                          </div>
-                          <div className="mt-4">
-                              <button onClick={() => setGridMenuView('language')} className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" aria-label="Select language" title="Select language">
-                                  <LeftArrowIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                                  <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Select Language</p>
-                              </button>
-                          </div>
-                          {/* Login/Signup for mobile */}
-                          <div className="md:hidden">
-                              {!user && (
-                                  <>
-                                      <hr className="my-4 border-gray-200 dark:border-gray-700" />
-                                      <div className="space-y-2">
-                                          <Link to="/login" onClick={closeAllMenus} className="block w-full text-center font-bold py-2 px-4 rounded-md border border-brand-red text-brand-red hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t('header.login')}</Link>
-                                          <Link to="/signup" onClick={closeAllMenus} className="block w-full text-center bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors">{t('header.signup')}</Link>
-                                      </div>
-                                  </>
-                              )}
-                          </div>
-                        </div>
                       </div>
                     )}
                     {gridMenuView === 'help' && (
-                       <div className="p-4">
-                        <button onClick={() => setGridMenuView('main')} className="w-full flex items-center gap-3 p-2 mb-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold text-gray-800 dark:text-gray-200 text-sm">
-                          <LeftArrowIcon className="h-5 w-5" />
-                          Help
-                        </button>
-                        <div className="space-y-1">
-                          {helpSubMenuData.map(item => <DesktopGridLinkItem key={item.title} item={item} isSubItem={true} />)}
-                        </div>
-                      </div>
+                         <div className="p-4">
+                            <button onClick={() => setGridMenuView('main')} className="flex items-center gap-2 text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 mb-2">
+                                <LeftArrowIcon className="h-5 w-5" /> Back to menu
+                            </button>
+                            <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2 mb-2">HELP</h3>
+                            <div className="space-y-1">
+                               {helpSubMenuData.map(item => <DesktopGridLinkItem key={item.title} item={item} />)}
+                            </div>
+                         </div>
                     )}
                     {gridMenuView === 'language' && (
-                        <div className="p-4">
-                          <button onClick={() => setGridMenuView('main')} className="w-full flex items-center gap-3 p-2 mb-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold text-gray-800 dark:text-gray-200 text-sm">
-                              <LeftArrowIcon className="h-5 w-5" />
-                              Language
+                      <div className="p-4">
+                          <button onClick={() => setGridMenuView('main')} className="flex items-center gap-2 text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 mb-2">
+                              <LeftArrowIcon className="h-5 w-5" /> Back to menu
                           </button>
-                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                                <div>
-                                    {langCol1.map(lang => (
-                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                                    </button>
-                                    ))}
-                                </div>
-                                <div>
-                                    {langCol2.map(lang => (
-                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                                    </button>
-                                    ))}
-                                </div>
-                                <div>
-                                    {langCol3.map(lang => (
-                                    <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm whitespace-nowrap">
-                                        {locale === lang.code ? <CheckIcon className="h-4 w-4 text-brand-red" /> : <div className="w-4 h-4" />}
-                                        <span className={locale === lang.code ? 'font-bold' : ''}>{t(`languages.${lang.code}`)}</span>
-                                    </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                          <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2 mb-2">SELECT LANGUAGE</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4">
+                              {[langCol1, langCol2, langCol3].map((col, i) => (
+                                  <div key={i} className="space-y-1">
+                                      {col.map(lang => (
+                                          <button key={lang.code} onClick={() => { setLocale(lang.code); closeAllMenus(); }} className={`w-full text-left p-2 text-sm rounded-lg ${locale === lang.code ? 'bg-brand-red/10 text-brand-red font-bold' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                                              {lang.name}
+                                          </button>
+                                      ))}
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -531,33 +504,51 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
         </div>
       </div>
     </header>
+    
     {/* Mobile Menu */}
-    <div className={`fixed inset-0 z-[60] bg-white dark:bg-black transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex flex-col h-full">
-            <div className="flex items-center justify-end p-4 border-b border-gray-200 dark:border-gray-700">
-                <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300" aria-label="Close menu" title="Close menu">
-                    <CloseIcon className="h-8 w-8" />
-                </button>
-            </div>
-            <nav className="flex-grow overflow-y-auto px-4 py-2">
-                {mobileMenuStructure.map(category => (
-                    <div key={category.title}>
-                        <h3 className="px-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-6 first:mt-0">{t(category.title)}</h3>
-                        <div className="space-y-1">
-                            {category.tools.map(tool => (
-                                <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                    <tool.Icon className={`h-6 w-6 flex-shrink-0 ${tool.textColor}`} /> 
-                                    <span className="font-semibold text-sm">{t(tool.title)}</span>
-                                </Link>
-                            ))}
+    <div className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/50" onClick={closeAllMenus}></div>
+        <div className={`absolute top-0 left-0 bottom-0 w-full max-w-[300px] bg-white dark:bg-black shadow-2xl transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+             <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <a href="/"><Logo className="h-8" /></a>
+                <button onClick={closeAllMenus} className="text-gray-500 hover:text-brand-red">&times;</button>
+             </div>
+             <div className="p-4 overflow-y-auto h-[calc(100%-120px)]">
+                 <div className="space-y-4">
+                    {mobileMenuStructure.map((category, i) => (
+                        <div key={i}>
+                            <button onClick={() => toggleAccordion(category.title)} className="w-full flex justify-between items-center py-2">
+                                <span className="font-bold text-gray-800 dark:text-gray-100">{category.title}</span>
+                                <ChevronDownIcon className={`h-5 w-5 transition-transform ${openAccordion === category.title ? 'rotate-180' : ''}`} />
+                            </button>
+                            <div className={`pl-2 overflow-hidden transition-all duration-300 ${openAccordion === category.title ? 'max-h-[1000px]' : 'max-h-0'}`}>
+                                 <div className="py-2 space-y-1 border-l-2 border-red-100 dark:border-red-900/50">
+                                {category.tools.map(tool => (
+                                    <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-r-lg text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                        <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
+                                        <span className="font-semibold text-sm">{t(tool.title)}</span>
+                                    </Link>
+                                ))}
+                                </div>
+                            </div>
                         </div>
+                    ))}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+                         <Link to="/pricing" onClick={closeAllMenus} className="flex items-center gap-3 p-2 font-bold"><NewspaperIcon className="h-5 w-5"/> Pricing</Link>
+                         <Link to="/developer" onClick={closeAllMenus} className="flex items-center gap-3 p-2 font-bold"><ApiIcon className="h-5 w-5"/> Developer</Link>
+                         <Link to="/contact" onClick={closeAllMenus} className="flex items-center gap-3 p-2 font-bold"><EmailIcon className="h-5 w-5"/> Contact</Link>
                     </div>
-                ))}
-            </nav>
+                 </div>
+             </div>
+             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 flex justify-center gap-4">
+                 <Link to="/login" onClick={closeAllMenus} className="flex-1 text-center py-2 px-4 rounded-md border border-gray-300 dark:border-gray-600 font-semibold">Log In</Link>
+                 <Link to="/signup" onClick={closeAllMenus} className="flex-1 text-center py-2 px-4 rounded-md bg-brand-red text-white font-semibold">Sign Up</Link>
+             </div>
         </div>
     </div>
     </>
   );
 };
 
-export default memo(Header);
+// FIX: Export the Header component as a named export.
+export { Header };
