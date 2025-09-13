@@ -5,6 +5,7 @@
 /* Custom base styles */
 body {
   font-family: 'Nunito', 'sans-serif';
+  isolation: isolate; /* Create a new stacking context */
 }
 
 /* Keyframes for animations */
@@ -72,6 +73,38 @@ body {
     box-sizing: border-box;
 }
 
+.main-background-svg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.main-background-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translateX(-50%) translateY(-50%);
+  object-fit: cover;
+}
+
+.main-background-svg > g {
+  opacity: 0.5;
+}
+
+.dark .main-background-svg > g {
+  opacity: 0.15;
+}
+
+
 .hero-background {
   background-image: none;
 }
@@ -93,251 +126,185 @@ body {
   pointer-events: none;
 }
 .dark .hero-background::before {
-  background: radial-gradient(ellipse at center, rgba(50, 25, 30, 0.4) 0%, rgba(0, 0, 0, 0) 60%);
+  background: radial-gradient(ellipse at center, rgba(185, 11, 6, 0.2) 0%, rgba(18, 18, 18, 0) 60%);
 }
 
-.checkered-bg {
-  background-image:
-    linear-gradient(45deg, #ccc 25%, transparent 25%),
-    linear-gradient(-45deg, #ccc 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ccc 75%),
-    linear-gradient(-45deg, transparent 75%, #ccc 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-}
-.dark .checkered-bg {
-  background-image:
-    linear-gradient(45deg, #444 25%, transparent 25%),
-    linear-gradient(-45deg, #444 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #444 75%),
-    linear-gradient(-45deg, transparent 75%, #444 75%);
-}
-
-/* Custom styles for range slider in PurchaseSignaturesModal */
-input[type=range].slider {
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-    cursor: pointer;
-    width: 100%;
-}
-
-/* Track */
-input[type=range].slider::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #2563eb var(--slider-percentage), #e5e7eb var(--slider-percentage));
-    height: 0.5rem;
-    border-radius: 0.5rem;
-}
-.dark input[type=range].slider::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #3b82f6 var(--slider-percentage), #4b5563 var(--slider-percentage));
-}
-input[type=range].slider::-moz-range-track {
-    background: #e5e7eb;
-    height: 0.5rem;
-    border-radius: 0.5rem;
-}
-input[type=range].slider::-moz-range-progress {
-    background: #2563eb;
-    height: 0.5rem;
-    border-radius: 0.5rem;
-}
-
-/* Thumb */
-input[type=range].slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    margin-top: -6px; /* half of thumb height minus half of track height */
-    background-color: #ffffff;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    border: 2px solid #2563eb;
-    box-shadow: 0 0 0 2px #fff;
-}
-.dark input[type=range].slider::-webkit-slider-thumb {
-    background-color: #3b82f6;
-    border: 2px solid #ffffff;
-    box-shadow: none;
-}
-input[type=range].slider::-moz-range-thumb {
-    background-color: #ffffff;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    border: 2px solid #2563eb;
-    box-shadow: 0 0 0 2px #fff;
-}
-
-/* Custom styles for background SVG */
-.main-background-svg-container {
-  position: fixed;
-  inset: 0;
-  z-index: -10;
+.animated-border {
+  position: relative;
   overflow: hidden;
-  pointer-events: none;
 }
-
-.main-background-svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: auto;
-  height: 150vh;
-  min-width: 150vw;
-  transform: translate(-50%, -50%);
-  user-select: none;
-  opacity: 0.5;
-}
-
-.dark .main-background-svg {
-    opacity: 1;
-}
-
-/* Task Completion Animation */
-@keyframes checkmark-pop {
-  0% {
+.animated-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    background: conic-gradient(from 180deg at 50% 50%, rgba(185, 11, 6, 0.8) 0deg, rgba(255, 255, 255, 0) 60deg, rgba(255, 255, 255, 0) 300deg, rgba(185, 11, 6, 0.8) 360deg) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: spin 4s linear infinite;
     opacity: 0;
-    transform: scale(0.5);
-  }
-  50% {
+    transition: opacity 0.3s;
+}
+.animated-border:hover::before {
     opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
-.success-animation-container {
-  animation: fade-in-up 0.5s ease-out;
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.success-animation-icon {
-  animation: checkmark-pop 0.6s 0.2s ease-out forwards;
-  opacity: 0;
-  transform: scale(0.5);
+.success-screen {
+    animation: fade-in-up 0.6s ease-out;
 }
 
-.success-animation-text {
-  animation: fade-in-up 0.5s 0.5s ease-out forwards;
-  opacity: 0;
+.success-actions-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
-/* Basic typography styles for blog posts, mimicking Tailwind's .prose */
-.prose p {
-  margin-top: 1.25em;
-  margin-bottom: 1.25em;
+.success-back-btn {
+    padding: 1rem;
+    border: 2px solid #e5e7eb; /* dark:border-gray-700 */
+    border-radius: 9999px;
+    transition: all 0.2s;
+}
+.dark .success-back-btn {
+    border-color: #374151;
+}
+.success-back-btn:hover {
+    background-color: #f3f4f6; /* dark:bg-gray-800 */
+    border-color: #d1d5db; /* dark:border-gray-600 */
+}
+.dark .success-back-btn:hover {
+    background-color: #1f2937;
+    border-color: #4b5563;
 }
 
-.prose h2 {
-  font-size: 1.5em;
-  font-weight: 700;
-  margin-top: 2em;
-  margin-bottom: 1em;
+
+.success-main-actions {
+    display: flex;
+    align-items: center;
+    background-color: #f9fafb; /* dark:bg-gray-900 */
+    border-radius: 9999px;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb; /* dark:border-gray-700 */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+.dark .success-main-actions {
+    background-color: #111827;
+    border-color: #374151;
 }
 
-.prose h3 {
-  font-size: 1.25em;
-  font-weight: 600;
-  margin-top: 1.6em;
-  margin-bottom: 0.6em;
+
+.success-download-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #B90B06; /* brand-red */
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    transition: background-color 0.2s;
 }
 
-.prose ul, .prose ol {
-  margin-top: 1.25em;
-  margin-bottom: 1.25em;
-  padding-left: 1.75em;
+.success-download-btn:hover {
+    background-color: #a20d08; /* brand-red-dark */
 }
 
-.prose ul {
-  list-style-type: disc;
+.success-secondary-actions {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5rem;
 }
 
-.prose ol {
-  list-style-type: decimal;
+.success-action-btn {
+    padding: 0.75rem;
+    color: #4b5563; /* dark:text-gray-400 */
+    border-radius: 9999px;
+    transition: all 0.2s;
+}
+.dark .success-action-btn {
+    color: #9ca3af;
 }
 
-.prose li {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+.success-action-btn:hover {
+    background-color: #e5e7eb; /* dark:bg-gray-700 */
+    color: #1f2937; /* dark:text-white */
+}
+.dark .success-action-btn:hover {
+    background-color: #374151;
+    color: white;
 }
 
-.prose a {
-  color: #B90B06;
-  text-decoration: underline;
-}
-
-.prose a:hover {
-  color: #a20d08;
-}
-
-.prose img {
-  margin-top: 2em;
-  margin-bottom: 2em;
-  border-radius: 0.5rem;
-}
-
-.prose table {
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  margin-top: 2em;
-  margin-bottom: 2em;
-  border-collapse: collapse;
+  height: 8px;
+  background: linear-gradient(to right, #4F46E5 0%, #4F46E5 var(--slider-percentage), #E5E7EB var(--slider-percentage), #E5E7EB 100%);
+  border-radius: 9999px;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
 }
 
-.prose th, .prose td {
-  border: 1px solid #e5e7eb;
-  padding: 0.5em 1em;
+.dark .slider {
+    background: linear-gradient(to right, #6366F1 0%, #6366F1 var(--slider-percentage), #4B5563 var(--slider-percentage), #4B5563 100%);
 }
 
-.dark .prose th, .dark .prose td {
-  border-color: #374151;
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: white;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #4F46E5;
 }
 
-.prose thead {
-  background-color: #f3f4f6;
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: white;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #4F46E5;
 }
 
-.dark .prose thead {
-  background-color: #1f2937;
-}
-
-.prose strong {
-  font-weight: 700;
-}
-
-/* Preloader styles */
-#preloader svg path, #preloader svg g {
-  opacity: 0;
-  animation: preloaderFadeIn 0.5s ease-out forwards;
-}
-
-#preloader-text path {
-  fill: #000000;
-}
-.dark #preloader-text path {
-  fill: #FFFFFF;
-}
-
-#preloader-heart { animation-delay: 0.1s; }
-#preloader-i { animation-delay: 0.3s; }
-#preloader-p { animation-delay: 0.5s; }
-#preloader-d { animation-delay: 0.7s; }
-#preloader-f { animation-delay: 0.9s; }
-#preloader-l { animation-delay: 1.1s; }
-#preloader-y { animation-delay: 1.3s; }
-
-@keyframes preloaderFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes ping-slow {
-  75%, 100% {
-    transform: scale(1.8);
-    opacity: 0;
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(185, 11, 6, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(185, 11, 6, 0);
   }
 }
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
 .animate-ping-slow {
-  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }

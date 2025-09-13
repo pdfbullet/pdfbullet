@@ -1,9 +1,12 @@
+// FIX: Add a triple-slash directive to make Node.js types available, resolving TypeScript errors for 'process'.
+/// <reference types="node" />
+
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '', '');
+  const env = loadEnv(mode, process.cwd(), '');
   return {
     base: '/',
     plugins: [
@@ -11,7 +14,7 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: [
-          'favicon.svg',
+          'favicon.png',
           'apple-touch-icon.png',
           'desktop-view.jpg', // must be in /public
           'mobile-view.png',  // must be in /public
@@ -65,7 +68,7 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           display_override: ['window-controls-overlay'],
           background_color: '#ffffff',
-          theme_color: '#da9707ff',
+          theme_color: '#FFFFFF',
           orientation: 'portrait-primary',
           dir: 'ltr',
           categories: ['productivity', 'utilities', 'business'],
@@ -95,7 +98,31 @@ export default defineConfig(({ mode }) => {
               action: '/',
               accept: {
                 'application/pdf': ['.pdf'],
+                'image/jpeg': ['.jpg', '.jpeg'],
+                'image/png': ['.png'],
+                'image/webp': ['.webp'],
+                'image/gif': ['.gif']
               },
+            }
+          ],
+          shortcuts: [
+            {
+              name: 'Merge PDF files',
+              url: '/merge-pdf',
+              description: 'Combine multiple PDF files into one.',
+              icons: [{ src: '/favicon.png', sizes: '192x192' }]
+            },
+            {
+              name: 'Compress PDF',
+              url: '/compress-pdf',
+              description: 'Reduce the file size of your PDFs.',
+              icons: [{ src: '/favicon.png', sizes: '192x192' }]
+            },
+            {
+              name: 'JPG to PDF',
+              url: '/jpg-to-pdf',
+              description: 'Convert JPG images to PDF documents.',
+              icons: [{ src: '/favicon.png', sizes: '192x192' }]
             }
           ],
           launch_handler: {
@@ -112,6 +139,7 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      'process.env.APP_VERSION': JSON.stringify(process.env.npm_package_version),
     },
     build: {
       rollupOptions: {

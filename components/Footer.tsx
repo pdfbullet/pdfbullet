@@ -1,4 +1,5 @@
 
+
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
@@ -137,7 +138,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
         </div>
 
         <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-sm">
-          <p className="order-2 sm:order-1 mt-4 sm:mt-0">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
+          <p className="order-2 sm:order-1 mt-4 sm:mt-0">{t('footer.copyright', { year: new Date().getFullYear() })} {process.env.APP_VERSION && `- v${process.env.APP_VERSION}`}</p>
            <div className="order-1 sm:order-2">
             <Link to="/sitemap" title="Sitemap" className="hover:text-white transition-colors">Sitemap</Link>
           </div>
