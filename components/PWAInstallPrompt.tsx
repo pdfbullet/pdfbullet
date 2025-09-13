@@ -1,57 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { DownloadIcon, CloseIcon } from './icons.tsx';
-
-// Define the event type for beforeinstallprompt
-interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[];
-  readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
-    platform: string;
-  }>;
-  prompt(): Promise<void>;
-}
+import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
 
 const PWAInstallPrompt: React.FC = () => {
-  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const { canInstall, promptInstall } = usePWAInstall();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevent the mini-infobar from appearing on mobile
-      e.preventDefault();
-      // Stash the event so it can be triggered later.
-      setInstallPromptEvent(e as BeforeInstallPromptEvent);
-    };
+    // Check if the banner has been dismissed this session
+    const dismissedInSession = sessionStorage.getItem('pwa_install_dismissed');
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
+    if (canInstall && !dismissedInSession) {
+      // Delay showing the banner to be less intrusive
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 5000); // Show after 5 seconds
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [canInstall]);
 
   const handleInstallClick = () => {
-    if (!installPromptEvent) {
-      return;
-    }
-    // Show the install prompt
-    installPromptEvent.prompt();
-    // Wait for the user to respond to the prompt
-    installPromptEvent.userChoice.then(choiceResult => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the PWA installation');
-      } else {
-        console.log('User dismissed the PWA installation');
-      }
-      // We've used the prompt, and can't use it again, throw it away
-      setInstallPromptEvent(null);
-    });
+    promptInstall();
+    setIsVisible(false); // Hide banner after prompting
   };
   
   const handleDismiss = () => {
-      setInstallPromptEvent(null);
+      setIsVisible(false);
+      // Remember dismissal for this session
+      try {
+        sessionStorage.setItem('pwa_install_dismissed', 'true');
+      } catch (e) {
+        console.error("Could not set sessionStorage item:", e);
+      }
   };
 
-  if (!installPromptEvent) {
+  if (!isVisible) {
     return null;
   }
 

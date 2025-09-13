@@ -1,10 +1,9 @@
-
-
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider } from './contexts/I18nContext.tsx';
+import { PWAInstallProvider } from './contexts/PWAInstallContext.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
@@ -25,6 +24,7 @@ import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 import ProblemReportModal from './components/ProblemReportModal.tsx';
 import QrCodeModal from './components/QrCodeModal.tsx';
 import Preloader from './components/Preloader.tsx';
+import PWAInstallInstructionsModal from './components/PWAInstallInstructionsModal.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -711,6 +711,7 @@ function AppContent() {
         <ScrollToTopButton />
         <CookieConsentBanner />
         <PWAInstallPrompt />
+        <PWAInstallInstructionsModal />
         <ChatbotWidget />
       </div>
     </LayoutContext.Provider>
@@ -721,9 +722,11 @@ function App() {
     return (
         <ThemeProvider>
             <AuthProvider>
-                <I18nProvider>
-                    <AppContent />
-                </I18nProvider>
+                <PWAInstallProvider>
+                    <I18nProvider>
+                        <AppContent />
+                    </I18nProvider>
+                </PWAInstallProvider>
             </AuthProvider>
         </ThemeProvider>
     );

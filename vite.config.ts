@@ -1,12 +1,12 @@
-// FIX: Add a triple-slash directive to make Node.js types available, resolving TypeScript errors for 'process'.
-/// <reference types="node" />
 
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  // FIX: Removed unnecessary node types reference and replaced process.cwd() with an empty string to resolve TypeScript type errors.
+  // Vite's loadEnv defaults to the project root, which is the intended behavior.
+  const env = loadEnv(mode, '', '');
   return {
     base: '/',
     plugins: [

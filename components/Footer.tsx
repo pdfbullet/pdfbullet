@@ -1,10 +1,9 @@
-
-
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon } from './icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon, GooglePlayIconSimple, AppStoreIconSimple } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { useI18n } from '../contexts/I18nContext.tsx';
+import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
 
 interface FooterProps {
   onOpenCalendarModal: () => void;
@@ -15,6 +14,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterMessage, setNewsletterMessage] = useState('');
   const { t } = useI18n();
+  const { promptInstall } = usePWAInstall();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,9 +74,23 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
             <a href="https://wa.me/message/JYA22CVSYSZ4N1" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="WhatsApp" title="WhatsApp"><WhatsAppIcon className="h-6 w-6" /></a>
             <a href="https://www.youtube.com/@btmobilecare" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="YouTube" title="YouTube"><YoutubeIcon className="h-6 w-6" /></a>
         </div>
-        <div className="mt-6">
-            <p className="text-gray-400 text-sm font-semibold">App Coming Soon</p>
-        </div>
+        <div className="mt-6 space-y-2">
+            <p className="text-gray-400 text-sm font-semibold">Get the app</p>
+            <button onClick={promptInstall} className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
+                <GooglePlayIconSimple className="h-7 w-7" />
+                <div>
+                    <p className="text-xs leading-tight">GET IT ON</p>
+                    <p className="font-semibold text-lg leading-tight">Google Play</p>
+                </div>
+            </button>
+            <button onClick={promptInstall} className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
+                <AppStoreIconSimple className="h-7 w-7" />
+                <div>
+                    <p className="text-xs leading-tight">Download on the</p>
+                    <p className="font-semibold text-lg leading-tight">App Store</p>
+                </div>
+            </button>
+       </div>
       </>
   );
 

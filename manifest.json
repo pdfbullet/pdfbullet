@@ -1,11 +1,11 @@
 {
   "name": "I Love PDFLY: PDF & Image Tools",
-  "short_name": "PDFLY",
+  "short_name": "iLovePDFLY",
   "description": "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#B90B06",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "categories": [
     "productivity",

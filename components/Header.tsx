@@ -9,7 +9,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
-  GlobeIcon, QuestionMarkIcon, QrCodeIcon
+  GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -17,6 +17,7 @@ import { Tool } from '../types.ts';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useI18n, supportedLanguages } from '../contexts/I18nContext.tsx';
+import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
 
 interface HeaderProps {
   onOpenProfileImageModal: () => void;
@@ -50,6 +51,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const { user, logout, auth } = useAuth();
   const { locale, setLocale, t } = useI18n();
   const navigate = useNavigate();
+  const { canInstall, promptInstall } = usePWAInstall();
 
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
@@ -351,6 +353,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             <button onClick={onOpenQrCodeModal} className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
                 <QrCodeIcon className="h-6 w-6" />
             </button>
+            
+            {canInstall && (
+              <button
+                onClick={promptInstall}
+                className="hidden sm:flex items-center gap-2 bg-brand-red text-white font-bold py-1.5 px-3 text-sm rounded-md hover:bg-brand-red-dark transition-colors"
+                title="Install App"
+              >
+                <DownloadIcon className="h-5 w-5" />
+                <span>Install</span>
+              </button>
+            )}
 
             <button onClick={toggleTheme} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Toggle theme" title="Toggle theme">
                 {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
