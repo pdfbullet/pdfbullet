@@ -30,7 +30,7 @@ const PrivacyPolicyPage: React.FC = () => {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "name": "Privacy Policy",
-            "url": "https://ilovepdfly.com/#/privacy-policy",
+            "url": "https://ilovepdfly.com/privacy-policy",
             "description": "I Love PDFLY's Privacy Policy outlining our procedures on the collection, use, and disclosure of your information.",
             "publisher": {
                 "@type": "Organization",

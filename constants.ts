@@ -638,7 +638,7 @@ export const blogPosts = [
     image: 'https://ik.imagekit.io/fonepay/social%20media%20band%20in%20nepal%20ilovepdfly.png?updatedAt=1757078313764',
     author: 'The I Love PDFLY Team',
     authorImage: '/logo.svg',
-    tags: ['Nepal', 'Social Media Ban', 'Facebook Ban', 'Digital Rights', 'Internet Freedom', 'Tech Policy', 'Government Regulation'],
+    tags: ['Social Media Ban', 'Facebook Ban', 'Digital Rights', 'Internet Freedom'],
     },
     {
     slug: 'neb-class-12-result-2081-2082',
@@ -784,7 +784,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>In today's competitive job market, your Curriculum Vitae (CV) is often the very first impression you make on a potential employer. A well-structured, professional, and error-free CV can be the difference between landing an interview and being overlooked. However, creating one from scratch can be a daunting task. Which template should you use? What information is most important? How do you format it correctly?</p>
 
 <h2>Introducing the I Love PDFLY CV Generator</h2>
-<p>We're excited to introduce a powerful new tool to our suite: the free <a href="/#/cv-generator" class="text-brand-red hover:underline">CV Generator</a>. We've taken the stress and guesswork out of resume building by creating an intuitive, step-by-step process that guides you toward a perfect, job-winning CV.</p>
+<p>We're excited to introduce a powerful new tool to our suite: the free <a href="/cv-generator" class="text-brand-red hover:underline">CV Generator</a>. We've taken the stress and guesswork out of resume building by creating an intuitive, step-by-step process that guides you toward a perfect, job-winning CV.</p>
 
 <h2>Key Features of the CV Generator</h2>
 <ul class="list-disc list-inside space-y-2 my-4">
@@ -797,7 +797,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <h2>How to Create Your CV in 5 Simple Steps</h2>
 <p>Ready to build your new CV? It's incredibly simple:</p>
 <ol class="list-decimal list-inside space-y-2 my-4">
-    <li><strong>Navigate to the Tool:</strong> Go to the <a href="/#/cv-generator" class="text-brand-red hover:underline">CV Generator</a> page.</li>
+    <li><strong>Navigate to the Tool:</strong> Go to the <a href="/cv-generator" class="text-brand-red hover:underline">CV Generator</a> page.</li>
     <li><strong>Fill in Your Details:</strong> Enter your information into the guided form on the left panel, covering everything from your contact info to your work history.</li>
     <li><strong>Upload a Professional Photo (Optional):</strong> Add a professional headshot to give your CV a personal touch.</li>
     <li><strong>Choose Your Design:</strong> Select a template and an accent color that best represents your professional brand.</li>
@@ -818,7 +818,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Educators are the backbone of our society, but the demands on their time are immense. Lesson planning, in particular, is a critical but incredibly time-consuming task. Crafting engaging, effective, and curriculum-aligned plans for every class can take hours each week—hours that could be spent interacting with students or focusing on professional development.</p>
 
 <h2>Save Time with the AI Lesson Plan Creator</h2>
-<p>We believe technology should empower teachers, not add to their workload. That’s why we’re thrilled to launch the <a href="/#/lesson-plan-creator" class="text-brand-red hover:underline">AI Lesson Plan Creator</a>, a revolutionary tool designed to be every teacher's new favorite assistant.</p>
+<p>We believe technology should empower teachers, not add to their workload. That’s why we’re thrilled to launch the <a href="/lesson-plan-creator" class="text-brand-red hover:underline">AI Lesson Plan Creator</a>, a revolutionary tool designed to be every teacher's new favorite assistant.</p>
 <p>Simply provide a few key details—grade level, subject, topic, and class duration—and our AI will generate a comprehensive and structured lesson plan in seconds. It's designed to give you a high-quality, editable foundation that you can adapt to your unique classroom needs.</p>
 
 <h2>What Does a Generated Lesson Plan Include?</h2>
@@ -834,7 +834,7 @@ This guide provides direct links to official websites, step-by-step instructions
 
 <h2>How It Works</h2>
 <ol class="list-decimal list-inside space-y-2 my-4">
-    <li><strong>Go to the Tool:</strong> Visit the <a href="/#/lesson-plan-creator" class="text-brand-red hover:underline">AI Lesson Plan Creator</a>.</li>
+    <li><strong>Go to the Tool:</strong> Visit the <a href="/lesson-plan-creator" class="text-brand-red hover:underline">AI Lesson Plan Creator</a>.</li>
     <li><strong>Enter Your Lesson Details:</strong> Specify the grade, subject, topic, and duration. You can even suggest a teaching style (e.g., "Interactive & Hands-on").</li>
     <li><strong>Generate the Plan:</strong> Click the "Generate" button and watch as the AI crafts your lesson plan in real-time.</li>
     <li><strong>Review and Refine:</strong> Use the generated plan as-is, or copy and paste it into your favorite editor to tweak and personalize it for your students.</li>
@@ -855,7 +855,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>But creating good questions takes time and effort. What if you could instantly generate a quiz from any text you're studying? Now you can.</p>
 
 <h2>Introducing the AI Question Generator</h2>
-<p>We are excited to launch our <a href="/#/ai-question-generator" class="text-brand-red hover:underline">AI Question Generator</a>, a powerful tool for students, teachers, and lifelong learners. Simply paste any text into the tool, and our AI will analyze the content and generate a diverse set of questions to test your knowledge.</p>
+<p>We are excited to launch our <a href="/ai-question-generator" class="text-brand-red hover:underline">AI Question Generator</a>, a powerful tool for students, teachers, and lifelong learners. Simply paste any text into the tool, and our AI will analyze the content and generate a diverse set of questions to test your knowledge.</p>
 
 <h2>How Can It Help You?</h2>
 <ul class="list-disc list-inside space-y-2 my-4">
@@ -887,7 +887,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Now, you can manage both your documents and your images in one convenient place, streamlining your workflow and boosting your productivity. Say goodbye to switching between different apps—your complete toolkit is right here.</p>
 
 <h2>Introducing a Game-Changer: One-Click Background Removal</h2>
-<p>Have you ever needed to isolate a subject from its background for a presentation, a product photo, or a creative project? Our new <a href="/#/remove-background" class="text-brand-red hover:underline">Remove Background tool</a> makes this complex task incredibly simple.</p>
+<p>Have you ever needed to isolate a subject from its background for a presentation, a product photo, or a creative project? Our new <a href="/remove-background" class="text-brand-red hover:underline">Remove Background tool</a> makes this complex task incredibly simple.</p>
 <ul class="list-disc list-inside space-y-2 my-4">
     <li><strong>Effortless and Automatic:</strong> Simply upload your image (PNG or JPG), and our AI will automatically detect and remove the background with precision.</li>
     <li><strong>Perfect for Any Project:</strong> Create clean product images for your e-commerce store, professional headshots for your profile, or stunning graphics for your presentations.</li>
@@ -898,11 +898,11 @@ This guide provides direct links to official websites, step-by-step instructions
 <h2>A Complete Image-to-Document Workflow</h2>
 <p>Our new image tools are designed to work seamlessly with our existing PDF features, creating a complete workflow from image to final document.</p>
 <ol class="list-decimal list-inside space-y-2 my-4">
-    <li><strong>Edit Your Image:</strong> Start by perfecting your image. Use the <a href="/#/remove-background" class="text-brand-red hover:underline">Remove Background</a> tool to get a clean cutout.</li>
-    <li><strong>Convert to PDF:</strong> Once your image is ready, use our trusted <a href="/#/jpg-to-pdf" class="text-brand-red hover:underline">JPG to PDF</a> tool to convert single or multiple images into a high-quality PDF document.</li>
-    <li><strong>Organize and Share:</strong> Need to add the new image PDF to an existing report? Use our <a href="/#/merge-pdf" class="text-brand-red hover:underline">Merge PDF</a> tool to combine it with other documents. Your polished, professional document is now ready to be shared.</li>
+    <li><strong>Edit Your Image:</strong> Start by perfecting your image. Use the <a href="/remove-background" class="text-brand-red hover:underline">Remove Background</a> tool to get a clean cutout.</li>
+    <li><strong>Convert to PDF:</strong> Once your image is ready, use our trusted <a href="/jpg-to-pdf" class="text-brand-red hover:underline">JPG to PDF</a> tool to convert single or multiple images into a high-quality PDF document.</li>
+    <li><strong>Organize and Share:</strong> Need to add the new image PDF to an existing report? Use our <a href="/merge-pdf" class="text-brand-red hover:underline">Merge PDF</a> tool to combine it with other documents. Your polished, professional document is now ready to be shared.</li>
 </ol>
-<p>You can even capture images directly from your camera and convert them on the fly with our <a href="/#/scan-to-pdf" class="text-brand-red hover:underline">Scan to PDF</a> tool, making it easier than ever to digitize and manage your visual content.</p>
+<p>You can even capture images directly from your camera and convert them on the fly with our <a href="/scan-to-pdf" class="text-brand-red hover:underline">Scan to PDF</a> tool, making it easier than ever to digitize and manage your visual content.</p>
 
 <h2>What's Next?</h2>
 <p>This is just the beginning of our journey into image editing. We're committed to building the most comprehensive and user-friendly toolkit for all your digital needs. We can't wait for you to try out these new features and hear your feedback!</p>
@@ -1084,7 +1084,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Have you ever tried to save an important webpage for offline use—like an online receipt, a travel itinerary, or a fascinating article—only to end up with a mess? Using the browser's "Save As" feature can result in broken layouts and missing images. Taking screenshots often means stitching together multiple images and losing the ability to select text. The "Print to PDF" function can be even worse, awkwardly cutting off content and ruining the formatting of tables and graphs.</p>
 
 <h2>The Perfect Solution: HTML to PDF Conversion</h2>
-<p>Our <a href="/#/html-to-pdf" class="text-brand-red hover:underline">HTML to PDF converter</a> is designed to solve this problem perfectly. It accurately captures the entire content of a live webpage—including all text, images, and layout elements—and preserves it in a single, high-quality PDF document. This method is incredibly useful for:</p>
+<p>Our <a href="/html-to-pdf" class="text-brand-red hover:underline">HTML to PDF converter</a> is designed to solve this problem perfectly. It accurately captures the entire content of a live webpage—including all text, images, and layout elements—and preserves it in a single, high-quality PDF document. This method is incredibly useful for:</p>
 <ul class="list-disc list-inside space-y-2 my-4">
     <li><strong>Archiving Articles:</strong> Save news articles or blog posts for offline reading or research.</li>
     <li><strong>Saving Online Receipts:</strong> Keep a clean, readable record of your online purchases.</li>
@@ -1096,7 +1096,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>The process is incredibly simple and takes just a few seconds. Follow these steps:</p>
 <ol class="list-decimal list-inside space-y-2 my-4">
     <li><strong>Find the webpage:</strong> Open the webpage you want to convert in your browser and copy its URL from the address bar.</li>
-    <li><strong>Go to our tool:</strong> Navigate to the <a href="/#/html-to-pdf" class="text-brand-red hover:underline">HTML to PDF tool</a>.</li>
+    <li><strong>Go to our tool:</strong> Navigate to the <a href="/html-to-pdf" class="text-brand-red hover:underline">HTML to PDF tool</a>.</li>
     <li><strong>Paste the URL:</strong> Paste the copied URL into the input field provided.</li>
     <li><strong>Click 'Convert to PDF':</strong> Our tool will instantly fetch the webpage, render it, and convert it into a perfectly formatted PDF.</li>
     <li><strong>Download your file:</strong> Your new PDF will be ready for download immediately.</li>
@@ -1117,7 +1117,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <p>Password protection uses encryption to scramble the data within the PDF, making it unreadable without the key (your password). This is the most effective way to prevent unauthorized access and maintain confidentiality.</p>
 
 <h2>How to Password Protect a PDF Online for Free</h2>
-<p>Our <a href="/#/protect-pdf" class="text-brand-red hover:underline">Protect PDF tool</a> offers a simple, fast, and secure way to encrypt your files. Follow these easy steps:</p>
+<p>Our <a href="/protect-pdf" class="text-brand-red hover:underline">Protect PDF tool</a> offers a simple, fast, and secure way to encrypt your files. Follow these easy steps:</p>
 <ol class="list-decimal list-inside space-y-2 my-4">
     <li><strong>Go to the Protect PDF tool:</strong> Navigate to the tool page to get started.</li>
     <li><strong>Upload your PDF file:</strong> Select the PDF document you want to secure from your device, Google Drive, or Dropbox.</li>
@@ -1158,7 +1158,7 @@ This guide provides direct links to official websites, step-by-step instructions
 </ol>
 
 <h2>How I Love PDFLY Helps</h2>
-<p>Our <a href="/#/sign-pdf" class="text-brand-red hover:underline">Sign PDF tool</a> is designed to create secure and verifiable digital signatures. It provides a complete audit trail, including timestamps and IP addresses, which strengthens the legal standing of your signed documents. Whether you're signing a simple agreement or a critical business contract, our tool provides the security and validity you need.</p>
+<p>Our <a href="/sign-pdf" class="text-brand-red hover:underline">Sign PDF tool</a> is designed to create secure and verifiable digital signatures. It provides a complete audit trail, including timestamps and IP addresses, which strengthens the legal standing of your signed documents. Whether you're signing a simple agreement or a critical business contract, our tool provides the security and validity you need.</p>
 
 <h2>Final Recommendation</h2>
 <p>While digital signatures are widely accepted, regulations can vary by jurisdiction and the nature of the document. For highly sensitive or regulated transactions, it's always a good practice to consult with a legal professional to ensure full compliance with local laws. For the vast majority of business and personal needs, a secure digital signature provides a reliable and legally binding solution.</p>`,
@@ -1173,7 +1173,7 @@ This guide provides direct links to official websites, step-by-step instructions
     date: 'July 31, 2025',
     excerpt: 'Boost your OCR results with smart scanning techniques. Learn how resolution, contrast, and language support affect text recognition accuracy. Optical Character Recognition (OCR) is a powerful technology, but its accuracy depends on the quality of the source image. This guide provides tips on how to scan your documents to achieve the best possible OCR results, ensuring your text is searchable and selectable with high fidelity.',
     content: `<h2>Why Scan Quality is Everything for OCR</h2>
-<p>Optical Character Recognition (OCR) is a fantastic technology that transforms flat, non-interactive images of text (like a scanned document) into fully searchable, selectable, and editable text. It's the magic behind making your paper archives digital. However, the accuracy of OCR is highly dependent on one thing: the quality of the source scan. A blurry, skewed, or low-resolution scan will result in jumbled text and poor recognition. To get the most out of our <a href="/#/ocr-pdf" class="text-brand-red hover:underline">OCR PDF tool</a>, follow these smart scanning tips.</p>
+<p>Optical Character Recognition (OCR) is a fantastic technology that transforms flat, non-interactive images of text (like a scanned document) into fully searchable, selectable, and editable text. It's the magic behind making your paper archives digital. However, the accuracy of OCR is highly dependent on one thing: the quality of the source scan. A blurry, skewed, or low-resolution scan will result in jumbled text and poor recognition. To get the most out of our <a href="/ocr-pdf" class="text-brand-red hover:underline">OCR PDF tool</a>, follow these smart scanning tips.</p>
 
 <h2>1. Aim for the Right Resolution (DPI)</h2>
 <p>DPI, or Dots Per Inch, is a measure of a scanner's resolution. For OCR, the sweet spot is generally <strong>300 DPI</strong>. Here’s why:</p>
@@ -1207,7 +1207,7 @@ This guide provides direct links to official websites, step-by-step instructions
 
 <h2>5. Select the Correct Language</h2>
 <p>An OCR engine uses a dictionary and character set specific to a language to achieve the best results. If you're scanning a document in French, telling the OCR tool that the language is French will allow it to recognize characters like 'é', 'à', and 'ç' correctly.</p>
-<p>Our <a href="/#/ocr-pdf" class="text-brand-red hover:underline">OCR PDF tool</a> supports multiple languages. Always make sure you select the correct language from the options before starting the process to maximize accuracy.</p>
+<p>Our <a href="/ocr-pdf" class="text-brand-red hover:underline">OCR PDF tool</a> supports multiple languages. Always make sure you select the correct language from the options before starting the process to maximize accuracy.</p>
 
 <h2>Conclusion: A Great Scan Means a Great Result</h2>
 <p>By taking a few extra moments to prepare your documents and configure your scanner settings, you can dramatically improve the quality of your OCR results. A clean, high-contrast, 300 DPI scan will transform your paper documents into accurate, searchable, and highly usable digital files. Happy scanning!</p>`,
@@ -1235,7 +1235,7 @@ This guide provides direct links to official websites, step-by-step instructions
 <h2>How to Edit Text in a PDF Online for Free</h2>
 <p>Follow these simple steps to edit the text in your PDF document in just a few clicks:</p>
 <ol class="list-decimal list-inside space-y-2 my-4">
-    <li>Go to the <a href="/#/edit-pdf" class="text-brand-red hover:underline">Edit PDF tool</a>.</li>
+    <li>Go to the <a href="/edit-pdf" class="text-brand-red hover:underline">Edit PDF tool</a>.</li>
     <li>Upload your PDF file from your device, Google Drive, or Dropbox.</li>
     <li>Once the file is loaded in the editor, select the <strong>'Edit text'</strong> option from the toolbar.</li>
     <li>Click on the text you want to modify. A bounding box will appear around the text block.</li>
