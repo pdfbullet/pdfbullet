@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon } from '../components/icons.tsx';
+import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon, SSOIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
+import { useWebAuthn } from '../hooks/useWebAuthn.ts';
 
 interface LoginPageProps {
   onOpenForgotPasswordModal: () => void;
@@ -14,7 +15,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub } = useAuth();
+  const { login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Login | I Love PDFLY";
@@ -23,6 +26,27 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
         metaDesc.setAttribute("content", "Sign in to your I Love PDFLY account to access all your tools and premium features. Manage your documents easily and securely.");
     }
   }, []);
+  
+  const handlePasskeyLogin = async () => {
+    if (!email) {
+        setError("Please enter your email address to find your passkeys.");
+        return;
+    }
+    setError('');
+    setIsLoading(true);
+    try {
+      await passkeyLogin(email);
+      // In a real app, the backend returns a Firebase custom token.
+      // We would call `signInWithCustomToken(token)` here.
+      // For this simulation, we navigate to the home page on success.
+      console.log("Simulated passkey login success. Navigating home.");
+      navigate('/');
+    } catch(err: any) {
+       setError(err.message || 'Passkey login failed.');
+    } finally {
+       setIsLoading(false);
+    }
+  }
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +122,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
               <div className="relative flex justify-center text-sm"><span className="bg-gray-100 dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">OR</span></div>
           </div>
 
+          {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
           <form className="space-y-4" onSubmit={handleEmailSignIn}>
-            {error && <p className="text-center text-sm text-red-500">{error}</p>}
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><EmailIcon className="h-5 w-5 text-gray-400" /></div>
               <input id="email-address" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Email" />
@@ -119,6 +143,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
               </button>
             </div>
           </form>
+
+           <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true"><div className="w-full border-t border-gray-300 dark:border-gray-700" /></div>
+          </div>
+
+          <div>
+              <button
+                onClick={handlePasskeyLogin}
+                disabled={isLoading || !isWebAuthnSupported}
+                className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                <SSOIcon className="h-5 w-5" />
+                <span>Login with Passkey</span>
+              </button>
+              {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
+          </div>
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}

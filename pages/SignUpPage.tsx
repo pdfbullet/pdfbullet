@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon } from '../components/icons.tsx';
+import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon, SSOIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
+import { useWebAuthn } from '../hooks/useWebAuthn.ts';
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginOrSignupWithGoogle, signUpWithEmail, loginOrSignupWithGithub } = useAuth();
+  const { register: registerPasskey, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
 
   useEffect(() => {
@@ -20,6 +23,28 @@ const SignUpPage: React.FC = () => {
         metaDesc.setAttribute("content", "Create a free account with I Love PDFLY to unlock more features. Sign up to manage your documents more effectively.");
     }
   }, []);
+  
+  const handlePasskeyRegister = async () => {
+    if (!email) {
+        setError("Please enter your email address to register a passkey.");
+        return;
+    }
+     if (!/^\S+@\S+\.\S+$/.test(email)) {
+        setError("Please enter a valid email address.");
+        return;
+    }
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+    try {
+        await registerPasskey(email);
+        setSuccess(`Passkey registered for ${email}! You can now use it to log in.`);
+    } catch(err: any) {
+        setError(err.message || "Failed to register passkey. Your device might not have a screen lock (PIN, fingerprint, face) set up, or you may have cancelled the request.");
+    } finally {
+        setIsLoading(false);
+    }
+  };
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,8 +128,10 @@ const SignUpPage: React.FC = () => {
               <div className="relative flex justify-center text-sm"><span className="bg-gray-100 dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">OR</span></div>
           </div>
 
+          {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
+          {success && <p className="text-center text-sm text-green-600 mb-4">{success}</p>}
+
           <form className="space-y-4" onSubmit={handleEmailSignUp}>
-            {error && <p className="text-center text-sm text-red-500">{error}</p>}
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><EmailIcon className="h-5 w-5 text-gray-400" /></div>
               <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Email" />
@@ -123,6 +150,22 @@ const SignUpPage: React.FC = () => {
               </button>
             </div>
           </form>
+          
+           <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true"><div className="w-full border-t border-gray-300 dark:border-gray-700" /></div>
+          </div>
+          
+           <div>
+              <button
+                onClick={handlePasskeyRegister}
+                disabled={isLoading || !isWebAuthnSupported}
+                className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                <SSOIcon className="h-5 w-5" />
+                <span>Register with Passkey</span>
+              </button>
+              {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
+          </div>
 
           <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
             By creating an account, you agree to iLovePDFLY{' '}

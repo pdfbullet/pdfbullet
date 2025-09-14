@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -150,6 +151,7 @@ body {
     animation: spin 4s linear infinite;
     opacity: 0;
     transition: opacity 0.3s;
+    pointer-events: none; /* Prevent the overlay from capturing clicks */
 }
 .animated-border:hover::before {
     opacity: 1;
@@ -306,5 +308,39 @@ body {
   75%, 100% {
     transform: scale(1.5);
     opacity: 0;
+  }
+}
+
+/* Styles to prevent screenshots, screen recording, and text selection */
+.no-screenshot {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
+}
+
+/* Hides content when tab is inactive to deter screen recording */
+.screen-hidden {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transition: opacity 0.1s linear, visibility 0.1s linear;
+}
+
+/* Hides content when a screenshot is attempted via print media query */
+@media print {
+  body.no-screenshot::before {
+    content: ' ';
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    z-index: 999999;
+  }
+  body.no-screenshot > * {
+    display: none !important;
+    visibility: hidden !important;
   }
 }

@@ -612,6 +612,23 @@ function AppContent() {
     }
   }, [user, loading, navigate, location.pathname]);
   
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Add a class to hide content when the tab is not active
+      // This is a deterrent against screen recording.
+      if (document.hidden) {
+        document.body.classList.add('screen-hidden');
+      } else {
+        document.body.classList.remove('screen-hidden');
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <LayoutContext.Provider value={layoutContextValue}>
