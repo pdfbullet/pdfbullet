@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
@@ -686,6 +686,7 @@ const useToolPageContext = () => React.useContext(ToolPageContext);
 const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { t } = useI18n();
   const { signature, saveSignature } = useSignature();
@@ -2290,57 +2291,77 @@ const ToolPage: React.FC = () => {
             </div>
 
             {state === ProcessingState.Idle && pdfPagePreviews.length === 0 && (
-                <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
-                     {tool.id === 'pdf-to-word' ? (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Conversion Options</h3>
-                            <div onClick={() => setPdfToWordMode('editable')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'editable' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">Editable Text (Basic Layout)</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Extracts text for editing. Best for text changes, but complex layouts and colors may be altered.</p>
-                                <div className="mt-3 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
-                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={useOcr} onChange={(e) => setUseOcr(e.target.checked)} className="h-4 w-4 rounded text-brand-red focus:ring-brand-red" />
-                                        <span className="text-sm">Use OCR</span>
-                                        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">Premium</span>
-                                     </label>
-                                     <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">For scanned documents with non-selectable text.</p>
-                                </div>
-                            </div>
-                            <div onClick={() => setPdfToWordMode('exact')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'exact' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">Exact Copy (Pages as Images)</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Preserves 100% of original formatting, colors, and images. Text within images will not be editable.</p>
-                            </div>
-                            {files.length > 0 && <button onClick={handleProcess} disabled={isProcessButtonDisabled} className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400`}>
-                                Convert to WORD <RightArrowIcon className="h-6 w-6" />
-                            </button>}
+                !user ? (
+                    <div className="text-center w-full max-w-lg mx-auto py-12 px-6 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg">
+                        <LockIcon className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500" />
+                        <h2 className="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-100">
+                            Please Log In to Use This Tool
+                        </h2>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">
+                            Creating a free account is quick and gives you access to all our tools.
+                        </p>
+                        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                            <Link to="/login" state={{ from: location }} className="w-full sm:w-auto flex-grow sm:flex-grow-0 px-8 py-3 font-semibold border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                Log In
+                            </Link>
+                            <Link to="/signup" state={{ from: location }} className="w-full sm:w-auto flex-grow sm:flex-grow-0 px-8 py-3 font-semibold text-white bg-brand-red rounded-md hover:bg-brand-red-dark transition-colors">
+                                Sign Up for Free
+                            </Link>
                         </div>
-                    ) : (
-                        <div className="space-y-6">
-                            {tool.id === 'compress-pdf' && (
-                                <CompressionOptions 
-                                    level={toolOptions.compressionLevel}
-                                    setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
-                                />
-                            )}
-                             {tool.id === 'rotate-pdf' && (
-                                <div className="flex justify-center gap-4">
-                                    <button onClick={() => setToolOptions(prev => ({...prev, rotation: 90}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 90 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>90°</button>
-                                    <button onClick={() => setToolOptions(prev => ({...prev, rotation: 180}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 180 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>180°</button>
-                                    <button onClick={() => setToolOptions(prev => ({...prev, rotation: 270}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 270 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>270°</button>
+                    </div>
+                ) : (
+                    <FileUpload tool={tool} files={files} setFiles={setFiles} accept={tool.accept}>
+                         {tool.id === 'pdf-to-word' ? (
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Conversion Options</h3>
+                                <div onClick={() => setPdfToWordMode('editable')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'editable' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-200">Editable Text (Basic Layout)</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Extracts text for editing. Best for text changes, but complex layouts and colors may be altered.</p>
+                                    <div className="mt-3 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                         <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={useOcr} onChange={(e) => setUseOcr(e.target.checked)} className="h-4 w-4 rounded text-brand-red focus:ring-brand-red" />
+                                            <span className="text-sm">Use OCR</span>
+                                            <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">Premium</span>
+                                         </label>
+                                         <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">For scanned documents with non-selectable text.</p>
+                                    </div>
                                 </div>
-                            )}
-                            {files.length > 0 && (
-                                <button
-                                    onClick={handleProcess}
-                                    disabled={isProcessButtonDisabled}
-                                    className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
-                                >
-                                    {t(tool.title)} <RightArrowIcon className="h-6 w-6" />
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </FileUpload>
+                                <div onClick={() => setPdfToWordMode('exact')} className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${pdfToWordMode === 'exact' ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-200">Exact Copy (Pages as Images)</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Preserves 100% of original formatting, colors, and images. Text within images will not be editable.</p>
+                                </div>
+                                {files.length > 0 && <button onClick={handleProcess} disabled={isProcessButtonDisabled} className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400`}>
+                                    Convert to WORD <RightArrowIcon className="h-6 w-6" />
+                                </button>}
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {tool.id === 'compress-pdf' && (
+                                    <CompressionOptions 
+                                        level={toolOptions.compressionLevel}
+                                        setLevel={(level) => setToolOptions(prev => ({ ...prev, compressionLevel: level }))}
+                                    />
+                                )}
+                                 {tool.id === 'rotate-pdf' && (
+                                    <div className="flex justify-center gap-4">
+                                        <button onClick={() => setToolOptions(prev => ({...prev, rotation: 90}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 90 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>90°</button>
+                                        <button onClick={() => setToolOptions(prev => ({...prev, rotation: 180}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 180 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>180°</button>
+                                        <button onClick={() => setToolOptions(prev => ({...prev, rotation: 270}))} className={`px-4 py-2 font-semibold rounded-md ${toolOptions.rotation === 270 ? 'bg-brand-red text-white' : 'bg-gray-200'}`}>270°</button>
+                                    </div>
+                                )}
+                                {files.length > 0 && (
+                                    <button
+                                        onClick={handleProcess}
+                                        disabled={isProcessButtonDisabled}
+                                        className={`w-full flex items-center justify-center gap-2 text-white font-bold py-4 px-6 rounded-lg text-lg transition-colors ${tool.color} ${tool.hoverColor} disabled:bg-gray-400 dark:disabled:bg-gray-600`}
+                                    >
+                                        {t(tool.title)} <RightArrowIcon className="h-6 w-6" />
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </FileUpload>
+                )
             )}
 
             {/* Visual Editor for Sign PDF */}

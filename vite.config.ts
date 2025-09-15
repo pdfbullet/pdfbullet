@@ -4,11 +4,17 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  // FIX: Removed unnecessary node types reference and replaced process.cwd() with an empty string to resolve TypeScript type errors.
-  // Vite's loadEnv defaults to the project root, which is the intended behavior.
   const env = loadEnv(mode, '', '');
   return {
     base: '/',
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:4000',
+          changeOrigin: true,
+        },
+      },
+    },
     plugins: [
       react(),
       VitePWA({
