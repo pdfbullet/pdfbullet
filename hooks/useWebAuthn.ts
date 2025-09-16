@@ -44,6 +44,8 @@ function base64URLToBuffer(base64url: string): ArrayBuffer {
 // ===================================================================
 // MAIN HOOK
 // ===================================================================
+const API_BASE_URL = 'https://ilovepdfly-backend.onrender.com';
+
 export const useWebAuthn = () => {
     const [isWebAuthnSupported, setIsWebAuthnSupported] = useState(false);
     
@@ -61,7 +63,7 @@ export const useWebAuthn = () => {
         }
 
         // 1. Get registration options from the backend
-        const optionsRes = await fetch('/api/passkey/register-options', {
+        const optionsRes = await fetch(`${API_BASE_URL}/api/passkey/register-options`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
@@ -94,7 +96,7 @@ export const useWebAuthn = () => {
             },
         };
 
-        const verifyRes = await fetch('/api/passkey/register-verify', {
+        const verifyRes = await fetch(`${API_BASE_URL}/api/passkey/register-verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(verificationData),
@@ -116,7 +118,7 @@ export const useWebAuthn = () => {
         }
 
         // 1. Get login options from the backend
-        const optionsRes = await fetch('/api/passkey/login-options', {
+        const optionsRes = await fetch(`${API_BASE_URL}/api/passkey/login-options`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
@@ -156,7 +158,7 @@ export const useWebAuthn = () => {
             },
         };
 
-        const verifyRes = await fetch('/api/passkey/login-verify', {
+        const verifyRes = await fetch(`${API_BASE_URL}/api/passkey/login-verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(verificationData),

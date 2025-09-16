@@ -5,6 +5,8 @@ import ChangePasswordModal from '../components/ChangePasswordModal.tsx';
 import TwoFactorAuthModal from '../components/TwoFactorAuthModal.tsx';
 import { SSOIcon, TrashIcon, PlusIcon } from '../components/icons.tsx';
 
+const API_BASE_URL = 'https://ilovepdfly-backend.onrender.com';
+
 const SecurityPage: React.FC = () => {
     const { user, auth, updateTwoFactorStatus } = useAuth();
     const { isWebAuthnSupported, register } = useWebAuthn();
@@ -26,7 +28,7 @@ const SecurityPage: React.FC = () => {
         try {
             // In a real app, you would fetch this from your backend
             // For now, this will fail gracefully, showing an empty list.
-            const response = await fetch('/api/passkey/credentials');
+            const response = await fetch(`${API_BASE_URL}/api/passkey/credentials`);
             if (!response.ok) {
                  console.warn('Could not fetch credentials. Backend endpoint may not be implemented.');
                  setCredentials([]);
@@ -82,7 +84,7 @@ const SecurityPage: React.FC = () => {
         if (window.confirm("Are you sure you want to remove this passkey? You will no longer be able to sign in with it.")) {
             setError('');
             try {
-                const response = await fetch(`/api/passkey/credentials/${id}`, { method: 'DELETE' });
+                const response = await fetch(`${API_BASE_URL}/api/passkey/credentials/${id}`, { method: 'DELETE' });
                  if (!response.ok) {
                     throw new Error('Failed to remove passkey from server.');
                 }
