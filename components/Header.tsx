@@ -160,11 +160,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
 
   const desktopGridMenuData = {
     products: [
-      { title: 'iLoveIMG', description: 'Effortless image editing', href: 'https://iloveimg.com', icon: HeartbeatIcon, iconColor: 'bg-blue-500' },
-      { title: 'iLoveSign', description: 'e-Signing made simple', href: '/#/', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
+      { title: 'iLovePDFLY-Sign', description: 'e-Signing made simple', to: '/workflows', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
       { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer', icon: HeartbeatIcon, iconColor: 'bg-teal-500' },
     ],
-    integrations: { title: 'Integrations', description: 'Zapier, Make, Wordpress...', href: '/#/', icon: LinkIcon, bordered: true },
     solutions: [
       { title: 'Business', description: 'Streamlined PDF editing and workflows for business teams', to: '/business', icon: ChartBarIcon, iconColor: 'bg-red-500' }
     ],
@@ -213,7 +211,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
           title: 'Image Tools',
           tools: TOOLS.filter(tool => imageToolIds.has(tool.id))
       }
-  ].filter(category => category.tools.length > 0), []);
+  ].filter(category => category.tools.length > 0), [imageToolIds]);
 
   const DesktopGridMenuItem: React.FC<{ item: any }> = ({ item }) => {
     const content = (
@@ -448,12 +446,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 <div className="absolute top-full right-0 mt-2 z-20">
                   <div className="w-[calc(100vw-2rem)] max-w-sm md:max-w-2xl lg:max-w-[52rem] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                     {gridMenuView === 'main' && (
-                       <div className="p-4">
+                       <div className="p-4 overflow-y-auto max-h-[80vh]">
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               <div className="lg:col-span-1 space-y-4">
                                   <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2">PRODUCTS</h3>
                                   {desktopGridMenuData.products.map(item => <DesktopGridMenuItem key={item.title} item={item} />)}
-                                  <DesktopGridMenuItem item={desktopGridMenuData.integrations} />
                               </div>
                               <div className="lg:col-span-1 space-y-4">
                                   <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 px-2">SOLUTIONS</h3>
@@ -480,7 +477,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                       </div>
                     )}
                     {gridMenuView === 'help' && (
-                         <div className="p-4">
+                         <div className="p-4 overflow-y-auto max-h-[80vh]">
                             <button onClick={() => setGridMenuView('main')} className="flex items-center gap-2 text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 mb-2">
                                 <LeftArrowIcon className="h-5 w-5" /> Back to menu
                             </button>
@@ -491,7 +488,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                          </div>
                     )}
                     {gridMenuView === 'language' && (
-                      <div className="p-4">
+                      <div className="p-4 overflow-y-auto max-h-[80vh]">
                           <button onClick={() => setGridMenuView('main')} className="flex items-center gap-2 text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 mb-2">
                               <LeftArrowIcon className="h-5 w-5" /> Back to menu
                           </button>

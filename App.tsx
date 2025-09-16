@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider } from './contexts/PWAInstallContext.tsx';
+import PullToRefresh from './components/PullToRefresh.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
@@ -631,128 +632,110 @@ function AppContent() {
     };
   }, []);
 
-  // Prevent right-click context menu to deter saving content/images
-  useEffect(() => {
-    const disableContextMenu = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        // Allow context menu on form inputs and text areas for better UX
-        if (
-            target.tagName === 'INPUT' || 
-            target.tagName === 'TEXTAREA' || 
-            target.isContentEditable
-        ) {
-            return;
-        }
-        e.preventDefault();
-    };
-    document.addEventListener('contextmenu', disableContextMenu);
-    return () => {
-        document.removeEventListener('contextmenu', disableContextMenu);
-    };
-  }, []);
-
   return (
     <LayoutContext.Provider value={layoutContextValue}>
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
-        <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-          <Header
-            onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-            onOpenSearchModal={() => setSearchModalOpen(true)}
-            onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-            onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
-          />
-          <main className="flex-grow">
-            <Suspense fallback={<div className="w-full py-20" />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogPostPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-                <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/developer" element={<DeveloperPage />} />
-                <Route path="/faq" element={<FaqPage />} />
-                <Route path="/sitemap" element={<SitemapPage />} />
-                <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
-                <Route path="/cv-generator" element={<CVGeneratorPage />} />
-                <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
-                <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-                <Route path="/ai-image-generator" element={<AIImageGeneratorPage />} />
-                <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/api-pricing" element={<ApiPricingPage />} />
-                <Route path="/premium-feature" element={<PremiumFeaturePage />} />
-                <Route path="/payment" element={<PaymentPage />} />
-                <Route path="/developer-access" element={<DeveloperAccessPage />} />
-                <Route path="/how-to-use" element={<HowToUsePage />} />
-                <Route path="/education" element={<EducationPage />} />
-                <Route path="/business" element={<BusinessPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
-                <Route path="/ceo" element={<CeoPage />} />
-                <Route path="/press" element={<PressPage />} />
-                <Route path="/user-data-deletion" element={<DataDeletionPage />} />
-                <Route path="/legal" element={<LegalPage />} />
-                <Route path="/security-policy" element={<SecurityPolicyPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
-                
-                {/* API Routes */}
-                <Route path="/api-reference" element={<ApiReferencePage />} />
-                <Route path="/api-pdf" element={<ApiPdfPage />} />
-                <Route path="/api-image" element={<ApiImagePage />} />
-                <Route path="/api-signature" element={<ApiSignaturePage />} />
+        <PullToRefresh>
+            <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+              <Header
+                onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+                onOpenSearchModal={() => setSearchModalOpen(true)}
+                onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+                onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+              />
+              <main className="flex-grow">
+                <Suspense fallback={<div className="w-full py-20" />}>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/blog/:slug" element={<BlogPostPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/developer" element={<DeveloperPage />} />
+                    <Route path="/faq" element={<FaqPage />} />
+                    <Route path="/sitemap" element={<SitemapPage />} />
+                    <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+                    <Route path="/cv-generator" element={<CVGeneratorPage />} />
+                    <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+                    <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+                    <Route path="/ai-image-generator" element={<AIImageGeneratorPage />} />
+                    <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/api-pricing" element={<ApiPricingPage />} />
+                    <Route path="/premium-feature" element={<PremiumFeaturePage />} />
+                    <Route path="/payment" element={<PaymentPage />} />
+                    <Route path="/developer-access" element={<DeveloperAccessPage />} />
+                    <Route path="/how-to-use" element={<HowToUsePage />} />
+                    <Route path="/education" element={<EducationPage />} />
+                    <Route path="/business" element={<BusinessPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                    <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+                    <Route path="/ceo" element={<CeoPage />} />
+                    <Route path="/press" element={<PressPage />} />
+                    <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+                    <Route path="/legal" element={<LegalPage />} />
+                    <Route path="/security-policy" element={<SecurityPolicyPage />} />
+                    <Route path="/features" element={<FeaturesPage />} />
+                    
+                    {/* API Routes */}
+                    <Route path="/api-reference" element={<ApiReferencePage />} />
+                    <Route path="/api-pdf" element={<ApiPdfPage />} />
+                    <Route path="/api-image" element={<ApiImagePage />} />
+                    <Route path="/api-signature" element={<ApiSignaturePage />} />
 
-                {/* Admin Routes */}
-                <Route element={<AdminProtectedRoute />}>
-                    <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-                </Route>
-
-                {/* User Protected Routes with Dashboard Layout */}
-                <Route element={<UserProtectedRoute />}>
-                    <Route element={<UserDashboardLayout />}>
-                        <Route path="/account-settings" element={<AccountSettingsPage />} />
-                        <Route path="/workflows" element={<WorkflowsPage />} />
-                        <Route path="/workflows/create" element={<CreateWorkflowPage />} />
-                        <Route path="/security" element={<SecurityPage />} />
-                        <Route path="/team" element={<TeamPage />} />
-                        <Route path="/last-tasks" element={<LastTasksPage />} />
-                        <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
-                        <Route path="/sent" element={<SentPage />} />
-                        <Route path="/inbox" element={<InboxPage />} />
-                        <Route path="/signed" element={<SignedPage />} />
-                        <Route path="/templates" element={<TemplatesPage />} />
-                        <Route path="/contacts" element={<ContactsPage />} />
-                        <Route path="/signature-settings" element={<SignatureSettingsPage />} />
-                        <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
-                        <Route path="/business-details" element={<BusinessDetailsPage />} />
-                        <Route path="/invoices" element={<InvoicesPage />} />
+                    {/* Admin Routes */}
+                    <Route element={<AdminProtectedRoute />}>
+                        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
                     </Route>
-                </Route>
-                
-                {/* ToolPage should be last to catch dynamic tool IDs */}
-                <Route path="/:toolId" element={<ToolPage />} />
-              </Routes>
-            </Suspense>
-          </main>
-          {showFooter && <Footer 
-            onOpenCalendarModal={() => setCalendarModalOpen(true)}
-            onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
-          />}
-          
-          <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
-          <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
-          <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
-          <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
-          <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
-          <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
-          <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-          <ScrollToTopButton />
-          <CookieConsentBanner />
-          <PWAInstallPrompt />
-          <PWAInstallInstructionsModal />
-          <ChatbotWidget />
-        </div>
+
+                    {/* User Protected Routes with Dashboard Layout */}
+                    <Route element={<UserProtectedRoute />}>
+                        <Route element={<UserDashboardLayout />}>
+                            <Route path="/account-settings" element={<AccountSettingsPage />} />
+                            <Route path="/workflows" element={<WorkflowsPage />} />
+                            <Route path="/workflows/create" element={<CreateWorkflowPage />} />
+                            <Route path="/security" element={<SecurityPage />} />
+                            <Route path="/team" element={<TeamPage />} />
+                            <Route path="/last-tasks" element={<LastTasksPage />} />
+                            <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+                            <Route path="/sent" element={<SentPage />} />
+                            <Route path="/inbox" element={<InboxPage />} />
+                            <Route path="/signed" element={<SignedPage />} />
+                            <Route path="/templates" element={<TemplatesPage />} />
+                            <Route path="/contacts" element={<ContactsPage />} />
+                            <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+                            <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+                            <Route path="/business-details" element={<BusinessDetailsPage />} />
+                            <Route path="/invoices" element={<InvoicesPage />} />
+                        </Route>
+                    </Route>
+                    
+                    {/* ToolPage should be last to catch dynamic tool IDs */}
+                    <Route path="/:toolId" element={<ToolPage />} />
+                  </Routes>
+                </Suspense>
+              </main>
+              {showFooter && <Footer 
+                onOpenCalendarModal={() => setCalendarModalOpen(true)}
+                onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
+              />}
+              
+              <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
+              <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+              <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
+              <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+              <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
+              <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
+              <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
+              <ScrollToTopButton />
+              <CookieConsentBanner />
+              <PWAInstallPrompt />
+              <PWAInstallInstructionsModal />
+              <ChatbotWidget />
+            </div>
+        </PullToRefresh>
       </MobileAuthGate>
     </LayoutContext.Provider>
   );

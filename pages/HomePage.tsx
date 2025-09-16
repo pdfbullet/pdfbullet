@@ -252,22 +252,27 @@ const HomePage: React.FC = () => {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [activeCategory, setActiveCategory] = useState<string>('All');
     
-    const { isFavorite, toggleFavorite } = useFavorites();
+    const { favorites, isFavorite, toggleFavorite } = useFavorites();
     const { user } = useAuth();
     const navigate = useNavigate();
     const { workflows } = useWorkflows();
     const toolsByTitle = useMemo(() => new Map(TOOLS.map(t => [t.title, t])), []);
     const { t } = useI18n();
-
+    
+    const favoriteTools = useMemo(() => TOOLS.filter(tool => isFavorite(tool.id)), [isFavorite]);
+    const otherTools = useMemo(() => TOOLS.filter(tool => !isFavorite(tool.id)), [isFavorite]);
+    
+    const imageToolIds = useMemo(() => new Set(TOOLS.filter(t => t.api?.category === 'image' || t.id === 'ai-image-generator' || ['jpg-to-pdf', 'psd-to-pdf', 'pdf-to-jpg', 'pdf-to-png', 'scan-to-pdf'].includes(t.id)).map(t => t.id)), []);
 
     const filterCategories = [
         { labelKey: 'homepage.filter_all', category: 'All' },
         { labelKey: 'homepage.filter_workflows', category: 'workflows' },
         { labelKey: 'homepage.filter_organize', category: 'organize' },
         { labelKey: 'homepage.filter_optimize', category: 'optimize' },
-        { labelKey: 'homepage.filter_convert', category: 'convert-from' },
+        { labelKey: 'homepage.filter_convert', category: 'convert' },
         { labelKey: 'homepage.filter_edit', category: 'edit' },
         { labelKey: 'homepage.filter_security', category: 'security' },
+        { labelKey: 'image_tools', category: 'image' },
     ];
 
     const handleWorkflowClick = () => {
@@ -279,19 +284,21 @@ const HomePage: React.FC = () => {
     };
     
     const handleCategoryClick = (category: string) => {
-      // For workflows, the action is handled by the cards themselves, which check for auth.
       setActiveCategory(category);
     };
 
     const filteredTools = useMemo(() => {
-        if (activeCategory === 'All') {
-            return TOOLS;
+        const allTools = [...favoriteTools, ...otherTools];
+        if (activeCategory === 'All') return allTools;
+        if (activeCategory === 'workflows') return [];
+        if (activeCategory === 'image') {
+            return allTools.filter(tool => imageToolIds.has(tool.id));
         }
-        if (activeCategory === 'workflows') {
-            return []; // Workflow has a custom UI
+        if (activeCategory === 'convert') {
+             return allTools.filter(tool => (tool.category === 'convert-to' || tool.category === 'convert-from'));
         }
-        return TOOLS.filter(tool => tool.category === activeCategory);
-    }, [activeCategory]);
+        return allTools.filter(tool => tool.category === activeCategory);
+    }, [activeCategory, favoriteTools, otherTools, imageToolIds]);
 
     const toggleFaq = (index: number) => {
         setOpenFaq(openFaq === index ? null : index);
@@ -337,7 +344,7 @@ const HomePage: React.FC = () => {
     
     const faqs = [
         { q: "Is I Love PDFLY completely free?", a: "Yes! Most of our tools are 100% free for standard use. We offer Premium plans for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience." },
-        { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within 2 hours." },
+        { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within 2 hours. This guarantees that your privacy is always respected." },
         { q: "Do I need to install any software?", a: "No, you don't need to install anything. I Love PDFLY works directly in your web browser. This means you can access our tools from any device with an internet connection, anywhere in the world." },
     ];
 

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { UserIcon, StarIcon, ApiIcon, WarningIcon } from '../components/icons.tsx';
 
@@ -169,7 +169,7 @@ const AccountSettingsPage: React.FC = () => {
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><StarIcon className="h-6 w-6" /> Subscription</h2>
                 <div className="flex justify-between items-center">
                     <p>You are on the <span className="font-bold">{user?.isPremium ? 'Premium' : 'Free'}</span> plan.</p>
-                    <button className="text-brand-red font-semibold hover:underline">Manage subscription</button>
+                    <Link to="/pricing" className="text-brand-red font-semibold hover:underline">Manage subscription</Link>
                 </div>
             </div>
 
@@ -178,7 +178,7 @@ const AccountSettingsPage: React.FC = () => {
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ApiIcon className="h-6 w-6" /> API Access</h2>
                 <div className="flex justify-between items-center">
                     <p>Your API plan is: <span className="font-bold">{user?.apiPlan || 'free'}</span>.</p>
-                    <button className="text-brand-red font-semibold hover:underline">Manage API Plan</button>
+                    <Link to="/api-pricing" className="text-brand-red font-semibold hover:underline">Manage API Plan</Link>
                 </div>
             </div>
 

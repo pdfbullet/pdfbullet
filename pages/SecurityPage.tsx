@@ -13,7 +13,7 @@ const SecurityPage: React.FC = () => {
 
     const [credentials, setCredentials] = useState<StoredCredential[]>([]);
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
-    const [isTwoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+    const [isTwoFactorModalOpen, setIsTwoFactorModalOpen] = useState(false);
     const [isDisabling2FA, setIsDisabling2FA] = useState(false);
     const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
     const [error, setError] = useState('');
@@ -173,7 +173,7 @@ const SecurityPage: React.FC = () => {
                                     {isDisabling2FA ? 'Disabling...' : 'Disable'}
                                 </button>
                             ) : (
-                                <button onClick={() => setTwoFactorModalOpen(true)} className="text-sm font-semibold text-brand-red hover:underline">
+                                <button onClick={() => setIsTwoFactorModalOpen(true)} className="text-sm font-semibold text-brand-red hover:underline">
                                     Enable
                                 </button>
                             )}
@@ -188,7 +188,7 @@ const SecurityPage: React.FC = () => {
             />
             <TwoFactorAuthModal 
                 isOpen={isTwoFactorModalOpen} 
-                onClose={() => setTwoFactorModalOpen(false)} 
+                onClose={() => setIsTwoFactorModalOpen(false)} 
             />
         </>
     );
