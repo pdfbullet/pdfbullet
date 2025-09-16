@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useWebAuthn } from '../hooks/useWebAuthn.ts';
-import { GoogleIcon, GitHubIcon, EmailIcon, KeyIcon, SSOIcon } from './icons.tsx';
+import { GoogleIcon, GitHubIcon, EmailIcon, KeyIcon, SSOIcon, UserIcon } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 
 interface MobileAuthScreenProps {
@@ -10,7 +10,7 @@ interface MobileAuthScreenProps {
 
 const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswordModal }) => {
     const [isLoginView, setIsLoginView] = useState(true);
-    const [email, setEmail] = useState('');
+    const [usernameOrEmail, setUsernameOrEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
@@ -19,8 +19,8 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
     const { 
         loginOrSignupWithGoogle, 
         signInWithEmail, 
-        signUpWithEmail, 
-        loginOrSignupWithGithub 
+        loginOrSignupWithGithub,
+        signInWithCustomToken
     } = useAuth();
     const { register: registerPasskey, login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
 
@@ -43,28 +43,18 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         e.preventDefault();
         setError('');
         setSuccess('');
-        if (!isLoginView && password !== confirmPassword) {
-            setError('Passwords do not match.');
-            return;
-        }
-        if (!isLoginView && password.length < 6) {
-            setError('Password must be at least 6 characters long.');
+        if (!isLoginView) {
+            setError("Please sign up using Google, GitHub, or a Passkey.");
             return;
         }
 
         setIsLoading(true);
         try {
-            if (isLoginView) {
-                await signInWithEmail(email, password);
-            } else {
-                await signUpWithEmail(email, password);
-            }
+            await signInWithEmail(usernameOrEmail, password);
         } catch (err: any) {
             let message = 'An error occurred. Please try again.';
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                message = 'Invalid email or password.';
-            } else if (err.code === 'auth/email-already-in-use') {
-                message = 'An account with this email already exists.';
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email') {
+                message = 'Invalid username/email or password.';
             } else {
                 message = err.message;
             }
@@ -75,7 +65,7 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
     };
 
     const handlePasskey = async () => {
-        if (!email) {
+        if (!usernameOrEmail) {
             setError("Please enter your email to use a passkey.");
             return;
         }
@@ -84,9 +74,14 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         setIsLoading(true);
         try {
             if (isLoginView) {
-                await passkeyLogin(email);
+                const result = await passkeyLogin(usernameOrEmail);
+                if (result.token) {
+                    await signInWithCustomToken(result.token);
+                } else {
+                    throw new Error('Passkey login succeeded but no auth token was returned.');
+                }
             } else {
-                await registerPasskey(email);
+                await registerPasskey(usernameOrEmail);
                 setSuccess('Passkey registered! You can now log in.');
             }
         } catch (err: any) {
@@ -131,37 +126,40 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
                 {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
                 {success && <p className="text-center text-sm text-green-600 mb-4">{success}</p>}
 
-                <form onSubmit={handleEmailAuth} className="space-y-4">
-                    <div className="relative">
-                        <EmailIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="Email" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
-                    </div>
-                    <div className="relative">
-                        <KeyIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Password" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
-                    </div>
-                    {!isLoginView && (
+                {isLoginView ? (
+                    <form onSubmit={handleEmailAuth} className="space-y-4">
+                        <div className="relative">
+                            <UserIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input type="text" value={usernameOrEmail} onChange={e => setUsernameOrEmail(e.target.value)} required placeholder="Username or Email" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
+                        </div>
                         <div className="relative">
                             <KeyIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
+                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Password" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
                         </div>
-                    )}
-                    {isLoginView && (
                         <div className="text-right text-sm">
                             <button type="button" onClick={onOpenForgotPasswordModal} className="font-medium text-brand-red hover:text-brand-red-dark">
                                 Forgot password?
                             </button>
                         </div>
-                    )}
-                    <button type="submit" disabled={isLoading} className="w-full bg-brand-red text-white font-bold py-2.5 rounded-md hover:bg-brand-red-dark disabled:opacity-50">
-                        {isLoading ? 'Loading...' : (isLoginView ? 'Log In' : 'Sign Up')}
-                    </button>
-                </form>
+                        <button type="submit" disabled={isLoading} className="w-full bg-brand-red text-white font-bold py-2.5 rounded-md hover:bg-brand-red-dark disabled:opacity-50">
+                            {isLoading ? 'Loading...' : 'Log In'}
+                        </button>
+                    </form>
+                ) : (
+                    <div className="space-y-4">
+                        <p className="text-center text-sm text-gray-600 dark:text-gray-400">Enter your email to register with a Passkey.</p>
+                        <div className="relative">
+                            <EmailIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input type="email" value={usernameOrEmail} onChange={e => setUsernameOrEmail(e.target.value)} required placeholder="Email for Passkey" className="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" />
+                        </div>
+                    </div>
+                )}
+
 
                 {isWebAuthnSupported && (
                     <div className="mt-4">
                         <button onClick={handlePasskey} disabled={isLoading} className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50">
-                            <SSOIcon className="h-5 w-5" /> {isLoginView ? passkeyText : "Register with Passkey"}
+                            <SSOIcon className="h-5 w-5" /> {passkeyText}
                         </button>
                     </div>
                 )}

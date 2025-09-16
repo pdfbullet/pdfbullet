@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon, SSOIcon } from '../components/icons.tsx';
+import { GoogleIcon, KeyIcon, GitHubIcon, SSOIcon, UserIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 import { useWebAuthn } from '../hooks/useWebAuthn.ts';
 
@@ -10,11 +10,11 @@ interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub } = useAuth();
+  const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub, signInWithCustomToken } = useAuth();
   const { login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,19 +28,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   }, []);
   
   const handlePasskeyLogin = async () => {
-    if (!email) {
+    if (!usernameOrEmail) {
         setError("Please enter your email address to find your passkeys.");
         return;
     }
     setError('');
     setIsLoading(true);
     try {
-      await passkeyLogin(email);
-      // In a real app, the backend returns a Firebase custom token.
-      // We would call `signInWithCustomToken(token)` here.
-      // For this simulation, we navigate to the home page on success.
-      console.log("Simulated passkey login success. Navigating home.");
-      navigate('/');
+      const result = await passkeyLogin(usernameOrEmail);
+      if (result.token) {
+          await signInWithCustomToken(result.token);
+          // onAuthStateChanged will handle navigation
+      } else {
+        throw new Error('Passkey verification failed or token not provided.');
+      }
     } catch(err: any) {
        setError(err.message || 'Passkey login failed.');
     } finally {
@@ -53,10 +54,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
     setError('');
     setIsLoading(true);
     try {
-      await signInWithEmail(email, password);
+      await signInWithEmail(usernameOrEmail, password);
     } catch (err: any) {
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Invalid email or password. Please try again.');
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email') {
+        setError('Invalid username/email or password. Please try again.');
       } else {
         setError(err.message || 'Failed to sign in. Please check your credentials.');
       }
@@ -125,8 +126,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
           {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
           <form className="space-y-4" onSubmit={handleEmailSignIn}>
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><EmailIcon className="h-5 w-5 text-gray-400" /></div>
-              <input id="email-address" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Email" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><UserIcon className="h-5 w-5 text-gray-400" /></div>
+              <input id="username-email" name="username-email" type="text" autoComplete="username" required value={usernameOrEmail} onChange={(e) => setUsernameOrEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Username or Email" />
             </div>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><KeyIcon className="h-5 w-5 text-gray-400" /></div>
