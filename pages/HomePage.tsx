@@ -272,7 +272,7 @@ const HomePage: React.FC = () => {
         { labelKey: 'homepage.filter_convert', category: 'convert' },
         { labelKey: 'homepage.filter_edit', category: 'edit' },
         { labelKey: 'homepage.filter_security', category: 'security' },
-        { labelKey: 'image_tools', category: 'image' },
+        { labelKey: 'image Tools', category: 'image' },
     ];
 
     const handleWorkflowClick = () => {
@@ -362,7 +362,7 @@ const HomePage: React.FC = () => {
             }))
         };
         
-        const scriptId = 'faq-schema-home';
+        const scriptId = 'faq';
         let script = document.getElementById(scriptId) as HTMLScriptElement | null;
         if (!script) {
             script = document.createElement('script');
@@ -382,7 +382,7 @@ const HomePage: React.FC = () => {
 
     const stats = [
         { icon: UsersIcon, value: 250000, label: "Happy Users", suffix: "+" },
-        { icon: ChartBarIcon, value: 500000, label: "Documents Processed", suffix: "+" },
+        { icon: ChartBarIcon, value: 300000, label: "Documents Processed", suffix: "+" },
         { icon: HeartbeatIcon, value: 99.9, label: "Uptime", suffix: "%" },
         { icon: LockIcon, value: 100, label: "Private & Secure", suffix: "%" },
     ];
@@ -507,8 +507,8 @@ const HomePage: React.FC = () => {
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.simple_steps_title')}</h2>
-                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('homepage.simple_steps_subtitle')}</p>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('Guide To Use Our Tools')}</h2>
+                    <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">{t('Simple Steps')}</p>
                 </div>
                 <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700 hidden md:block" style={{transform: 'translateY(-2.5rem)'}}></div>
@@ -597,13 +597,13 @@ const HomePage: React.FC = () => {
         <section>
             <div className="bg-white dark:bg-surface-dark shadow-xl overflow-hidden md:flex">
                 <div className="md:w-1/2 p-8 md:p-12 lg:px-24 lg:py-32 flex flex-col justify-center text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('homepage.premium_title')}</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('Know more with Premium')}</h2>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
-                        {t('homepage.premium_subtitle')}
+                        {t('Get more with Premium')}
                     </p>
                     <div className="mt-6">
                         <Link to="/signup" title="Get Premium" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
-                            {t('homepage.get_premium')}
+                            {t('Get Premium')}
                         </Link>
                     </div>
                 </div>
@@ -616,9 +616,9 @@ const HomePage: React.FC = () => {
         {/* Blog Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6 text-center">
-                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.blog_title')}</h2>
+                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('Our Latest Articles')}</h2>
                 <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                    {t('homepage.blog_subtitle')}
+                    {t('Blogs Posts')}
                 </p>
                 <div className="mt-8 text-center">
                     <Link to="/blog" title="View All Articles" className="text-brand-red font-semibold hover:underline">
@@ -674,7 +674,7 @@ const HomePage: React.FC = () => {
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('homepage.faq_title')}</h2>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('Frequently Asked Questions')}</h2>
                 </div>
                 <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     {faqs.map((faq, index) => (

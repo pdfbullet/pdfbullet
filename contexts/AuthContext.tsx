@@ -91,6 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUser({ ...userData, twoFactorEnabled: userData.twoFactorEnabled || false });
           } else {
             // New user, create a profile in Firestore
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
             const newUserProfile: User = {
               uid: firebaseUser.uid,
               username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
@@ -102,8 +103,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               lastName: '',
               country: '',
               twoFactorEnabled: false,
-              trialEnds: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7-day free trial
             };
+             // Grant 7-day trial only if the user signs up from the installed PWA
+            if (isStandalone) {
+                newUserProfile.trialEnds = Date.now() + 7 * 24 * 60 * 60 * 1000;
+            }
             await userRef.set(newUserProfile);
             setUser(newUserProfile);
           }

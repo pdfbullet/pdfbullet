@@ -22,6 +22,7 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         loginOrSignupWithGithub,
         signInWithCustomToken
     } = useAuth();
+    // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
     const { register: registerPasskey, login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
 
     const handleSocialAuth = async (provider: 'google' | 'github') => {
@@ -74,6 +75,7 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         setIsLoading(true);
         try {
             if (isLoginView) {
+                // FIX: Correctly call passkeyLogin with the username/email argument.
                 const result = await passkeyLogin(usernameOrEmail);
                 if (result.token) {
                     await signInWithCustomToken(result.token);
@@ -81,6 +83,7 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
                     throw new Error('Passkey login succeeded but no auth token was returned.');
                 }
             } else {
+                // FIX: Correctly call registerPasskey with the username/email argument.
                 await registerPasskey(usernameOrEmail);
                 setSuccess('Passkey registered! You can now log in.');
             }

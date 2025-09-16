@@ -16,8 +16,7 @@ const MobileAuthGate: React.FC<MobileAuthGateProps> = ({ children, onOpenForgotP
         // Determine if the gate should be active only after loading is complete
         if (!loading) {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const shouldBeGated = isStandalone && isMobile && !user;
+            const shouldBeGated = isStandalone && !user;
             setIsGateActive(shouldBeGated);
         }
     }, [user, loading]);

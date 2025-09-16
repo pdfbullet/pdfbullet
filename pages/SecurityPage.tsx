@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
+// FIX: Correctly import StoredCredential interface from useWebAuthn hook.
 import { useWebAuthn, StoredCredential } from '../hooks/useWebAuthn.ts';
 import ChangePasswordModal from '../components/ChangePasswordModal.tsx';
 import TwoFactorAuthModal from '../components/TwoFactorAuthModal.tsx';
@@ -9,6 +10,7 @@ const API_BASE_URL = 'https://ilovepdfly-backend.onrender.com';
 
 const SecurityPage: React.FC = () => {
     const { user, auth, updateTwoFactorStatus } = useAuth();
+    // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
     const { isWebAuthnSupported, register } = useWebAuthn();
 
     const [credentials, setCredentials] = useState<StoredCredential[]>([]);
@@ -70,6 +72,7 @@ const SecurityPage: React.FC = () => {
         setError('');
         setSuccess('');
         try {
+            // FIX: Correctly call register with the username argument.
             await register(user.username);
             setSuccess('New passkey added successfully!');
             await fetchCredentials(); // Re-fetch credentials after adding a new one
