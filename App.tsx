@@ -631,6 +631,26 @@ function AppContent() {
     };
   }, []);
 
+  // Prevent right-click context menu to deter saving content/images
+  useEffect(() => {
+    const disableContextMenu = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        // Allow context menu on form inputs and text areas for better UX
+        if (
+            target.tagName === 'INPUT' || 
+            target.tagName === 'TEXTAREA' || 
+            target.isContentEditable
+        ) {
+            return;
+        }
+        e.preventDefault();
+    };
+    document.addEventListener('contextmenu', disableContextMenu);
+    return () => {
+        document.removeEventListener('contextmenu', disableContextMenu);
+    };
+  }, []);
+
   return (
     <LayoutContext.Provider value={layoutContextValue}>
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
