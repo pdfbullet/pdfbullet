@@ -11,7 +11,6 @@ const SignUpPage: React.FC = () => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginOrSignupWithGoogle, loginOrSignupWithGithub } = useAuth();
-  // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
   const { register: registerPasskey, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
 
@@ -36,7 +35,6 @@ const SignUpPage: React.FC = () => {
     setSuccess('');
     setIsLoading(true);
     try {
-        // FIX: Correctly call registerPasskey with the email argument.
         await registerPasskey(email);
         setSuccess(`Passkey registered for ${email}! You can now use it to log in.`);
     } catch(err: any) {

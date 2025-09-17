@@ -1,6 +1,12 @@
 // src/hooks/useWebAuthn.ts
 const API_BASE_URL = "https://ilovepdfly-backend.onrender.com";
 
+export interface StoredCredential {
+    id: string;
+    name: string;
+    createdAt: string;
+}
+
 // Helpers: base64url <-> ArrayBuffer
 function base64urlToArrayBuffer(base64url: string) {
   const padding = "===".slice(0, (4 - (base64url.length % 4)) % 4);

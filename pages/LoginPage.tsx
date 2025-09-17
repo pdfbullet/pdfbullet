@@ -15,7 +15,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub, signInWithCustomToken } = useAuth();
-  // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
   const { login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,7 +35,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
     setError('');
     setIsLoading(true);
     try {
-      // FIX: Correctly call passkeyLogin with the username/email argument.
       const result = await passkeyLogin(usernameOrEmail);
       if (result.token) {
           await signInWithCustomToken(result.token);
