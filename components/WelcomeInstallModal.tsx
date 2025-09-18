@@ -20,8 +20,10 @@ const MoreIcon: React.FC<{ className?: string }> = ({ className }) => (
 const WelcomeInstallModal: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const { promptInstall } = usePWAInstall();
+    const [isAndroid, setIsAndroid] = useState(false);
 
     useEffect(() => {
+        setIsAndroid(/android/i.test(navigator.userAgent));
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
         const hasBeenShown = sessionStorage.getItem('welcome_install_modal_shown');
 
@@ -61,7 +63,7 @@ const WelcomeInstallModal: React.FC = () => {
                             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Get a 7-Day FREE Premium Trial!</h3>
                         </div>
                         <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                            Install our PWA and sign up to automatically unlock a <strong>7-day free trial</strong> of all Premium features.
+                            Install our app and sign up to automatically unlock a <strong>7-day free trial</strong> of all Premium features.
                         </p>
                     </div>
 
@@ -78,14 +80,26 @@ const WelcomeInstallModal: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
-                    <button
-                        onClick={handleInstall}
-                        className="mt-8 w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
-                    >
-                        <DownloadIcon className="h-6 w-6" />
-                        Install App & Get Free Trial
-                    </button>
+                    
+                    {isAndroid ? (
+                        <a
+                            href="https://ilovepdfly.github.io/ilovepdfly/apk/app-release-signed.apk"
+                            download
+                            onClick={handleClose}
+                            className="mt-8 w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
+                        >
+                            <DownloadIcon className="h-6 w-6" />
+                            Download APK & Get Free Trial
+                        </a>
+                    ) : (
+                        <button
+                            onClick={handleInstall}
+                            className="mt-8 w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
+                        >
+                            <DownloadIcon className="h-6 w-6" />
+                            Install App & Get Free Trial
+                        </button>
+                    )}
                     
                     <p className="mt-4 text-xs text-gray-400">
                         By continuing, you agree to our <Link to="/terms-of-service" onClick={handleClose} className="underline hover:text-brand-red">Terms</Link> and <Link to="/privacy-policy" onClick={handleClose} className="underline hover:text-brand-red">Privacy Policy</Link>.

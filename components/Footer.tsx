@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon, GooglePlayIconSimple, AppStoreIconSimple } from './icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, CodeIcon, AppStoreIconSimple, AndroidIcon } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
@@ -76,13 +76,13 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
         </div>
         <div className="mt-6 space-y-2">
             <p className="text-gray-400 text-sm font-semibold">Get the app</p>
-            <button onClick={promptInstall} className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
-                <GooglePlayIconSimple className="h-7 w-7" />
+            <a href="https://ilovepdfly.github.io/ilovepdfly/apk/app-release-signed.apk" download className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
+                <AndroidIcon className="h-7 w-7" />
                 <div>
-                    <p className="text-xs leading-tight">GET IT ON</p>
-                    <p className="font-semibold text-lg leading-tight">Google Play</p>
+                    <p className="text-xs leading-tight">DOWNLOAD APK</p>
+                    <p className="font-semibold text-lg leading-tight">Android</p>
                 </div>
-            </button>
+            </a>
             <button onClick={promptInstall} className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
                 <AppStoreIconSimple className="h-7 w-7" />
                 <div>
