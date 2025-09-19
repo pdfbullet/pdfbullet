@@ -158,7 +158,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
     }
   ], []);
 
-  const desktopGridMenuData = {
+  const desktopGridMenuData = useMemo(() => ({
     products: [
       { title: 'iLovePDFLY-Sign', description: 'e-Signing made simple', to: '/workflows', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
       { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer', icon: HeartbeatIcon, iconColor: 'bg-teal-500' },
@@ -167,8 +167,15 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { title: 'Business', description: 'Streamlined PDF editing and workflows for business teams', to: '/business', icon: ChartBarIcon, iconColor: 'bg-red-500' }
     ],
     applications: [
-      { title: 'Desktop App', description: 'Available for Mac and Windows', href: '/#/', icon: DesktopIcon, iconColor: 'bg-red-600' },
-      { title: 'Mobile App', description: 'Available for iOS and Android', href: '/#/', icon: PhoneIcon, iconColor: 'bg-red-700' },
+      { title: 'Desktop App', description: 'Available for Mac and Windows', onClick: promptInstall, icon: DesktopIcon, iconColor: 'bg-red-600' },
+      { 
+        title: 'Mobile App', 
+        description: 'Download the APK for Android', 
+        href: 'https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk', 
+        download: 'app-release-signed.apk', 
+        icon: PhoneIcon, 
+        iconColor: 'bg-red-700' 
+      },
     ],
     links: [
       { title: 'Pricing', to: '/pricing', icon: NewspaperIcon },
@@ -181,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { title: 'Help', onClick: () => setGridMenuView('help'), icon: LeftArrowIcon },
       { title: 'Admin Access', to: '/developer-access', icon: CodeIcon },
     ]
-  };
+  }), [promptInstall]);
 
   const helpSubMenuData = [
     { title: 'FAQ', to: '/faq', icon: QuestionMarkIcon },
@@ -226,10 +233,21 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       </div>
     );
   
+    if (item.onClick) {
+      return <button onClick={() => { item.onClick(); closeAllMenus(); }} className="w-full text-left">{content}</button>;
+    }
     if (item.to) {
       return <Link to={item.to} onClick={closeAllMenus}>{content}</Link>;
     }
-    return <a href={item.href} onClick={closeAllMenus} target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{content}</a>;
+    return <a 
+             href={item.href} 
+             onClick={closeAllMenus} 
+             target={item.href?.startsWith('http') ? '_blank' : '_self'} 
+             rel="noopener noreferrer" 
+             download={item.download}
+           >
+             {content}
+           </a>;
   };
 
   const DesktopGridLinkItem: React.FC<{ item: any; isSubItem?: boolean }> = ({ item, isSubItem }) => {

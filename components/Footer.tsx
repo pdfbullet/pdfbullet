@@ -76,7 +76,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
         </div>
         <div className="mt-6 space-y-2">
             <p className="text-gray-400 text-sm font-semibold">Get the app</p>
-            <a href="https://ilovepdfly.github.io/ilovepdfly/apk/app-release-signed.apk" download className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
+            <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
                 <AndroidIcon className="h-7 w-7" />
                 <div>
                     <p className="text-xs leading-tight">DOWNLOAD APK</p>
@@ -126,30 +126,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-700 text-center">
-          <h3 className="font-bold text-lg mb-2">{t('footer.subscribe_title')}</h3>
-          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
-            {t('footer.subscribe_text')}
-          </p>
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-            <input 
-              type="email" 
-              placeholder="Enter your email"
-              value={newsletterEmail}
-              onChange={(e) => setNewsletterEmail(e.target.value)}
-              required 
-              aria-label="Email for newsletter"
-              className="flex-grow px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-red"
-            />
-            <button 
-              type="submit" 
-              className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-6 rounded-md transition-colors"
-            >
-              {t('footer.subscribe_button')}
-            </button>
-          </form>
-          {newsletterMessage && <p className={`text-sm mt-3 ${newsletterMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>{newsletterMessage}</p>}
-        </div>
+
 
         <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-sm">
           <p className="order-2 sm:order-1 mt-4 sm:mt-0">{t('footer.copyright', { year: new Date().getFullYear() })} {process.env.APP_VERSION && `- v${process.env.APP_VERSION}`}</p>

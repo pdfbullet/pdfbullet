@@ -597,9 +597,9 @@ const HomePage: React.FC = () => {
         <section>
             <div className="bg-white dark:bg-surface-dark shadow-xl overflow-hidden md:flex">
                 <div className="md:w-1/2 p-8 md:p-12 lg:px-24 lg:py-32 flex flex-col justify-center text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('Know more with Premium')}</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">{t('Get more with Premium')}</h2>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
-                        {t('Get more with Premium')}
+                        {t('Complete projects faster with batch file processing, convert scanned documents with OCR and e-sign your business agreements.')}
                     </p>
                     <div className="mt-6">
                         <Link to="/signup" title="Get Premium" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
