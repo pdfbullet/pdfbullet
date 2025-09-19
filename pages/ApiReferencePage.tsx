@@ -153,8 +153,8 @@ const ApiReferencePage: React.FC = () => {
         { id: 'start', title: 'Start' },
         { id: 'upload', title: 'Upload' },
         { id: 'process', title: 'Process', isSubHeader: true },
-// FIX: The `t` variable inside the `map` was shadowing the `t` function from `useI18n`. Renamed the variable to `tool` to resolve the conflict.
-        ...TOOLS.filter(t => t.api && ['pdf', 'image'].includes(t.api.category)).map(tool => ({ id: tool.id, title: t(tool.title), isTool: true })),
+        // FIX: The `t` variable inside the `map` was shadowing the `t` function from `useI18n`. Renamed the variable to `tool` to resolve the conflict.
+        ...TOOLS.filter(tool => tool.api && ['pdf', 'image'].includes(tool.api.category)).map(tool => ({ id: tool.id, title: t(tool.title), isTool: true })),
         { id: 'download', title: 'Download' },
         { id: 'task', title: 'Task' },
         { id: 'signatures-header', title: 'Signatures', isHeader: true },
@@ -367,7 +367,7 @@ const ApiReferencePage: React.FC = () => {
                             <ParamLine name="starting_number" type="integer" isRequired={false}>The first page number. Default: <code>1</code></ParamLine>
                             <ParamLine name="text" type="string" isRequired={false}>Format text. {"{n}"} is page number, {"{p}"} is total pages. e.g. "Page {"{n}"} of {"{p}"}". Default: <code>{"{n}"}</code></ParamLine>
                             <ParamLine name="font_family" type="string" isRequired={false}>Default: <code>Arial</code></ParamLine>
-                            <ParamLine name="font_style" type="string" isRequired={false}>Default: <code>null</code> (Regular)</ParamLine>
+                            <ParamLine name="font_style" type="string" isRequired={false}>Default: <code>null</code> (Regular/Normal)</ParamLine>
                             <ParamLine name="font_size" type="integer" isRequired={false}>Default: <code>14</code></ParamLine>
                             <ParamLine name="font_color" type="string" isRequired={false}>Hex color. Default: <code>#000000</code></ParamLine>
                         </ApiSection>

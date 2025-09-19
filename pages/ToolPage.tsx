@@ -638,6 +638,184 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
     );
 };
 
+// ===================================================================
+// BACKGROUND REMOVAL UI COMPONENT
+// ===================================================================
+const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
+    const [originalFile, setOriginalFile] = useState<File | null>(null);
+    const [originalSrc, setOriginalSrc] = useState<string | null>(null);
+    const [processedSrc, setProcessedSrc] = useState<string | null>(null);
+    const [processedBlob, setProcessedBlob] = useState<Blob | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [progress, setProgress] = useState({ key: '', current: 0, total: 100 });
+    const [background, setBackground] = useState<'transparent' | 'color'>('transparent');
+    const [bgColor, setBgColor] = useState('#ffffff');
+    const { addTask } = useLastTasks();
+    const { t } = useI18n();
+
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        if (acceptedFiles.length > 0) {
+            const file = acceptedFiles[0];
+            setOriginalFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => setOriginalSrc(e.target?.result as string);
+            reader.readAsDataURL(file);
+            setError('');
+            setProcessedSrc(null);
+            setProcessedBlob(null);
+        }
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: tool.accept,
+        multiple: false,
+    });
+
+    useEffect(() => {
+        if (!originalFile) return;
+
+        const processImage = async () => {
+            setIsLoading(true);
+            setProgress({ key: 'Starting...', current: 0, total: 100 });
+            try {
+                const resultBlob = await removeBackground(originalFile, {
+                    progress: (key, current, total) => {
+                        const stage = key === 'download' ? 'Downloading AI Model' : 'Processing Image';
+                        setProgress({ key: stage, current, total });
+                    }
+                });
+                const resultSrc = URL.createObjectURL(resultBlob);
+                setProcessedBlob(resultBlob);
+                setProcessedSrc(resultSrc);
+            } catch (e: any) {
+                setError("Could not process image. It might be too large, in an unsupported format, or the content could not be processed.");
+                console.error(e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        processImage();
+
+        return () => {
+            if (processedSrc) {
+                URL.revokeObjectURL(processedSrc);
+            }
+        };
+    }, [originalFile, processedSrc]);
+
+    const handleReset = () => {
+        setOriginalFile(null);
+        setOriginalSrc(null);
+        setProcessedSrc(null);
+        setProcessedBlob(null);
+        setError('');
+    };
+
+    const handleDownload = () => {
+        if (processedBlob && originalFile) {
+            const filename = getOutputFilename(tool.id, [originalFile], {});
+            const url = URL.createObjectURL(processedBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addTask({
+                toolId: tool.id,
+                toolTitle: t(tool.title),
+                outputFilename: filename,
+                fileBlob: processedBlob
+            });
+        }
+    };
+
+    const progressPercentage = progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
+    const progressText = progress.key;
+
+    if (!originalFile) {
+        return (
+            <div className="max-w-3xl mx-auto">
+                <div
+                    {...getRootProps()}
+                    className={`relative flex flex-col items-center justify-center p-12 rounded-2xl cursor-pointer transition-all duration-300 border-2 border-dashed ${
+                        isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black hover:border-brand-red'
+                    }`}
+                >
+                    <input {...getInputProps()} />
+                    <UploadCloudIcon className="h-16 w-16 text-gray-400 mb-4" />
+                    <p className="text-xl font-bold text-gray-800 dark:text-gray-100">Select an Image</p>
+                    <p className="text-gray-500 dark:text-gray-400">or drop it here</p>
+                </div>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <main className="lg:col-span-8 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 flex items-center justify-center aspect-square lg:aspect-auto min-h-[400px]">
+                <div className="relative w-full h-full max-w-full max-h-full">
+                    <div 
+                        className={`absolute inset-0 rounded-md ${background === 'transparent' ? 'bg-[url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAC1JREFUOE9jZGBgEGHAD97/D0eMGI2MDBsMAn4yMIDxfaemAPwI+b8pIM4ADzE0IBsASx07QfA8w54AAAAASUVORK5CYII=)]' : ''}`}
+                        style={{ backgroundColor: background === 'color' ? bgColor : 'transparent' }}
+                    ></div>
+                    <div className="absolute inset-0 flex items-center justify-center p-2">
+                        {isLoading && (
+                            <div className="w-full max-w-sm text-center">
+                                <p className="font-semibold text-lg">{progressText}</p>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-2">
+                                    <div className="bg-brand-red h-2.5 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
+                                </div>
+                                <p className="text-sm text-gray-500">Please wait, this can take a moment...</p>
+                            </div>
+                        )}
+                        {!isLoading && processedSrc && (
+                            <img src={processedSrc} alt="Processed with background removed" className="max-w-full max-h-full object-contain" />
+                        )}
+                         {!isLoading && error && (
+                            <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md">
+                                <p className="font-bold">Processing Failed</p>
+                                <p className="text-sm mt-1">{error}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </main>
+            <aside className="lg:col-span-4 bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <h3 className="text-xl font-bold mb-4">Edit & Download</h3>
+                <div className="space-y-6">
+                    <div>
+                        <p className="font-semibold text-sm mb-2">Original</p>
+                        <img src={originalSrc} alt="Original input" className="w-full rounded-md border" />
+                    </div>
+                    <div>
+                        <p className="font-semibold text-sm mb-2">Background</p>
+                        <div className="flex gap-2">
+                            <button onClick={() => setBackground('transparent')} className={`flex-1 p-2 border-2 rounded-md text-sm ${background === 'transparent' ? 'border-brand-red' : ''}`}>Transparent</button>
+                            <button onClick={() => setBackground('color')} className={`flex-1 p-2 border-2 rounded-md text-sm ${background === 'color' ? 'border-brand-red' : ''}`}>Color</button>
+                        </div>
+                        {background === 'color' && (
+                            <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-full h-10 mt-2 p-1 border rounded-md" />
+                        )}
+                    </div>
+                    <div className="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                        <button onClick={handleDownload} disabled={!processedSrc} className="w-full bg-brand-red text-white font-bold py-3 px-6 rounded-lg text-lg flex items-center justify-center gap-2 hover:bg-brand-red-dark disabled:bg-red-300">
+                            <DownloadIcon className="h-5 w-5" /> Download
+                        </button>
+                        <button onClick={handleReset} className="w-full text-center text-gray-500 dark:text-gray-400 font-semibold text-sm hover:underline">
+                            Process another image
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    );
+};
+
 const toolSeoDescriptions: { [key: string]: string } = {
   'merge-pdf': 'Combine multiple PDF files into one single PDF document with I Love PDFLY\'s free online PDF merger. Easy to use, no installation needed.',
   'split-pdf': 'Split a large PDF file into separate pages or extract a specific range of pages into a new PDF document. Fast and secure splitting tool.',
@@ -666,7 +844,7 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'compare-pdf': 'Compare two PDF files side-by-side to find differences. Highlights changes in text and content.',
   'redact-pdf': 'Permanently remove sensitive information and text from your PDF documents by blacking it out.',
   'crop-pdf': 'Crop the margins of your PDF file. Select an area to crop and remove unwanted parts of your pages.',
-  'remove-background': 'Automatically remove the background from any image with a single click. Get a transparent PNG output.',
+  'remove-background': 'Automatically remove the background from any image with a single click. Get a high-quality, transparent PNG output instantly.',
   'psd-to-pdf': 'Convert Adobe Photoshop (PSD) files to PDF format.',
   'pdf-to-png': 'Convert PDF pages to high-quality PNG images.',
   'extract-text': 'Extract all text from a PDF file into a simple TXT file.',
@@ -687,7 +865,7 @@ const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, sendTaskCompletionEmail } = useAuth();
   const { t } = useI18n();
   const { signature, saveSignature } = useSignature();
   const { addSignedDocument } = useSignedDocuments();
@@ -736,7 +914,7 @@ const ToolPage: React.FC = () => {
   const [compressionResult, setCompressionResult] = useState<{ originalSize: number, newSize: number } | null>(null);
 
   // States for Sign PDF flow
-  const [isWhoWillSignModalOpen, setWhoWillSignModalOpen] = useState(false);
+  const [isWhoWillSignModalOpen, setIsWhoWillSignModalOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   
   // State for PDF to Word conversion mode
@@ -1031,7 +1209,7 @@ const ToolPage: React.FC = () => {
     setComparisonResults([]);
     setOriginalImageSize(null);
     setCompressionResult(null);
-    setWhoWillSignModalOpen(false);
+    setIsWhoWillSignModalOpen(false);
     setIsSignatureModalOpen(false);
     setProcessingStartTime(null);
     setProcessingSpeed(0);
@@ -1254,12 +1432,12 @@ const ToolPage: React.FC = () => {
   // Sign PDF specific effects and handlers
   useEffect(() => {
     if (tool?.id === 'sign-pdf' && files.length > 0 && pdfPagePreviews.length === 0) {
-      setWhoWillSignModalOpen(true);
+      setIsWhoWillSignModalOpen(true);
     }
   }, [files, tool, pdfPagePreviews]);
 
   const handleOnlyMeSign = () => {
-      setWhoWillSignModalOpen(false);
+      setIsWhoWillSignModalOpen(false);
       if (!user) {
           navigate('/login', { state: { from: `/sign-pdf` } });
           return;
@@ -1562,14 +1740,7 @@ const ToolPage: React.FC = () => {
                 blob = await zip.generateAsync({type: 'blob'});
                 break;
             }
-             case 'remove-background': {
-                if (files.length !== 1) throw new Error("Please select one image file.");
-                const file = files[0];
-                setProgress({ percentage: 50, status: 'Removing background...'});
-                const imageBlob = await removeBackground(file);
-                blob = imageBlob;
-                break;
-            }
+            
             case 'jpg-to-pdf': {
                 const pdfDoc = await PDFDocument.create();
                 for (let i = 0; i < files.length; i++) {
@@ -1744,12 +1915,12 @@ const ToolPage: React.FC = () => {
                         sections.push({
                             children: [new Paragraph({
                                 children: [
-// FIX: The 'docx' library's ImageRun constructor was failing because the `width` and `height` properties were passed as shorthand without being defined in the scope. The properties are now explicitly assigned their values from the `viewport` object.
+// FIX: Explicitly use Uint8Array to resolve potential TypeScript type inference issues with docx's ImageRun.
                                     new ImageRun({
-                                        data: imageBuffer,
+                                        data: new Uint8Array(imageBuffer),
                                         transformation: {
-                                            width: viewport.width * 0.75, // Convert px to points
-                                            height: viewport.height * 0.75,
+                                            width: viewport.width,
+                                            height: viewport.height,
                                         },
                                     }),
                                 ],
@@ -1862,12 +2033,16 @@ const ToolPage: React.FC = () => {
         if (blob) {
             setProcessedFileBlob(blob);
             setState(ProcessingState.Success);
+            const outputFilename = getOutputFilename(tool.id, files, toolOptions);
             addTask({
                 toolId: tool.id,
                 toolTitle: t(tool.title),
-                outputFilename: getOutputFilename(tool.id, files, toolOptions),
+                outputFilename: outputFilename,
                 fileBlob: blob
             });
+            if (user) {
+                sendTaskCompletionEmail(t(tool.title), outputFilename);
+            }
         } else if (state !== ProcessingState.Error) {
              if (!['word-to-pdf', 'excel-to-pdf', 'pdf-to-word'].includes(tool.id)) {
                  setState(ProcessingState.Success);
@@ -1893,6 +2068,24 @@ const ToolPage: React.FC = () => {
         </div>
     );
   }
+  
+    if (tool.id === 'remove-background') {
+        return (
+            <div className="py-16 md:py-20">
+                <div className="text-center mb-10">
+                    <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+                        <tool.Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
+                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
+                </div>
+                <ToolPageContext.Provider value={{ tool }}>
+                    <BackgroundRemovalUI tool={tool} />
+                </ToolPageContext.Provider>
+            </div>
+        );
+    }
+
 
   const formatTime = (seconds: number | null): string => {
     if (seconds === null || !isFinite(seconds) || seconds < 0) return 'Calculating...';
@@ -2425,18 +2618,7 @@ const ToolPage: React.FC = () => {
       <WhoWillSignModal 
         isOpen={isWhoWillSignModalOpen}
         onClose={handleReset}
-        onOnlyMe={() => {
-            if (!user) {
-                navigate('/login', { state: { from: `/sign-pdf` } });
-                return;
-            }
-            setWhoWillSignModalOpen(false);
-            if (signature?.signature) {
-                extractPagesForVisualEditor();
-            } else {
-                setIsSignatureModalOpen(true);
-            }
-        }}
+        onOnlyMe={handleOnlyMeSign}
         onSeveralPeople={() => alert("Inviting others to sign is a premium feature coming soon!")}
       />
       <SignatureModal
