@@ -67,12 +67,56 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* A4 Simulation for CV Generator */
-.A4-size-simulation {
+/* Invoice Generator Paper Sizes */
+.paper-a4 {
     width: 210mm;
     min-height: 297mm;
     box-sizing: border-box;
 }
+
+.paper-4x6 {
+    width: 4in;
+    min-height: 6in;
+    box-sizing: border-box;
+}
+
+/* Invoice Generator Responsive Wrapper */
+.invoice-preview-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.invoice-preview-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.invoice-preview-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dark .invoice-preview-wrapper::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.invoice-preview-wrapper::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.invoice-preview-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure paper has a block display and is not shrunk by flex containers */
+.invoice-preview-wrapper > div > div {
+    display: block !important;
+    flex-shrink: 0 !important;
+}
+
 
 .main-background-svg-container {
   position: fixed;

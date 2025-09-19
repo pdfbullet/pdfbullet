@@ -1,11 +1,15 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { DownloadIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, GmailIcon, WhatsAppIcon, MessengerIcon, ShareIcon, PrintIcon, StarIcon, LockIcon, GridIcon, DollarIcon } from '../components/icons.tsx';
+import { DownloadIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, GmailIcon, WhatsAppIcon, MessengerIcon, ShareIcon, PrintIcon, StarIcon, LockIcon, GridIcon, DollarIcon, BrainIcon } from '../components/icons.tsx';
 import { TOOLS } from '../constants.ts';
+import RichTextEditor from '../components/RichTextEditor.tsx';
+import { GoogleGenAI, Type } from '@google/genai';
+
 
 // ===================================================================
 // TYPES & INITIAL DATA
@@ -37,6 +41,10 @@ interface InvoiceData {
     signature: string | null;
     currency: { symbol: string; code: string; name: string };
     taxRate: number;
+    discount: number;
+    shipping: number;
+    isPaid: boolean;
+    paperSize: 'A4' | '4x6';
 }
 
 const currencies = [
@@ -64,11 +72,64 @@ const initialInvoiceData: InvoiceData = {
     signature: null,
     currency: currencies[0],
     taxRate: 0,
+    discount: 0,
+    shipping: 0,
+    isPaid: false,
+    paperSize: 'A4',
 };
 
 // ===================================================================
-// HELPER COMPONENTS & FUNCTIONS
+// HOOKS & HELPER FUNCTIONS
 // ===================================================================
+
+const useInvoiceScaling = (data: InvoiceData, wrapperRef: React.RefObject<HTMLDivElement>, contentRef: React.RefObject<HTMLDivElement>) => {
+    useEffect(() => {
+        const applyScale = () => {
+            const wrapper = wrapperRef.current;
+            const content = contentRef.current;
+            
+            if (wrapper && content) {
+                // Reset styles first to get original dimensions and handle non-A4 cases
+                content.style.transform = '';
+                content.style.transformOrigin = '';
+                wrapper.style.height = '';
+
+                if (data.paperSize === 'A4') {
+                    const containerWidth = wrapper.offsetWidth;
+                    const contentWidth = content.offsetWidth;
+                    
+                    if (containerWidth > 0 && contentWidth > containerWidth) {
+                        const scale = containerWidth / contentWidth;
+                        content.style.transform = `scale(${scale})`;
+                        content.style.transformOrigin = 'top left';
+                        
+                        const contentHeight = content.offsetHeight;
+                        wrapper.style.height = `${contentHeight * scale}px`;
+                    }
+                }
+            }
+        };
+
+        // Debounce resize handler for performance
+        let timeoutId: number;
+        const debouncedApplyScale = () => {
+            clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(applyScale, 150);
+        };
+        
+        // Use a small timeout to ensure layout is stable before initial calculation
+        const initialTimeout = setTimeout(applyScale, 50);
+        
+        window.addEventListener('resize', debouncedApplyScale);
+        
+        return () => {
+            clearTimeout(initialTimeout);
+            clearTimeout(timeoutId);
+            window.removeEventListener('resize', debouncedApplyScale);
+        };
+
+    }, [data.paperSize, wrapperRef, contentRef]);
+};
 
 const formatCurrency = (amount: number, currencySymbol: string) => {
     return `${currencySymbol}${amount.toFixed(2)}`;
@@ -94,10 +155,12 @@ const EditableField: React.FC<{ value: string; onChange: (value: string) => void
 
 const TemplatePreview: React.FC<{ data: InvoiceData; template: Template }> = ({ data, template }) => {
     const subtotal = data.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
-    const taxAmount = subtotal * (data.taxRate / 100);
-    const total = subtotal + taxAmount;
+    const subtotalAfterDiscount = subtotal - data.discount;
+    const taxAmount = subtotalAfterDiscount * (data.taxRate / 100);
+    const total = subtotalAfterDiscount + taxAmount + data.shipping;
 
-    const baseClasses = "p-4 sm:p-8 w-full h-full text-xs sm:text-sm";
+    const paperSizeClass = data.paperSize === '4x6' ? 'paper-4x6' : 'paper-a4';
+    const baseClasses = `p-4 sm:p-8 w-full h-full text-xs sm:text-sm relative`;
     const templateStyles = {
         classic: `bg-white text-gray-800 font-sans`,
         modern: `bg-gray-900 text-white font-serif`,
@@ -117,7 +180,14 @@ const TemplatePreview: React.FC<{ data: InvoiceData; template: Template }> = ({ 
     }
 
     return (
-        <div className={`${baseClasses} ${templateStyles[template]}`}>
+        <div className={`${baseClasses} ${templateStyles[template]} ${paperSizeClass}`}>
+             {data.isPaid && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <div className="text-red-500 border-8 border-red-500 rounded-lg p-4 sm:p-8 text-6xl sm:text-8xl font-black uppercase opacity-20 transform -rotate-15">
+                        Paid
+                    </div>
+                </div>
+            )}
             <div className={`flex justify-between items-start ${headerStyles[template]}`}>
                 <div>
                     {data.logo && <img src={data.logo} alt="Company Logo" className="h-12 sm:h-16 w-auto mb-4" />}
@@ -157,7 +227,7 @@ const TemplatePreview: React.FC<{ data: InvoiceData; template: Template }> = ({ 
             <table className="w-full text-left">
                 <thead>
                     <tr className={tableHeaderStyles[template]}>
-                        <th className="p-1 sm:p-2">Item</th><th className="p-1 sm:p-2">Qty</th><th className="p-1 sm:p-2">Rate</th><th className="p-1 sm:p-2">Amount</th>
+                        <th className="p-1 sm:p-2">Item</th><th className="p-1 sm:p-2">Qty</th><th className="p-1 sm:p-2">Rate</th><th className="p-1 sm:p-2 text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,11 +235,11 @@ const TemplatePreview: React.FC<{ data: InvoiceData; template: Template }> = ({ 
                         <tr key={item.id} className="border-b border-gray-200 dark:border-gray-700">
                             <td className="p-1 sm:p-2 align-top">
                                 <p className="font-semibold">{item.name}</p>
-                                <p className="text-xs text-gray-500">{item.description}</p>
+                                <div className="prose prose-xs max-w-none text-gray-500" dangerouslySetInnerHTML={{ __html: item.description }} />
                             </td>
                             <td className="p-1 sm:p-2 align-top">{item.quantity} {item.unit}</td>
                             <td className="p-1 sm:p-2 align-top">{formatCurrency(item.rate, data.currency.symbol)}</td>
-                            <td className="p-1 sm:p-2 align-top">{formatCurrency(item.quantity * item.rate, data.currency.symbol)}</td>
+                            <td className="p-1 sm:p-2 align-top text-right">{formatCurrency(item.quantity * item.rate, data.currency.symbol)}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -178,15 +248,101 @@ const TemplatePreview: React.FC<{ data: InvoiceData; template: Template }> = ({ 
                 <div className="w-full md:w-1/2 lg:w-2/5">
                     <div className="space-y-2">
                         <div className="flex justify-between p-1 sm:p-2"><span>Subtotal</span><span>{formatCurrency(subtotal, data.currency.symbol)}</span></div>
+                        {data.discount > 0 && <div className="flex justify-between p-1 sm:p-2"><span>Discount</span><span>-{formatCurrency(data.discount, data.currency.symbol)}</span></div>}
                         {data.taxRate > 0 && <div className="flex justify-between p-1 sm:p-2"><span>Tax ({data.taxRate}%)</span><span>{formatCurrency(taxAmount, data.currency.symbol)}</span></div>}
+                        {data.shipping > 0 && <div className="flex justify-between p-1 sm:p-2"><span>Shipping</span><span>{formatCurrency(data.shipping, data.currency.symbol)}</span></div>}
                         <div className="flex justify-between font-bold text-lg sm:text-xl p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><span>Total</span><span>{formatCurrency(total, data.currency.symbol)}</span></div>
                     </div>
                 </div>
             </div>
-            <div className="mt-8">
-                {data.notes && <div><h3 className="font-bold">Notes</h3><p>{data.notes}</p></div>}
-                {data.terms && <div className="mt-4"><h3 className="font-bold">Terms</h3><p>{data.terms}</p></div>}
-                {data.signature && <div className="mt-8"><h3 className="font-bold">Signature</h3><img src={data.signature} alt="Signature" className="h-16 w-auto" /></div>}
+            <div className="mt-8 grid grid-cols-2 gap-8">
+                 {data.notes && <div><h3 className="font-bold">Notes</h3><div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: data.notes }} /></div>}
+                {data.terms && <div><h3 className="font-bold">Terms</h3><div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: data.terms }} /></div>}
+            </div>
+             {data.signature && <div className="mt-8"><h3 className="font-bold">Signature</h3><img src={data.signature} alt="Signature" className="h-16 w-auto" /></div>}
+        </div>
+    );
+};
+
+// ===================================================================
+// AI MODAL
+// ===================================================================
+const AIItemsModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    onAddItems: (items: Omit<Item, 'id'>[]) => void;
+}> = ({ isOpen, onClose, onAddItems }) => {
+    const [prompt, setPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleGenerate = async () => {
+        if (!prompt) return;
+        setIsLoading(true);
+        setError('');
+        try {
+            const apiKey = process.env.API_KEY;
+            if (!apiKey) throw new Error("API key not configured.");
+
+            const ai = new GoogleGenAI({ apiKey });
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `Based on the following description, generate a list of 3-5 typical line items for an invoice. For each item, provide a name, a brief description, a realistic quantity, a rate, and a unit (like 'hrs', 'pcs', 'service').
+                Description: "${prompt}"`,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            items: {
+                                type: Type.ARRAY,
+                                description: "An array of invoice line items.",
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        name: { type: Type.STRING },
+                                        description: { type: Type.STRING },
+                                        quantity: { type: Type.NUMBER },
+                                        rate: { type: Type.NUMBER },
+                                        unit: {type: Type.STRING}
+                                    },
+                                    required: ['name', 'description', 'quantity', 'rate', 'unit']
+                                }
+                            }
+                        },
+                        required: ['items']
+                    }
+                }
+            });
+            const result = JSON.parse(response.text);
+            if (result.items && Array.isArray(result.items)) {
+                onAddItems(result.items);
+                onClose();
+            } else {
+                throw new Error("AI did not return items in the expected format.");
+            }
+        } catch (e: any) {
+            setError(e.message || "Failed to generate items.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    if (!isOpen) return null;
+    
+    return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-black w-full max-w-lg rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
+                <div className="p-6">
+                    <h2 className="text-xl font-bold mb-4">Generate Items with AI</h2>
+                    <p className="text-sm text-gray-500 mb-4">Describe the service or products, and AI will suggest line items for your invoice.</p>
+                    <textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={4} placeholder="e.g., 'Build a small business website with 5 pages and a contact form'" className="w-full p-2 border rounded-md" />
+                    {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
+                </div>
+                <div className="px-6 pb-4 flex justify-end gap-4">
+                    <button onClick={onClose} className="px-4 py-2 font-semibold border rounded-md">Cancel</button>
+                    <button onClick={handleGenerate} disabled={isLoading} className="px-4 py-2 font-semibold bg-brand-red text-white rounded-md disabled:bg-red-300">{isLoading ? 'Generating...' : 'Generate'}</button>
+                </div>
             </div>
         </div>
     );
@@ -200,6 +356,7 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
     const [isTitleEditing, setIsTitleEditing] = useState(false);
     const [showDescription, setShowDescription] = useState<Record<number, boolean>>({});
     const [showTaxInput, setShowTaxInput] = useState(false);
+    const [isAIModalOpen, setIsAIModalOpen] = useState(false);
     const titleInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -233,11 +390,18 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
         setData(p => ({...p, currency: newCurrency}));
     };
     
+    const handleAddAIItems = (newItems: Omit<Item, 'id'>[]) => {
+        const itemsToAdd = newItems.map(item => ({...item, id: Date.now() + Math.random() }));
+        setData(prev => ({...prev, items: [...prev.items, ...itemsToAdd]}));
+    };
+
     const subtotal = data.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
-    const taxAmount = subtotal * (data.taxRate / 100);
-    const total = subtotal + taxAmount;
+    const subtotalAfterDiscount = subtotal - data.discount;
+    const taxAmount = subtotalAfterDiscount * (data.taxRate / 100);
+    const total = subtotalAfterDiscount + taxAmount + data.shipping;
 
     return (
+        <>
         <div className="bg-white dark:bg-black p-4 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
             {/* Header and top options */}
             <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b dark:border-gray-700">
@@ -252,17 +416,7 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
                  <div><EditableField value={data.invoiceNo} onChange={val => setData(p => ({...p, invoiceNo: val}))} placeholder="Invoice #" className="text-right font-semibold" /></div>
             </div>
             
-            <div className="flex flex-wrap items-center gap-4 my-6">
-                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={data.showShipping} onChange={e => setData(p => ({...p, showShipping: e.target.checked}))} className="h-4 w-4 rounded" /> Add Shipping Details</label>
-                <button onClick={() => setShowTaxInput(!showTaxInput)} className="text-sm font-semibold p-2 border rounded-md hover:border-brand-red">% Add TAX</button>
-                {showTaxInput && <input type="number" value={data.taxRate} onChange={e => setData(p => ({...p, taxRate: parseFloat(e.target.value) || 0}))} className="p-2 border rounded-md w-24" placeholder="Tax %" />}
-                <select value={data.currency.code} onChange={handleCurrencyChange} className="p-2 border rounded-md text-sm"><option value="" disabled>Currency</option>{currencies.map(c => <option key={c.code} value={c.code}>{c.name} ({c.symbol})</option>)}</select>
-                <button disabled className="text-sm p-2 border rounded-md disabled:opacity-50">123 Number Format</button>
-                <button disabled className="text-sm p-2 border rounded-md disabled:opacity-50">Edit Columns</button>
-            </div>
-            
-            {/* From/To/Ship To section */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 my-6">
+            <div className="grid md:grid-cols-2 gap-8 my-6">
                 <div>
                     <h2 className="font-bold mb-2">From</h2>
                     <EditableField value={data.from.name} onChange={val => setData(p => ({...p, from: {...p.from, name: val}}))} placeholder="Your Name/Company" />
@@ -287,14 +441,33 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
                     </div>
                  )}
             </div>
+             <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                <h3 className="font-bold">Invoice Settings</h3>
+                 <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                     <div>
+                        <label className="font-semibold block mb-1">Paper Size</label>
+                        <div className="flex rounded-md border p-1 bg-gray-200 dark:bg-gray-800">
+                             <button onClick={() => setData(p => ({...p, paperSize: 'A4'}))} className={`flex-1 p-1 rounded ${data.paperSize === 'A4' ? 'bg-white dark:bg-black shadow' : ''}`}>A4</button>
+                             <button onClick={() => setData(p => ({...p, paperSize: '4x6'}))} className={`flex-1 p-1 rounded ${data.paperSize === '4x6' ? 'bg-white dark:bg-black shadow' : ''}`}>4x6 Inch</button>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-2 justify-between">
+                         <label className="font-semibold">Mark as Paid</label>
+                         <label className="relative inline-flex items-center cursor-pointer">
+                           <input type="checkbox" checked={data.isPaid} onChange={e => setData(p => ({...p, isPaid: e.target.checked}))} className="sr-only peer" />
+                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                         </label>
+                     </div>
+                 </div>
+            </div>
 
             {/* Items Section */}
-            <div>
+            <div className="mt-6">
                 <div className="bg-purple-600 text-white p-3 rounded-t-lg grid grid-cols-12 gap-2 font-semibold">
                     <div className="col-span-5">Item</div>
                     <div className="col-span-2">Quantity</div>
                     <div className="col-span-2">Rate</div>
-                    <div className="col-span-3">Amount</div>
+                    <div className="col-span-3 text-right">Amount</div>
                 </div>
                 <div className="border border-t-0 rounded-b-lg p-2 dark:border-gray-700">
                     {data.items.map(item => (
@@ -303,14 +476,13 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
                                 <div className="col-span-5"><EditableField value={item.name} onChange={val => handleItemChange(item.id, 'name', val)} placeholder="Item Name" /></div>
                                 <div className="col-span-2"><EditableField type="number" value={String(item.quantity)} onChange={val => handleItemChange(item.id, 'quantity', Number(val))} placeholder="1" /></div>
                                 <div className="col-span-2"><EditableField type="number" value={String(item.rate)} onChange={val => handleItemChange(item.id, 'rate', Number(val))} placeholder="0.00" /></div>
-                                <div className="col-span-2 p-1 font-semibold text-sm">{formatCurrency(item.quantity * item.rate, data.currency.symbol)}</div>
+                                <div className="col-span-2 p-1 font-semibold text-sm text-right">{formatCurrency(item.quantity * item.rate, data.currency.symbol)}</div>
                                 <div className="col-span-1 flex justify-end"><button onClick={() => removeItem(item.id)}><TrashIcon className="h-5 w-5 text-gray-400 hover:text-red-500" /></button></div>
                             </div>
-                            {showDescription[item.id] && <div className="mt-1 ml-2"><EditableField isTextarea value={item.description} onChange={val => handleItemChange(item.id, 'description', val)} placeholder="Item Description" /></div>}
+                            {showDescription[item.id] && <div className="mt-1 ml-2"><RichTextEditor value={item.description} onChange={val => handleItemChange(item.id, 'description', val)} placeholder="Item Description" /></div>}
                              <div className="mt-2 flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-4 text-purple-600">
                                     <button onClick={() => toggleDescription(item.id)}>+ Add Description</button>
-                                    <button disabled className="disabled:opacity-50">+ Add Thumbnail</button>
                                     <select value={item.unit} onChange={e => handleItemChange(item.id, 'unit', e.target.value)} className="bg-transparent font-semibold">
                                         <option>Service</option><option>hrs</option><option>pcs</option><option>item</option>
                                     </select>
@@ -319,15 +491,32 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
                             </div>
                         </div>
                     ))}
-                     <button onClick={addItem} className="mt-2 flex items-center gap-2 text-brand-red font-semibold"><PlusIcon className="h-5 w-5"/> Add Item</button>
+                    <div className="mt-2 flex gap-4">
+                        <button onClick={addItem} className="flex items-center gap-2 text-brand-red font-semibold"><PlusIcon className="h-5 w-5"/> Add Item</button>
+                        <button onClick={() => setIsAIModalOpen(true)} className="flex items-center gap-2 text-purple-600 font-semibold"><BrainIcon className="h-5 w-5"/> Generate Items with AI</button>
+                    </div>
                 </div>
             </div>
             
             <div className="flex justify-end mt-6">
                 <div className="w-full md:w-1/2 lg:w-2/5">
                     <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal, data.currency.symbol)}</span></div>
+                        <div className="flex justify-between items-center"><span>Subtotal</span><span>{formatCurrency(subtotal, data.currency.symbol)}</span></div>
+                        <div className="flex justify-between items-center">
+                            <span>Discount</span>
+                            <div className="flex items-center gap-1">
+                                <span>{data.currency.symbol}</span>
+                                <input type="number" value={data.discount} onChange={e => setData(p => ({...p, discount: parseFloat(e.target.value) || 0}))} className="w-24 p-1 bg-transparent text-right rounded focus:bg-white dark:focus:bg-black" />
+                            </div>
+                        </div>
                         {data.taxRate > 0 && <div className="flex justify-between"><span>Tax ({data.taxRate}%)</span><span>{formatCurrency(taxAmount, data.currency.symbol)}</span></div>}
+                        <div className="flex justify-between items-center">
+                            <span>Shipping</span>
+                             <div className="flex items-center gap-1">
+                                <span>{data.currency.symbol}</span>
+                                <input type="number" value={data.shipping} onChange={e => setData(p => ({...p, shipping: parseFloat(e.target.value) || 0}))} className="w-24 p-1 bg-transparent text-right rounded focus:bg-white dark:focus:bg-black" />
+                            </div>
+                        </div>
                         <div className="flex justify-between font-bold text-lg pt-2 border-t dark:border-gray-700"><span>Total</span><span>{formatCurrency(total, data.currency.symbol)}</span></div>
                     </div>
                 </div>
@@ -345,37 +534,53 @@ const Step1Details: React.FC<{ data: InvoiceData, setData: React.Dispatch<React.
                         )}
                     </div>
                 </div>
-                <div>
-                    <h2 className="font-bold mb-2">Notes</h2>
-                    <EditableField isTextarea value={data.notes} onChange={val => setData(p => ({...p, notes: val}))} />
+                <div className="grid grid-cols-1 gap-4">
+                    <div>
+                        <h2 className="font-bold mb-2">Notes</h2>
+                        <RichTextEditor value={data.notes} onChange={val => setData(p => ({...p, notes: val}))} />
+                    </div>
+                     <div>
+                        <h2 className="font-bold mb-2">Terms</h2>
+                        <RichTextEditor value={data.terms} onChange={val => setData(p => ({...p, terms: val}))} />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <AIItemsModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} onAddItems={handleAddAIItems} />
+        </>
+    );
+};
+
+const Step2Templates: React.FC<{ data: InvoiceData, setTemplate: (t: Template) => void, selectedTemplate: Template }> = ({ data, setTemplate, selectedTemplate }) => {
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    useInvoiceScaling(data, wrapperRef, contentRef);
+
+    return (
+        <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-4">
+                <h2 className="text-2xl font-bold">Choose a Template</h2>
+                {['classic', 'modern', 'minimalist'].map(t => (
+                    <button key={t} onClick={() => setTemplate(t as Template)} className={`w-full p-4 border-2 rounded-lg transition-colors text-left ${selectedTemplate === t ? 'border-brand-red font-bold' : 'border-gray-300 dark:border-gray-700'}`}>
+                        {t.charAt(0).toUpperCase() + t.slice(1)} Template
+                    </button>
+                ))}
+            </div>
+            <div className="lg:col-span-2 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg flex justify-center items-start">
+                <div ref={wrapperRef} className="invoice-preview-container">
+                    <div ref={contentRef}>
+                        <TemplatePreview data={data} template={selectedTemplate} />
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-const Step2Templates: React.FC<{ data: InvoiceData, setTemplate: (t: Template) => void, selectedTemplate: Template }> = ({ data, setTemplate, selectedTemplate }) => (
-    <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-4">
-            <h2 className="text-2xl font-bold">Choose a Template</h2>
-            {['classic', 'modern', 'minimalist'].map(t => (
-                <button key={t} onClick={() => setTemplate(t as Template)} className={`w-full p-4 border-2 rounded-lg transition-colors text-left ${selectedTemplate === t ? 'border-brand-red font-bold' : 'border-gray-300 dark:border-gray-700'}`}>
-                    {t.charAt(0).toUpperCase() + t.slice(1)} Template
-                </button>
-            ))}
-        </div>
-        <div className="lg:col-span-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg flex justify-center items-start">
-            <div className="w-full max-w-3xl overflow-auto transform sm:scale-[0.9] origin-top">
-                <div className="aspect-[210/297]">
-                    <TemplatePreview data={data} template={selectedTemplate} />
-                </div>
-            </div>
-        </div>
-    </div>
-);
-
-const Step3Share: React.FC<{ data: InvoiceData, template: Template }> = ({ data, template }) => {
+const Step3Share: React.FC<{ data: InvoiceData; template: Template }> = ({ data, template }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    useInvoiceScaling(data, wrapperRef, invoiceRef);
     const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'png' | null>(null);
 
     const generateFile = async (format: 'pdf' | 'png'): Promise<Blob> => {
@@ -385,10 +590,17 @@ const Step3Share: React.FC<{ data: InvoiceData, template: Template }> = ({ data,
         if (format === 'png') {
             return new Promise(resolve => canvas.toBlob(blob => resolve(blob!), 'image/png'));
         } else {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            const orientation = data.paperSize === '4x6' && canvas.width > canvas.height ? 'l' : 'p';
+            const formatArray = data.paperSize === '4x6' ? [152.4, 101.6] : 'a4'; // width, height for landscape 4x6
+            
+            const pdf = new jsPDF({
+                orientation,
+                unit: 'mm',
+                format: formatArray
+            });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             return pdf.output('blob');
         }
@@ -469,9 +681,9 @@ const Step3Share: React.FC<{ data: InvoiceData, template: Template }> = ({ data,
                     </div>
                 </div>
             </div>
-            <div className="lg:col-span-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg flex justify-center items-start">
-                <div className="w-full max-w-3xl overflow-auto">
-                    <div id="invoice-print-area" ref={invoiceRef} className="aspect-[210/297]">
+            <div className="lg:col-span-2 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg flex justify-center items-start">
+                 <div ref={wrapperRef} className="invoice-preview-container">
+                    <div ref={invoiceRef}>
                         <TemplatePreview data={data} template={template} />
                     </div>
                 </div>
