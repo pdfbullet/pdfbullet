@@ -19,6 +19,8 @@
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">
+  <img src="https://img.shields.io/badge/Cloudflare-Secured-orange?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare">
+  <img src="https://img.shields.io/badge/SSL%20Secure-Yes-brightgreen?style=for-the-badge&logo=letsencrypt&logoColor=white" alt="SSL Secure">
 </p>
 
 ---
@@ -26,81 +28,77 @@
 ## 🚀 About The Project
 
 **I Love PDFLY** is a comprehensive suite of free, secure, and fast online tools for all your document and image needs.  
-Built with a **privacy-first** approach, most tools process your files directly in your browser, meaning your data never leaves your computer.
+With **over 50+ features**, it’s designed for individuals, students, and businesses.
 
-With **PDFLY**, you can merge, split, compress, convert, edit, sign PDFs, remove image backgrounds, generate invoices, create CVs, and much more — all for free.
+✔️ Merge, split, compress, convert, edit, and sign PDFs  
+✔️ AI-powered tools (Chat with PDF, Question Generator, Image Generator)  
+✔️ Business tools (Invoices, CV Generator, Lesson Plans)  
+✔️ Image tools (Resize, Compress, Remove Background, Convert)  
+✔️ Mobile app for Android devices  
 
 ---
 
 ## 💡 Why Choose I Love PDFLY?
 
-- ⚡ **Blazing Fast** – Client-side processing with no delays.  
-- 🔒 **Ultimate Privacy** – Files stay on your device; temporary uploads auto-delete.  
-- 🛠️ **All-in-One Toolkit** – Over **50+ tools** for PDF, Images, AI, and business workflows.  
-- 💸 **Free Forever** – Core tools available with no watermarks or restrictions.  
-- 🌍 **Cross-Platform** – Works on web, mobile, and desktop.  
-- 📱 **Mobile App Available** – [Download APK](https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk).  
+- ⚡ **Blazing Fast** – Client-side processing with no delays  
+- 🔒 **Ultimate Privacy** – Files processed in your browser, deleted automatically if uploaded  
+- 🛠️ **All-in-One Toolkit** – PDFs, Images, AI, E-sign, Business tools  
+- 💸 **Free Forever** – No watermarks, unlimited usage for core tools  
+- 🌍 **Cross-Platform** – Works on desktop, mobile, and web  
+- ☁️ **Secured by Cloudflare + SSL** – Enterprise-grade protection  
+- 💳 **Trusted Payments** – Supports **Khalti** and **Fonepay** official secure gateways  
+
+---
+
+## 🖼️ Screenshots
+
+### Desktop
+![Desktop Screenshot](https://ik.imagekit.io/fonepay/mockup_web%20PDFLY.png?updatedAt=1756018431063)
+
+### Mobile
+![Mobile Screenshot](https://ik.imagekit.io/fonepay/mockup_mobile.png?updatedAt=1756018431039)
 
 ---
 
 ## 🛠️ Key Features
 
 ### 📂 PDF Tools
-
-| Category             | Tools |
-|----------------------|-------|
-| **Organize**         | [Merge PDF](https://ilovepdfly.com/merge-pdf), [Split PDF](https://ilovepdfly.com/split-pdf), [Organize PDF](https://ilovepdfly.com/organize-pdf), [Rotate PDF](https://ilovepdfly.com/rotate-pdf) |
-| **Optimize**         | [Compress PDF](https://ilovepdfly.com/compress-pdf), [Repair PDF](https://ilovepdfly.com/repair-pdf) |
-| **Convert to PDF**   | [JPG to PDF](https://ilovepdfly.com/jpg-to-pdf), [Word to PDF](https://ilovepdfly.com/word-to-pdf), [PowerPoint to PDF](https://ilovepdfly.com/powerpoint-to-pdf), [Excel to PDF](https://ilovepdfly.com/excel-to-pdf), [HTML to PDF](https://ilovepdfly.com/html-to-pdf), [PSD to PDF](https://ilovepdfly.com/psd-to-pdf) |
-| **Convert from PDF** | [PDF to JPG](https://ilovepdfly.com/pdf-to-jpg), [PDF to PNG](https://ilovepdfly.com/pdf-to-png), [PDF to Word](https://ilovepdfly.com/pdf-to-word), [PDF to PowerPoint](https://ilovepdfly.com/pdf-to-powerpoint), [PDF to Excel](https://ilovepdfly.com/pdf-to-excel), [PDF to PDF/A](https://ilovepdfly.com/pdf-to-pdfa), [Extract Text](https://ilovepdfly.com/extract-text) |
-| **Edit**             | [Edit PDF](https://ilovepdfly.com/edit-pdf), [Page Numbers](https://ilovepdfly.com/page-numbers), [Crop PDF](https://ilovepdfly.com/crop-pdf), [OCR PDF](https://ilovepdfly.com/ocr-pdf), [Compare PDF](https://ilovepdfly.com/compare-pdf), [Redact PDF](https://ilovepdfly.com/redact-pdf) |
-| **Security**         | [Unlock PDF](https://ilovepdfly.com/unlock-pdf), [Protect PDF](https://ilovepdfly.com/protect-pdf), [Sign PDF](https://ilovepdfly.com/sign-pdf), [Watermark PDF](https://ilovepdfly.com/watermark-pdf) |
+- Merge, Split, Organize, Rotate  
+- Compress, Repair  
+- Convert Word, PPT, Excel, JPG, HTML, PSD to PDF  
+- Convert PDF to Word, PPT, Excel, JPG, PNG, PDF/A, Text  
+- Edit, Crop, OCR, Page Numbers, Redact, Compare  
+- Unlock, Protect, Watermark, Sign  
 
 ### 🖼️ Image Tools
-
-- [Remove Background](https://ilovepdfly.com/remove-background)  
-- [Resize Image](https://ilovepdfly.com/resize-image)  
-- [Compress Image](https://ilovepdfly.com/compress-image)  
-- [Crop Image](https://ilovepdfly.com/crop-image)  
-- [Convert to JPG](https://ilovepdfly.com/convert-to-jpg)  
-- [Convert from JPG](https://ilovepdfly.com/convert-from-jpg)  
-- [Watermark Image](https://ilovepdfly.com/watermark-image)  
+- Remove Background  
+- Resize, Compress, Crop  
+- Convert formats  
+- Add Watermark  
 
 ### 🤖 AI & Business Tools
-
-- **AI PDF Assistant** – Chat with your PDF, summarize, extract insights.  
-- [AI Question Generator](https://ilovepdfly.com/ai-question-generator)  
-- [AI Image Generator](https://ilovepdfly.com/ai-image-generator)  
-- [Lesson Plan Creator](https://ilovepdfly.com/lesson-plan-creator)  
-- [Invoice Generator](https://ilovepdfly.com/invoice-generator)  
-- [CV Generator](https://ilovepdfly.com/cv-generator)  
-- **E-Signature** – Sign documents electronically.  
-- **Resume & Cover Letter Builder** – Coming soon.  
-- **News Dashboard** – Aggregated updates from multiple sources.  
+- AI PDF Assistant (chat with PDF)  
+- AI Question Generator  
+- AI Image Generator  
+- Lesson Plan Creator  
+- Invoice Generator  
+- CV Generator  
+- Resume & Cover Letter (coming soon)  
+- E-Signature  
+- News Dashboard  
 
 ---
 
 ## ⚙️ Technology Stack
 
-- **Frontend:** [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/)  
-- **Backend & Services:** [Firebase](https://firebase.google.com/) (Auth, Firestore, Hosting, Storage)  
-- **AI Integration:** [Google Gemini API](https://ai.google.dev/)  
-- **Core Libraries:**  
-  - `pdf-lib`, `pdfjs-dist` – PDF editing & rendering  
-  - `@imgly/background-removal` – AI-powered image background removal  
-  - `tesseract.js` – OCR for scanned documents  
-  - `jszip` – Compression & packaging  
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS  
+- **Backend & Services:** Firebase (Auth, Firestore, Hosting, Storage)  
+- **AI Integration:** Google Gemini API  
+- **Core Libraries:** pdf-lib, pdfjs-dist, @imgly/background-removal, tesseract.js, jszip  
 
 ---
 
-## 📦 Getting Started
-
-### Prerequisites
-
-- Node.js (v18+)  
-- npm  
-
-### Installation
+## 📦 Installation (Developer Setup)
 
 ```sh
 # Clone the repo
