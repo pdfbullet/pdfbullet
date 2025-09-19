@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
 import { Tool } from '../types.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 const ApiToolCard: React.FC<{ tool: Tool }> = ({ tool }) => {
+  const { t } = useI18n();
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col h-full hover:-translate-y-1 transition-transform duration-300">
       <div className="flex items-start gap-4">
@@ -11,13 +13,13 @@ const ApiToolCard: React.FC<{ tool: Tool }> = ({ tool }) => {
           <tool.Icon className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{tool.title}</h3>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{t(tool.title)}</h3>
         </div>
       </div>
-      <p className="text-gray-600 dark:text-gray-400 mt-3 text-sm flex-grow">{tool.description}</p>
+      <p className="text-gray-600 dark:text-gray-400 mt-3 text-sm flex-grow">{t(tool.description)}</p>
       <div className="mt-4">
         <Link to={`/api-reference#${tool.id}`} className="text-sm font-semibold text-brand-red hover:underline">
-          {tool.title} Library Guide
+          {t(tool.title)} Library Guide
         </Link>
       </div>
     </div>

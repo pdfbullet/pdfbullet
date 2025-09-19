@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 // Helper components for styling
 const ParamTag: React.FC<{ type: 'required' | 'optional' | 'type' | string; children: React.ReactNode }> = ({ type, children }) => {
@@ -68,6 +69,7 @@ const ApiSection: React.FC<{ id: string; title: string; children: React.ReactNod
 const ApiReferencePage: React.FC = () => {
     const [activeSection, setActiveSection] = useState('introduction');
     const location = useLocation();
+    const { t } = useI18n();
 
     const sectionsRefs = useMemo(() => {
         const refs: { [key: string]: React.RefObject<HTMLDivElement> } = {
@@ -151,7 +153,8 @@ const ApiReferencePage: React.FC = () => {
         { id: 'start', title: 'Start' },
         { id: 'upload', title: 'Upload' },
         { id: 'process', title: 'Process', isSubHeader: true },
-        ...TOOLS.filter(t => t.api && ['pdf', 'image'].includes(t.api.category)).map(t => ({ id: t.id, title: t.title, isTool: true })),
+// FIX: The `t` variable inside the `map` was shadowing the `t` function from `useI18n`. Renamed the variable to `tool` to resolve the conflict.
+        ...TOOLS.filter(t => t.api && ['pdf', 'image'].includes(t.api.category)).map(tool => ({ id: tool.id, title: t(tool.title), isTool: true })),
         { id: 'download', title: 'Download' },
         { id: 'task', title: 'Task' },
         { id: 'signatures-header', title: 'Signatures', isHeader: true },
@@ -292,11 +295,11 @@ const ApiReferencePage: React.FC = () => {
 }`}</ResponseCard>
                         </ApiSection>
 
-                        <ApiSection id="merge-pdf" title="Merge PDF" refProp={sectionsRefs['merge-pdf']}>
+                        <ApiSection id="merge-pdf" title={t('tool.merge-pdf.title')} refProp={sectionsRefs['merge-pdf']}>
                             <p>Merge PDF has no extra options.</p>
                         </ApiSection>
 
-                        <ApiSection id="split-pdf" title="Split PDF" refProp={sectionsRefs['split-pdf']}>
+                        <ApiSection id="split-pdf" title={t('tool.split-pdf.title')} refProp={sectionsRefs['split-pdf']}>
                             <ParamLine name="mode" type="string" isRequired={false}>
                                 <p>Choose the split mode. Accepted values:</p>
                                 <ul><li><code>ranges</code>: Split by ranges of pages.</li><li><code>fixed</code>: Split in a fixed range of pages.</li></ul>
@@ -305,18 +308,18 @@ const ApiReferencePage: React.FC = () => {
                             <ParamLine name="ranges" type="string" isRequired="REQUIRED IF MODE IS RANGES">The ranges of pages to split. For example: "1,3,5-8".</ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="compress-pdf" title="Compress PDF" refProp={sectionsRefs['compress-pdf']}>
+                        <ApiSection id="compress-pdf" title={t('tool.compress-pdf.title')} refProp={sectionsRefs['compress-pdf']}>
                             <ParamLine name="compression_level" type="string" isRequired>
                                 <p>Compression level. Accepted values: <code>extreme</code>=Extreme compression, <code>recommended</code>=Recommended compression, <code>low</code>=Low compression.</p>
                                 <p>Default: <code>recommended</code></p>
                             </ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="ocr-pdf" title="OCR PDF" refProp={sectionsRefs['ocr-pdf']}>
+                        <ApiSection id="ocr-pdf" title={t('tool.ocr-pdf.title')} refProp={sectionsRefs['ocr-pdf']}>
                            <ParamLine name="ocr_language" type="string" isRequired={false}>The language of the document. Default: <code>eng</code></ParamLine>
                         </ApiSection>
                         
-                        <ApiSection id="pdf-to-jpg" title="PDF to JPG" refProp={sectionsRefs['pdf-to-jpg']}>
+                        <ApiSection id="pdf-to-jpg" title={t('tool.pdf-to-jpg.title')} refProp={sectionsRefs['pdf-to-jpg']}>
                             <ParamLine name="mode" type="string" isRequired={false}>
                                 <p>Choose the convert mode. Accepted values:</p>
                                 <ul><li><code>pages</code>: Convert every page to a JPG file.</li><li><code>extract</code>: Extract all images from PDF.</li></ul>
@@ -328,7 +331,7 @@ const ApiReferencePage: React.FC = () => {
                             </ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="pdf-to-png" title="PDF to PNG" refProp={sectionsRefs['pdf-to-png']}>
+                        <ApiSection id="pdf-to-png" title={t('tool.pdf-to-png.title')} refProp={sectionsRefs['pdf-to-png']}>
                             <p>Converts PDF pages to PNG images.</p>
                             <ParamLine name="mode" type="string" isRequired={false}>
                                 <p>Choose the convert mode. Accepted values:</p>
@@ -341,23 +344,23 @@ const ApiReferencePage: React.FC = () => {
                             </ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="jpg-to-pdf" title="Image to PDF" refProp={sectionsRefs['jpg-to-pdf']}>
+                        <ApiSection id="jpg-to-pdf" title={t('tool.jpg-to-pdf.title')} refProp={sectionsRefs['jpg-to-pdf']}>
                            <ParamLine name="margin" type="integer" isRequired={false}>Margin in pixels. Default: <code>0</code></ParamLine>
                            <ParamLine name="pagesize" type="string" isRequired={false}>Accepted values: <code>fit</code>, <code>A4</code>, <code>letter</code>. Default: <code>fit</code></ParamLine>
                            <ParamLine name="orientation" type="string" isRequired={false}>Accepted values: <code>portrait</code>, <code>landscape</code>. Default: <code>portrait</code></ParamLine>
                            <ParamLine name="merge_after" type="boolean" isRequired={false}>If true, it will merge the generated PDF with the file from a previous task. Default: <code>false</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="psd-to-pdf" title="PSD to PDF" refProp={sectionsRefs['psd-to-pdf']}>
+                        <ApiSection id="psd-to-pdf" title={t('tool.psd-to-pdf.title')} refProp={sectionsRefs['psd-to-pdf']}>
                             <p>Converts a Photoshop document (PSD) to a PDF file.</p>
                             <ParamLine name="conformance" type="string" isRequired={false}>If set to <code>pdfa</code>, it will output a PDF/A compliant file. Default: <code>null</code></ParamLine>
                         </ApiSection>
                         
-                        <ApiSection id="unlock-pdf" title="Unlock PDF" refProp={sectionsRefs['unlock-pdf']}>
+                        <ApiSection id="unlock-pdf" title={t('tool.unlock-pdf.title')} refProp={sectionsRefs['unlock-pdf']}>
                            <ParamLine name="password" type="string" isRequired>The password to unlock the PDF.</ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="page-numbers" title="Page numbers" refProp={sectionsRefs['page-numbers']}>
+                        <ApiSection id="page-numbers" title={t('tool.page-numbers.title')} refProp={sectionsRefs['page-numbers']}>
                             <ParamLine name="pages" type="string" isRequired={false}>Pages to apply the numbers. e.g. "1,3-5,8". Default: <code>all</code></ParamLine>
                             <ParamLine name="vertical_position" type="string" isRequired={false}>Values: <code>top</code>, <code>bottom</code>. Default: <code>bottom</code></ParamLine>
                             <ParamLine name="horizontal_position" type="string" isRequired={false}>Values: <code>left</code>, <code>right</code>, <code>center</code>. Default: <code>center</code></ParamLine>
@@ -369,52 +372,48 @@ const ApiReferencePage: React.FC = () => {
                             <ParamLine name="font_color" type="string" isRequired={false}>Hex color. Default: <code>#000000</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="watermark-pdf" title="Watermark" refProp={sectionsRefs['watermark-pdf']}>
+                        <ApiSection id="watermark-pdf" title={t('tool.watermark-pdf.title')} refProp={sectionsRefs['watermark-pdf']}>
                            <ParamLine name="mode" type="string" isRequired>Values: <code>text</code>, <code>image</code>.</ParamLine>
                            <ParamLine name="text" type="string" isRequired="REQUIRED IF MODE IS TEXT">Text to stamp.</ParamLine>
                            <ParamLine name="image" type="string" isRequired="REQUIRED IF MODE IS IMAGE">Server filename of uploaded image.</ParamLine>
                            <ParamLine name="pages" type="string" isRequired={false}>Pages to apply watermark. Default: <code>all</code></ParamLine>
                            <ParamLine name="layer" type="string" isRequired={false}>Values: <code>below</code>, <code>above</code>. Default: <code>below</code></ParamLine>
                         </ApiSection>
-
-                        <ApiSection id="office-to-pdf" title="Office to PDF" refProp={sectionsRefs['office-to-pdf']}>
-                            <ParamLine name="conformance" type="string" isRequired={false}>If set to <code>pdfa</code>, it will output a PDF/A compliant file. Default: <code>null</code></ParamLine>
-                        </ApiSection>
                         
-                        <ApiSection id="powerpoint-to-pdf" title="PowerPoint to PDF" refProp={sectionsRefs['powerpoint-to-pdf']}>
+                        <ApiSection id="powerpoint-to-pdf" title={t('tool.powerpoint-to-pdf.title')} refProp={sectionsRefs['powerpoint-to-pdf']}>
                             <p>Converts a PowerPoint presentation (PPTX) to a PDF file.</p>
                             <ParamLine name="conformance" type="string" isRequired={false}>If set to <code>pdfa</code>, it will output a PDF/A compliant file. Default: <code>null</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="excel-to-pdf" title="Excel to PDF" refProp={sectionsRefs['excel-to-pdf']}>
+                        <ApiSection id="excel-to-pdf" title={t('tool.excel-to-pdf.title')} refProp={sectionsRefs['excel-to-pdf']}>
                             <p>Converts an Excel spreadsheet (XLSX) to a PDF file.</p>
                             <ParamLine name="conformance" type="string" isRequired={false}>If set to <code>pdfa</code>, it will output a PDF/A compliant file. Default: <code>null</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="pdf-to-word" title="PDF to Word" refProp={sectionsRefs['pdf-to-word']}>
+                        <ApiSection id="pdf-to-word" title={t('tool.pdf-to-word.title')} refProp={sectionsRefs['pdf-to-word']}>
                             <p>Converts a PDF file to an editable Word document (DOCX). This tool extracts text content.</p>
                             <p>This tool has no extra options.</p>
                         </ApiSection>
 
-                        <ApiSection id="pdf-to-powerpoint" title="PDF to PowerPoint" refProp={sectionsRefs['pdf-to-powerpoint']}>
+                        <ApiSection id="pdf-to-powerpoint" title={t('tool.pdf-to-powerpoint.title')} refProp={sectionsRefs['pdf-to-powerpoint']}>
                             <p>Converts each page of a PDF file into an image and places it on a separate slide in a PowerPoint presentation (PPTX).</p>
                             <p>This tool has no extra options.</p>
                         </ApiSection>
 
-                        <ApiSection id="pdf-to-excel" title="PDF to Excel" refProp={sectionsRefs['pdf-to-excel']}>
+                        <ApiSection id="pdf-to-excel" title={t('tool.pdf-to-excel.title')} refProp={sectionsRefs['pdf-to-excel']}>
                             <p>Extracts text content from each page of a PDF and organizes it into separate sheets in an Excel spreadsheet (XLSX).</p>
                             <p>This tool has no extra options.</p>
                         </ApiSection>
 
-                        <ApiSection id="repair-pdf" title="Repair PDF" refProp={sectionsRefs['repair-pdf']}>
+                        <ApiSection id="repair-pdf" title={t('tool.repair-pdf.title')} refProp={sectionsRefs['repair-pdf']}>
                             <p>Repair tool has no options.</p>
                         </ApiSection>
 
-                        <ApiSection id="rotate-pdf" title="Rotate PDF" refProp={sectionsRefs['rotate-pdf']}>
+                        <ApiSection id="rotate-pdf" title={t('tool.rotate-pdf.title')} refProp={sectionsRefs['rotate-pdf']}>
                             <p>Rotate tool has no options, just set <code>rotation</code> property in file.</p>
                         </ApiSection>
                         
-                        <ApiSection id="protect-pdf" title="Protect PDF" refProp={sectionsRefs['protect-pdf']}>
+                        <ApiSection id="protect-pdf" title={t('tool.protect-pdf.title')} refProp={sectionsRefs['protect-pdf']}>
                             <ParamLine name="password" type="string" isRequired>Password to protect the file.</ParamLine>
                             <ParamLine name="encryption" type="string" isRequired={false}>Values: <code>aes_256</code>, <code>aes_128</code>. Default: <code>aes_256</code></ParamLine>
                             <ParamLine name="allow_print" type="string" isRequired={false}>Values: <code>all</code>, <code>none</code>. Default: <code>all</code></ParamLine>
@@ -422,59 +421,38 @@ const ApiReferencePage: React.FC = () => {
                             <ParamLine name="allow_edit" type="string" isRequired={false}>Values: <code>all</code>, <code>none</code>. Default: <code>all</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="pdf-to-pdfa" title="PDF to PDF/A" refProp={sectionsRefs['pdf-to-pdfa']}>
+                        <ApiSection id="pdf-to-pdfa" title={t('tool.pdf-to-pdfa.title')} refProp={sectionsRefs['pdf-to-pdfa']}>
                             <ParamLine name="conformance" type="string" isRequired>Values: <code>pdfa-1b</code>, <code>pdfa-2b</code>, <code>pdfa-3b</code>.</ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="html-to-pdf" title="HTML to PDF" refProp={sectionsRefs['html-to-pdf']}>
+                        <ApiSection id="html-to-pdf" title={t('tool.html-to-pdf.title')} refProp={sectionsRefs['html-to-pdf']}>
                             <ParamLine name="single_page" type="boolean" isRequired={false}>If true, it generates a single page PDF. Default: <code>false</code></ParamLine>
                         </ApiSection>
                         
-                        <ApiSection id="extract-text" title="Extract text" refProp={sectionsRefs['extract-text']}>
+                        <ApiSection id="extract-text" title={t('tool.extract-text.title')} refProp={sectionsRefs['extract-text']}>
                             <p>Extract text tool has no extra parameters.</p>
                         </ApiSection>
                         
-                        <ApiSection id="edit-pdf" title="Edit PDF" refProp={sectionsRefs['edit-pdf']}>
+                        <ApiSection id="edit-pdf" title={t('tool.edit-pdf.title')} refProp={sectionsRefs['edit-pdf']}>
                              <ParamLine name="elements" type="array" isRequired>
                                 <p>An array of elements to add to the PDF.</p>
                              </ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="crop-pdf" title="Crop PDF" refProp={sectionsRefs['crop-pdf']}>
+                        <ApiSection id="crop-pdf" title={t('tool.crop-pdf.title')} refProp={sectionsRefs['crop-pdf']}>
                             <p>Crops the pages of a PDF file by the specified margins.</p>
                             <ParamLine name="crop_box" type="string" isRequired>
                                 <p>The margins to crop from each side, in points (1 point = 1/72 inch). Format is "top right bottom left".</p>
                                 <p>Example: <code>"72 36 72 36"</code></p>
                             </ParamLine>
                         </ApiSection>
-
-                        <ApiSection id="compare-pdf" title="Compare PDF" refProp={sectionsRefs['compare-pdf']}>
-                            <p>Compares two PDF files and highlights the differences. This tool requires two files to be processed.</p>
-                            <p>In the <code>/v1/process</code> call, the <code>files</code> array must contain two file objects, each with its <code>server_filename</code>.</p>
-                            <p>The output is a new PDF file where differences are highlighted.</p>
-                            <p>This tool has no extra options.</p>
-                        </ApiSection>
-
-                        <ApiSection id="redact-pdf" title="Redact PDF" refProp={sectionsRefs['redact-pdf']}>
-                            <p>Permanently removes sensitive information from a PDF by covering it with solid black boxes.</p>
-                            <ParamLine name="redactions" type="array" isRequired>
-                                <p>An array of redaction objects. Each object specifies the area to redact.</p>
-                                <div className="pl-4 mt-2 border-l-2 dark:border-gray-700 space-y-4">
-                                    <NestedParam name="pages" type="string" isRequired>The page or range of pages to apply the redaction to. e.g. "1,3-5".</NestedParam>
-                                    <NestedParam name="x" type="integer" isRequired>The x-coordinate of the top-left corner of the redaction box in points.</NestedParam>
-                                    <NestedParam name="y" type="integer" isRequired>The y-coordinate of the top-left corner of the redaction box in points (from the top of the page).</NestedParam>
-                                    <NestedParam name="width" type="integer" isRequired>The width of the redaction box in points.</NestedParam>
-                                    <NestedParam name="height" type="integer" isRequired>The height of the redaction box in points.</NestedParam>
-                                </div>
-                            </ParamLine>
-                        </ApiSection>
                         
-                        <ApiSection id="remove-background" title="Remove background" refProp={sectionsRefs['remove-background']}>
+                        <ApiSection id="remove-background" title={t('tool.remove-background.title')} refProp={sectionsRefs['remove-background']}>
                             <p>Automatically removes the background from an image using AI. The output is a PNG file with a transparent background.</p>
                             <p>This tool has no extra options.</p>
                         </ApiSection>
 
-                        <ApiSection id="resize-image" title="Resize Image" refProp={sectionsRefs['resize-image']}>
+                        <ApiSection id="resize-image" title={t('tool.resize-image.title')} refProp={sectionsRefs['resize-image']}>
                            <ParamLine name="resize_mode" type="string" isRequired={false}>
                                 <p>Choose the resize mode. Accepted values:</p>
                                 <ul><li><code>pixels</code>: the resize will be set using pixels.</li><li><code>percentage</code>: the resize will be set as a percentage of the original image.</li></ul>
@@ -487,21 +465,21 @@ const ApiReferencePage: React.FC = () => {
                            <ParamLine name="no_enlarge_if_smaller" type="boolean" isRequired={false}>Controls if the image can be bigger than the original on resize. Default: <code>true</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="crop-image" title="Crop Image" refProp={sectionsRefs['crop-image']}>
+                        <ApiSection id="crop-image" title={t('tool.crop-image.title')} refProp={sectionsRefs['crop-image']}>
                            <ParamLine name="width" type="integer" isRequired>The width in pixels of the area to crop.</ParamLine>
                            <ParamLine name="height" type="integer" isRequired>The height in pixels of the area to crop.</ParamLine>
                            <ParamLine name="x" type="integer" isRequired={false}>The horizontal point where start to crop. Default: <code>0</code></ParamLine>
                            <ParamLine name="y" type="integer" isRequired={false}>The vertical point where start to crop. Default: <code>0</code></ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="compress-image" title="Compress Image" refProp={sectionsRefs['compress-image']}>
+                        <ApiSection id="compress-image" title={t('tool.compress-image.title')} refProp={sectionsRefs['compress-image']}>
                             <ParamLine name="compression_level" type="string" isRequired>
                                 <p>Compression level. Accepted values: <code>extreme</code>=Extreme compression, <code>recommended</code>=Recommended compression, <code>low</code>=Low compression.</p>
                                 <p>Default: <code>recommended</code></p>
                            </ParamLine>
                         </ApiSection>
                         
-                        <ApiSection id="convert-from-jpg" title="Convert from JPG" refProp={sectionsRefs['convert-from-jpg']}>
+                        <ApiSection id="convert-from-jpg" title={t('tool.convert-from-jpg.title')} refProp={sectionsRefs['convert-from-jpg']}>
                             <ParamLine name="to" type="string" isRequired={false}>
                                 <p>The format to convert to. Accepted values are <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>gif_animation</code> (static or animated) and <code>heic</code>. Convert to jpg can be (almost) from any image format. Convert to png and gif can be only from jpg images.</p>
                                 <p>Default: <code>jpg</code></p>
@@ -516,7 +494,7 @@ const ApiReferencePage: React.FC = () => {
                            </ParamLine>
                         </ApiSection>
                         
-                        <ApiSection id="watermark-image" title="Watermark Image" refProp={sectionsRefs['watermark-image']}>
+                        <ApiSection id="watermark-image" title={t('tool.watermark-image.title')} refProp={sectionsRefs['watermark-image']}>
                             <ParamLine name="elements" type="array" isRequired>
                                 <p>An array of elements to stamp. This means you can set multiple elements to stamp.</p>
                                 <div className="pl-4 mt-2 border-l-2 dark:border-gray-700 space-y-4">
@@ -537,14 +515,6 @@ const ApiReferencePage: React.FC = () => {
                             </ParamLine>
                         </ApiSection>
 
-                        <ApiSection id="rotate-image" title="Rotate Image" refProp={sectionsRefs['rotate-image']}>
-                            <p>Rotate tool has no options, just set <code>rotation</code> property in file.</p>
-                        </ApiSection>
-
-                        <ApiSection id="repair-image" title="Repair Image" refProp={sectionsRefs['repair-image']}>
-                           <p>Repair tool has no options.</p>
-                        </ApiSection>
-                        
                         <ApiSection id="download" title="Download" refProp={sectionsRefs.download}>
                             <p>Download the output files for the given task. If there is only one output file, it is served directly. If there is more than one file, they are served in a compressed ZIP folder. If there is more than one processed file, there will be multiple output files for every processed file. The ZIP will contain a folder for every processed file.</p>
                              <EndpointCard method="GET" path={"https://{server}/v1/download/{task}"}>Download output files</EndpointCard>

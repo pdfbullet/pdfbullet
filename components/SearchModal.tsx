@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { TOOLS, blogPosts } from '../constants.ts';
 import { SearchIcon, BookOpenIcon, UserIcon, BriefcaseIcon, StudentIcon, GavelIcon, NewspaperIcon, CodeIcon, StarIcon } from './icons.tsx';
 import { Tool } from '../types.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -38,13 +39,14 @@ type SearchableItem = {
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   const searchableItems: SearchableItem[] = useMemo(() => {
     const toolItems: SearchableItem[] = TOOLS.map(tool => ({
         type: 'tool',
         path: `/${tool.id}`,
-        title: tool.title,
-        description: tool.description,
+        title: t(tool.title),
+        description: t(tool.description),
         Icon: tool.Icon,
         color: tool.color
     }));
@@ -64,7 +66,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     }));
 
     return [...toolItems, ...blogItems, ...pageItems];
-  }, []);
+  }, [t]);
 
 
   const filteredResults = useMemo(() => {

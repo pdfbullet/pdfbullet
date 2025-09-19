@@ -262,7 +262,7 @@ const HomePage: React.FC = () => {
     const favoriteTools = useMemo(() => TOOLS.filter(tool => isFavorite(tool.id)), [isFavorite]);
     const otherTools = useMemo(() => TOOLS.filter(tool => !isFavorite(tool.id)), [isFavorite]);
     
-    const imageToolIds = useMemo(() => new Set(TOOLS.filter(t => t.api?.category === 'image' || t.id === 'ai-image-generator' || ['jpg-to-pdf', 'psd-to-pdf', 'pdf-to-jpg', 'pdf-to-png', 'scan-to-pdf'].includes(t.id)).map(t => t.id)), []);
+    const imageToolIds = useMemo(() => new Set(TOOLS.filter(t => t.api?.category === 'image' || ['jpg-to-pdf', 'psd-to-pdf', 'pdf-to-jpg', 'pdf-to-png', 'scan-to-pdf'].includes(t.id)).map(t => t.id)), []);
 
     const filterCategories = [
         { labelKey: 'homepage.filter_all', category: 'All' },
@@ -433,7 +433,7 @@ const HomePage: React.FC = () => {
         <section id="all-tools" className="pb-24">
             <div className="container max-w-screen-2xl mx-auto px-6">
                 {activeCategory === 'workflows' ? (
-                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                     <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {/* Manage Workflows Card */}
                         <Link
                             to="/workflows"
@@ -487,7 +487,7 @@ const HomePage: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {filteredTools.length > 0 ? filteredTools.map((tool) => (
                             <div key={tool.id}>
                                 <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />

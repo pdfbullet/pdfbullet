@@ -1,7 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
+import { useI18n } from '../contexts/I18nContext.tsx';
 
 const toolGuides: Record<string, { purpose: string; steps: string[] }> = {
     'merge-pdf': {
@@ -65,6 +65,7 @@ const toolGuides: Record<string, { purpose: string; steps: string[] }> = {
 };
 
 const HowToUsePage: React.FC = () => {
+    const { t } = useI18n();
 
     useEffect(() => {
         // Add HowTo JSON-LD schema for SEO
@@ -84,7 +85,7 @@ const HowToUsePage: React.FC = () => {
                 const guide = toolGuides[tool.id] || toolGuides['default'];
                 return {
                     "@type": "HowTo",
-                    "name": `How to ${tool.title}`,
+                    "name": `How to ${t(tool.title)}`,
                     "description": guide.purpose,
                     "step": guide.steps.map((stepText, stepIndex) => ({
                         "@type": "HowToStep",
@@ -103,7 +104,7 @@ const HowToUsePage: React.FC = () => {
                 scriptToRemove.remove();
             }
         };
-    }, []);
+    }, [t]);
 
 
     return (
@@ -127,8 +128,8 @@ const HowToUsePage: React.FC = () => {
                                             <tool.Icon className="h-8 w-8 text-white" />
                                         </div>
                                         <div className="flex-grow">
-                                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{tool.title}</h2>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400">{tool.description}</p>
+                                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t(tool.title)}</h2>
+                                            <p className="mt-1 text-gray-600 dark:text-gray-400">{t(tool.description)}</p>
                                         </div>
                                     </div>
                                     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -142,7 +143,7 @@ const HowToUsePage: React.FC = () => {
                                         </ol>
                                         <div className="mt-6 text-right">
                                             <Link to={`/${tool.id}`} className={`${tool.color} ${tool.hoverColor} text-white font-bold py-2 px-5 rounded-lg transition-colors`}>
-                                                Go to {tool.title} &rarr;
+                                                Go to {t(tool.title)} &rarr;
                                             </Link>
                                         </div>
                                     </div>

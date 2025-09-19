@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -528,7 +529,6 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
-const AIImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -643,7 +643,6 @@ function AppContent() {
                     <Route path="/cv-generator" element={<CVGeneratorPage />} />
                     <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
                     <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-                    <Route path="/ai-image-generator" element={<AIImageGeneratorPage />} />
                     <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/api-pricing" element={<ApiPricingPage />} />
                     <Route path="/premium-feature" element={<PremiumFeaturePage />} />

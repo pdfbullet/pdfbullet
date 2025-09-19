@@ -25,7 +25,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
     <Link 
       to={`/${id}`} 
       title={`Open the ${t(title)} tool`}
-      className="relative flex flex-row sm:flex-col items-center sm:items-start p-4 bg-white dark:bg-surface-dark border border-gray-400 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-28 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
+      className="relative flex flex-col items-start p-3 sm:p-4 bg-white dark:bg-surface-dark border border-gray-400 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-40 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
     >
         <button 
           onClick={handleFavoriteClick} 
@@ -42,19 +42,19 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
 
         {/* Icon */}
         <div className="flex-shrink-0">
-            <Icon className={`h-12 w-12 ${textColor}`} />
+            <Icon className={`h-10 w-10 sm:h-12 sm:w-12 ${textColor}`} />
         </div>
 
       {/* Text Content */}
-      <div className="flex flex-col flex-grow ml-4 sm:ml-0 sm:mt-3 overflow-hidden">
-        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">{t(title)}</h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
+      <div className="flex flex-col flex-grow mt-2 sm:mt-3 overflow-hidden">
+        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100">{t(title)}</h3>
+        <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
             {t(description)}
         </p>
       </div>
 
       {/* Badges - hidden on mobile to save space */}
-      <div className="hidden sm:flex items-center gap-2 mt-auto pt-2">
+      <div className="flex items-center gap-2 mt-auto pt-2">
         {isPremium && (
             <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-yellow-400 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-600">
                 Premium
