@@ -9,7 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://ilovepdfly.com/"><strong>Live Demo »</strong></a>
+  <a href="https://ilovepdfly.com/"><strong>🌍 Live Demo »</strong></a> •
+  <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk"><strong>📱 Download APK »</strong></a>
 </p>
 
 <p align="center">
@@ -22,114 +23,92 @@
 
 ---
 
-## About The Project
+## 🚀 About The Project
 
-I Love PDFLY is a comprehensive suite of free, secure, and fast online tools for all your document and image needs. Built with a privacy-first approach, most tools process your files directly in your browser, meaning your data never leaves your computer. Merge, split, compress, convert, edit, sign PDFs, remove image backgrounds, generate invoices, create CVs, and much more.
+**I Love PDFLY** is a comprehensive suite of free, secure, and fast online tools for all your document and image needs.  
+Built with a **privacy-first** approach, most tools process your files directly in your browser, meaning your data never leaves your computer.
 
-### Why Choose I Love PDFLY?
-
-*   🚀 **Blazing Fast:** No upload/download delays for most tools thanks to client-side processing.
-*   🔒 **Ultimate Privacy:** Your files are processed in your browser. Nothing is uploaded to our servers unless absolutely necessary, and even then, files are deleted within hours.
-*   🛠️ **Comprehensive Toolkit:** Over 40 tools for PDF, images, AI-powered tasks, and business needs.
-*   💸 **Completely Free:** All core tools are free to use without limits or watermarks.
-*   🌐 **Accessible Anywhere:** No installation required. Works on any device with a modern web browser.
+With **PDFLY**, you can merge, split, compress, convert, edit, sign PDFs, remove image backgrounds, generate invoices, create CVs, and much more — all for free.
 
 ---
 
-## Key Features
+## 💡 Why Choose I Love PDFLY?
 
-I Love PDFLY offers a wide array of tools, all accessible from a single, user-friendly interface.
-
-### PDF Tools
-
-| Category       | Tools                                                                                                                                                                                                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Organize**   | [Merge PDF](https://ilovepdfly.com/#/merge-pdf), [Split PDF](https://ilovepdfly.com/#/split-pdf), [Organize PDF](https://ilovepdfly.com/#/organize-pdf), [Rotate PDF](https://ilovepdfly.com/#/rotate-pdf)                                                                                              |
-| **Optimize**   | [Compress PDF](https://ilovepdfly.com/#/compress-pdf), [Repair PDF](https://ilovepdfly.com/#/repair-pdf)                                                                                                                                                                                            |
-| **Convert to PDF** | [JPG to PDF](https://ilovepdfly.com/#/jpg-to-pdf), [Word to PDF](https://ilovepdfly.com/#/word-to-pdf), [PowerPoint to PDF](https://ilovepdfly.com/#/powerpoint-to-pdf), [Excel to PDF](https://ilovepdfly.com/#/excel-to-pdf), [HTML to PDF](https://ilovepdfly.com/#/html-to-pdf), [PSD to PDF](https://ilovepdfly.com/#/psd-to-pdf) |
-| **Convert from PDF** | [PDF to JPG](https://ilovepdfly.com/#/pdf-to-jpg), [PDF to PNG](https://ilovepdfly.com/#/pdf-to-png), [PDF to Word](https://ilovepdfly.com/#/pdf-to-word), [PDF to PowerPoint](https://ilovepdfly.com/#/pdf-to-powerpoint), [PDF to Excel](https://ilovepdfly.com/#/pdf-to-excel), [PDF to PDF/A](https://ilovepdfly.com/#/pdf-to-pdfa), [Extract Text](https://ilovepdfly.com/#/extract-text) |
-| **Edit**       | [Edit PDF](https://ilovepdfly.com/#/edit-pdf), [Page Numbers](https://ilovepdfly.com/#/page-numbers), [Crop PDF](https://ilovepdfly.com/#/crop-pdf), [OCR PDF](https://ilovepdfly.com/#/ocr-pdf), [Compare PDF](https://ilovepdfly.com/#/compare-pdf), [Redact PDF](https://ilovepdfly.com/#/redact-pdf) |
-| **Security**   | [Unlock PDF](https://ilovepdfly.com/#/unlock-pdf), [Protect PDF](https://ilovepdfly.com/#/protect-pdf), [Sign PDF](https://ilovepdfly.com/#/sign-pdf), [Watermark](https://ilovepdfly.com/#/watermark-pdf)                                                                                            |
-
-### Image Tools
-
-*   [Remove Background](https://ilovepdfly.com/#/remove-background)
-*   [Resize Image](https://ilovepdfly.com/#/resize-image)
-*   [Compress Image](https://ilovepdfly.com/#/compress-image)
-*   [Crop Image](https://ilovepdfly.com/#/crop-image)
-*   [Convert to JPG](https://ilovepdfly.com/#/convert-to-jpg)
-*   [Convert from JPG](https://ilovepdfly.com/#/convert-from-jpg)
-*   [Watermark Image](https://ilovepdfly.com/#/watermark-image)
-
-### AI & Business Tools
-
-*   **AI Assistant:** Chat directly with your PDF documents. Ask questions, get summaries, and find information instantly.
-*   [AI Question Generator](https://ilovepdfly.com/#/ai-question-generator): Automatically create quizzes from any text.
-*   [AI Image Generator](https://ilovepdfly.com/#/ai-image-generator): Turn your text descriptions into unique images.
-*   [Lesson Plan Creator](https://ilovepdfly.com/#/lesson-plan-creator): Generate detailed lesson plans for any subject.
-*   [Invoice Generator](https://ilovepdfly.com/#/invoice-generator): Create and customize professional invoices for free.
-*   [CV Generator](https://ilovepdfly.com/#/cv-generator): Build a polished, job-ready CV in minutes.
+- ⚡ **Blazing Fast** – Client-side processing with no delays.  
+- 🔒 **Ultimate Privacy** – Files stay on your device; temporary uploads auto-delete.  
+- 🛠️ **All-in-One Toolkit** – Over **50+ tools** for PDF, Images, AI, and business workflows.  
+- 💸 **Free Forever** – Core tools available with no watermarks or restrictions.  
+- 🌍 **Cross-Platform** – Works on web, mobile, and desktop.  
+- 📱 **Mobile App Available** – [Download APK](https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk).  
 
 ---
 
-## Technology Stack
+## 🛠️ Key Features
 
-This project is built with a modern, scalable, and performant technology stack:
+### 📂 PDF Tools
 
-*   **Frontend:** [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/)
-*   **Backend & Services:** [Firebase](https://firebase.google.com/) (Authentication, Firestore, Storage)
-*   **AI Integration:** [Google Gemini API](https://ai.google.dev/)
-*   **Core Libraries:**
-    *   `pdf-lib` & `pdfjs-dist` for PDF manipulation
-    *   `@imgly/background-removal` for AI background removal
-    *   `tesseract.js` for Optical Character Recognition (OCR)
-    *   `jszip` for file compression
-    *   ...and many more!
+| Category             | Tools |
+|----------------------|-------|
+| **Organize**         | [Merge PDF](https://ilovepdfly.com/merge-pdf), [Split PDF](https://ilovepdfly.com/split-pdf), [Organize PDF](https://ilovepdfly.com/organize-pdf), [Rotate PDF](https://ilovepdfly.com/rotate-pdf) |
+| **Optimize**         | [Compress PDF](https://ilovepdfly.com/compress-pdf), [Repair PDF](https://ilovepdfly.com/repair-pdf) |
+| **Convert to PDF**   | [JPG to PDF](https://ilovepdfly.com/jpg-to-pdf), [Word to PDF](https://ilovepdfly.com/word-to-pdf), [PowerPoint to PDF](https://ilovepdfly.com/powerpoint-to-pdf), [Excel to PDF](https://ilovepdfly.com/excel-to-pdf), [HTML to PDF](https://ilovepdfly.com/html-to-pdf), [PSD to PDF](https://ilovepdfly.com/psd-to-pdf) |
+| **Convert from PDF** | [PDF to JPG](https://ilovepdfly.com/pdf-to-jpg), [PDF to PNG](https://ilovepdfly.com/pdf-to-png), [PDF to Word](https://ilovepdfly.com/pdf-to-word), [PDF to PowerPoint](https://ilovepdfly.com/pdf-to-powerpoint), [PDF to Excel](https://ilovepdfly.com/pdf-to-excel), [PDF to PDF/A](https://ilovepdfly.com/pdf-to-pdfa), [Extract Text](https://ilovepdfly.com/extract-text) |
+| **Edit**             | [Edit PDF](https://ilovepdfly.com/edit-pdf), [Page Numbers](https://ilovepdfly.com/page-numbers), [Crop PDF](https://ilovepdfly.com/crop-pdf), [OCR PDF](https://ilovepdfly.com/ocr-pdf), [Compare PDF](https://ilovepdfly.com/compare-pdf), [Redact PDF](https://ilovepdfly.com/redact-pdf) |
+| **Security**         | [Unlock PDF](https://ilovepdfly.com/unlock-pdf), [Protect PDF](https://ilovepdfly.com/protect-pdf), [Sign PDF](https://ilovepdfly.com/sign-pdf), [Watermark PDF](https://ilovepdfly.com/watermark-pdf) |
+
+### 🖼️ Image Tools
+
+- [Remove Background](https://ilovepdfly.com/remove-background)  
+- [Resize Image](https://ilovepdfly.com/resize-image)  
+- [Compress Image](https://ilovepdfly.com/compress-image)  
+- [Crop Image](https://ilovepdfly.com/crop-image)  
+- [Convert to JPG](https://ilovepdfly.com/convert-to-jpg)  
+- [Convert from JPG](https://ilovepdfly.com/convert-from-jpg)  
+- [Watermark Image](https://ilovepdfly.com/watermark-image)  
+
+### 🤖 AI & Business Tools
+
+- **AI PDF Assistant** – Chat with your PDF, summarize, extract insights.  
+- [AI Question Generator](https://ilovepdfly.com/ai-question-generator)  
+- [AI Image Generator](https://ilovepdfly.com/ai-image-generator)  
+- [Lesson Plan Creator](https://ilovepdfly.com/lesson-plan-creator)  
+- [Invoice Generator](https://ilovepdfly.com/invoice-generator)  
+- [CV Generator](https://ilovepdfly.com/cv-generator)  
+- **E-Signature** – Sign documents electronically.  
+- **Resume & Cover Letter Builder** – Coming soon.  
+- **News Dashboard** – Aggregated updates from multiple sources.  
 
 ---
 
-## Getting Started
+## ⚙️ Technology Stack
 
-To get a local copy up and running, follow these simple steps.
+- **Frontend:** [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/)  
+- **Backend & Services:** [Firebase](https://firebase.google.com/) (Auth, Firestore, Hosting, Storage)  
+- **AI Integration:** [Google Gemini API](https://ai.google.dev/)  
+- **Core Libraries:**  
+  - `pdf-lib`, `pdfjs-dist` – PDF editing & rendering  
+  - `@imgly/background-removal` – AI-powered image background removal  
+  - `tesseract.js` – OCR for scanned documents  
+  - `jszip` – Compression & packaging  
+
+---
+
+## 📦 Getting Started
 
 ### Prerequisites
 
-*   Node.js (v18 or later recommended)
-*   npm
+- Node.js (v18+)  
+- npm  
 
 ### Installation
 
-1.  **Clone the repo**
-    ```sh
-    git clone https://github.com/your-username/ilovepdfly.git
-    cd ilovepdfly
-    ```
+```sh
+# Clone the repo
+git clone https://github.com/ilovepdfly/ilovepdfly.git
+cd ilovepdfly
 
-2.  **Install NPM packages**
-    ```sh
-    npm install
-    ```
+# Install dependencies
+npm install
 
-3.  **Set up environment variables**
-
-    Create a `.env` file in the root of your project and add your API keys. The Firebase configuration is located in `src/firebase/config.ts`.
-
-    ```env
-    # Google Gemini API Key
-    API_KEY=YOUR_GEMINI_API_KEY
-    ```
-
-4.  **Run the development server**
-    ```sh
-    npm run dev
-    ```
-
-    The application will be available at `http://localhost:5173`.
-
----
-
-## Contact
-
-Bishal Mishra - [Message from CEO](https://ilovepdfly.com/#/ceo) - Support@ilovepdfly.com
-
-Project Link: [https://github.com/ilovepdfly/ilovepdfly](https://github.com/ilovepdfly/ilovepdfly)
+# Run development server
+npm run dev
