@@ -132,4 +132,4 @@ To get a local copy up and running, follow these simple steps.
 
 Bishal Mishra - [Message from CEO](https://ilovepdfly.com/#/ceo) - Support@ilovepdfly.com
 
-Project Link: [https://github.com/your-username/ilovepdfly](https://github.com/your-username/ilovepdfly)
+Project Link: [https://github.com/ilovepdfly/ilovepdfly](https://github.com/ilovepdfly/ilovepdfly)
