@@ -1,4 +1,4 @@
-# I Love PDFLY - The Ultimate Free Online PDF & Image Toolkit
+# I Love PDFLY - The Ultimate Free Online PDF Tools
 
 <p align="center">
   <img src="https://ilovepdfly.com/logo.svg" alt="I Love PDFLY Logo" width="200"/>
@@ -143,9 +143,9 @@ PDFLY also provides APIs for integration:
 
 ## 📜 Legal
 
-- [Terms & Conditions](https://ilovepdfly.com/terms)  
-- [Privacy Policy](https://ilovepdfly.com/privacy)  
-- [Cookie Policy](https://ilovepdfly.com/cookies)  
+- [Terms & Conditions](https://ilovepdfly.com/terms-of-service)  
+- [Privacy Policy](https://ilovepdfly.com/privacy-policy)  
+- [Cookie Policy](https://ilovepdfly.com/cookies-policy)  
 
 ---
 
