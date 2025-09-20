@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -840,8 +838,8 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
     
     return (
         <div className="grid lg:grid-cols-12 gap-8 items-start">
-            <main className="lg:col-span-8 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 aspect-square lg:aspect-auto min-h-[400px]">
-                <div className="relative w-full h-full">
+            <main className="lg:col-span-8 bg-gray-100 dark:bg-gray-900 rounded-lg p-4">
+                <div className="relative w-full h-full aspect-square lg:aspect-auto min-h-[400px]">
                     <div 
                         className={`absolute inset-0 rounded-md ${background === 'transparent' ? 'bg-[url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAC1JREFUOE9jZGBgEGHAD97/D0eMGI2MDBsMAn4yMIDxfaemAPwI+b8pIM4ADzE0IBsASx07QfA8w54AAAAASUVORK5CYII=)]' : ''}`}
                         style={{ backgroundColor: background === 'color' ? bgColor : 'transparent' }}
@@ -2516,7 +2514,7 @@ const ToolPage: React.FC = () => {
                      <div className="mt-8 bg-white dark:bg-black p-6 rounded-lg shadow-lg border dark:border-gray-700 w-full">
                         <p className="font-semibold truncate">{files.length === 1 ? files[0].name : `${files.length} files`}</p>
                         <p className="text-sm text-gray-500">{formatBytes(totalSize)}</p>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-4">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my.4">
                             <div className="bg-brand-red h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress.percentage || 0}%` }}></div>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{progress.status || 'Starting...'}</p>
