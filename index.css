@@ -354,3 +354,26 @@ body {
     opacity: 0;
   }
 }
+
+/* Starry loader for background removal */
+.sparkle-effect {
+    position: absolute;
+    opacity: 0;
+    animation: sparkle-anim ease-in-out infinite;
+    filter: drop-shadow(0 0 4px #FFD700);
+}
+
+@keyframes sparkle-anim {
+    0%, 100% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    75% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+}

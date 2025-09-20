@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -641,6 +642,57 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
 // ===================================================================
 // BACKGROUND REMOVAL UI COMPONENT
 // ===================================================================
+// FIX: Added style prop to SparkleIcon component to allow dynamic styling.
+const SparkleIcon: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className, style }) => (
+    <svg className={className} style={style} viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 0L24.5258 17.4742L42 21L24.5258 24.5258L21 42L17.4742 24.5258L0 21L17.4742 17.4742L21 0Z" fill="#FFD700" fillOpacity="0.8"/>
+    </svg>
+);
+
+const StarryLoader: React.FC<{ imageSrc: string | null }> = ({ imageSrc }) => {
+    const sparkles = useMemo(() => {
+        return Array.from({ length: 15 }).map((_, i) => ({
+            id: i,
+            top: `${Math.random() * 90 + 5}%`,
+            left: `${Math.random() * 90 + 5}%`,
+            animationDuration: `${Math.random() * 1.5 + 0.8}s`,
+            animationDelay: `${Math.random() * 2}s`,
+            size: `${Math.random() * 16 + 8}px`
+        }));
+    }, []);
+
+    return (
+        <div className="absolute inset-0 rounded-lg overflow-hidden flex items-center justify-center">
+            {imageSrc && <img src={imageSrc} alt="Processing..." className="w-full h-full object-contain" />}
+            <div className="absolute inset-0 bg-black/70"></div>
+            <div className="absolute inset-0 w-full h-full">
+                {sparkles.map(s => (
+                    <SparkleIcon 
+                        key={s.id} 
+                        className="sparkle-effect"
+                        style={{
+                            top: s.top,
+                            left: s.left,
+                            width: s.size,
+                            height: s.size,
+                            animationDuration: s.animationDuration,
+                            animationDelay: s.animationDelay,
+                        }}
+                    />
+                ))}
+            </div>
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3 p-2 bg-gray-900/60 rounded-full backdrop-blur-sm border border-white/10">
+                <button className="w-10 h-10 bg-gray-200/20 text-white rounded-full flex items-center justify-center text-2xl font-light">+</button>
+                <div className="w-12 h-12 border-2 border-blue-400/30 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 border-2 border-t-transparent border-blue-400 rounded-full animate-spin"></div>
+                </div>
+                {imageSrc && <img src={imageSrc} alt="thumbnail" className="w-10 h-10 rounded-full object-cover border-2 border-white/20" />}
+            </div>
+        </div>
+    );
+};
+
+
 const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
     const [originalFile, setOriginalFile] = useState<File | null>(null);
     const [originalSrc, setOriginalSrc] = useState<string | null>(null);
@@ -734,9 +786,6 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
         }
     };
 
-    const progressPercentage = progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
-    const progressText = progress.key;
-
     if (!originalFile) {
         return (
             <div className="max-w-3xl mx-auto">
@@ -764,15 +813,7 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
                         style={{ backgroundColor: background === 'color' ? bgColor : 'transparent' }}
                     ></div>
                     <div className="absolute inset-0 flex items-center justify-center p-2">
-                        {isLoading && (
-                            <div className="w-full max-w-sm text-center">
-                                <p className="font-semibold text-lg">{progressText}</p>
-                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 my-2">
-                                    <div className="bg-brand-red h-2.5 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
-                                </div>
-                                <p className="text-sm text-gray-500">Please wait, this can take a moment...</p>
-                            </div>
-                        )}
+                        {isLoading && <StarryLoader imageSrc={originalSrc} />}
                         {!isLoading && processedSrc && (
                             <img src={processedSrc} alt="Processed with background removed" className="max-w-full max-h-full object-contain" />
                         )}
@@ -844,7 +885,7 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'compare-pdf': 'Compare two PDF files side-by-side to find differences. Highlights changes in text and content.',
   'redact-pdf': 'Permanently remove sensitive information and text from your PDF documents by blacking it out.',
   'crop-pdf': 'Crop the margins of your PDF file. Select an area to crop and remove unwanted parts of your pages.',
-  'remove-background': 'Automatically remove the background from any image with a single click. Get a high-quality, transparent PNG output instantly.',
+  'remove-background': 'Automatically remove the background from any image with a single click. Get a transparent PNG output.',
   'psd-to-pdf': 'Convert Adobe Photoshop (PSD) files to PDF format.',
   'pdf-to-png': 'Convert PDF pages to high-quality PNG images.',
   'extract-text': 'Extract all text from a PDF file into a simple TXT file.',
@@ -1740,7 +1781,14 @@ const ToolPage: React.FC = () => {
                 blob = await zip.generateAsync({type: 'blob'});
                 break;
             }
-            
+             case 'remove-background': {
+                if (files.length !== 1) throw new Error("Please select one image file.");
+                const file = files[0];
+                setProgress({ percentage: 50, status: 'Removing background...'});
+                const imageBlob = await removeBackground(file);
+                blob = imageBlob;
+                break;
+            }
             case 'jpg-to-pdf': {
                 const pdfDoc = await PDFDocument.create();
                 for (let i = 0; i < files.length; i++) {
