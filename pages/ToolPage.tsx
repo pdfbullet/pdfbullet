@@ -662,8 +662,8 @@ const StarryLoader: React.FC<{ imageSrc: string | null }> = ({ imageSrc }) => {
     }, []);
 
     return (
-        <div className="absolute inset-0 rounded-lg overflow-hidden flex items-center justify-center">
-            {imageSrc && <img src={imageSrc} alt="Processing..." className="w-full h-full object-contain" />}
+        <div className="absolute inset-0 rounded-lg overflow-hidden">
+            {imageSrc && <img src={imageSrc} alt="Processing..." className="absolute inset-0 w-full h-full object-contain" />}
             <div className="absolute inset-0 bg-black/70"></div>
             <div className="absolute inset-0 w-full h-full">
                 {sparkles.map(s => (
@@ -767,10 +767,43 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
         setError('');
     };
 
-    const handleDownload = () => {
-        if (processedBlob && originalFile) {
-            const filename = getOutputFilename(tool.id, [originalFile], {});
-            const url = URL.createObjectURL(processedBlob);
+    const handleDownload = async () => {
+        if (!processedBlob || !originalFile) return;
+
+        let blobToDownload: Blob | null = processedBlob;
+        const filename = getOutputFilename(tool.id, [originalFile], {});
+
+        if (background === 'color' && processedSrc) {
+            try {
+                const img = new Image();
+                await new Promise<void>((resolve, reject) => {
+                    img.onload = () => resolve();
+                    img.onerror = reject;
+                    img.src = processedSrc;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+
+                if (ctx) {
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const newBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+                    if (newBlob) {
+                        blobToDownload = newBlob;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to apply color background:", e);
+            }
+        }
+        
+        if (blobToDownload) {
+            const url = URL.createObjectURL(blobToDownload);
             const a = document.createElement('a');
             a.href = url;
             a.download = filename;
@@ -782,7 +815,7 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
                 toolId: tool.id,
                 toolTitle: t(tool.title),
                 outputFilename: filename,
-                fileBlob: processedBlob
+                fileBlob: blobToDownload
             });
         }
     };
@@ -807,24 +840,28 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
     
     return (
         <div className="grid lg:grid-cols-12 gap-8 items-start">
-            <main className="lg:col-span-8 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 flex items-center justify-center aspect-square lg:aspect-auto min-h-[400px]">
-                <div className="relative w-full h-full max-w-full max-h-full">
+            <main className="lg:col-span-8 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 aspect-square lg:aspect-auto min-h-[400px]">
+                <div className="relative w-full h-full">
                     <div 
                         className={`absolute inset-0 rounded-md ${background === 'transparent' ? 'bg-[url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAC1JREFUOE9jZGBgEGHAD97/D0eMGI2MDBsMAn4yMIDxfaemAPwI+b8pIM4ADzE0IBsASx07QfA8w54AAAAASUVORK5CYII=)]' : ''}`}
                         style={{ backgroundColor: background === 'color' ? bgColor : 'transparent' }}
                     ></div>
-                    <div className="absolute inset-0 flex items-center justify-center p-2">
-                        {isLoading && <StarryLoader imageSrc={originalSrc} />}
-                        {!isLoading && processedSrc && (
-                            <img src={processedSrc} alt="Processed with background removed" className="max-w-full max-h-full object-contain" />
-                        )}
-                         {!isLoading && error && (
-                            <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md">
-                                <p className="font-bold">Processing Failed</p>
-                                <p className="text-sm mt-1">{error}</p>
-                            </div>
-                        )}
-                    </div>
+                    
+                    {!isLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center p-2">
+                            {processedSrc && (
+                                <img src={processedSrc} alt="Processed with background removed" className="max-w-full max-h-full object-contain" />
+                            )}
+                             {error && (
+                                <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md">
+                                    <p className="font-bold">Processing Failed</p>
+                                    <p className="text-sm mt-1">{error}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
+                    {isLoading && <StarryLoader imageSrc={originalSrc} />}
                 </div>
             </main>
             <aside className="lg:col-span-4 bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
