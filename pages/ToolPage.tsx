@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -642,7 +643,6 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
 // ===================================================================
 // BACKGROUND REMOVAL UI COMPONENT
 // ===================================================================
-// FIX: Added style prop to SparkleIcon component to allow dynamic styling.
 const SparkleIcon: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className, style }) => (
     <svg className={className} style={style} viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M21 0L24.5258 17.4742L42 21L24.5258 24.5258L21 42L17.4742 24.5258L0 21L17.4742 17.4742L21 0Z" fill="#FFD700" fillOpacity="0.8"/>
@@ -756,7 +756,8 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
                 URL.revokeObjectURL(processedSrc);
             }
         };
-    }, [originalFile, processedSrc]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [originalFile]);
 
     const handleReset = () => {
         setOriginalFile(null);
@@ -912,7 +913,9 @@ const ToolPage: React.FC = () => {
   const { addSignedDocument } = useSignedDocuments();
   const { addTask } = useLastTasks();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
-  const { setShowFooter } = useContext(LayoutContext);
+  // FIX: Cast LayoutContext to the expected type to resolve TypeScript error.
+  // The context is likely initialized with an empty object, leading to incorrect type inference.
+  const { setShowFooter } = useContext(LayoutContext) as { setShowFooter: (show: boolean) => void };
 
   const [tool, setTool] = useState<Tool | null>(null);
   const [state, setState] = useState<ProcessingState>(ProcessingState.Idle);
@@ -1963,8 +1966,9 @@ const ToolPage: React.FC = () => {
                         sections.push({
                             children: [new Paragraph({
                                 children: [
-// FIX: Explicitly use Uint8Array to resolve potential TypeScript type inference issues with docx's ImageRun.
+// FIX: Added 'type' property to the ImageRun options to satisfy the IImageOptions interface from the 'docx' library.
                                     new ImageRun({
+                                        type: 'png',
                                         data: new Uint8Array(imageBuffer),
                                         transformation: {
                                             width: viewport.width,
