@@ -1,11 +1,9 @@
-
-
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
-import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
-import { PWAInstallProvider } from './contexts/PWAInstallContext.tsx';
+import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
@@ -699,10 +697,17 @@ const PlansAndPackagesPage = lazy(() => import('./pages/PlansAndPackagesPage.tsx
 const BusinessDetailsPage = lazy(() => import('./pages/BusinessDetailsPage.tsx'));
 const InvoicesPage = lazy(() => import('./pages/InvoicesPage.tsx'));
 
+// New PWA-specific pages
+const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
+const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
+const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
+const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
+
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { isPwa } = usePWAInstall();
   const [isProfileImageModalOpen, setProfileImageModalOpen] = useState(false);
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
@@ -758,9 +763,12 @@ function AppContent() {
               <main className="flex-grow">
                 <Suspense fallback={<div className="w-full py-20" />}>
                   <Routes>
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
+                    <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
+                    <Route path="/blog" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
+                    <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
+                    
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/blog" element={<BlogPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
@@ -828,7 +836,7 @@ function AppContent() {
                   </Routes>
                 </Suspense>
               </main>
-              {showFooter && <Footer 
+              {!isPwa && showFooter && <Footer 
                 onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
               />}
@@ -840,13 +848,13 @@ function AppContent() {
               <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
               <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
               <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-              <ScrollToTopButton />
+              {!isPwa && <ScrollToTopButton />}
               <CookieConsentBanner />
               <PWAInstallPrompt />
               <PWAInstallInstructionsModal />
               <ChatbotWidget />
               <WelcomeInstallModal />
-              <PwaBottomNav />
+              {isPwa && <PwaBottomNav />}
             </div>
         </PullToRefresh>
       </MobileAuthGate>

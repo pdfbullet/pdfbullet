@@ -11,6 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 interface PWAInstallContextType {
+  isPwa: boolean;
   canInstall: boolean;
   promptInstall: () => void;
   showInstallInstructions: boolean;
@@ -22,8 +23,16 @@ const PWAInstallContext = createContext<PWAInstallContextType | undefined>(undef
 export const PWAInstallProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
+  const [isPwa, setIsPwa] = useState(false);
 
   useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    setIsPwa(isStandalone);
+
+    if (isStandalone) {
+        document.body.style.paddingBottom = '72px';
+    }
+    
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPromptEvent(e as BeforeInstallPromptEvent);
@@ -33,6 +42,9 @@ export const PWAInstallProvider: React.FC<{ children: ReactNode }> = ({ children
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      if (isStandalone) {
+         document.body.style.paddingBottom = '0';
+      }
     };
   }, []);
 
@@ -57,6 +69,7 @@ export const PWAInstallProvider: React.FC<{ children: ReactNode }> = ({ children
   }, []);
 
   const value = {
+    isPwa,
     canInstall: !!installPromptEvent,
     promptInstall,
     showInstallInstructions,

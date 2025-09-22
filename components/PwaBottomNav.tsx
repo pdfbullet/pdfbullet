@@ -1,44 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HomeIcon, GridIcon, ScanToPdfIcon, NewspaperIcon, SettingsIcon } from './icons.tsx';
 
 const PwaBottomNav: React.FC = () => {
-    const [isPwa, setIsPwa] = useState(false);
     const location = useLocation();
-
-    useEffect(() => {
-        // This check determines if the app is running in standalone mode (as a PWA).
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-        setIsPwa(isStandalone);
-
-        // If it's a PWA, add padding to the body to prevent the fixed nav bar from overlapping content.
-        if (isStandalone) {
-            document.body.style.paddingBottom = '72px';
-        }
-        
-        // Cleanup function to remove the padding when the component unmounts.
-        return () => {
-             if (isStandalone) {
-                document.body.style.paddingBottom = '0px';
-             }
-        };
-    }, []);
-
-    if (!isPwa) {
-        return null;
-    }
 
     const navItems = [
         { to: '/', label: 'Home', icon: HomeIcon },
-        { to: '/#all-tools', label: 'Tools', icon: GridIcon },
+        { to: '/tools', label: 'Tools', icon: GridIcon },
         { to: '/scan-to-pdf', label: 'Scan', icon: ScanToPdfIcon },
         { to: '/blog', label: 'Articles', icon: NewspaperIcon },
-        { to: '/account-settings', label: 'Settings', icon: SettingsIcon },
+        { to: '/settings', label: 'Settings', icon: SettingsIcon },
     ];
     
-    // A list of all paths that should be considered part of the "Settings" section for highlighting.
     const settingsPaths = [
-        '/account-settings', '/workflows', '/security', '/team', '/last-tasks', 
+        '/settings', '/account-settings', '/workflows', '/security', '/team', '/last-tasks', 
         '/signatures-overview', '/sent', '/inbox', '/signed', '/templates', 
         '/contacts', '/signature-settings', '/plans-packages', '/business-details', '/invoices'
     ];
@@ -46,10 +22,8 @@ const PwaBottomNav: React.FC = () => {
     const NavLink: React.FC<{ item: typeof navItems[0] }> = ({ item }) => {
         let isActive = false;
         if (item.to === '/') {
-            isActive = location.pathname === '/' && location.hash === '';
-        } else if (item.to === '/#all-tools') {
-            isActive = location.pathname === '/' && location.hash === '#all-tools';
-        } else if (item.to === '/account-settings') {
+            isActive = location.pathname === '/';
+        } else if (item.to === '/settings') {
             isActive = settingsPaths.some(p => location.pathname.startsWith(p));
         } else {
             isActive = location.pathname.startsWith(item.to);
