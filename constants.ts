@@ -1,5 +1,4 @@
 
-
 import { Tool } from './types.ts';
 import {
   MergeIcon,
@@ -207,13 +206,13 @@ export const TOOLS: Tool[] = [
     fileTypeNounPlural: 'files',
   },
   {
-    id: 'scan-to-pdf',
-    title: 'tool.scan-to-pdf.title',
-    description: 'tool.scan-to-pdf.description',
+    id: 'document-scanner',
+    title: 'tool.document-scanner.title',
+    description: 'tool.document-scanner.description',
     Icon: ScanToPdfIcon,
-    color: 'bg-amber-500',
-    hoverColor: 'hover:bg-amber-600',
-    textColor: 'text-amber-600',
+    color: 'bg-orange-500',
+    hoverColor: 'hover:bg-orange-600',
+    textColor: 'text-orange-600',
     isNew: true,
     category: 'convert-to',
   },
@@ -780,7 +779,7 @@ This guide provides direct links to official websites, step-by-step instructions
     <li><strong>Convert to PDF:</strong> Once your image is ready, use our trusted <a href="/jpg-to-pdf" class="text-brand-red hover:underline">JPG to PDF</a> tool to convert single or multiple images into a high-quality PDF document.</li>
     <li><strong>Organize and Share:</strong> Need to add the new image PDF to an existing report? Use our <a href="/merge-pdf" class="text-brand-red hover:underline">Merge PDF</a> tool to combine it with other documents. Your polished, professional document is now ready to be shared.</li>
 </ol>
-<p>You can even capture images directly from your camera and convert them on the fly with our <a href="/scan-to-pdf" class="text-brand-red hover:underline">Scan to PDF</a> tool, making it easier than ever to digitize and manage your visual content.</p>
+<p>You can even capture images directly from your camera and convert them on the fly with our <a href="/document-scanner" class="text-brand-red hover:underline">Document Scanner</a> tool, making it easier than ever to digitize and manage your visual content.</p>
 
 <h2>What's Next?</h2>
 <p>This is just the beginning of our journey into image editing. We're committed to building the most comprehensive and user-friendly toolkit for all your digital needs. We can't wait for you to try out these new features and hear your feedback!</p>

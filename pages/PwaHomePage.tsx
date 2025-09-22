@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -21,7 +22,7 @@ const bannerSlides = [
     image: 'https://ik.imagekit.io/fonepay/slider-2.png?updatedAt=1758554896182',
     title: 'Discover AI-Powered Tools',
     description: 'Generate invoices, CVs, and lesson plans in seconds with our new AI assistants.',
-    link: '/invoice-generator',
+    link: '/ai-assistant',
   },
   {
     image: 'https://ik.imagekit.io/fonepay/slider-3.png?updatedAt=1758554896137',
@@ -79,7 +80,7 @@ const PwaHomePage: React.FC = () => {
     const { t } = useI18n();
 
     const quickActionTools = useMemo(() => {
-        const toolIds = ['merge-pdf', 'compress-pdf', 'jpg-to-pdf', 'sign-pdf'];
+        const toolIds = ['merge-pdf', 'compress-pdf', 'jpg-to-pdf', 'document-scanner'];
         return TOOLS.filter(tool => toolIds.includes(tool.id));
     }, []);
 

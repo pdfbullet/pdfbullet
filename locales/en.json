@@ -1,3 +1,4 @@
+
 {
   "header": {
     "merge_pdf": "MERGE PDF",
@@ -62,18 +63,7 @@
     "filter_convert": "Convert PDF",
     "filter_edit": "Edit PDF",
     "filter_security": "PDF Security",
-    "solutions_title": "Solutions For You",
-    "solutions_subtitle": "PDF tools tailored to your specific needs.",
-    "simple_steps_title": "Simple Steps to Success",
-    "simple_steps_subtitle": "Get your PDF tasks done in just a few clicks.",
-    "why_choose_title": "Why Choose I Love PDFLY?",
-    "why_choose_subtitle": "The ultimate online toolkit for all your PDF needs.",
-    "blog_title": "From Our Blog",
-    "blog_subtitle": "Tips, tricks, and updates from our team to help you be more productive.",
-    "premium_title": "Get more with Premium",
-    "premium_subtitle": "Complete projects faster with batch file processing, convert scanned documents with OCR and e-sign your business agreements.",
-    "get_premium": "Get Premium",
-    "faq_title": "Frequently Asked Questions"
+    "filter_image_tools": "Image Tools"
   },
   "tool": {
     "merge-pdf": {
@@ -102,8 +92,7 @@
     },
     "repair-pdf": {
       "title": "Repair PDF file",
-      "description": "Upload a corrupt PDF and we will try to fix it. Depending on how much the PDF is damaged we will be able to recover it partially or completely.",
-      "infoText": "We will try to repair your PDFs. You can get a different file format on download if we detect that format in your file."
+      "description": "Upload a corrupt PDF and we will try to fix it. Depending on how much the PDF is damaged we will be able to recover it partially or completely."
     },
     "resize-file": {
       "title": "Resize File",
@@ -133,9 +122,9 @@
       "title": "HTML to PDF",
       "description": "Convert webpages in HTML to PDF. Copy and paste the URL of the page you want and convert it to PDF with a click."
     },
-    "scan-to-pdf": {
-      "title": "Scan to PDF",
-      "description": "Turn your phone into a document scanner. Capture, edit, and correct the perspective of your documents to create high-quality scans."
+    "document-scanner": {
+      "title": "Document Scanner",
+      "description": "Scan documents with your device. Crop, enhance, and save as PDF or JPG."
     },
     "pdf-to-jpg": {
       "title": "PDF to JPG",

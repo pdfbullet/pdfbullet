@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo, useContext } from 'react';
+
+
+import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS } from '../constants.ts';
@@ -118,24 +120,20 @@ const applyFilter = (imageDataUrl: string, filter: FilterType): Promise<string> 
             const data = imageData.data;
 
             switch (filter) {
-                case 'lighten':
+                case 'lighten': // Improved lighten filter
                     for (let i = 0; i < data.length; i += 4) {
-                        data[i] = Math.min(255, data[i] + 25); // R
-                        data[i + 1] = Math.min(255, data[i + 1] + 25); // G
-                        data[i + 2] = Math.min(255, data[i + 2] + 25); // B
+                        data[i] = Math.min(255, data[i] + 20); // R
+                        data[i + 1] = Math.min(255, data[i + 1] + 20); // G
+                        data[i + 2] = Math.min(255, data[i + 2] + 20); // B
                     }
                     break;
-                case 'magic_color':
-                    const contrast = 40;
+                case 'magic_color': // Enhanced contrast and saturation
+                    const contrast = 30;
                     const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
                     for (let i = 0; i < data.length; i += 4) {
-                        data[i] = factor * (data[i] - 128) + 128; // R
-                        data[i+1] = factor * (data[i+1] - 128) + 128; // G
-                        data[i+2] = factor * (data[i+2] - 128) + 128; // B
-                        // Teal tint
-                        data[i] = data[i] * 0.95;
-                        data[i+1] = data[i+1] * 1.02;
-                        data[i+2] = data[i+2] * 1.05;
+                        data[i] = Math.min(255, factor * (data[i] - 128) + 128);
+                        data[i+1] = Math.min(255, factor * (data[i+1] - 128) + 128);
+                        data[i+2] = Math.min(255, factor * (data[i+2] - 128) + 128);
                     }
                     break;
                 case 'bw': // High contrast B&W
@@ -164,17 +162,17 @@ const FilterBar: React.FC<{ onFilterChange: (filter: FilterType) => void, active
     const filters: { name: string; id: FilterType }[] = [
       { name: 'Original', id: 'original' },
       { name: 'Lighten', id: 'lighten' },
-      { name: 'Magic Color', id: 'magic_color' },
+      { name: 'Magic', id: 'magic_color' },
       { name: 'B&W', id: 'bw' },
       { name: 'Grayscale', id: 'bw2' },
     ];
     return (
-      <div className="flex justify-center space-x-2 overflow-x-auto p-2 no-scrollbar">
+      <div className="flex justify-center space-x-1 sm:space-x-2 overflow-x-auto p-1 no-scrollbar bg-black/30 rounded-b-md">
         {filters.map(f => (
           <button
             key={f.id}
-            onClick={() => onFilterChange(f.id)}
-            className={`px-4 py-2 rounded-md font-semibold text-sm whitespace-nowrap transition-all ${activeFilter === f.id ? 'bg-brand-red text-white ring-2 ring-offset-2 ring-brand-red dark:ring-offset-black' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+            onClick={(e) => { e.stopPropagation(); onFilterChange(f.id); }}
+            className={`px-2 py-1 rounded-md font-semibold text-xs whitespace-nowrap transition-all text-white ${activeFilter === f.id ? 'bg-brand-red/80' : 'bg-black/40 hover:bg-black/60'}`}
           >
             {f.name}
           </button>
@@ -193,7 +191,7 @@ interface ScannedPage {
 interface DocumentScannerUIProps {
     tool: Tool;
     onProcessStart: () => void;
-    onProcessSuccess: (blob: Blob) => void;
+    onProcessSuccess: (blob: Blob, filename: string) => void;
     onProcessError: (message: string) => void;
 }
 
@@ -203,9 +201,11 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
     const [cameraError, setCameraError] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const { t } = useI18n();
 
-    const startCamera = async () => {
+    const startCamera = useCallback(async () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
         setCameraError('');
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -215,32 +215,31 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             }
         } catch (err) {
             console.error(err);
-            setCameraError('Could not access the camera. Please check permissions.');
+            setCameraError('Could not access the camera. Please check permissions and try again.');
         }
-    };
+    }, [stream]);
 
-    const stopCamera = () => {
+    const stopCamera = useCallback(() => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             setStream(null);
         }
-    };
+    }, [stream]);
     
     useEffect(() => {
         startCamera();
         return () => stopCamera();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [startCamera, stopCamera]);
 
     const capturePage = () => {
-        if (!videoRef.current) return;
+        if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
         const canvas = document.createElement('canvas');
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         const newPage: ScannedPage = {
             id: Date.now(),
             original: dataUrl,
@@ -261,7 +260,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         setScannedPages(prev => prev.filter(p => p.id !== id));
     };
     
-    const generatePdf = async () => {
+    const processAndOutput = async (format: 'pdf' | 'jpg') => {
         if (scannedPages.length === 0) {
             onProcessError("Please scan at least one page.");
             return;
@@ -269,56 +268,76 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         onProcessStart();
         setIsProcessing(true);
         try {
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            for (let i = 0; i < scannedPages.length; i++) {
-                const page = scannedPages[i];
-                const img = new Image();
-                img.src = page.filtered;
-                await new Promise(resolve => img.onload = resolve);
-                
-                if (i > 0) pdf.addPage();
-                
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const imgRatio = img.width / img.height;
-                const pdfRatio = pdfWidth / pdfHeight;
-                
-                let imgWidth, imgHeight;
-                if (imgRatio > pdfRatio) {
-                    imgWidth = pdfWidth;
-                    imgHeight = pdfWidth / imgRatio;
-                } else {
-                    imgHeight = pdfHeight;
-                    imgWidth = pdfHeight * imgRatio;
-                }
-                
-                const x = (pdfWidth - imgWidth) / 2;
-                const y = (pdfHeight - imgHeight) / 2;
+            if (format === 'pdf') {
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                for (let i = 0; i < scannedPages.length; i++) {
+                    const page = scannedPages[i];
+                    if (i > 0) pdf.addPage();
+                    
+                    const img = new Image();
+                    await new Promise<void>(resolve => { img.onload = () => resolve(); img.src = page.filtered; });
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgRatio = img.width / img.height;
+                    const pdfRatio = pdfWidth / pdfHeight;
+                    
+                    let newWidth, newHeight;
+                    if (imgRatio > pdfRatio) { // Image is wider than page
+                        newWidth = pdfWidth;
+                        newHeight = pdfWidth / imgRatio;
+                    } else { // Image is taller than or equal to page
+                        newHeight = pdfHeight;
+                        newWidth = pdfHeight * imgRatio;
+                    }
+                    
+                    const xOffset = (pdfWidth - newWidth) / 2;
+                    const yOffset = (pdfHeight - newHeight) / 2;
 
-                pdf.addImage(page.filtered, 'JPEG', x, y, imgWidth, imgHeight);
+                    pdf.addImage(img, 'JPEG', xOffset, yOffset, newWidth, newHeight);
+                }
+                const pdfBlob = pdf.output('blob');
+                onProcessSuccess(pdfBlob, 'document_scan.pdf');
+            } else { // JPG
+                if (scannedPages.length === 1) {
+                    const res = await fetch(scannedPages[0].filtered);
+                    const blob = await res.blob();
+                    onProcessSuccess(blob, 'scan.jpg');
+                } else {
+                    const zip = new JSZip();
+                    for (let i = 0; i < scannedPages.length; i++) {
+                        const page = scannedPages[i];
+                        const res = await fetch(page.filtered);
+                        const blob = await res.blob();
+                        zip.file(`scan_${i + 1}.jpg`, blob);
+                    }
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    onProcessSuccess(zipBlob, 'scanned_images.zip');
+                }
             }
-            const pdfBlob = pdf.output('blob');
-            onProcessSuccess(pdfBlob);
         } catch (err) {
-            onProcessError("Failed to generate PDF. Please try again.");
+            console.error(err);
+            onProcessError(`Failed to generate ${format.toUpperCase()}. Please try again.`);
         } finally {
             setIsProcessing(false);
         }
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto">
-            {stream ? (
-                <div className="relative mb-4">
-                    <video ref={videoRef} autoPlay playsInline className="w-full rounded-lg shadow-lg border-2 border-gray-300 dark:border-gray-700"></video>
-                    <button onClick={capturePage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-4 rounded-full shadow-lg border-2 border-gray-300 hover:bg-gray-200">
-                        <CameraIcon className="h-8 w-8 text-brand-red" />
+        <div className="w-full max-w-5xl mx-auto space-y-6">
+            <div className="relative">
+                <video ref={videoRef} autoPlay playsInline muted className="w-full rounded-lg shadow-lg bg-black aspect-video"></video>
+                {stream && (
+                    <button onClick={capturePage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-3 rounded-full shadow-2xl border-4 border-gray-300 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-offset-black focus:ring-brand-red">
+                        <div className="w-10 h-10 bg-brand-red rounded-full"></div>
                     </button>
-                </div>
-            ) : (
-                <div className="w-full aspect-video bg-gray-100 dark:bg-black rounded-lg flex flex-col items-center justify-center text-gray-600 dark:text-gray-400">
-                    {cameraError ? <p className="text-red-500">{cameraError}</p> : <p>Starting camera...</p>}
-                    <button onClick={startCamera} className="mt-4 bg-brand-red text-white font-bold py-2 px-4 rounded">Retry Camera</button>
+                )}
+            </div>
+            
+            {cameraError && (
+                <div className="text-center p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-lg">
+                    <p>{cameraError}</p>
+                    <button onClick={startCamera} className="mt-2 font-semibold underline">Retry</button>
                 </div>
             )}
             
@@ -327,26 +346,94 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                     <h2 className="text-xl font-bold mb-4">Scanned Pages ({scannedPages.length})</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {scannedPages.map(page => (
-                            <div key={page.id} className="relative group">
-                                <img src={page.filtered} alt="Scanned page" className="w-full rounded-md" />
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1">
-                                    <button onClick={() => removePage(page.id)} className="self-end p-1 bg-red-600 rounded-full text-white">
-                                        <CloseIcon className="h-4 w-4" />
-                                    </button>
-                                    <div className="text-white text-xs">
-                                        <FilterBar onFilterChange={(filter) => handleFilterChange(page.id, filter)} activeFilter={page.filter} />
-                                    </div>
+                            <div key={page.id} className="relative group rounded-md overflow-hidden border-2 border-transparent focus-within:border-brand-red">
+                                <img src={page.filtered} alt="Scanned page" className="w-full aspect-[3/4] object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
+                                    <FilterBar onFilterChange={(filter) => handleFilterChange(page.id, filter)} activeFilter={page.filter} />
                                 </div>
+                                 <button onClick={() => removePage(page.id)} className="absolute top-1 right-1 p-1 bg-black/50 rounded-full text-white hover:bg-red-600 transition-colors" aria-label="Remove page">
+                                    <CloseIcon className="h-4 w-4" />
+                                </button>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-6 text-center">
-                        <button onClick={generatePdf} disabled={isProcessing} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-red-300">
-                            {isProcessing ? 'Generating PDF...' : 'Create PDF'}
+                    <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+                        <button onClick={() => processAndOutput('pdf')} disabled={isProcessing} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-red-300">
+                            {isProcessing ? 'Processing...' : 'Create PDF'}
+                        </button>
+                        <button onClick={() => processAndOutput('jpg')} disabled={isProcessing} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-gray-400">
+                            {isProcessing ? 'Processing...' : 'Save as JPG'}
                         </button>
                     </div>
                 </div>
             )}
+        </div>
+    );
+};
+
+// FIX: Define missing helper functions
+const formatBytes = (bytes: number, decimals = 2): string => {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+};
+
+const formatTime = (seconds: number | null): string => {
+    if (seconds === null) return '--:-- remaining';
+    if (seconds < 60) return `${Math.round(seconds)}s remaining`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    return `${minutes}m ${remainingSeconds}s remaining`;
+};
+
+// FIX: Define missing CompressionResultDisplay component
+const CompressionResultDisplay: React.FC<{ result: { originalSize: number; newSize: number } }> = ({ result }) => {
+    const reduction = result.originalSize > 0 ? ((result.originalSize - result.newSize) / result.originalSize) * 100 : 0;
+    
+    return (
+        <div className="my-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 max-w-md mx-auto">
+            <h3 className="font-bold text-lg text-blue-800 dark:text-blue-200">Compression Complete!</h3>
+            <div className="flex justify-between items-center mt-2 text-sm">
+                <span className="text-gray-600 dark:text-gray-400">Original Size:</span>
+                <span className="font-semibold">{formatBytes(result.originalSize)}</span>
+            </div>
+            <div className="flex justify-between items-center mt-1 text-sm">
+                <span className="text-gray-600 dark:text-gray-400">New Size:</span>
+                <span className="font-semibold">{formatBytes(result.newSize)}</span>
+            </div>
+            <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-600 flex justify-between items-center text-lg">
+                <span className="font-bold text-green-600 dark:text-green-400">Reduction:</span>
+                <span className="font-extrabold text-green-600 dark:text-green-400">{reduction.toFixed(1)}%</span>
+            </div>
+        </div>
+    );
+};
+
+// FIX: Define missing CompressionOptions component
+const CompressionOptions: React.FC<{ level: string; setLevel: (level: string) => void; }> = ({ level, setLevel }) => {
+    const options = [
+        { id: 'less', name: 'Less Compression', description: 'Higher quality, larger file size.' },
+        { id: 'recommended', name: 'Recommended Compression', description: 'Good quality, good compression.' },
+        { id: 'extreme', name: 'Extreme Compression', description: 'Lower quality, smallest file size.' },
+    ];
+    return (
+        <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Compression Level</h3>
+            <div className="space-y-3">
+                {options.map(opt => (
+                    <div
+                        key={opt.id}
+                        onClick={() => setLevel(opt.id)}
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${level === opt.id ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
+                    >
+                        <p className="font-semibold text-gray-800 dark:text-gray-200">{opt.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{opt.description}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
@@ -365,7 +452,7 @@ const getOutputFilename = (toolId: string, files: File[], options: any): string 
     case 'watermark-pdf': return `${baseName}_watermarked.pdf`;
     case 'page-numbers': return `${baseName}_numbered.pdf`;
     case 'jpg-to-pdf': return `${baseName}.pdf`;
-    case 'scan-to-pdf': return 'scanned_document.pdf';
+    case 'document-scanner': return 'scanned_document.pdf';
     case 'pdf-to-word': return `${baseName}.docx`;
     case 'pdf-to-jpg': return `${baseName}_images.zip`;
     case 'ocr-pdf': return `${baseName}_ocr.pdf`;
@@ -439,6 +526,9 @@ interface OrganizePdfUIProps {
     onReset: () => void;
     onAddMoreFiles: () => void;
 }
+
+const ToolPageContext = React.createContext<{ tool: Tool | null }>({ tool: null });
+const useToolPageContext = () => React.useContext(ToolPageContext);
 
 const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, onProcessSuccess, onProcessError, onReset, onAddMoreFiles }) => {
     const [pages, setPages] = useState<OrganizePdfPage[]>([]);
@@ -916,7 +1006,7 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'pdf-to-pdfa': 'Convert your PDF documents to PDF/A, the ISO-standardized version of PDF for long-term archiving.',
   'repair-pdf': 'Attempt to repair and recover data from corrupted or damaged PDF files.',
   'page-numbers': 'Add page numbers to your PDF documents. Customize the position, format, and style of your page numbers.',
-  'scan-to-pdf': 'Use your device camera to scan documents and convert them to high-quality PDF files. Adjust filters for perfect scans.',
+  'document-scanner': 'Use your device camera to scan documents and convert them to high-quality PDF files. Adjust filters for perfect scans.',
   'ocr-pdf': 'Convert scanned PDFs and images into searchable and selectable text documents using Optical Character Recognition (OCR).',
   'compare-pdf': 'Compare two PDF files side-by-side to find differences. Highlights changes in text and content.',
   'redact-pdf': 'Permanently remove sensitive information and text from your PDF documents by blacking it out.',
@@ -935,9 +1025,6 @@ const toolSeoDescriptions: { [key: string]: string } = {
   'watermark-image': 'Add a text or image watermark to your photos and images.',
 };
 
-const ToolPageContext = React.createContext<{ tool: Tool | null }>({ tool: null });
-const useToolPageContext = () => React.useContext(ToolPageContext);
-
 const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
@@ -948,14 +1035,13 @@ const ToolPage: React.FC = () => {
   const { addSignedDocument } = useSignedDocuments();
   const { addTask } = useLastTasks();
   const originalMetas = useRef<{title: string, desc: string, keywords: string} | null>(null);
-  // FIX: Cast LayoutContext to the expected type to resolve TypeScript error.
-  // The context is likely initialized with an empty object, leading to incorrect type inference.
   const { setShowFooter } = useContext(LayoutContext) as { setShowFooter: (show: boolean) => void };
 
   const [tool, setTool] = useState<Tool | null>(null);
   const [state, setState] = useState<ProcessingState>(ProcessingState.Idle);
   const [errorMessage, setErrorMessage] = useState('');
   const [processedFileBlob, setProcessedFileBlob] = useState<Blob | null>(null);
+  const [outputFilename, setOutputFilename] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [toolOptions, setToolOptions] = useState<any>(initialToolOptions);
   const [progress, setProgress] = useState<{ percentage: number; status: string } | null>(null);
@@ -1016,6 +1102,51 @@ const ToolPage: React.FC = () => {
 
 
   const totalSize = useMemo(() => files.reduce((acc, file) => acc + file.size, 0), [files]);
+
+  // FIX: Define missing handlers for success screen
+  const handleDownload = () => {
+    if (processedFileBlob) {
+        const filename = outputFilename || getOutputFilename(tool!.id, files, toolOptions);
+        downloadBlob(processedFileBlob, filename);
+    }
+  };
+
+  const openShareModal = async () => {
+    if (!processedFileBlob) return;
+    setIsShareModalOpen(true);
+    // In a real app, you would upload the blob and get a URL.
+    // For this example, we'll use a local blob URL which will only work on this device.
+    const url = URL.createObjectURL(processedFileBlob);
+    setShareableUrl(url); 
+    
+    setIsQrLoading(true);
+    setQrCodeError('');
+    try {
+        const qrUrl = await QRCode.toDataURL(url, { width: 200 });
+        setQrCodeUrl(qrUrl);
+    } catch (err) {
+        setQrCodeError("Could not generate QR code.");
+    } finally {
+        setIsQrLoading(false);
+    }
+  };
+
+  const handleSaveToDropbox = () => {
+    if (!processedFileBlob) return;
+    setCloudSaveState(prev => ({ ...prev, dropbox: 'saving' }));
+    const filename = outputFilename || getOutputFilename(tool!.id, files, toolOptions);
+    const url = URL.createObjectURL(processedFileBlob);
+    Dropbox.save(url, filename, {
+      success: () => {
+        setCloudSaveState(prev => ({ ...prev, dropbox: 'saved' }));
+        setTimeout(() => setCloudSaveState(prev => ({ ...prev, dropbox: 'idle' })), 2000);
+      },
+      error: () => {
+        setCloudSaveState(prev => ({ ...prev, dropbox: 'idle' }));
+        alert('Failed to save to Dropbox.');
+      }
+    });
+  };
 
   // Cloud Picker States and Logic
   const [gapiLoaded, setGapiLoaded] = useState(false);
@@ -1199,10 +1330,12 @@ const ToolPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (state === ProcessingState.Success && processedFileBlob && tool) {
-      downloadBlob(processedFileBlob, getOutputFilename(tool.id, files, toolOptions));
+    if (state === ProcessingState.Success && processedFileBlob) {
+      const filename = outputFilename || (tool ? getOutputFilename(tool.id, files, toolOptions) : 'download');
+      downloadBlob(processedFileBlob, filename);
+      setOutputFilename(''); // Reset after download
     }
-  }, [state, processedFileBlob, tool, files, toolOptions, downloadBlob]);
+  }, [state, processedFileBlob, tool, files, toolOptions, downloadBlob, outputFilename]);
 
   const getProcessingMessage = (tool: Tool | null): React.ReactNode => {
     if (!tool) return 'Processing...';
@@ -2120,15 +2253,16 @@ const ToolPage: React.FC = () => {
         if (blob) {
             setProcessedFileBlob(blob);
             setState(ProcessingState.Success);
-            const outputFilename = getOutputFilename(tool.id, files, toolOptions);
+            const filename = getOutputFilename(tool.id, files, toolOptions);
+            setOutputFilename(filename);
             addTask({
                 toolId: tool.id,
                 toolTitle: t(tool.title),
-                outputFilename: outputFilename,
+                outputFilename: filename,
                 fileBlob: blob
             });
             if (user) {
-                sendTaskCompletionEmail(t(tool.title), outputFilename);
+                sendTaskCompletionEmail(t(tool.title), filename);
             }
         } else if (state !== ProcessingState.Error) {
              if (!['word-to-pdf', 'excel-to-pdf', 'pdf-to-word'].includes(tool.id)) {
@@ -2145,6 +2279,38 @@ const ToolPage: React.FC = () => {
         }
       }
   };
+  
+  const onProcessStart = () => {
+      setState(ProcessingState.Processing);
+      setProcessingStartTime(Date.now());
+      setErrorMessage('');
+      setProcessedFileBlob(null);
+      setOutputFilename('');
+      setProgress({ percentage: 0, status: 'Starting process...'});
+  };
+
+  const onProcessSuccess = (blob: Blob, filename: string) => {
+      setProcessedFileBlob(blob);
+      setOutputFilename(filename);
+      setState(ProcessingState.Success);
+      if (tool) {
+        addTask({
+            toolId: tool.id,
+            toolTitle: t(tool.title),
+            outputFilename: filename,
+            fileBlob: blob
+        });
+        if (user) {
+            sendTaskCompletionEmail(t(tool.title), filename);
+        }
+      }
+  };
+
+  const onProcessError = (message: string) => {
+      setErrorMessage(message);
+      setState(ProcessingState.Error);
+  };
+
 
   if (!tool) {
     return (
@@ -2155,201 +2321,10 @@ const ToolPage: React.FC = () => {
         </div>
     );
   }
-  
-    if (tool.id === 'remove-background') {
-        return (
-            <div className="py-16 md:py-20">
-                <div className="text-center mb-10">
-                    <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
-                        <tool.Icon className="h-12 w-12 text-white" />
-                    </div>
-                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
-                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
-                </div>
-                <ToolPageContext.Provider value={{ tool }}>
-                    <BackgroundRemovalUI tool={tool} />
-                </ToolPageContext.Provider>
-            </div>
-        );
-    }
-
-
-  const formatTime = (seconds: number | null): string => {
-    if (seconds === null || !isFinite(seconds) || seconds < 0) return 'Calculating...';
-    if (seconds < 1) return '< 1 second remaining';
-    if (seconds < 60) return `${Math.round(seconds)} second(s) remaining`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.round(seconds % 60);
-    if (minutes < 1) return `${remainingSeconds} second(s) remaining`;
-    return `${minutes} minute(s), ${remainingSeconds} second(s) remaining`;
-  };
-  
-  const handleDownload = () => {
-    if (!processedFileBlob || !tool) return;
-    downloadBlob(processedFileBlob, getOutputFilename(tool.id, files, toolOptions));
-  };
-  
-  const handleSaveToDropbox = async () => {
-    if (!processedFileBlob || !tool) return;
-    setCloudSaveState(prev => ({ ...prev, dropbox: 'saving' }));
-    try {
-        const dataUrl = await blobToDataURL(processedFileBlob);
-
-        Dropbox.save(dataUrl, getOutputFilename(tool.id, files, toolOptions), {
-            success: () => setCloudSaveState(prev => ({ ...prev, dropbox: 'saved' })),
-            error: (err: any) => { console.error("Dropbox save error:", err); setCloudSaveState(prev => ({...prev, dropbox: 'idle'})); },
-            cancel: () => setCloudSaveState(prev => ({...prev, dropbox: 'idle'})),
-        });
-    } catch (e) {
-        console.error("Error preparing file for Dropbox", e);
-        setCloudSaveState(prev => ({...prev, dropbox: 'idle'}));
-    }
-  };
-
-    const openShareModal = async () => {
-        if (!processedFileBlob) return;
-        
-        setIsShareModalOpen(true);
-        setShareableUrl('');
-        setQrCodeUrl('');
-        setQrCodeError('');
-        setIsQrLoading(true);
-
-        let dataUrl = '';
-        try {
-            dataUrl = await blobToDataURL(processedFileBlob);
-            setShareableUrl(dataUrl);
-        } catch (error) {
-            console.error("Error converting blob to data URL:", error);
-            setShareableUrl('Error: Could not generate link.');
-            setQrCodeError('Could not generate QR code link.');
-            setIsQrLoading(false);
-            return;
-        }
-
-        try {
-            const generatedUrl = await QRCode.toDataURL(dataUrl, { width: 150, errorCorrectionLevel: 'L' });
-            setQrCodeUrl(generatedUrl);
-            setQrCodeError('');
-        } catch (error) {
-            console.error("Error generating QR code:", error);
-            setQrCodeError("This file is too large to generate a scannable QR code. Please use the 'Copy' button to share the download link.");
-        } finally {
-            setIsQrLoading(false);
-        }
-    };
-
-    const closeShareModal = () => {
-        if (qrCodeUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(qrCodeUrl);
-        }
-        setIsShareModalOpen(false);
-    };
-
-  const handleCopyLink = () => {
-    if (!shareableUrl || shareableUrl.startsWith('Error')) return;
-    navigator.clipboard.writeText(shareableUrl).then(() => {
-        setIsCopying(true);
-        setTimeout(() => setIsCopying(false), 2000);
-    });
-  }
-
-  const CompressionOptions: React.FC<{ level: string, setLevel: (level: string) => void }> = ({ level, setLevel }) => {
-    const options = [
-        { id: 'extreme', title: 'EXTREME COMPRESSION', description: 'Less quality, high compression' },
-        { id: 'recommended', title: 'RECOMMENDED COMPRESSION', description: 'Good quality, good compression' },
-        { id: 'less', title: 'LESS COMPRESSION', description: 'High quality, less compression' }
-    ];
-
-    return (
-        <div className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Compression level</h3>
-            {options.map(opt => (
-                <button
-                    key={opt.id}
-                    onClick={() => setLevel(opt.id)}
-                    className={`w-full text-left p-4 border-2 rounded-lg flex items-center justify-between transition-all ${level === opt.id ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'}`}
-                >
-                    <div>
-                        <p className="font-semibold text-gray-800 dark:text-gray-200">{opt.title}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{opt.description}</p>
-                    </div>
-                    {level === opt.id && <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center"><CheckIcon className="h-4 w-4 text-white" /></div>}
-                </button>
-            ))}
-        </div>
-    );
-  };
-  
-  const formatBytes = (bytes: number, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-  
-  const CompressionResultDisplay: React.FC<{ result: { originalSize: number, newSize: number } }> = ({ result }) => {
-      const { originalSize, newSize } = result;
-      const percentageSaved = originalSize > 0 ? Math.round(((originalSize - newSize) / originalSize) * 100) : 0;
-      
-      const wasCompressed = newSize < originalSize;
-      let message: React.ReactNode;
-
-      if (!wasCompressed) {
-        message = "This PDF is already highly optimized and could not be compressed further.";
-      } else if (percentageSaved < 5) {
-         message = (
-            <>
-                This PDF could only be compressed by {percentageSaved}%.<br />
-                For a smaller file, try <strong>Extreme Compression</strong> (may reduce image quality).
-            </>
-        );
-      } else {
-        message = `Your PDF is now ${percentageSaved}% smaller!`;
-      }
-      
-      const displayPercentage = wasCompressed ? percentageSaved : 0;
-
-      return (
-          <div className="my-8 flex flex-col items-center">
-              <div className="relative w-40 h-40">
-                  <svg className="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
-                      <path
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          stroke={wasCompressed ? "#e6e6e6" : "#fecaca"}
-                          strokeWidth="3.5"
-                      />
-                      <path
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          stroke={wasCompressed ? "#4caf50" : "#ef4444"}
-                          strokeWidth="3.5"
-                          strokeDasharray={`${displayPercentage}, 100`}
-                          className="transition-all duration-1000 ease-out"
-                      />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-4xl font-bold text-gray-800 dark:text-gray-100">
-                        {wasCompressed ? `${percentageSaved}%` : '0%'}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">SAVED</span>
-                  </div>
-              </div>
-              <p className="mt-6 text-lg font-semibold text-gray-700 dark:text-gray-300 text-center">
-                {message}
-              </p>
-              <p className="text-gray-500 dark:text-gray-400">
-                  {formatBytes(originalSize)} - {formatBytes(newSize)}
-              </p>
-          </div>
-      );
-  };
 
   const renderContent = () => {
     if (state === ProcessingState.Success) {
+        const filename = outputFilename || getOutputFilename(tool.id, files, toolOptions);
         return (
             <div className="text-center w-full max-w-7xl mx-auto py-12 success-screen">
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
@@ -2368,7 +2343,7 @@ const ToolPage: React.FC = () => {
                     <div className="success-main-actions">
                         <button onClick={handleDownload} className="success-download-btn">
                             <DownloadIcon className="h-6 w-6" />
-                            <span>Download file</span>
+                            <span>Download {filename}</span>
                         </button>
                         <div className="success-secondary-actions">
                             <button
@@ -2538,27 +2513,75 @@ const ToolPage: React.FC = () => {
         );
     }
     
+    // Handle special tool UIs
+    if (tool.id === 'remove-background') {
+        return (
+             <>
+                <div className="text-center mb-10">
+                    <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+                        <tool.Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
+                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
+                </div>
+                <ToolPageContext.Provider value={{ tool }}>
+                    <BackgroundRemovalUI tool={tool} />
+                </ToolPageContext.Provider>
+            </>
+        );
+    }
+
     if (tool.id === 'organize-pdf' && files.length > 0) {
         return (
-            <ToolPageContext.Provider value={{ tool }}>
-                <OrganizePdfUI
-                    files={files}
-                    onProcessStart={() => setState(ProcessingState.Processing)}
-                    onProcessSuccess={(blob) => {
-                        setProcessedFileBlob(blob);
-                        setState(ProcessingState.Success);
-                    }}
-                    onProcessError={(message) => {
-                        setErrorMessage(message);
-                        setState(ProcessingState.Error);
-                    }}
-                    onReset={handleReset}
-                    onAddMoreFiles={open}
+            <>
+                <div className="text-center mb-10">
+                    <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+                        <tool.Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
+                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
+                </div>
+                <ToolPageContext.Provider value={{ tool }}>
+                    <OrganizePdfUI
+                        files={files}
+                        onProcessStart={() => setState(ProcessingState.Processing)}
+                        onProcessSuccess={(blob) => {
+                            setProcessedFileBlob(blob);
+                            setState(ProcessingState.Success);
+                        }}
+                        onProcessError={(message) => {
+                            setErrorMessage(message);
+                            setState(ProcessingState.Error);
+                        }}
+                        onReset={handleReset}
+                        onAddMoreFiles={open}
+                    />
+                </ToolPageContext.Provider>
+            </>
+        );
+    }
+
+     if (tool.id === 'document-scanner') {
+        return (
+            <>
+                <div className="text-center mb-10">
+                    <div className={`inline-flex items-center justify-center p-4 rounded-full ${tool.color} mb-4`}>
+                        <tool.Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100">{t(tool.title)}</h1>
+                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">{t(tool.description)}</p>
+                </div>
+                <DocumentScannerUI
+                    tool={tool}
+                    onProcessStart={onProcessStart}
+                    onProcessSuccess={onProcessSuccess}
+                    onProcessError={onProcessError}
                 />
-            </ToolPageContext.Provider>
+            </>
         );
     }
     
+    // Default Idle State UI for all other tools
     return (
         <>
             <div className="text-center mb-10">
@@ -2700,7 +2723,7 @@ const ToolPage: React.FC = () => {
   return (
     <div className="py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {renderContent()}
+        {tool && renderContent()}
       </div>
       <WhoWillSignModal 
         isOpen={isWhoWillSignModalOpen}

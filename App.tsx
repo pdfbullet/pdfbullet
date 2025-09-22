@@ -1,4 +1,5 @@
 
+
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -6,7 +7,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
-import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon } from './components/icons.tsx';
+import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
@@ -379,7 +380,8 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     useEffect(() => {
         if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            // FIX: Cast window to `any` to access non-standard SpeechRecognition APIs.
+            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
             const recognition = new SpeechRecognition();
             recognition.continuous = false;
             recognition.interimResults = false;
@@ -467,6 +469,17 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
         setChat(null);
         setIsMenuOpen(false);
         initializeChat();
+    };
+
+    const handleClearHistory = () => {
+        if (window.confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
+            setCurrentMessages([INITIAL_MESSAGE]);
+            setAllConversations([]);
+            localStorage.removeItem(CHAT_CONVERSATIONS_KEY);
+            setIsMenuOpen(false);
+            setChat(null);
+            initializeChat();
+        }
     };
 
     const loadConversation = (conversation: Conversation) => {
@@ -559,6 +572,9 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                                 <button onClick={handleNewChat} className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold">
                                     <RefreshIcon className="h-5 w-5 text-brand-red"/> New Chat
                                 </button>
+                                <button onClick={handleClearHistory} className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold">
+                                    <TrashIcon className="h-5 w-5 text-brand-red"/> Clear History
+                                </button>
                                 <div className="mt-4">
                                     <h4 className="px-3 text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2"><ClockIcon className="h-4 w-4"/> History</h4>
                                     <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
@@ -587,7 +603,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                 </div>
             </div>
             {showFab && (
-                <button onClick={onOpen} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
+                <button onClick={onOpen} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
                     <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
                     <ChatbotIcon className="h-6 w-6 relative" />
                 </button>
@@ -638,8 +654,6 @@ const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
 const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
 const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
-// FIX: Corrected lazy import path for AIAssistant.
-const AIAssistant = lazy(() => import('./pages/AIAssistant.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
@@ -740,7 +754,6 @@ function AppContent() {
                     <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
                     <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
                     <Route path="/image-generator" element={<ImageGeneratorPage />} />
-                    <Route path="/ai-assistant" element={<AIAssistant />} />
                     <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/api-pricing" element={<ApiPricingPage />} />
                     <Route path="/premium-feature" element={<PremiumFeaturePage />} />

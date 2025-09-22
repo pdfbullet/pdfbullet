@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HomeIcon, GridIcon, SettingsIcon, NewspaperIcon, ScanToPdfIcon } from './icons.tsx';
@@ -37,7 +38,7 @@ const PwaBottomNav: React.FC = () => {
             {/* Central Floating Action Button */}
             <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 text-center pointer-events-auto">
                  <Link 
-                    to="/scan-to-pdf" 
+                    to="/document-scanner" 
                     className="inline-flex items-center justify-center w-16 h-16 bg-brand-red rounded-full shadow-lg text-white transform hover:scale-110 transition-transform"
                     aria-label="Scan Document"
                 >
