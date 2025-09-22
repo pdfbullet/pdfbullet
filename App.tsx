@@ -31,6 +31,7 @@ import Preloader from './components/Preloader.tsx';
 import PWAInstallInstructionsModal from './components/PWAInstallInstructionsModal.tsx';
 import MobileAuthGate from './components/MobileAuthGate.tsx';
 import WelcomeInstallModal from './components/WelcomeInstallModal.tsx';
+import PwaBottomNav from './components/PwaBottomNav.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -845,6 +846,7 @@ function AppContent() {
               <PWAInstallInstructionsModal />
               <ChatbotWidget />
               <WelcomeInstallModal />
+              <PwaBottomNav />
             </div>
         </PullToRefresh>
       </MobileAuthGate>
