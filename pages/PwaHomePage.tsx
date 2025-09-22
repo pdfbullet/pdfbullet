@@ -12,19 +12,19 @@ import { useI18n } from '../contexts/I18nContext.tsx';
 
 const bannerSlides = [
   {
-    image: 'https://ik.imagekit.io/fonepay/premium-banner.png?updatedAt=1758951093121',
+    image: 'https://ik.imagekit.io/fonepay/slider-1.png?updatedAt=1758555229409',
     title: 'Unlock Premium Features!',
     description: 'Get unlimited access, advanced tools, and an ad-free experience.',
     link: '/pricing',
   },
   {
-    image: 'https://ik.imagekit.io/fonepay/ai-tools-banner.png?updatedAt=1758951093108',
+    image: 'https://ik.imagekit.io/fonepay/slider-2.png?updatedAt=1758554896182',
     title: 'Discover AI-Powered Tools',
     description: 'Generate invoices, CVs, and lesson plans in seconds with our new AI assistants.',
     link: '/ai-assistant',
   },
   {
-    image: 'https://ik.imagekit.io/fonepay/blog-banner.png?updatedAt=1758951093144',
+    image: 'https://ik.imagekit.io/fonepay/slider-3.png?updatedAt=1758554896137',
     title: 'Read Our Latest Articles',
     description: 'Stay updated with the latest tips, tricks, and news on document management.',
     link: '/articles',
@@ -37,13 +37,13 @@ const PwaBannerSlider: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerSlides.length);
-    }, 5000); // Change slide every 5 seconds
+    }, 2000); // Change slide every 2 seconds
 
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <section className="relative w-full h-48 rounded-2xl overflow-hidden shadow-lg">
+    <section className="relative w-full aspect-[5/2] rounded-2xl overflow-hidden shadow-lg">
       <div
         className="flex transition-transform duration-700 ease-in-out h-full"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
