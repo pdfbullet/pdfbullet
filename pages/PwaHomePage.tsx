@@ -21,7 +21,7 @@ const bannerSlides = [
     image: 'https://ik.imagekit.io/fonepay/slider-2.png?updatedAt=1758554896182',
     title: 'Discover AI-Powered Tools',
     description: 'Generate invoices, CVs, and lesson plans in seconds with our new AI assistants.',
-    link: '/ai-assistant',
+    link: '/invoice-generator',
   },
   {
     image: 'https://ik.imagekit.io/fonepay/slider-3.png?updatedAt=1758554896137',
