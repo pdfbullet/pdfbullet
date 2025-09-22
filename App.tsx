@@ -1,14 +1,16 @@
 
+
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
-import { I18nProvider } from './contexts/I18nContext.tsx';
+import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
+import { TOOLS } from './constants.ts';
 
 // Components that are part of the main layout
 // FIX: Changed the import of the Header component to a named import.
@@ -190,22 +192,40 @@ const SendIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-type GroundingSource = {
-    web: {
-        uri: string;
-        title?: string;
-    }
-};
+const EllipsisHorizontalIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M6 12a2 2 0 11-4 0 2 2 0 014 0zm8 0a2 2 0 11-4 0 2 2 0 014 0zm8 0a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+);
 
-type ChatMessage = {
-    role: 'user' | 'model';
-    text: string;
-    sources?: GroundingSource['web'][];
-};
+const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z"/>
+    </svg>
+);
+
+const ClockIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v-2h-2z" />
+    </svg>
+);
+
+const BoltIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+    </svg>
+);
+
+
+type GroundingSource = { web: { uri: string; title?: string; } };
+type ChatMessage = { role: 'user' | 'model'; text: string; sources?: GroundingSource['web'][]; };
+type Conversation = { id: number; messages: ChatMessage[]; timestamp: number; };
+
+const CHAT_CONVERSATIONS_KEY = 'chatConversations_v1';
+const INITIAL_MESSAGE: ChatMessage = { role: 'model', text: 'Hi 👋 I’m your support assistant. How can I help you today?' };
 
 const MarkdownRenderer: React.FC<{ text: string; sources?: GroundingSource['web'][] }> = ({ text, sources }) => {
     const navigate = useNavigate();
-    // A simple markdown parser for **bold** and links.
     const formattedText = text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/(\s|^)(\/[-a-zA-Z0-9_/?=&]+)/g, '$1<a href="$2" class="text-blue-500 hover:underline" data-internal-link="true">$2</a>');
@@ -249,16 +269,8 @@ const faqs = [
 
 const ChatbotWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [conversationStarted, setConversationStarted] = useState(false);
-    const [messages, setMessages] = useState<ChatMessage[]>(() => {
-        try {
-            const savedMessages = localStorage.getItem('chatHistory');
-            if (savedMessages) {
-                return JSON.parse(savedMessages);
-            }
-        } catch (e) { console.error("Failed to load chat history", e); }
-        return [{ role: 'model', text: 'Hi 👋 I’m your support assistant. How can I help you today?' }];
-    });
+    const [currentMessages, setCurrentMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
+    const [allConversations, setAllConversations] = useState<Conversation[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -266,25 +278,75 @@ const ChatbotWidget: React.FC = () => {
     const [useGoogleSearch, setUseGoogleSearch] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [copiedTooltip, setCopiedTooltip] = useState<string | null>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [userHasInteracted, setUserHasInteracted] = useState(false);
+    const { user } = useAuth();
+    const { t } = useI18n();
+
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const recognitionRef = useRef<any>(null);
 
-    useEffect(() => {
-        const hasOpened = sessionStorage.getItem('chatWidgetAutoOpened');
-        if (!hasOpened && !isOpen) {
-            const timer = setTimeout(() => {
-                setIsOpen(true);
-                sessionStorage.setItem('chatWidgetAutoOpened', 'true');
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [isOpen]);
-
+    // Load conversations from localStorage on mount
     useEffect(() => {
         try {
-            localStorage.setItem('chatHistory', JSON.stringify(messages));
-        } catch (e) { console.error("Failed to save chat history", e); }
-    }, [messages]);
+            const saved = localStorage.getItem(CHAT_CONVERSATIONS_KEY);
+            if (saved) {
+                const conversations: Conversation[] = JSON.parse(saved);
+                setAllConversations(conversations);
+                if (conversations.length > 0) {
+                    setCurrentMessages(conversations[conversations.length - 1].messages);
+                }
+            }
+        } catch (e) { console.error("Failed to load chat history", e); }
+    }, []);
+    
+    const speak = (text: string) => {
+        if ('speechSynthesis' in window && text) {
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+
+            const trySpeak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const femaleVoice = voices.find(voice => voice.lang === 'en-US' && (voice.name.includes('Google') || voice.name.includes('Female')));
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            };
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                trySpeak();
+            } else {
+                window.speechSynthesis.onvoiceschanged = trySpeak;
+            }
+        }
+    };
+    
+    // Auto-popup logic
+    useEffect(() => {
+        const hasOpened = sessionStorage.getItem('chatWidgetAutoOpened');
+        if (!hasOpened) {
+            const popupTimer = setTimeout(() => {
+                setIsOpen(true);
+                sessionStorage.setItem('chatWidgetAutoOpened', 'true');
+                
+                const welcomeMessage = user ? `Welcome, ${user.username}! How can I assist you today?` : `Welcome to iLovePDFLY! How can I help you today?`;
+                speak(welcomeMessage);
+
+                const closeTimer = setTimeout(() => {
+                    if (!userHasInteracted) setIsOpen(false);
+                }, 3000);
+                return () => clearTimeout(closeTimer);
+            }, 5000);
+            return () => clearTimeout(popupTimer);
+        }
+    }, [user, userHasInteracted]);
+
     
     const initializeChat = () => {
         try {
@@ -294,31 +356,40 @@ const ChatbotWidget: React.FC = () => {
             const chatSession = ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {
-                    systemInstruction: `You are an expert, friendly, and helpful customer support assistant for a website called 'iLovePDFLY'. Your name is Bishal, and you represent the company. Your goal is to provide accurate information, guide users on how to use the site, and answer frequently asked questions.
+                    systemInstruction: `You are an expert, friendly, and helpful customer support assistant for a website called 'iLovePDFLY'. Your name is Bishal, and you represent the company. Your goal is to provide accurate information, guide users on how to use the site, and answer frequently asked questions based *only* on the extensive information provided below.
 
-**Your Identity:**
-- **Your Persona:** You are Bishal, the founder. Be confident, knowledgeable, and professional, yet approachable and friendly. Use emojis to add a warm touch where appropriate. ✨
-- **Your Creator:** You were created by the development team at iLovePDFLY, led by founder and CEO, **Bishal Mishra**. When asked about yourself, you can embody this persona.
-
-**Key Information about iLovePDFLY:**
+**Core Mission & Values:**
 - **Website:** The official website is ilovepdfly.com.
 - **Mission:** To provide a comprehensive online toolkit for PDF and image management that is FREE, fast, secure, and private.
-- **Privacy:** A key feature is client-side processing. Files are processed in the user's browser, ensuring they are 100% private. This is a major selling point.
-- **Tools:** The site offers a wide range of tools for PDFs (Merge, Split, Compress, Convert, Edit, Sign, Watermark, etc.) and Images (Background Remover, Resize, Crop). There are also AI tools like an Invoice Generator, CV Generator, and Lesson Plan Creator.
-- **Premium Features:** While most tools are free, some advanced features (like higher limits, OCR in PDF to Word, batch processing, no ads, team features) require a Premium subscription.
+- **Key Feature - Privacy:** The cornerstone of iLovePDFLY is **client-side processing**. This means most file operations happen directly in the user's browser. Files are NOT uploaded to servers for most tools, guaranteeing 100% privacy. This is a major advantage and should be mentioned when relevant.
+- **Key Feature - Speed:** Because of client-side processing, there are no upload delays, making the tools incredibly fast.
+- **Key Feature - Free Access:** Most tools are completely free to use without limits.
 
-**Contact Information & Support Tiers:**
-- **General User Support:** For general questions, help with tools, or feedback, direct users to the main support channels. The primary support email is **Support@ilovepdfly.com**. Human support is available via WhatsApp.
-- **Developer & Admin Contact:** If a user specifically asks for developer, founder, or admin contact information, you MUST provide the following details:
-  - **Email:** admin@ilovepdfly.com
-  - **Phone:** +9779827801575
-- **Do not** provide the developer/admin contact for general inquiries. Only when explicitly asked.
+**Available Tools (Organized by Category):**
+- **Organize PDF:** Merge, Split, Organize, Rotate PDF, Create ZIP files.
+- **Optimize PDF:** Compress PDF, Repair PDF (a premium tool to fix corrupted files).
+- **Convert to PDF:** JPG to PDF, Word to PDF, PowerPoint to PDF, Excel to PDF, PSD to PDF, and Scan to PDF (using a device camera).
+- **Convert from PDF:** PDF to JPG, PDF to PNG, PDF to Word, PDF to PowerPoint (premium), PDF to Excel, Extract Text (OCR).
+- **Edit PDF:** Edit PDF (premium), Add Page Numbers (premium), Crop PDF (premium), OCR PDF (premium, to make scanned text selectable).
+- **PDF Security:** Unlock PDF, Protect PDF (add password), Sign PDF (premium), Watermark PDF.
+- **Image Tools:** Remove Background, Compress Image, Watermark Image.
+- **Business & AI Tools:** AI Question Generator, Invoice Generator, CV Generator, Lesson Plan Creator.
+
+**Premium Features & Pricing:**
+- Premium plans unlock advanced features like OCR, batch processing, higher file limits, no ads, team features, and access to premium tools like Edit PDF and PDF to PowerPoint.
+- Pricing information can be found at /pricing.
+
+**Company & Support:**
+- **Founder & CEO:** Bishal Mishra.
+- **Support:** The primary support email is Support@ilovepdfly.com. Human support is available via WhatsApp for urgent issues.
+- **Developer API:** A REST API is available for developers at /developer.
 
 **Interaction Guidelines:**
-- **Answering FAQs:** Users may click pre-defined FAQ buttons. Answer these questions directly and helpfully. For example, if asked "How to merge PDFs?", explain the simple steps: go to the Merge PDF tool, upload files, reorder them, and click the merge button.
-- **Providing Links:** Always provide relative links (e.g., /about, /pricing, /merge-pdf) when a user asks for a specific page or tool. Do not say you cannot provide links. Format links simply as text paths, for example: "You can find our pricing details on our pricing page: /pricing".
-- **Formatting:** Use Markdown for emphasis. Use double asterisks for bolding: \`**this is bold**\`. This is important for highlighting tool names, key features, or links. Keep paragraphs short.
-- **Exclusivity:** You are an assistant for **iLovePDFLY** only. If asked about competitors (like 'iLovePDF'), politely clarify that you only have information about iLovePDFLY and its unique features, like its strong focus on privacy.`,
+- **Be Friendly & Professional:** Use emojis sparingly to add warmth ✨.
+- **Provide Links:** When mentioning a tool or page, provide the relative path (e.g., "You can use our /merge-pdf tool for that."). Format them as simple text paths.
+- **Use Markdown:** Use double asterisks for bolding: \`**this is bold**\`. This helps highlight important information.
+- **Stay Focused:** Only answer questions related to iLovePDFLY. If asked about competitors (like 'iLovePDF'), politely state you only have information about iLovePDFLY and its features.`,
+                   thinkingConfig: { thinkingBudget: 0 }
                 },
             });
             setChat(chatSession);
@@ -331,9 +402,7 @@ const ChatbotWidget: React.FC = () => {
     };
 
     useEffect(() => {
-        if (isOpen && !chat) {
-            initializeChat();
-        }
+        if (isOpen && !chat) initializeChat();
     }, [isOpen, chat]);
 
     useEffect(() => {
@@ -354,15 +423,27 @@ const ChatbotWidget: React.FC = () => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [messages, isLoading]);
+    }, [currentMessages, isLoading]);
+
+    const saveCurrentConversation = () => {
+        if (currentMessages.length > 1) { // Only save if there's more than the initial message
+            const newConversation: Conversation = {
+                id: Date.now(),
+                messages: currentMessages,
+                timestamp: Date.now(),
+            };
+            const updatedConversations = [...allConversations, newConversation];
+            setAllConversations(updatedConversations);
+            localStorage.setItem(CHAT_CONVERSATIONS_KEY, JSON.stringify(updatedConversations));
+        }
+    };
 
     const handleSendMessage = async (messageText?: string) => {
         const textToSend = (messageText || inputValue).trim();
         if (!textToSend || isLoading) return;
         
-        setConversationStarted(true);
         const userMessage: ChatMessage = { role: 'user', text: textToSend };
-        setMessages(prev => [...prev, userMessage]);
+        setCurrentMessages(prev => [...prev, userMessage]);
         setInputValue('');
         setIsLoading(true);
         setError('');
@@ -380,7 +461,7 @@ const ChatbotWidget: React.FC = () => {
                  });
                  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
                  const sources: GroundingSource['web'][] = groundingChunks?.map(c => c.web).filter((w): w is GroundingSource['web'] => !!w?.uri) || [];
-                 setMessages(prev => [...prev, { role: 'model', text: response.text, sources: sources.length > 0 ? sources : undefined }]);
+                 setCurrentMessages(prev => [...prev, { role: 'model', text: response.text, sources: sources.length > 0 ? sources : undefined }]);
             } else {
                 let currentChat = chat;
                 if (!currentChat) {
@@ -389,10 +470,10 @@ const ChatbotWidget: React.FC = () => {
                 }
                 const stream = await currentChat.sendMessageStream({ message: textToSend });
                 let streamedText = '';
-                setMessages(prev => [...prev, { role: 'model', text: '' }]);
+                setCurrentMessages(prev => [...prev, { role: 'model', text: '' }]);
                 for await (const chunk of stream) {
                     streamedText += chunk.text;
-                    setMessages(prev => {
+                    setCurrentMessages(prev => {
                         const newMsgs = [...prev];
                         if (newMsgs.length > 0) newMsgs[newMsgs.length - 1].text = streamedText;
                         return newMsgs;
@@ -403,7 +484,7 @@ const ChatbotWidget: React.FC = () => {
             console.error("Gemini API error:", e);
             const errorMessage = "Sorry, I couldn't get a response. Please check your connection or try again later.";
             setError(errorMessage);
-            setMessages(prev => [...prev, { role: 'model', text: errorMessage }]);
+            setCurrentMessages(prev => [...prev, { role: 'model', text: errorMessage }]);
         } finally {
             setIsLoading(false);
         }
@@ -417,10 +498,19 @@ const ChatbotWidget: React.FC = () => {
     };
     
     const handleNewChat = () => {
-        setMessages([{ role: 'model', text: 'New chat started. How can I help you?' }]);
-        setConversationStarted(false);
-        setError('');
+        saveCurrentConversation();
+        setCurrentMessages([INITIAL_MESSAGE]);
+        setChat(null); // Force re-initialization for a fresh context
+        setIsMenuOpen(false);
         initializeChat();
+    };
+
+    const loadConversation = (conversation: Conversation) => {
+        saveCurrentConversation(); // Save the current one first
+        setCurrentMessages(conversation.messages);
+        setChat(null); // Re-initialize chat with history if needed (or just start fresh)
+        setIsMenuOpen(false);
+        initializeChat(); // For simplicity, we start a new session context
     };
 
     const handleCopyText = (text: string, id: string) => {
@@ -429,78 +519,115 @@ const ChatbotWidget: React.FC = () => {
         setTimeout(() => setCopiedTooltip(null), 2000);
     };
 
+    const conversationStarted = currentMessages.length > 1;
+
     return (
         <div className="fixed bottom-4 left-4 z-[99] pointer-events-none">
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-                <div className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800">
+                <div 
+                    className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800 overflow-hidden"
+                    onMouseEnter={() => setUserHasInteracted(true)}
+                    onClick={() => setUserHasInteracted(true)}
+                >
                     <div className="flex-shrink-0 p-4 flex justify-between items-center bg-gradient-to-r from-red-600 to-orange-500 rounded-t-2xl">
                         <p className="font-bold text-white">iLovePDFly Support</p>
                         <div className="flex items-center gap-2">
-                            <button onClick={handleNewChat} className="text-white/70 hover:text-white" aria-label="Start new chat" title="Start new chat"><RefreshIcon className="h-5 w-5" /></button>
+                            <button onClick={() => setIsMenuOpen(true)} className="p-1.5 rounded-md border border-white/30 text-white/80 hover:bg-white/10 hover:text-white transition-colors" aria-label="Open menu" title="Open menu"><EllipsisHorizontalIcon className="h-5 w-5" /></button>
                             <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white" aria-label="Close chat widget" title="Close chat widget"><CloseIcon className="h-6 w-6" /></button>
                         </div>
                     </div>
-                    <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
-                        {messages.map((msg, index) => (
-                            <div key={index} className={`flex items-end gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
-                                <div className={`max-w-[80%] p-3 rounded-2xl text-sm relative group ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
-                                    <MarkdownRenderer text={msg.text} sources={msg.sources} />
-                                </div>
-                                {msg.role === 'model' && (
-                                    <div className="relative self-center">
-                                        <button onClick={() => handleCopyText(msg.text, `chat-${index}`)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-brand-red transition-all duration-200" aria-label="Copy message">
-                                            <CopyIcon className="h-4 w-4" />
-                                        </button>
-                                        {copiedTooltip === `chat-${index}` && (<span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded shadow-lg z-10">Copied!</span>)}
+                    
+                    {/* Main Chat View */}
+                    <div className="flex-grow flex flex-col overflow-hidden relative">
+                        <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
+                            {currentMessages.map((msg, index) => (
+                                <div key={index} className={`flex items-end gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
+                                    <div className={`max-w-[80%] p-3 rounded-2xl text-sm relative group ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
+                                        <MarkdownRenderer text={msg.text} sources={msg.sources} />
                                     </div>
-                                )}
-                            </div>
-                        ))}
-                        {isLoading && (
-                             <div className="flex items-end gap-2.5 justify-start">
-                                <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
-                                <div className="p-3 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center rounded-bl-none">
-                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1.5"></span>
-                                     <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce"></span>
                                 </div>
-                            </div>
-                        )}
-                         {!conversationStarted && !isLoading && (
-                            <div className="pt-2">
-                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Or ask about:</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {faqs.map((faq, i) => (
-                                        <button key={i} onClick={() => handleSendMessage(faq.q)} className="flex items-center gap-2 text-xs text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
-                                            <span>{faq.icon}</span><span className="font-medium text-gray-700 dark:text-gray-300">{faq.q}</span>
-                                        </button>
-                                    ))}
+                            ))}
+                            {isLoading && (
+                                <div className="flex items-end gap-2.5 justify-start">
+                                    <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
+                                    <div className="p-3 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center rounded-bl-none">
+                                        <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                        <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1.5"></span>
+                                        <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce"></span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                    {error && <p className="text-xs text-red-500 text-center px-4 pb-2">{error}</p>}
-                     <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-700">
-                        <a href="https://wa.me/9779827801575" target="_blank" rel="noopener noreferrer" className="mb-2 w-full text-center bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center justify-center gap-2 transition-colors">
-                            <UserIcon className="h-4 w-4" /><span>Talk to human support</span>
-                        </a>
-                        <div className="relative flex items-center">
-                            <button type="button" onClick={handleVoiceSearch} disabled={isLoading || isListening} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-brand-red transition-colors disabled:opacity-50 ${isListening ? 'text-red-500 animate-pulse' : ''}`} aria-label="Use voice input" title="Use voice input">
-                                <MicrophoneIcon className="h-5 w-5" />
-                            </button>
-                            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} placeholder={isListening ? "Listening..." : "Type a message..."} className="flex-grow w-full px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-full focus:ring-brand-red focus:border-brand-red text-sm" disabled={isLoading || isListening}/>
-                            <button onClick={() => handleSendMessage()} disabled={isLoading || !inputValue.trim()} className="p-2.5 ml-2 bg-brand-red text-white rounded-full disabled:bg-red-300 transition-colors flex-shrink-0"><SendIcon className="h-5 w-5" /></button>
+                            )}
+                            {!conversationStarted && !isLoading && (
+                                <div className="pt-2">
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Or ask about:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {faqs.map((faq, i) => (
+                                            <button key={i} onClick={() => handleSendMessage(faq.q)} className="flex items-center gap-2 text-xs text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
+                                                <span>{faq.icon}</span><span className="font-medium text-gray-700 dark:text-gray-300">{faq.q}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        <div className="mt-2 flex items-center justify-center gap-2">
-                            <label htmlFor="google-search-toggle" className="flex items-center cursor-pointer">
-                                <div className="relative">
-                                    <input type="checkbox" id="google-search-toggle" className="sr-only" checked={useGoogleSearch} onChange={() => setUseGoogleSearch(!useGoogleSearch)} />
-                                    <div className="block bg-gray-200 dark:bg-gray-700 w-10 h-6 rounded-full"></div>
-                                    <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useGoogleSearch ? 'translate-x-full bg-brand-red' : ''}`}></div>
+                         {error && <p className="text-xs text-red-500 text-center px-4 pb-2">{error}</p>}
+                         <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-700">
+                            <a href="https://wa.me/9779827801575" target="_blank" rel="noopener noreferrer" className="mb-2 w-full text-center bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center justify-center gap-2 transition-colors">
+                                <UserIcon className="h-4 w-4" /><span>Talk to human support</span>
+                            </a>
+                            <div className="relative flex items-center">
+                                <button type="button" onClick={handleVoiceSearch} disabled={isLoading || isListening} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-brand-red transition-colors disabled:opacity-50 ${isListening ? 'text-red-500 animate-pulse' : ''}`} aria-label="Use voice input" title="Use voice input">
+                                    <MicrophoneIcon className="h-5 w-5" />
+                                </button>
+                                <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} placeholder={isListening ? "Listening..." : "Type a message..."} className="flex-grow w-full px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-full focus:ring-brand-red focus:border-brand-red text-sm" disabled={isLoading || isListening}/>
+                                <button onClick={() => handleSendMessage()} disabled={isLoading || !inputValue.trim()} className="p-2.5 ml-2 bg-brand-red text-white rounded-full disabled:bg-red-300 transition-colors flex-shrink-0"><SendIcon className="h-5 w-5" /></button>
+                            </div>
+                            <div className="mt-2 flex items-center justify-center gap-2">
+                                <label htmlFor="google-search-toggle" className="flex items-center cursor-pointer">
+                                    <div className="relative">
+                                        <input type="checkbox" id="google-search-toggle" className="sr-only" checked={useGoogleSearch} onChange={() => setUseGoogleSearch(!useGoogleSearch)} />
+                                        <div className="block bg-gray-200 dark:bg-gray-700 w-10 h-6 rounded-full"></div>
+                                        <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useGoogleSearch ? 'translate-x-full bg-brand-red' : ''}`}></div>
+                                    </div>
+                                    <div className="ml-2 text-xs text-gray-600 dark:text-gray-300 font-semibold flex items-center gap-1"><GlobeIcon className="h-4 w-4"/> Search with Google</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Menu View */}
+                        <div className={`absolute inset-0 bg-white dark:bg-black flex flex-col transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                            <div className="flex-shrink-0 p-4 flex items-center border-b border-gray-200 dark:border-gray-700">
+                                <button onClick={() => setIsMenuOpen(false)} className="mr-4 text-gray-500 hover:text-gray-800"><ArrowLeftIcon className="h-6 w-6"/></button>
+                                <h3 className="font-bold text-lg">Menu</h3>
+                            </div>
+                            <div className="flex-grow overflow-y-auto p-4">
+                                <button onClick={handleNewChat} className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold">
+                                    <RefreshIcon className="h-5 w-5 text-brand-red"/> New Chat
+                                </button>
+                                <div className="mt-4">
+                                    <h4 className="px-3 text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2"><ClockIcon className="h-4 w-4"/> History</h4>
+                                    <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                                        {allConversations.length > 0 ? [...allConversations].reverse().map(conv => (
+                                            <button key={conv.id} onClick={() => loadConversation(conv)} className="w-full text-left p-3 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                                <p className="truncate font-medium">{conv.messages[1]?.text || 'New Conversation'}</p>
+                                                <p className="text-xs text-gray-400">{new Date(conv.timestamp).toLocaleString()}</p>
+                                            </button>
+                                        )) : <p className="p-3 text-sm text-gray-400">No past conversations.</p>}
+                                    </div>
                                 </div>
-                                <div className="ml-2 text-xs text-gray-600 dark:text-gray-300 font-semibold flex items-center gap-1"><GlobeIcon className="h-4 w-4"/> Search with Google</div>
-                            </label>
+                                 <div className="mt-4">
+                                    <h4 className="px-3 text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2"><BoltIcon className="h-4 w-4"/> Quick Tools</h4>
+                                    <div className="mt-2 space-y-1">
+                                        {TOOLS.slice(0, 4).map(tool => (
+                                            <Link key={tool.id} to={`/${tool.id}`} onClick={() => setIsMenuOpen(false)} className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                                <tool.Icon className={`h-5 w-5 ${tool.textColor}`}/>
+                                                <span className="font-semibold text-sm">{t(tool.title)}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -512,6 +639,7 @@ const ChatbotWidget: React.FC = () => {
         </div>
     );
 };
+
 
 // Lazy-loaded page components
 const HomePage = lazy(() => import('./pages/HomePage.tsx'));

@@ -1,4 +1,5 @@
 
+
 import { Tool } from './types.ts';
 import {
   MergeIcon,
@@ -15,7 +16,7 @@ import {
   RotateIcon,
   UnlockIcon,
   ProtectIcon,
-  OrganizeIcon,
+  UpDownArrowIcon,
   RepairIcon,
   PageNumbersIcon,
   ScanToPdfIcon,
@@ -65,7 +66,7 @@ export const TOOLS: Tool[] = [
     id: 'organize-pdf',
     title: 'tool.organize-pdf.title',
     description: 'tool.organize-pdf.description',
-    Icon: OrganizeIcon,
+    Icon: UpDownArrowIcon,
     color: 'bg-orange-500',
     hoverColor: 'hover:bg-orange-600',
     textColor: 'text-orange-600',
