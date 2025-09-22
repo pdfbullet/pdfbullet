@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -5,13 +6,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
-import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon } from './components/icons.tsx';
+import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
-
-// Components that are part of the main layout
-// FIX: Changed the import of the Header component to a named import.
 import { Header } from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
@@ -30,6 +28,8 @@ import PWAInstallInstructionsModal from './components/PWAInstallInstructionsModa
 import MobileAuthGate from './components/MobileAuthGate.tsx';
 import WelcomeInstallModal from './components/WelcomeInstallModal.tsx';
 import PwaBottomNav from './components/PwaBottomNav.tsx';
+import UserDashboardLayout from './components/UserDashboardLayout.tsx';
+import PlaceholderPage from './components/PlaceholderPage.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -58,7 +58,7 @@ const DataDeletionPage: React.FC = () => {
                         <p>You can permanently delete your account and all associated data directly from your account settings. This is the fastest and most secure way to delete your data.</p>
                         <ol>
                             <li>Log in to your I Love PDFLY account.</li>
-                            <li>Navigate to the <Link to="/user/account-settings" className="text-brand-red hover:underline">Account Settings</Link> page.</li>
+                            <li>Navigate to the <Link to="/account-settings" className="text-brand-red hover:underline">Account Settings</Link> page.</li>
                             <li>Scroll down to the "Danger Zone" section.</li>
                             <li>Click on "Delete My Account" and follow the on-screen instructions to confirm the deletion.</li>
                         </ol>
@@ -69,25 +69,6 @@ const DataDeletionPage: React.FC = () => {
                             <strong>Email:</strong> <a href="mailto:Support@ilovepdfly.com" className="text-brand-red hover:underline">Support@ilovepdfly.com</a>
                         </p>
                         <p>Please include the username and email address associated with your account in your message.</p>
-
-                        <h3>What Happens Next?</h3>
-                        <p>
-                            <strong>For self-service deletion:</strong> Your account and data will be permanently deleted immediately upon confirmation.
-                        </p>
-                        <p>
-                            <strong>For email requests:</strong> Once we receive your request, our team will verify your identity and process the deletion. We will confirm with you via email once the process is complete, which typically takes up to 30 days.
-                        </p>
-                        
-                        <h3>What Data is Deleted?</h3>
-                        <p>The deletion process will remove:</p>
-                        <ul>
-                            <li>Your user account and profile information (username, email, profile picture, etc.).</li>
-                            <li>Any content you have created or saved within your account.</li>
-                            <li>Your API key and associated usage data.</li>
-                        </ul>
-                        <p>Please note that some anonymous, aggregated usage data that is not linked to your personal identity may be retained for analytical purposes.</p>
-
-                        <p>If you have any questions about this process, please do not hesitate to contact us.</p>
                     </div>
                 </div>
             </div>
@@ -176,9 +157,6 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
     );
 };
 
-// ===================================================================
-// CHATBOT WIDGET COMPONENT
-// ===================================================================
 const ChatbotIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
@@ -215,59 +193,72 @@ const BoltIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+// FIX: Define missing types and constants for ChatbotWidget
+type GroundingSource = {
+    web: {
+        uri: string;
+        title?: string;
+    }
+};
 
-type GroundingSource = { web: { uri: string; title?: string; } };
-type ChatMessage = { role: 'user' | 'model'; text: string; sources?: GroundingSource['web'][]; };
-type Conversation = { id: number; messages: ChatMessage[]; timestamp: number; };
+type ChatMessage = {
+    role: 'user' | 'model';
+    text: string;
+    sources?: GroundingSource['web'][];
+};
 
-const CHAT_CONVERSATIONS_KEY = 'chatConversations_v1';
-const INITIAL_MESSAGE: ChatMessage = { role: 'model', text: 'Hi 👋 I’m your support assistant. How can I help you today?' };
+type Conversation = {
+    id: number;
+    messages: ChatMessage[];
+    timestamp: number;
+};
+
+const CHAT_CONVERSATIONS_KEY = 'ilovepdfly_chat_history_v2';
+
+const INITIAL_MESSAGE: ChatMessage = { role: 'model', text: 'Hello! I am Bishal, your support assistant for iLovePDFLY. How can I help you today?' };
+
+const faqs = [
+    { q: 'How do I merge PDF files?', icon: '📄' },
+    { q: 'Is this service secure?', icon: '🔒' },
+    { q: 'Can I edit a PDF?', icon: '✏️' },
+    { q: 'What about pricing?', icon: '💰' },
+];
 
 const MarkdownRenderer: React.FC<{ text: string; sources?: GroundingSource['web'][] }> = ({ text, sources }) => {
-    const navigate = useNavigate();
+    // A simple markdown renderer that handles **bold** text and converts paths like /merge-pdf to links.
     const formattedText = text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/(\s|^)(\/[-a-zA-Z0-9_/?=&]+)/g, '$1<a href="$2" class="text-blue-500 hover:underline" data-internal-link="true">$2</a>');
-
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'A' && target.dataset.internalLink === 'true') {
-            e.preventDefault();
-            const path = target.getAttribute('href');
-            if (path) {
-                navigate(path);
-            }
-        }
-    };
+        .replace(/(\s|^)(\/[a-z0-9-]+)/g, (match, space, path) => `${space}<a href="${path}" class="text-brand-red hover:underline">${path}</a>`);
 
     return (
         <div>
-            <div style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: formattedText }} onClick={handleClick} />
+            <div style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: formattedText }} />
             {sources && sources.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-                    <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mb-1"><GlobeIcon className="h-3.5 w-3.5"/> Sources</h4>
-                    <div className="flex flex-col gap-1.5">
+                <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                    <h4 className="text-xs font-bold text-gray-600 dark:text-gray-400 flex items-center gap-1"><GlobeIcon className="h-4 w-4"/> Sources:</h4>
+                    <ul className="list-none pl-0 text-xs mt-1 space-y-1">
                         {sources.map((source, i) => (
-                            <a href={source.uri} target="_blank" rel="noopener noreferrer" key={i} className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 p-2 rounded-md hover:underline truncate block" title={source.uri}>
-                                {i + 1}. {source.title || source.uri}
-                            </a>
+                            <li key={i}>
+                                <a href={source.uri} target="_blank" rel="noopener noreferrer" className="block p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-md text-blue-600 dark:text-blue-400 hover:underline truncate" title={source.uri}>
+                                    {source.title || source.uri}
+                                </a>
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 </div>
             )}
         </div>
     );
 };
 
-const faqs = [
-    { q: "How do I merge PDF files?", icon: "📄" },
-    { q: "Can I edit text in a PDF?", icon: "✏️" },
-    { q: "Is this service secure?", icon: "🔒" },
-    { q: "What are the premium features?", icon: "⭐" },
-];
+interface ChatbotWidgetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onOpen: () => void;
+  showFab: boolean;
+}
 
-const ChatbotWidget: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
+const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, showFab }) => {
     const [currentMessages, setCurrentMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
     const [allConversations, setAllConversations] = useState<Conversation[]>([]);
     const [inputValue, setInputValue] = useState('');
@@ -285,7 +276,6 @@ const ChatbotWidget: React.FC = () => {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const recognitionRef = useRef<any>(null);
 
-    // Load conversations from localStorage on mount
     useEffect(() => {
         try {
             const saved = localStorage.getItem(CHAT_CONVERSATIONS_KEY);
@@ -302,55 +292,38 @@ const ChatbotWidget: React.FC = () => {
     const speak = (text: string) => {
         if ('speechSynthesis' in window && text) {
             window.speechSynthesis.cancel();
-            
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-
             const trySpeak = () => {
                 const voices = window.speechSynthesis.getVoices();
                 const femaleVoice = voices.find(voice => voice.lang === 'en-US' && (voice.name.includes('Google') || voice.name.includes('Female')));
-                if (femaleVoice) {
-                    utterance.voice = femaleVoice;
-                }
+                if (femaleVoice) utterance.voice = femaleVoice;
                 window.speechSynthesis.speak(utterance);
             };
-
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                trySpeak();
-            } else {
-                window.speechSynthesis.onvoiceschanged = trySpeak;
-            }
+            if (window.speechSynthesis.getVoices().length > 0) trySpeak();
+            else window.speechSynthesis.onvoiceschanged = trySpeak;
         }
     };
     
-    // Auto-popup logic
     useEffect(() => {
         const hasOpened = sessionStorage.getItem('chatWidgetAutoOpened');
         if (!hasOpened) {
             const popupTimer = setTimeout(() => {
-                setIsOpen(true);
+                onOpen();
                 sessionStorage.setItem('chatWidgetAutoOpened', 'true');
-                
                 const welcomeMessage = user ? `Welcome, ${user.username}! How can I assist you today?` : `Welcome to iLovePDFLY! How can I help you today?`;
                 speak(welcomeMessage);
-
-                const closeTimer = setTimeout(() => {
-                    if (!userHasInteracted) setIsOpen(false);
-                }, 3000);
+                const closeTimer = setTimeout(() => { if (!userHasInteracted) onClose(); }, 3000);
                 return () => clearTimeout(closeTimer);
             }, 5000);
             return () => clearTimeout(popupTimer);
         }
-    }, [user, userHasInteracted]);
+    }, [user, userHasInteracted, onOpen, onClose]);
 
-    
     const initializeChat = () => {
         try {
             const apiKey = process.env.API_KEY;
-            if (!apiKey) { throw new Error("API key is not configured."); }
+            if (!apiKey) throw new Error("API key is not configured.");
             const ai = new GoogleGenAI({ apiKey });
             const chatSession = ai.chats.create({
                 model: 'gemini-2.5-flash',
@@ -425,12 +398,8 @@ const ChatbotWidget: React.FC = () => {
     }, [currentMessages, isLoading]);
 
     const saveCurrentConversation = () => {
-        if (currentMessages.length > 1) { // Only save if there's more than the initial message
-            const newConversation: Conversation = {
-                id: Date.now(),
-                messages: currentMessages,
-                timestamp: Date.now(),
-            };
+        if (currentMessages.length > 1) {
+            const newConversation: Conversation = { id: Date.now(), messages: currentMessages, timestamp: Date.now() };
             const updatedConversations = [...allConversations, newConversation];
             setAllConversations(updatedConversations);
             localStorage.setItem(CHAT_CONVERSATIONS_KEY, JSON.stringify(updatedConversations));
@@ -453,11 +422,7 @@ const ChatbotWidget: React.FC = () => {
             const ai = new GoogleGenAI({ apiKey });
 
             if (useGoogleSearch) {
-                 const response = await ai.models.generateContent({
-                   model: "gemini-2.5-flash",
-                   contents: textToSend,
-                   config: { tools: [{googleSearch: {}}] },
-                 });
+                 const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: textToSend, config: { tools: [{googleSearch: {}}] } });
                  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
                  const sources: GroundingSource['web'][] = groundingChunks?.map(c => c.web).filter((w): w is GroundingSource['web'] => !!w?.uri) || [];
                  setCurrentMessages(prev => [...prev, { role: 'model', text: response.text, sources: sources.length > 0 ? sources : undefined }]);
@@ -499,23 +464,17 @@ const ChatbotWidget: React.FC = () => {
     const handleNewChat = () => {
         saveCurrentConversation();
         setCurrentMessages([INITIAL_MESSAGE]);
-        setChat(null); // Force re-initialization for a fresh context
+        setChat(null);
         setIsMenuOpen(false);
         initializeChat();
     };
 
     const loadConversation = (conversation: Conversation) => {
-        saveCurrentConversation(); // Save the current one first
+        saveCurrentConversation();
         setCurrentMessages(conversation.messages);
-        setChat(null); // Re-initialize chat with history if needed (or just start fresh)
+        setChat(null);
         setIsMenuOpen(false);
-        initializeChat(); // For simplicity, we start a new session context
-    };
-
-    const handleCopyText = (text: string, id: string) => {
-        navigator.clipboard.writeText(text);
-        setCopiedTooltip(id);
-        setTimeout(() => setCopiedTooltip(null), 2000);
+        initializeChat();
     };
 
     const conversationStarted = currentMessages.length > 1;
@@ -532,11 +491,9 @@ const ChatbotWidget: React.FC = () => {
                         <p className="font-bold text-white">iLovePDFly Support</p>
                         <div className="flex items-center gap-2">
                             <button onClick={() => setIsMenuOpen(true)} className="p-1.5 rounded-md border border-white/30 text-white/80 hover:bg-white/10 hover:text-white transition-colors" aria-label="Open menu" title="Open menu"><EllipsisHorizontalIcon className="h-5 w-5" /></button>
-                            <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white" aria-label="Close chat widget" title="Close chat widget"><CloseIcon className="h-6 w-6" /></button>
+                            <button onClick={onClose} className="text-white/70 hover:text-white" aria-label="Close chat widget" title="Close chat widget"><CloseIcon className="h-6 w-6" /></button>
                         </div>
                     </div>
-                    
-                    {/* Main Chat View */}
                     <div className="flex-grow flex flex-col overflow-hidden relative">
                         <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
                             {currentMessages.map((msg, index) => (
@@ -593,8 +550,6 @@ const ChatbotWidget: React.FC = () => {
                                 </label>
                             </div>
                         </div>
-
-                        {/* Menu View */}
                         <div className={`absolute inset-0 bg-white dark:bg-black flex flex-col transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                             <div className="flex-shrink-0 p-4 flex items-center border-b border-gray-200 dark:border-gray-700">
                                 <button onClick={() => setIsMenuOpen(false)} className="mr-4 text-gray-500 hover:text-gray-800"><ArrowLeftIcon className="h-6 w-6"/></button>
@@ -631,10 +586,12 @@ const ChatbotWidget: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <button onClick={() => setIsOpen(true)} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
-                <ChatbotIcon className="h-6 w-6 relative" />
-            </button>
+            {showFab && (
+                <button onClick={onOpen} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
+                    <ChatbotIcon className="h-6 w-6 relative" />
+                </button>
+            )}
         </div>
     );
 };
@@ -677,10 +634,12 @@ const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx')
 const PressPage = lazy(() => import('./pages/PressPage.tsx'));
 const WorkflowsPage = lazy(() => import('./pages/WorkflowsPage.tsx'));
 const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
-const UserDashboardLayout = lazy(() => import('./components/UserDashboardLayout.tsx'));
 const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
 const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
+const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
+// FIX: Corrected lazy import path for AIAssistant.
+const AIAssistant = lazy(() => import('./pages/AIAssistant.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
@@ -715,9 +674,9 @@ function AppContent() {
   const [isProblemReportModalOpen, setProblemReportModalOpen] = useState(false);
   const [isForgotPasswordModalOpen, setForgotPasswordModalOpen] = useState(false);
   const [isQrCodeModalOpen, setQrCodeModalOpen] = useState(false);
+  const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
   const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
-
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -729,7 +688,6 @@ function AppContent() {
       if (redirectInfoStr) {
         sessionStorage.removeItem('postLoginRedirect');
         const redirectInfo = JSON.parse(redirectInfoStr);
-
         const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
         if (pendingDataStr) {
           sessionStorage.removeItem('pendingInvoiceDataRedirect');
@@ -761,15 +719,16 @@ function AppContent() {
                 onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
               />
               <main className="flex-grow">
-                <Suspense fallback={<div className="w-full py-20" />}>
+                <Suspense fallback={<Preloader />}>
                   <Routes>
                     <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
-                    <Route path="/blog" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
+                    <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
                     
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
+                    <Route path="/blog" element={<BlogPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
                     <Route path="/signup" element={<SignUpPage />} />
@@ -780,6 +739,8 @@ function AppContent() {
                     <Route path="/cv-generator" element={<CVGeneratorPage />} />
                     <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
                     <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+                    <Route path="/image-generator" element={<ImageGeneratorPage />} />
+                    <Route path="/ai-assistant" element={<AIAssistant />} />
                     <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/api-pricing" element={<ApiPricingPage />} />
                     <Route path="/premium-feature" element={<PremiumFeaturePage />} />
@@ -798,23 +759,19 @@ function AppContent() {
                     <Route path="/security-policy" element={<SecurityPolicyPage />} />
                     <Route path="/features" element={<FeaturesPage />} />
                     
-                    {/* API Routes */}
                     <Route path="/api-reference" element={<ApiReferencePage />} />
                     <Route path="/api-pdf" element={<ApiPdfPage />} />
                     <Route path="/api-image" element={<ApiImagePage />} />
                     <Route path="/api-signature" element={<ApiSignaturePage />} />
 
-                    {/* Admin Routes */}
                     <Route element={<AdminProtectedRoute />}>
                         <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
                     </Route>
 
-                    {/* User Protected Routes with Dashboard Layout */}
                     <Route element={<UserProtectedRoute />}>
                         <Route element={<UserDashboardLayout />}>
                             <Route path="/account-settings" element={<AccountSettingsPage />} />
                             <Route path="/workflows" element={<WorkflowsPage />} />
-                            <Route path="/workflows/create" element={<CreateWorkflowPage />} />
                             <Route path="/security" element={<SecurityPage />} />
                             <Route path="/team" element={<TeamPage />} />
                             <Route path="/last-tasks" element={<LastTasksPage />} />
@@ -828,10 +785,11 @@ function AppContent() {
                             <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
                             <Route path="/business-details" element={<BusinessDetailsPage />} />
                             <Route path="/invoices" element={<InvoicesPage />} />
+                             <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
                         </Route>
+                        <Route path="/workflows/create" element={<CreateWorkflowPage />} />
                     </Route>
                     
-                    {/* ToolPage should be last to catch dynamic tool IDs */}
                     <Route path="/:toolId" element={<ToolPage />} />
                   </Routes>
                 </Suspense>
@@ -848,11 +806,21 @@ function AppContent() {
               <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
               <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
               <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
+               {isPwa && !isChatbotOpen && (
+                <button
+                    onClick={() => setChatbotOpen(true)}
+                    className="fixed bottom-[88px] right-4 z-50 bg-blue-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform"
+                    aria-label="Open support chat"
+                    title="Support Chat"
+                >
+                    <HeadsetIcon className="h-7 w-7" />
+                </button>
+               )}
               {!isPwa && <ScrollToTopButton />}
               <CookieConsentBanner />
               <PWAInstallPrompt />
               <PWAInstallInstructionsModal />
-              <ChatbotWidget />
+              <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={!isPwa} />
               <WelcomeInstallModal />
               {isPwa && <PwaBottomNav />}
             </div>

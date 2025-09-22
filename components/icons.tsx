@@ -834,3 +834,9 @@ export const SSOIcon: React.FC<{ className?: string }> = ({ className }) => (
         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
     </svg>
 );
+
+export const HeadsetIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1C6.48 1 2 5.48 2 11v7c0 1.66 1.34 3 3 3h1c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1H4v-2c0-4.41 3.59-8 8-8s8 3.59 8 8v2h-2c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h1c1.66 0 3-1.34 3-3v-1h-1.5c-.83 0-1.5-.67-1.5-1.5v-3c0-.83.67-1.5 1.5-1.5H22V11c0-5.52-4.48-10-10-10zm0 2c3.54 0 6.43 2.61 6.92 6H5.08C5.57 5.61 8.46 3 12 3z"/>
+    </svg>
+);
