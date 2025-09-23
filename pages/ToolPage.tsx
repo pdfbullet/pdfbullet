@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -22,7 +20,7 @@ import { useSignature } from '../hooks/useSignature.ts';
 import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
 import { LayoutContext } from '../App.tsx';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type, Modality } from '@google/genai';
 
 
 // FIX: Removed unused and incorrect 'Perms' type from pdf-lib import.
@@ -199,8 +197,7 @@ interface DocumentScannerUIProps {
 
 const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessStart, onProcessSuccess, onProcessError }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [stream, setStream] = useState<MediaStream | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
     const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
     const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error'>('initializing');
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
@@ -214,55 +211,141 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             setAi(new GoogleGenAI({ apiKey: process.env.API_KEY }));
         } else {
             console.error("API Key for AI features is not configured.");
+            onProcessError("AI features are not available: API Key is missing.");
+        }
+    }, [onProcessError]);
+
+    const processPageWithAI = useCallback(async (imageDataUrl: string): Promise<string> => {
+        if (!ai) return imageDataUrl;
+
+        const base64Data = imageDataUrl.split(',')[1];
+        const mimeType = imageDataUrl.match(/:(.*?);/)?.[1] || 'image/jpeg';
+        
+        try {
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash-image-preview',
+                contents: {
+                    parts: [
+                        { inlineData: { data: base64Data, mimeType } },
+                        { text: 'This is an image of a document taken with a camera. Please identify the document within the image, crop it to its edges, correct any perspective distortion so it appears as a flat scan, and enhance the brightness and contrast for optimal readability. Return only the processed image.' },
+                    ],
+                },
+                config: {
+                    responseModalities: [Modality.IMAGE, Modality.TEXT],
+                },
+            });
+
+            for (const part of response.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    const processedBase64 = part.inlineData.data;
+                    const processedMimeType = part.inlineData.mimeType;
+                    return `data:${processedMimeType};base64,${processedBase64}`;
+                }
+            }
+            console.warn("AI did not return an image part, using original.");
+            return imageDataUrl;
+        } catch (error) {
+            console.error("AI image processing failed:", error);
+            throw error;
+        }
+    }, [ai]);
+
+    const addPage = useCallback(async (imageDataUrl: string) => {
+        const newPageId = Date.now();
+        setIsAiProcessing(newPageId);
+        
+        // Add a temporary page so the user sees something happening immediately.
+        const tempPage: ScannedPage = {
+            id: newPageId,
+            original: imageDataUrl,
+            filtered: imageDataUrl,
+            filter: 'original',
+        };
+        setScannedPages(prev => [...prev, tempPage]);
+        
+        try {
+            const processedDataUrl = await processPageWithAI(imageDataUrl);
+            const newPage: ScannedPage = {
+                id: newPageId,
+                original: processedDataUrl,
+                filtered: processedDataUrl,
+                filter: 'original',
+            };
+            setScannedPages(prev => prev.map(p => p.id === newPageId ? newPage : p));
+        } catch (e) {
+            console.error("AI processing failed", e);
+            onProcessError("AI processing failed. Using original image.");
+        } finally {
+            setIsAiProcessing(null);
+        }
+    }, [processPageWithAI, onProcessError]);
+    
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                addPage(e.target.result as string);
+            }
+        };
+        reader.readAsDataURL(file);
+      }
+    }, [addPage]);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'image/*': ['.jpeg', '.jpg', '.png', '.webp']} });
+
+    const stopCamera = useCallback(() => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
         }
     }, []);
 
     const startCamera = useCallback(async () => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
+        stopCamera();
         setCameraState('initializing');
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-            setStream(mediaStream);
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+            streamRef.current = mediaStream;
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
+                videoRef.current.onloadedmetadata = () => {
+                     videoRef.current?.play();
+                     setCameraState('active');
+                };
             }
-            setCameraState('active');
         } catch (err) {
-            if (err instanceof DOMException) {
-                if (err.name === 'NotAllowedError') setCameraState('denied');
-                else if (err.name === 'NotFoundError') setCameraState('not-found');
+             if (err instanceof DOMException) {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') setCameraState('denied');
+                else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') setCameraState('not-found');
                 else setCameraState('error');
             } else {
                 setCameraState('error');
             }
-            console.error(err);
+            console.error("Camera Error:", err);
         }
-    }, [stream, facingMode]);
-
-    const stopCamera = useCallback(() => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            setStream(null);
-        }
-    }, [stream]);
+    }, [facingMode, stopCamera]);
 
     useEffect(() => {
         if (!showUpload) {
             startCamera();
-        } else {
-            stopCamera();
         }
-        return () => stopCamera();
-    }, [startCamera, stopCamera, showUpload]);
+        return () => {
+            stopCamera();
+        };
+    }, [showUpload, startCamera, stopCamera]);
+
 
     const switchCamera = () => {
         setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
     };
 
     const capturePage = () => {
-        if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
+        if (!videoRef.current || videoRef.current.paused || videoRef.current.ended || videoRef.current.videoWidth === 0) return;
         const canvas = document.createElement('canvas');
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
@@ -272,43 +355,6 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         addPage(dataUrl);
     };
-
-    const addPage = async (imageDataUrl: string) => {
-        const newPageId = Date.now();
-        setIsAiProcessing(newPageId);
-
-        let processedDataUrl = imageDataUrl;
-        if (ai) {
-             processedDataUrl = await processPageWithAI(imageDataUrl);
-        }
-        
-        const newPage: ScannedPage = {
-            id: newPageId,
-            original: processedDataUrl,
-            filtered: processedDataUrl,
-            filter: 'original',
-        };
-        setScannedPages(prev => [...prev, newPage]);
-        setIsAiProcessing(null);
-    };
-    
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        const reader = new FileReader();
-        reader.onload = (e) => addPage(e.target?.result as string);
-        reader.readAsDataURL(file);
-      }
-    }, []);
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'image/*': ['.jpeg', '.jpg', '.png', '.webp']} });
-
-
-    const processPageWithAI = async (imageDataUrl: string): Promise<string> => {
-        // AI logic will go here
-        return imageDataUrl; // Placeholder
-    };
-
 
     const handleFilterChange = async (id: number, filter: FilterType) => {
         const pageToUpdate = scannedPages.find(p => p.id === id);
@@ -386,7 +432,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     
     const CameraView = () => (
         <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg shadow-lg bg-black overflow-hidden">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover"></video>
+            <video ref={videoRef} playsInline muted className="w-full h-full object-cover"></video>
             
             {cameraState !== 'active' && (
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white text-center p-4">
