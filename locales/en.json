@@ -91,8 +91,8 @@
       "description": "Reduce file size while optimizing for maximal PDF quality."
     },
     "repair-pdf": {
-      "title": "Repair PDF file",
-      "description": "Upload a corrupt PDF and we will try to fix it. Depending on how much the PDF is damaged we will be able to recover it partially or completely."
+      "title": "Repair PDF",
+      "description": "Repair a damaged PDF and recover data from corrupt PDF. Fix PDF files with our Repair tool."
     },
     "resize-file": {
       "title": "Resize File",
@@ -124,7 +124,7 @@
     },
     "document-scanner": {
       "title": "Document Scanner",
-      "description": "Scan documents with your device. Crop, enhance, and save as PDF or JPG."
+      "description": "Use your device camera to scan documents. Enhance scans and save as PDF or JPG."
     },
     "pdf-to-jpg": {
       "title": "PDF to JPG",

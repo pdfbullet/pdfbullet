@@ -62,7 +62,8 @@
     "filter_optimize": "Optimize PDF",
     "filter_convert": "Convert PDF",
     "filter_edit": "Edit PDF",
-    "filter_security": "PDF Security"
+    "filter_security": "PDF Security",
+    "filter_image_tools": "Image Tools"
   },
   "tool": {
     "merge-pdf": {
@@ -121,9 +122,9 @@
       "title": "HTML to PDF",
       "description": "Convert webpages in HTML to PDF. Copy and paste the URL of the page you want and convert it to PDF with a click."
     },
-    "scan-to-pdf": {
-      "title": "Scan to PDF",
-      "description": "Turn your phone into a document scanner. Capture, edit, and correct the perspective of your documents to create high-quality scans."
+    "document-scanner": {
+      "title": "Document Scanner",
+      "description": "Use your device camera to scan documents. Enhance scans and save as PDF or JPG."
     },
     "pdf-to-jpg": {
       "title": "PDF to JPG",
