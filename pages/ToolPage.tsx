@@ -199,7 +199,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
-    const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error'>('initializing');
+    const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error' | 'not-supported'>('initializing');
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAiProcessing, setIsAiProcessing] = useState<number | null>(null);
@@ -309,6 +309,12 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         let isCancelled = false;
 
         const startCameraAsync = async () => {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error("Camera API is not supported by this browser.");
+                setCameraState('not-supported');
+                return;
+            }
+            
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => track.stop());
             }
@@ -316,7 +322,9 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             setCameraState('initializing');
 
             try {
-                const constraints = { video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } };
+                // MORE ROBUST: Looser constraints for better device compatibility.
+                // This lets the browser choose the best resolution.
+                const constraints = { video: { facingMode } };
                 const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
 
                 if (isCancelled) {
@@ -334,10 +342,12 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                 const video = videoRef.current;
                 if (video) {
                     video.srcObject = mediaStream;
-                    await video.play().catch(e => console.warn("video.play() was interrupted. This is often normal during fast re-renders.", e));
-                    if (!isCancelled) {
-                       setCameraState('active');
-                    }
+                    // We now rely on the `onPlaying` handler on the video element
+                    // to set the state to 'active'.
+                    // The explicit play() call here helps trigger autoplay on some browsers.
+                    video.play().catch(e => {
+                        console.warn("video.play() was not successful, possibly due to browser autoplay policies. The `onPlaying` event should still fire once the stream is active.", e);
+                    });
                 } else if (!isCancelled) {
                     setCameraState('error');
                 }
@@ -347,6 +357,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                 if (err instanceof DOMException) {
                     if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') setCameraState('denied');
                     else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') setCameraState('not-found');
+                    else if (err.name === 'NotReadableError' || err.name === 'OverconstrainedError' || err.name === 'AbortError') setCameraState('error');
                     else setCameraState('error');
                 } else {
                     setCameraState('error');
@@ -461,7 +472,14 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     
     const CameraView = () => (
         <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg shadow-lg bg-black overflow-hidden">
-            <video ref={videoRef} playsInline muted className="w-full h-full object-cover"></video>
+            <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className="w-full h-full object-cover"
+                onPlaying={() => cameraState !== 'active' && setCameraState('active')}
+            ></video>
             
             {cameraState !== 'active' && (
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white text-center p-4">
@@ -478,10 +496,16 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                         <p className="text-sm mt-2 max-w-xs">We couldn't find a camera on your device. Please make sure one is connected and enabled.</p>
                          <button onClick={() => setRetryCount(c => c + 1)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
                     </>}
+                    {cameraState === 'not-supported' && <>
+                        <CameraIcon className="w-12 h-12 mb-4" />
+                        <h3 className="font-bold text-lg">Camera Not Supported</h3>
+                        <p className="text-sm mt-2 max-w-xs">Your browser does not support the camera API. Please try a different browser or upload an image.</p>
+                        <button onClick={() => setShowUpload(true)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Upload Image Instead</button>
+                    </>}
                     {cameraState === 'error' && <>
                         <CloseIcon className="w-12 h-12 mb-4 text-red-500" />
                         <h3 className="font-bold text-lg">Could not start camera</h3>
-                        <p className="text-sm mt-2 max-w-xs">Another app might be using the camera. Please close other camera apps or restart your browser and try again.</p>
+                        <p className="text-sm mt-2 max-w-xs">Another app might be using the camera, or the requested resolution is not supported. Please close other camera apps or restart your browser and try again.</p>
                         <button onClick={() => setRetryCount(c => c + 1)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Try Again</button>
                     </>}
                 </div>
