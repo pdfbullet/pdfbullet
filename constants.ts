@@ -215,6 +215,7 @@ export const TOOLS: Tool[] = [
     textColor: 'text-orange-600',
     isNew: true,
     category: 'convert-to',
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
   },
 
   // Convert From
