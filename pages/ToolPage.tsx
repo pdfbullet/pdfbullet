@@ -274,14 +274,16 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             setScannedPages(prev => prev.map(p => p.id === newPageId ? newPage : p));
         } catch (e) {
             console.error("AI processing failed", e);
-            onProcessError("AI processing failed. Using original image.");
+            // Don't call onProcessError, as it takes over the screen. Let user continue with original.
+            // Maybe add a small toast notification here in the future.
         } finally {
             setIsAiProcessing(null);
         }
-    }, [processPageWithAI, onProcessError]);
+    }, [processPageWithAI]);
     
     const onDrop = useCallback((acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
+        setShowUpload(false); // Switch back to the editor view
         const file = acceptedFiles[0];
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -308,31 +310,45 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     const startCamera = useCallback(async () => {
         stopCamera();
         setCameraState('initializing');
+    
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+            const constraints = { video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } };
+            const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+            if (!mediaStream.getVideoTracks().length) {
+                console.error("Camera stream provided no video tracks.");
+                setCameraState('not-found');
+                return;
+            }
+    
             streamRef.current = mediaStream;
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-                videoRef.current.onloadedmetadata = () => {
-                     videoRef.current?.play();
-                     setCameraState('active');
-                };
+            const video = videoRef.current;
+            if (video) {
+                video.srcObject = mediaStream;
+                await video.play();
+                setCameraState('active');
+            } else {
+                stopCamera();
+                setCameraState('error');
             }
         } catch (err) {
-             if (err instanceof DOMException) {
+            console.error("Camera Error:", err);
+            if (err instanceof DOMException) {
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') setCameraState('denied');
                 else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') setCameraState('not-found');
                 else setCameraState('error');
             } else {
                 setCameraState('error');
             }
-            console.error("Camera Error:", err);
         }
     }, [facingMode, stopCamera]);
+
 
     useEffect(() => {
         if (!showUpload) {
             startCamera();
+        } else {
+            stopCamera();
         }
         return () => {
             stopCamera();
@@ -439,12 +455,22 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                     {cameraState === 'initializing' && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>}
                     {cameraState === 'denied' && <>
                         <LockIcon className="w-12 h-12 mb-4" />
-                        <h3 className="font-bold">Camera access denied</h3>
-                        <p className="text-sm">Please allow camera access in your browser settings to continue.</p>
-                        <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
+                        <h3 className="font-bold text-lg">Camera access denied</h3>
+                        <p className="text-sm mt-2 max-w-xs">To use the scanner, please allow camera access in your browser's settings for this site.</p>
+                        <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry Camera</button>
                     </>}
-                    {cameraState === 'not-found' && <p>No camera found. Please connect a camera and try again.</p>}
-                    {cameraState === 'error' && <p>Could not start camera. Please try again.</p>}
+                     {cameraState === 'not-found' && <>
+                        <CameraIcon className="w-12 h-12 mb-4" />
+                        <h3 className="font-bold text-lg">No camera found</h3>
+                        <p className="text-sm mt-2 max-w-xs">We couldn't find a camera on your device. Please make sure one is connected and enabled.</p>
+                         <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
+                    </>}
+                    {cameraState === 'error' && <>
+                        <CloseIcon className="w-12 h-12 mb-4 text-red-500" />
+                        <h3 className="font-bold text-lg">Could not start camera</h3>
+                        <p className="text-sm mt-2 max-w-xs">Another app might be using the camera. Please close other camera apps or restart your browser and try again.</p>
+                        <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Try Again</button>
+                    </>}
                 </div>
             )}
             
@@ -490,7 +516,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                                 {isAiProcessing === page.id && (
                                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                                        <p className="text-xs mt-2 font-semibold">Processing...</p>
+                                        <p className="text-xs mt-2 font-semibold">AI Enhancing...</p>
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
@@ -507,7 +533,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                             {isProcessing ? 'Processing...' : 'Create PDF'}
                         </button>
                         <button onClick={() => processAndOutput('jpg')} disabled={isProcessing || isAiProcessing !== null} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-gray-400">
-                            {isProcessing ? 'Processing...' : 'Save as JPG'}
+                            {isProcessing ? 'Processing...' : `Save as ${scannedPages.length > 1 ? 'ZIP' : 'JPG'}`}
                         </button>
                     </div>
                 </div>
@@ -2426,16 +2452,16 @@ const ToolPage: React.FC = () => {
       }
   };
   
-  const onProcessStart = () => {
+  const onProcessStart = useCallback(() => {
       setState(ProcessingState.Processing);
       setProcessingStartTime(Date.now());
       setErrorMessage('');
       setProcessedFileBlob(null);
       setOutputFilename('');
       setProgress({ percentage: 0, status: 'Starting process...'});
-  };
+  }, []);
 
-  const onProcessSuccess = (blob: Blob, filename: string) => {
+  const onProcessSuccess = useCallback((blob: Blob, filename: string) => {
       setProcessedFileBlob(blob);
       setOutputFilename(filename);
       setState(ProcessingState.Success);
@@ -2450,12 +2476,12 @@ const ToolPage: React.FC = () => {
             sendTaskCompletionEmail(t(tool.title), filename);
         }
       }
-  };
+  }, [tool, addTask, t, user, sendTaskCompletionEmail]);
 
-  const onProcessError = (message: string) => {
+  const onProcessError = useCallback((message: string) => {
       setErrorMessage(message);
       setState(ProcessingState.Error);
-  };
+  }, []);
 
 
   if (!tool) {
