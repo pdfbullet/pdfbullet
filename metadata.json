@@ -2,7 +2,6 @@
   "name": "I Love PDFLY - Online PDF Tools",
   "description": "A comprehensive suite of online tools for PDF conversion, editing, and management. Features include merging, splitting, compressing, and converting PDFs, as well as advanced tools like AI-powered background removal for images.",
   "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ],
+    "camera"
+  ]
 }

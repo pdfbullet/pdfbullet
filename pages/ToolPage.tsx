@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -21,6 +22,7 @@ import { useSignature } from '../hooks/useSignature.ts';
 import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
 import { LayoutContext } from '../App.tsx';
+import { GoogleGenAI, Type } from '@google/genai';
 
 
 // FIX: Removed unused and incorrect 'Perms' type from pdf-lib import.
@@ -183,8 +185,8 @@ const FilterBar: React.FC<{ onFilterChange: (filter: FilterType) => void, active
 
 interface ScannedPage {
     id: number;
-    original: string;
-    filtered: string;
+    original: string; // The auto-cropped, de-skewed version
+    filtered: string; // The version with user-selected filters applied
     filter: FilterType;
 }
 
@@ -197,27 +199,47 @@ interface DocumentScannerUIProps {
 
 const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessStart, onProcessSuccess, onProcessError }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
-    const [cameraError, setCameraError] = useState<string>('');
+    const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error'>('initializing');
+    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isAiProcessing, setIsAiProcessing] = useState<number | null>(null);
+    const [ai, setAi] = useState<GoogleGenAI | null>(null);
+    const [showUpload, setShowUpload] = useState(false);
+
+    useEffect(() => {
+        if (process.env.API_KEY) {
+            setAi(new GoogleGenAI({ apiKey: process.env.API_KEY }));
+        } else {
+            console.error("API Key for AI features is not configured.");
+        }
+    }, []);
 
     const startCamera = useCallback(async () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
-        setCameraError('');
+        setCameraState('initializing');
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
             setStream(mediaStream);
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
+            setCameraState('active');
         } catch (err) {
+            if (err instanceof DOMException) {
+                if (err.name === 'NotAllowedError') setCameraState('denied');
+                else if (err.name === 'NotFoundError') setCameraState('not-found');
+                else setCameraState('error');
+            } else {
+                setCameraState('error');
+            }
             console.error(err);
-            setCameraError('Could not access the camera. Please check permissions and try again.');
         }
-    }, [stream]);
+    }, [stream, facingMode]);
 
     const stopCamera = useCallback(() => {
         if (stream) {
@@ -225,11 +247,19 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             setStream(null);
         }
     }, [stream]);
-    
+
     useEffect(() => {
-        startCamera();
+        if (!showUpload) {
+            startCamera();
+        } else {
+            stopCamera();
+        }
         return () => stopCamera();
-    }, [startCamera, stopCamera]);
+    }, [startCamera, stopCamera, showUpload]);
+
+    const switchCamera = () => {
+        setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+    };
 
     const capturePage = () => {
         if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
@@ -240,14 +270,45 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         if (!ctx) return;
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        addPage(dataUrl);
+    };
+
+    const addPage = async (imageDataUrl: string) => {
+        const newPageId = Date.now();
+        setIsAiProcessing(newPageId);
+
+        let processedDataUrl = imageDataUrl;
+        if (ai) {
+             processedDataUrl = await processPageWithAI(imageDataUrl);
+        }
+        
         const newPage: ScannedPage = {
-            id: Date.now(),
-            original: dataUrl,
-            filtered: dataUrl,
+            id: newPageId,
+            original: processedDataUrl,
+            filtered: processedDataUrl,
             filter: 'original',
         };
         setScannedPages(prev => [...prev, newPage]);
+        setIsAiProcessing(null);
     };
+    
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        const reader = new FileReader();
+        reader.onload = (e) => addPage(e.target?.result as string);
+        reader.readAsDataURL(file);
+      }
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'image/*': ['.jpeg', '.jpg', '.png', '.webp']} });
+
+
+    const processPageWithAI = async (imageDataUrl: string): Promise<string> => {
+        // AI logic will go here
+        return imageDataUrl; // Placeholder
+    };
+
 
     const handleFilterChange = async (id: number, filter: FilterType) => {
         const pageToUpdate = scannedPages.find(p => p.id === id);
@@ -262,7 +323,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     
     const processAndOutput = async (format: 'pdf' | 'jpg') => {
         if (scannedPages.length === 0) {
-            onProcessError("Please scan at least one page.");
+            onProcessError("Please scan or upload at least one page.");
             return;
         }
         onProcessStart();
@@ -283,10 +344,10 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                     const pdfRatio = pdfWidth / pdfHeight;
                     
                     let newWidth, newHeight;
-                    if (imgRatio > pdfRatio) { // Image is wider than page
+                    if (imgRatio > pdfRatio) {
                         newWidth = pdfWidth;
                         newHeight = pdfWidth / imgRatio;
-                    } else { // Image is taller than or equal to page
+                    } else {
                         newHeight = pdfHeight;
                         newWidth = pdfHeight * imgRatio;
                     }
@@ -322,24 +383,56 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
             setIsProcessing(false);
         }
     };
+    
+    const CameraView = () => (
+        <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg shadow-lg bg-black overflow-hidden">
+            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover"></video>
+            
+            {cameraState !== 'active' && (
+                <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white text-center p-4">
+                    {cameraState === 'initializing' && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>}
+                    {cameraState === 'denied' && <>
+                        <LockIcon className="w-12 h-12 mb-4" />
+                        <h3 className="font-bold">Camera access denied</h3>
+                        <p className="text-sm">Please allow camera access in your browser settings to continue.</p>
+                        <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
+                    </>}
+                    {cameraState === 'not-found' && <p>No camera found. Please connect a camera and try again.</p>}
+                    {cameraState === 'error' && <p>Could not start camera. Please try again.</p>}
+                </div>
+            )}
+            
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                <div className="flex items-center justify-around">
+                    <button onClick={() => setShowUpload(true)} className="p-3 bg-black/40 text-white rounded-full hover:bg-black/60 transition-colors" aria-label="Upload image">
+                        <ImageIcon className="h-6 w-6" />
+                    </button>
+                    <button onClick={capturePage} disabled={cameraState !== 'active'} className="bg-white p-2 rounded-full shadow-2xl border-4 border-gray-300 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-offset-black focus:ring-brand-red disabled:opacity-50" aria-label="Capture page">
+                        <div className="w-12 h-12 bg-brand-red rounded-full ring-2 ring-white ring-inset"></div>
+                    </button>
+                    <button onClick={switchCamera} className="p-3 bg-black/40 text-white rounded-full hover:bg-black/60 transition-colors" aria-label="Switch camera">
+                        <RotateIcon className="h-6 w-6" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+    
+    const UploadView = () => (
+        <div {...getRootProps()} className={`relative flex flex-col items-center justify-center p-12 aspect-[9/16] sm:aspect-video rounded-lg cursor-pointer transition-all duration-300 border-2 border-dashed ${ isDragActive ? 'border-brand-red bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-black hover:border-brand-red'}`}>
+            <input {...getInputProps()} />
+            <UploadCloudIcon className="h-16 w-16 text-gray-400 mb-4" />
+            <p className="text-xl font-bold text-gray-800 dark:text-gray-100">Upload an Image</p>
+            <p className="text-gray-500 dark:text-gray-400">or drop it here</p>
+             <button onClick={(e) => { e.stopPropagation(); setShowUpload(false); }} className="mt-6 text-sm text-brand-red hover:underline font-semibold">
+                Use Camera Instead
+            </button>
+        </div>
+    );
 
     return (
         <div className="w-full max-w-5xl mx-auto space-y-6">
-            <div className="relative">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full rounded-lg shadow-lg bg-black aspect-video"></video>
-                {stream && (
-                    <button onClick={capturePage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-3 rounded-full shadow-2xl border-4 border-gray-300 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-offset-black focus:ring-brand-red">
-                        <div className="w-10 h-10 bg-brand-red rounded-full"></div>
-                    </button>
-                )}
-            </div>
-            
-            {cameraError && (
-                <div className="text-center p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-lg">
-                    <p>{cameraError}</p>
-                    <button onClick={startCamera} className="mt-2 font-semibold underline">Retry</button>
-                </div>
-            )}
+             {showUpload ? <UploadView /> : <CameraView />}
             
             {scannedPages.length > 0 && (
                 <div className="bg-white dark:bg-black p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
@@ -348,6 +441,12 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                         {scannedPages.map(page => (
                             <div key={page.id} className="relative group rounded-md overflow-hidden border-2 border-transparent focus-within:border-brand-red">
                                 <img src={page.filtered} alt="Scanned page" className="w-full aspect-[3/4] object-cover" />
+                                {isAiProcessing === page.id && (
+                                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                                        <p className="text-xs mt-2 font-semibold">Processing...</p>
+                                    </div>
+                                )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
                                     <FilterBar onFilterChange={(filter) => handleFilterChange(page.id, filter)} activeFilter={page.filter} />
                                 </div>
@@ -358,10 +457,10 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                         ))}
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                        <button onClick={() => processAndOutput('pdf')} disabled={isProcessing} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-red-300">
+                        <button onClick={() => processAndOutput('pdf')} disabled={isProcessing || isAiProcessing !== null} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-red-300">
                             {isProcessing ? 'Processing...' : 'Create PDF'}
                         </button>
-                        <button onClick={() => processAndOutput('jpg')} disabled={isProcessing} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-gray-400">
+                        <button onClick={() => processAndOutput('jpg')} disabled={isProcessing || isAiProcessing !== null} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-gray-400">
                             {isProcessing ? 'Processing...' : 'Save as JPG'}
                         </button>
                     </div>
@@ -370,6 +469,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         </div>
     );
 };
+
 
 // FIX: Define missing helper functions
 const formatBytes = (bytes: number, decimals = 2): string => {
