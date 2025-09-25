@@ -1,0 +1,245 @@
+
+{
+  "header": {
+    "merge_pdf": "MERGE PDF",
+    "split_pdf": "SPLIT PDF",
+    "compress_pdf": "COMPRESS PDF",
+    "developer": "DEVELOPER",
+    "convert_pdf": "CONVERT PDF",
+    "all_pdf_tools": "ALL PDF TOOLS",
+    "login": "Login",
+    "signup": "Sign up",
+    "signed_in_as": "Signed in as",
+    "change_photo": "Change Photo",
+    "account_settings": "Account Settings",
+    "change_password": "Change Password",
+    "logout": "Logout"
+  },
+  "footer": {
+    "slogan": "Your go-to suite of online tools for PDF and image management.",
+    "tools": "Tools",
+    "solutions": "Solutions",
+    "company": "Company",
+    "legal": "Legal",
+    "subscribe_title": "Subscribe to our newsletter",
+    "subscribe_text": "Get the latest news, articles, and resources, sent to your inbox weekly.",
+    "subscribe_button": "Subscribe",
+    "copyright": "© {year} I Love PDFLY. All Rights Reserved.",
+    "top_tools": {
+      "merge_pdf": "Merge PDF",
+      "compress_pdf": "Compress PDF",
+      "jpg_to_pdf": "JPG to PDF",
+      "edit_pdf": "Edit PDF",
+      "pdf_to_word": "PDF to Word"
+    },
+    "company_links": {
+      "about": "About",
+      "blog": "Blog",
+      "press": "Press",
+      "contact": "Contact",
+      "ceo_message": "Message from CEO",
+      "report_problem": "Report a Problem"
+    },
+    "solution_links": {
+      "education": "For Education",
+      "business": "For Business",
+      "how_to": "How-to Guides"
+    },
+    "legal_links": {
+      "legal_hub": "Legal Hub",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "cookies": "Cookies Policy",
+      "data_deletion": "Data Deletion"
+    }
+  },
+  "homepage": {
+    "hero_title": "Every tool you need to work with PDFs in one place",
+    "hero_subtitle": "Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.",
+    "filter_all": "All",
+    "filter_workflows": "Workflows",
+    "filter_organize": "Organize PDF",
+    "filter_optimize": "Optimize PDF",
+    "filter_convert": "Convert PDF",
+    "filter_edit": "Edit PDF",
+    "filter_security": "PDF Security",
+    "filter_image_tools": "Image Tools"
+  },
+  "tool": {
+    "merge-pdf": {
+      "title": "Merge PDF",
+      "description": "Combine PDFs in the order you want with the easiest PDF merger available."
+    },
+    "split-pdf": {
+      "title": "Split PDF",
+      "description": "Separate one page or a whole set for easy conversion into independent PDF files."
+    },
+    "organize-pdf": {
+      "title": "Organize PDF",
+      "description": "Sort, add, and remove PDF pages. Arrange your document pages as you wish."
+    },
+    "rotate-pdf": {
+      "title": "Rotate PDF",
+      "description": "Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!"
+    },
+    "zip-maker": {
+      "title": "Create ZIP file",
+      "description": "Easily create a ZIP archive from multiple files or an entire folder."
+    },
+    "compress-pdf": {
+      "title": "Compress PDF",
+      "description": "Reduce file size while optimizing for maximal PDF quality."
+    },
+    "repair-pdf": {
+      "title": "Repair PDF",
+      "description": "Repair a damaged PDF and recover data from corrupt PDF. Fix PDF files with our Repair tool."
+    },
+    "resize-file": {
+      "title": "Resize File",
+      "description": "Change the file size of images or PDFs by adjusting quality and compression."
+    },
+    "jpg-to-pdf": {
+      "title": "JPG to PDF",
+      "description": "Convert JPG images to PDF in seconds. Easily adjust orientation and margins."
+    },
+    "psd-to-pdf": {
+      "title": "PSD to PDF",
+      "description": "Convert Adobe Photoshop files (PSD) to PDF documents easily."
+    },
+    "word-to-pdf": {
+      "title": "Word to PDF",
+      "description": "Convert your WORD documents to PDF with the best quality and conversion."
+    },
+    "powerpoint-to-pdf": {
+      "title": "Convert POWERPOINT to PDF",
+      "description": "Make PPT and PPTX slideshows easy to view by converting them to PDF."
+    },
+    "excel-to-pdf": {
+      "title": "Excel to PDF",
+      "description": "Convert your EXCEL spreadsheets to PDF. XLS and XLSX to PDF converter."
+    },
+    "html-to-pdf": {
+      "title": "HTML to PDF",
+      "description": "Convert webpages in HTML to PDF. Copy and paste the URL of the page you want and convert it to PDF with a click."
+    },
+    "document-scanner": {
+      "title": "Document Scanner",
+      "description": "Use your device camera to scan documents. Enhance scans and save as PDF or JPG."
+    },
+    "pdf-to-jpg": {
+      "title": "PDF to JPG",
+      "description": "Extract images from your PDF or convert each page into a JPG."
+    },
+    "pdf-to-png": {
+      "title": "PDF to PNG",
+      "description": "Convert each PDF page into a high-quality PNG image."
+    },
+    "pdf-to-word": {
+      "title": "PDF to Word",
+      "description": "Easily convert your PDF files into easy to edit DOC and DOCX documents."
+    },
+    "pdf-to-powerpoint": {
+      "title": "PDF to PowerPoint",
+      "description": "Turn your PDF files into easy to edit PPT and PPTX slideshows."
+    },
+    "pdf-to-excel": {
+      "title": "PDF to Excel",
+      "description": "Pull data straight from PDFs into Excel spreadsheets in a few clicks."
+    },
+    "pdf-to-pdfa": {
+      "title": "PDF to PDF/A",
+      "description": "Transform your PDF to PDF/A, the ISO-standardized version for long-term archiving."
+    },
+    "extract-text": {
+      "title": "Extract text",
+      "description": "Extract all text from a PDF file to a TXT file."
+    },
+    "edit-pdf": {
+      "title": "Edit PDF",
+      "description": "Add text, images, shapes or freehand annotations to a PDF document."
+    },
+    "page-numbers": {
+      "title": "Page numbers",
+      "description": "Add page numbers into PDFs with ease. Choose your positions, dimensions, typography."
+    },
+    "crop-pdf": {
+      "title": "Crop PDF",
+      "description": "Crop margins of PDF files to change the page size or remove unwanted areas."
+    },
+    "ocr-pdf": {
+      "title": "OCR PDF",
+      "description": "Easily convert scanned PDF into searchable and selectable documents."
+    },
+    "compare-pdf": {
+      "title": "Compare PDF",
+      "description": "Show a side-by-side comparison of two PDF files to spot the differences."
+    },
+    "redact-pdf": {
+      "title": "Redact PDF",
+      "description": "Redact text and graphics from your PDF to permanently remove sensitive information."
+    },
+    "ai-question-generator": {
+      "title": "AI Question Generator",
+      "description": "Automatically create questions from any text using AI. Perfect for study guides and quizzes."
+    },
+    "invoice-generator": {
+      "title": "Invoice Generator",
+      "description": "Create professional invoices for free. Customize with your logo, add items, and download as PDF."
+    },
+    "cv-generator": {
+      "title": "CV Generator",
+      "description": "Create a professional CV by providing your details. Choose from multiple templates and download as a PDF."
+    },
+    "lesson-plan-creator": {
+      "title": "Lesson Plan Creator",
+      "description": "Create detailed, engaging lesson plans for any subject in seconds. Let AI build a plan with activities, assessments, and homework."
+    },
+    "unlock-pdf": {
+      "title": "Unlock PDF",
+      "description": "Remove PDF password security, giving you the freedom to use your PDFs as you want."
+    },
+    "protect-pdf": {
+      "title": "Protect PDF",
+      "description": "Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access."
+    },
+    "sign-pdf": {
+      "title": "Sign PDF",
+      "description": "Sign yourself or request electronic signatures from others."
+    },
+    "watermark-pdf": {
+      "title": "Watermark",
+      "description": "Stamp an image or text over your PDF in seconds. Choose the typography, transparency and position."
+    },
+    "resize-image": {
+      "title": "Resize image",
+      "description": "Define your dimensions, by percentage or pixel, and resize your JPG, PNG, and GIF images."
+    },
+    "remove-background": {
+      "title": "Remove Background",
+      "description": "Automatically remove the background from any image with a single click."
+    },
+    "crop-image": {
+      "title": "Crop image",
+      "description": "Crop JPG, PNG, or GIFs with ease."
+    },
+    "convert-to-jpg": {
+      "title": "Convert to JPG",
+      "description": "Convert PNG, GIF, TIF, PSD, SVG, WEBP or RAW to JPG."
+    },
+    "convert-from-jpg": {
+      "title": "Convert from JPG",
+      "description": "Convert from JPG to PNG or GIF."
+    },
+    "compress-image": {
+      "title": "Compress Image",
+      "description": "Reduce file size while optimizing for maximal image quality."
+    },
+    "watermark-image": {
+      "title": "Watermark Image",
+      "description": "Stamp an image or text over your images in seconds."
+    }
+  },
+  "languages": {
+    "en": "English", "es": "Español", "fr": "Français", "de": "Deutsch", "it": "Italiano", "pt": "Português", "ja": "日本語", "ru": "Русский", "ko": "한국어", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)", "ar": "العربية", "bg": "Български", "ca": "Català", "nl": "Nederlands", "el": "Ελληνικά", "hi": "हिन्दी", "id": "Bahasa Indonesia", "ms": "Bahasa Melayu", "pl": "Polski", "sv": "Svenska", "th": "ภาษาไทย", "tr": "Türkçe", "uk": "Українська", "vi": "Tiếng Việt", "ne": "नेपाली"
+  }
+}
