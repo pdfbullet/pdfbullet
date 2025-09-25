@@ -39,7 +39,7 @@ const initialData: CVData = {
     contact: { email: "bishal@example.com", phone: "+1 234 567 890", address: "Kathmandu, Nepal", website: "bishal.dev", linkedin: "linkedin.com/in/bishal" },
     experiences: [{ id: 1, jobTitle: "Senior Frontend Engineer", company: "Tech Solutions Inc.", startDate: "2020-01", endDate: "Present", description: "<ul><li>Led development of a large-scale React application.</li><li>Mentored junior developers and conducted code reviews.</li></ul>" }],
     educations: [{ id: 1, degree: "Bachelor of Science in Computer Science", school: "University of Technology", startDate: "2016-08", endDate: "2020-05", description: "Graduated with Honors, GPA: 3.8/4.0" }],
-    projects: [{ id: 1, name: "I Love PDFLY", description: "A comprehensive suite of online PDF tools with a focus on privacy and client-side processing." }],
+    projects: [{ id: 1, name: "PDFBullet", description: "A comprehensive suite of online PDF tools with a focus on privacy and client-side processing." }],
     skills: [{ id: 1, name: "React" }, { id: 2, name: "TypeScript" }, { id: 3, name: "UI/UX Design" }, { id: 4, name: "Node.js" }],
 };
 
@@ -231,7 +231,7 @@ const CVGeneratorPage: React.FC = () => {
     });
 
     useEffect(() => {
-      document.title = "Free CV Generator | Create a Professional Resume - I Love PDFLY";
+      document.title = "Free CV Generator | Create a Professional Resume - PDFBullet";
     }, []);
     
     const handleSectionToggle = (section: keyof VisibleSections) => {

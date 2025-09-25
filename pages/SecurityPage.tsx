@@ -5,11 +5,9 @@ import ChangePasswordModal from '../components/ChangePasswordModal.tsx';
 import TwoFactorAuthModal from '../components/TwoFactorAuthModal.tsx';
 import { SSOIcon, TrashIcon, PlusIcon } from '../components/icons.tsx';
 
-const API_BASE_URL = 'https://ilovepdfly-backend.onrender.com';
-
 const SecurityPage: React.FC = () => {
     const { user, auth, updateTwoFactorStatus } = useAuth();
-    const { isWebAuthnSupported, register } = useWebAuthn();
+    const { isWebAuthnSupported, register, getCredentials, removeCredential } = useWebAuthn();
 
     const [credentials, setCredentials] = useState<StoredCredential[]>([]);
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
@@ -26,18 +24,11 @@ const SecurityPage: React.FC = () => {
         if (!user) return;
         setIsLoadingCredentials(true);
         try {
-            // In a real app, you would fetch this from your backend
-            // For now, this will fail gracefully, showing an empty list.
-            const response = await fetch(`${API_BASE_URL}/api/passkey/credentials`);
-            if (!response.ok) {
-                 console.warn('Could not fetch credentials. Backend endpoint may not be implemented.');
-                 setCredentials([]);
-                 return;
-            }
-            const data = await response.json();
-            setCredentials(data);
+            const storedCreds = await getCredentials();
+            setCredentials(storedCreds);
         } catch (err) {
             console.error('Failed to fetch credentials:', err);
+            setError('Could not load passkeys.');
         } finally {
             setIsLoadingCredentials(false);
         }
@@ -80,15 +71,12 @@ const SecurityPage: React.FC = () => {
         }
     };
     
-    const removeCredential = async (id: string) => {
+    const handleRemoveCredential = async (id: string) => {
         if (window.confirm("Are you sure you want to remove this passkey? You will no longer be able to sign in with it.")) {
             setError('');
             try {
-                const response = await fetch(`${API_BASE_URL}/api/passkey/credentials/${id}`, { method: 'DELETE' });
-                 if (!response.ok) {
-                    throw new Error('Failed to remove passkey from server.');
-                }
-                setCredentials(prev => prev.filter(c => c.id !== id));
+                await removeCredential(id);
+                await fetchCredentials();
             } catch (err: any) {
                 setError(err.message || 'Could not remove passkey.');
             }
@@ -121,7 +109,7 @@ const SecurityPage: React.FC = () => {
                                                 <p className="text-xs text-gray-500">Added: {new Date(cred.createdAt).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <button onClick={() => removeCredential(cred.id)} className="p-2 text-gray-400 hover:text-red-500" title="Remove Passkey">
+                                        <button onClick={() => handleRemoveCredential(cred.id)} className="p-2 text-gray-400 hover:text-red-500" title="Remove Passkey">
                                             <TrashIcon className="h-5 w-5"/>
                                         </button>
                                     </li>

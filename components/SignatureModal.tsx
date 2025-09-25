@@ -11,7 +11,7 @@ interface SignatureModalProps {
 const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onSave }) => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'signature' | 'initials' | 'stamp'>('signature');
-    const [fullName, setFullName] = useState(user?.username || 'ilovepdfly');
+    const [fullName, setFullName] = useState(user?.username || 'PDFBullet');
     const [initials, setInitials] = useState('');
 
     const fonts = ['Pacifico', 'Dancing Script', 'Caveat', 'Great Vibes', 'Homemade Apple', 'Kalam'];

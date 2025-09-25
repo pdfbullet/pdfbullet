@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ilovepdfly.com/sitemap.xml
+Sitemap: https://pdfbullet.com/sitemap.xml

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -63,9 +64,9 @@ const InvoicesPage: React.FC = () => {
         pdf.text('INVOICE', 14, 22);
 
         pdf.setFontSize(10);
-        pdf.text('iLovePDFLY', 14, 30);
+        pdf.text('PDFBullet', 14, 30);
         pdf.text('Kathmandu, Nepal', 14, 35);
-        pdf.text('Support@ilovepdfly.com', 14, 40);
+        pdf.text('Support@pdfbullet.com', 14, 40);
 
         // Invoice Details
         pdf.setFont('helvetica', 'normal');

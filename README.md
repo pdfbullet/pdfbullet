@@ -1,7 +1,7 @@
-# I Love PDFLY - The Ultimate Free Online PDF Tools
+# PDFBullet - The Ultimate Free Online PDF Tools
 
 <p align="center">
-  <img src="https://ilovepdfly.com/logo.svg" alt="I Love PDFLY Logo" width="200"/>
+  <img src="https://pdfbullet.com/logo.svg" alt="PDFBullet Logo" width="200"/>
 </p>
 
 <p align="center">
@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://ilovepdfly.com/"><strong>🌍 Live Demo »</strong></a> •
-  <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk"><strong>📱 Download APK »</strong></a>
+  <a href="https://pdfbullet.com/"><strong>🌍 Live Demo »</strong></a> •
+  <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk"><strong>📱 Download APK »</strong></a>
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 
 ## 🚀 About The Project
 
-**I Love PDFLY** is a comprehensive suite of free, secure, and fast online tools for all your document and image needs.  
+**PDFBullet** is a comprehensive suite of free, secure, and fast online tools for all your document and image needs.  
 With **50+ features**, it’s perfect for students, professionals, and businesses.
 
 ✔️ Merge, split, compress, convert, edit, sign PDFs  
@@ -38,7 +38,7 @@ With **50+ features**, it’s perfect for students, professionals, and businesse
 
 ---
 
-## 💡 Why Choose I Love PDFLY?
+## 💡 Why Choose PDFBullet?
 
 - ⚡ **Blazing Fast** – Client-side processing with no delays  
 - 🔒 **Ultimate Privacy** – Files processed in your browser  
@@ -63,71 +63,71 @@ With **50+ features**, it’s perfect for students, professionals, and businesse
 
 ### 📂 PDF Tools
 
-- [Merge PDF](https://ilovepdfly.com/merge-pdf)  
-- [Split PDF](https://ilovepdfly.com/split-pdf)  
-- [Organize PDF](https://ilovepdfly.com/organize-pdf)  
-- [Rotate PDF](https://ilovepdfly.com/rotate-pdf)  
-- [Compress PDF](https://ilovepdfly.com/compress-pdf)  
-- [Repair PDF](https://ilovepdfly.com/repair-pdf)  
-- [JPG to PDF](https://ilovepdfly.com/jpg-to-pdf)  
-- [Word to PDF](https://ilovepdfly.com/word-to-pdf)  
-- [PowerPoint to PDF](https://ilovepdfly.com/powerpoint-to-pdf)  
-- [Excel to PDF](https://ilovepdfly.com/excel-to-pdf)  
-- [HTML to PDF](https://ilovepdfly.com/html-to-pdf)  
-- [PSD to PDF](https://ilovepdfly.com/psd-to-pdf)  
-- [PDF to JPG](https://ilovepdfly.com/pdf-to-jpg)  
-- [PDF to PNG](https://ilovepdfly.com/pdf-to-png)  
-- [PDF to Word](https://ilovepdfly.com/pdf-to-word)  
-- [PDF to PowerPoint](https://ilovepdfly.com/pdf-to-powerpoint)  
-- [PDF to Excel](https://ilovepdfly.com/pdf-to-excel)  
-- [PDF to PDF/A](https://ilovepdfly.com/pdf-to-pdfa)  
-- [Extract Text](https://ilovepdfly.com/extract-text)  
-- [Edit PDF](https://ilovepdfly.com/edit-pdf)  
-- [Add Page Numbers](https://ilovepdfly.com/page-numbers)  
-- [Crop PDF](https://ilovepdfly.com/crop-pdf)  
-- [OCR PDF](https://ilovepdfly.com/ocr-pdf)  
-- [Compare PDF](https://ilovepdfly.com/compare-pdf)  
-- [Redact PDF](https://ilovepdfly.com/redact-pdf)  
-- [Unlock PDF](https://ilovepdfly.com/unlock-pdf)  
-- [Protect PDF](https://ilovepdfly.com/protect-pdf)  
-- [Sign PDF](https://ilovepdfly.com/sign-pdf)  
-- [Watermark PDF](https://ilovepdfly.com/watermark-pdf)  
+- [Merge PDF](https://pdfbullet.com/merge-pdf)  
+- [Split PDF](https://pdfbullet.com/split-pdf)  
+- [Organize PDF](https://pdfbullet.com/organize-pdf)  
+- [Rotate PDF](https://pdfbullet.com/rotate-pdf)  
+- [Compress PDF](https://pdfbullet.com/compress-pdf)  
+- [Repair PDF](https://pdfbullet.com/repair-pdf)  
+- [JPG to PDF](https://pdfbullet.com/jpg-to-pdf)  
+- [Word to PDF](https://pdfbullet.com/word-to-pdf)  
+- [PowerPoint to PDF](https://pdfbullet.com/powerpoint-to-pdf)  
+- [Excel to PDF](https://pdfbullet.com/excel-to-pdf)  
+- [HTML to PDF](https://pdfbullet.com/html-to-pdf)  
+- [PSD to PDF](https://pdfbullet.com/psd-to-pdf)  
+- [PDF to JPG](https://pdfbullet.com/pdf-to-jpg)  
+- [PDF to PNG](https://pdfbullet.com/pdf-to-png)  
+- [PDF to Word](https://pdfbullet.com/pdf-to-word)  
+- [PDF to PowerPoint](https://pdfbullet.com/pdf-to-powerpoint)  
+- [PDF to Excel](https://pdfbullet.com/pdf-to-excel)  
+- [PDF to PDF/A](https://pdfbullet.com/pdf-to-pdfa)  
+- [Extract Text](https://pdfbullet.com/extract-text)  
+- [Edit PDF](https://pdfbullet.com/edit-pdf)  
+- [Add Page Numbers](https://pdfbullet.com/page-numbers)  
+- [Crop PDF](https://pdfbullet.com/crop-pdf)  
+- [OCR PDF](https://pdfbullet.com/ocr-pdf)  
+- [Compare PDF](https://pdfbullet.com/compare-pdf)  
+- [Redact PDF](https://pdfbullet.com/redact-pdf)  
+- [Unlock PDF](https://pdfbullet.com/unlock-pdf)  
+- [Protect PDF](https://pdfbullet.com/protect-pdf)  
+- [Sign PDF](https://pdfbullet.com/sign-pdf)  
+- [Watermark PDF](https://pdfbullet.com/watermark-pdf)  
 
 ### 🖼️ Image Tools
 
-- [Remove Background](https://ilovepdfly.com/remove-background)  
-- [Resize Image](https://ilovepdfly.com/resize-image)  
-- [Compress Image](https://ilovepdfly.com/compress-image)  
-- [Crop Image](https://ilovepdfly.com/crop-image)  
-- [Convert to JPG](https://ilovepdfly.com/convert-to-jpg)  
-- [Convert from JPG](https://ilovepdfly.com/convert-from-jpg)  
-- [Watermark Image](https://ilovepdfly.com/watermark-image)  
+- [Remove Background](https://pdfbullet.com/remove-background)  
+- [Resize Image](https://pdfbullet.com/resize-image)  
+- [Compress Image](https://pdfbullet.com/compress-image)  
+- [Crop Image](https://pdfbullet.com/crop-image)  
+- [Convert to JPG](https://pdfbullet.com/convert-to-jpg)  
+- [Convert from JPG](https://pdfbullet.com/convert-from-jpg)  
+- [Watermark Image](https://pdfbullet.com/watermark-image)  
 
 ### 🤖 AI & Business Tools
 
-- [AI PDF Assistant](https://ilovepdfly.com/ai-pdf-assistant)  
-- [AI Question Generator](https://ilovepdfly.com/ai-question-generator)  
-- [AI Image Generator](https://ilovepdfly.com/ai-image-generator)  
-- [Lesson Plan Creator](https://ilovepdfly.com/lesson-plan-creator)  
-- [Invoice Generator](https://ilovepdfly.com/invoice-generator)  
-- [CV Generator](https://ilovepdfly.com/cv-generator)  
-- [E-Sign PDF](https://ilovepdfly.com/sign-pdf)  
-- [Resume & Cover Letter Builder](https://ilovepdfly.com/resume-builder)  
-- [News Dashboard](https://ilovepdfly.com/news)  
+- [AI PDF Assistant](https://pdfbullet.com/ai-pdf-assistant)  
+- [AI Question Generator](https://pdfbullet.com/ai-question-generator)  
+- [AI Image Generator](https://pdfbullet.com/ai-image-generator)  
+- [Lesson Plan Creator](https://pdfbullet.com/lesson-plan-creator)  
+- [Invoice Generator](https://pdfbullet.com/invoice-generator)  
+- [CV Generator](https://pdfbullet.com/cv-generator)  
+- [E-Sign PDF](https://pdfbullet.com/sign-pdf)  
+- [Resume & Cover Letter Builder](https://pdfbullet.com/resume-builder)  
+- [News Dashboard](https://pdfbullet.com/news)  
 
 ---
 
 ## 📱 Mobile App
 
-Want to use PDFLY on the go?  
+Want to use PDFBullet on the go?  
 Download our official **Android app**:  
-➡️ [Download APK](https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk)
+➡️ [Download APK](https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk)
 
 ---
 
 ## 👨‍💻 Developer API
 
-PDFLY also provides APIs for integration:
+PDFBullet also provides APIs for integration:
 
 **Free Tier**
 - 100 requests/day  
@@ -143,24 +143,17 @@ PDFLY also provides APIs for integration:
 
 ## 📜 Legal
 
-- [Terms & Conditions](https://ilovepdfly.com/terms-of-service)  
-- [Privacy Policy](https://ilovepdfly.com/privacy-policy)  
-- [Cookie Policy](https://ilovepdfly.com/cookies-policy)  
-
----
-
-## 🔑 License
-
-Distributed under the **MIT License**.  
-See [LICENSE](LICENSE) for details.  
+- [Terms & Conditions](https://pdfbullet.com/terms-of-service)  
+- [Privacy Policy](https://pdfbullet.com/privacy-policy)  
+- [Cookie Policy](https://pdfbullet.com/cookies-policy)  
 
 ---
 
 ## 📞 Contact
 
-**Bishal Mishra** – [Message from CEO](https://ilovepdfly.com/ceo)  
-📧 Support: **Support@ilovepdfly.com**  
+**Bishal Mishra** – [Message from CEO](https://pdfbullet.com/ceo)  
+📧 Support: **Support@pdfbullet.com**  
 
-🔗 [GitHub Repository](https://github.com/ilovepdfly/ilovepdfly)  
-🌐 [Website](https://ilovepdfly.com)  
-📱 [Download APK](https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk)
+🔗 [GitHub Repository](https://github.com/pdfbullet/pdfbullet)  
+🌐 [Website](https://pdfbullet.com)  
+📱 [Download APK](https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk)

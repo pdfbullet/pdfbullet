@@ -4,10 +4,10 @@ import { GlobeIcon, RefreshIcon, LockIcon } from '../components/icons.tsx';
 
 const CeoPage: React.FC = () => {
     useEffect(() => {
-        document.title = "A Message From Our CEO | I Love PDFLY";
+        document.title = "A Message From Our CEO | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Read a message from the CEO of I Love PDFLY. Learn about our vision, our commitment to innovation, and the future of document management.");
+            metaDesc.setAttribute("content", "Read a message from the CEO of PDFBullet. Learn about our vision, our commitment to innovation, and the future of document management.");
         }
 
         // Add Person JSON-LD schema for SEO
@@ -27,10 +27,10 @@ const CeoPage: React.FC = () => {
             "image": "https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg",
             "worksFor": {
                 "@type": "Organization",
-                "name": "I Love PDFLY",
-                "url": "https://ilovepdfly.com/"
+                "name": "PDFBullet",
+                "url": "https://pdfbullet.com/"
             },
-            "url": "https://ilovepdfly.com/#/ceo"
+            "url": "https://pdfbullet.com/ceo"
         });
 
         return () => {
@@ -50,7 +50,7 @@ const CeoPage: React.FC = () => {
                         <div className="flex-shrink-0">
                             <img 
                                 src="https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg" 
-                                alt="Bishal Mishra, CEO of I Love PDFLY"
+                                alt="Bishal Mishra, CEO of PDFBullet"
                                 className="h-40 w-40 md:h-56 md:w-56 rounded-full object-cover shadow-2xl border-4 border-brand-red/50"
                                 width="224"
                                 height="224"
@@ -73,13 +73,13 @@ const CeoPage: React.FC = () => {
                         </p>
                         
                         <p>
-                            Welcome to I Love PDFLY.
+                            Welcome to PDFBullet.
                         </p>
                         <p>
                             When we started this journey in 2025, our goal was simple yet ambitious: to solve the universal frustrations people face with document management every single day. We envisioned a world where you didn't need expensive, complicated software to perform essential tasks like merging a report, compressing a file for an email, or signing a critical contract.
                         </p>
                         <p>
-                            What we've built is a testament to that vision. I Love PDFLY is more than just a utility; it's a powerful, secure, and intuitive platform designed to give you back your most valuable asset: your time. Our core philosophy is built on three pillars that guide every decision we make:
+                            What we've built is a testament to that vision. PDFBullet is more than just a utility; it's a powerful, secure, and intuitive platform designed to give you back your most valuable asset: your time. Our core philosophy is built on three pillars that guide every decision we make:
                         </p>
 
                         <div className="my-12 grid md:grid-cols-3 gap-8">

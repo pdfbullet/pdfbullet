@@ -69,7 +69,7 @@ const PwaSettingsPage: React.FC = () => {
                         <a href="https://www.youtube.com/@btmobilecare" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-red-600"><YoutubeIcon className="h-7 w-7" /></a>
                     </div>
                      <div className="mt-6 flex flex-wrap gap-4">
-                        <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
+                        <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
                             <AndroidIcon className="h-8 w-8" />
                             <div>
                                 <p className="text-xs leading-tight">DOWNLOAD APK</p>

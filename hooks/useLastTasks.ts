@@ -9,14 +9,14 @@ export interface LastTask {
     fileBlob: Blob;
 }
 
-const DB_NAME = 'ilovepdflyDB';
-const DB_VERSION = 2; // Bump version for new store
-const STORE_NAME = 'lastTasks';
+const DB_NAME = 'pdfbulletDB';
+const DB_VERSION = 2;
+const TASK_STORE_NAME = 'lastTasks';
 const SIGNED_DOCS_STORE_NAME = 'signedDocuments';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
-const getDb = (): Promise<IDBDatabase> => {
+export const getDb = (): Promise<IDBDatabase> => {
     if (!dbPromise) {
         dbPromise = new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -24,8 +24,8 @@ const getDb = (): Promise<IDBDatabase> => {
             request.onsuccess = () => resolve(request.result);
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                if (!db.objectStoreNames.contains(TASK_STORE_NAME)) {
+                    db.createObjectStore(TASK_STORE_NAME, { keyPath: 'id' });
                 }
                 if (!db.objectStoreNames.contains(SIGNED_DOCS_STORE_NAME)) {
                     db.createObjectStore(SIGNED_DOCS_STORE_NAME, { keyPath: 'id' });
@@ -44,14 +44,13 @@ export const useLastTasks = () => {
         setLoading(true);
         try {
             const db = await getDb();
-            const tx = db.transaction(STORE_NAME, 'readonly');
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(TASK_STORE_NAME, 'readonly');
+            const store = tx.objectStore(TASK_STORE_NAME);
             const allTasks = await new Promise<LastTask[]>((resolve, reject) => {
                 const req = store.getAll();
                 req.onsuccess = () => resolve(req.result);
                 req.onerror = () => reject(req.error);
             });
-            // Sort by timestamp descending
             setTasks(allTasks.sort((a, b) => b.timestamp - a.timestamp));
         } catch (error) {
             console.error("Failed to load tasks from IndexedDB", error);
@@ -63,8 +62,8 @@ export const useLastTasks = () => {
     const cleanupOldTasks = useCallback(async () => {
         try {
             const db = await getDb();
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(TASK_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(TASK_STORE_NAME);
             const twoHoursAgo = Date.now() - (2 * 60 * 60 * 1000);
             
             const req = store.openCursor();
@@ -77,7 +76,7 @@ export const useLastTasks = () => {
                     cursor.continue();
                 }
             };
-            await new Promise<void>((resolve, reject) => {
+             await new Promise<void>((resolve, reject) => {
                 tx.oncomplete = () => resolve();
                 tx.onerror = () => reject(tx.error);
             });
@@ -91,21 +90,22 @@ export const useLastTasks = () => {
     }, [loadTasks, cleanupOldTasks]);
 
     const addTask = useCallback(async (task: Omit<LastTask, 'id' | 'timestamp'>) => {
+        const now = Date.now();
         const newTask: LastTask = {
             ...task,
-            id: Date.now(),
-            timestamp: Date.now()
+            id: now,
+            timestamp: now
         };
         try {
             const db = await getDb();
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(TASK_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(TASK_STORE_NAME);
             await new Promise<void>((resolve, reject) => {
                 const req = store.add(newTask);
                 req.onsuccess = () => resolve();
                 req.onerror = () => reject(req.error);
             });
-            await loadTasks(); // Refresh tasks list
+            await loadTasks();
         } catch (error) {
             console.error("Failed to add task to IndexedDB", error);
         }
@@ -114,14 +114,14 @@ export const useLastTasks = () => {
     const deleteTask = useCallback(async (id: number) => {
         try {
             const db = await getDb();
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(TASK_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(TASK_STORE_NAME);
             await new Promise<void>((resolve, reject) => {
                 const req = store.delete(id);
                 req.onsuccess = () => resolve();
                 req.onerror = () => reject(req.error);
             });
-            await loadTasks(); // Refresh tasks list
+            await loadTasks();
         } catch (error) {
             console.error("Failed to delete task from IndexedDB", error);
         }

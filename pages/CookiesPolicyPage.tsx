@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 
 const CookiesPolicyPage: React.FC = () => {
     useEffect(() => {
-        document.title = "Cookie Policy | I Love PDFLY";
+        document.title = "Cookie Policy | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Learn about how I Love PDFLY uses cookies to improve your experience. Our Cookie Policy explains what cookies are, the types we use, and how you can manage them.");
+            metaDesc.setAttribute("content", "Learn about how PDFBullet uses cookies to improve your experience. Our Cookie Policy explains what cookies are, the types we use, and how you can manage them.");
         }
     }, []);
 
@@ -17,7 +17,7 @@ const CookiesPolicyPage: React.FC = () => {
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">Cookie Policy</h1>
                     <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
                         <p><strong>Last Updated: {new Date().toLocaleDateString()}</strong></p>
-                        <p>This Cookie Policy explains how I Love PDFLY ("we", "us", and "our") uses cookies and similar technologies to recognize you when you visit our website at https://ilovepdfly.com. It explains what these technologies are and why we use them, as well as your rights to control our use of them.</p>
+                        <p>This Cookie Policy explains how PDFBullet ("we", "us", and "our") uses cookies and similar technologies to recognize you when you visit our website at https://pdfbullet.com. It explains what these technologies are and why we use them, as well as your rights to control our use of them.</p>
 
                         <h3>What are cookies?</h3>
                         <p>Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners in order to make their websites work, or to work more efficiently, as well as to provide reporting information.</p>
@@ -40,7 +40,7 @@ const CookiesPolicyPage: React.FC = () => {
                         <p>We may update this Cookie Policy from time to time in order to reflect, for example, changes to the cookies we use or for other operational, legal or regulatory reasons. Please therefore re-visit this Cookie Policy regularly to stay informed about our use of cookies and related technologies.</p>
 
                         <h3>Where can you get further information?</h3>
-                        <p>If you have any questions about our use of cookies or other technologies, please email us at <a href="mailto:Support@ilovepdfly.com" className="text-brand-red hover:underline">Support@ilovepdfly.com</a> or refer to our <Link to="/privacy-policy" className="text-brand-red hover:underline">Privacy Policy</Link>.</p>
+                        <p>If you have any questions about our use of cookies or other technologies, please email us at <a href="mailto:Support@pdfbullet.com" className="text-brand-red hover:underline">Support@pdfbullet.com</a> or refer to our <Link to="/privacy-policy" className="text-brand-red hover:underline">Privacy Policy</Link>.</p>
                     </div>
                 </div>
             </div>

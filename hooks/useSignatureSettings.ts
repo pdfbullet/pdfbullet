@@ -16,7 +16,7 @@ export interface SignatureSettings {
     multipleRequests: boolean;
 }
 
-const SETTINGS_KEY = 'ilovepdfly_signature_settings_v1';
+const SETTINGS_KEY = 'pdfbullet_signature_settings_v1';
 
 const initialSettings: SignatureSettings = {
     uuid: true,

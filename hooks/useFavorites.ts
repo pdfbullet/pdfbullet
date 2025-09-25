@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const FAVORITES_KEY = 'ilovepdfly_favorites_v1';
+const FAVORITES_KEY = 'pdfbullet_favorites_v1';
 
 export const useFavorites = () => {
     const [favorites, setFavorites] = useState<string[]>([]);

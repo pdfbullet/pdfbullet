@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const SIGNATURE_KEY = 'ilovepdfly_user_signature';
+const SIGNATURE_KEY = 'pdfbullet_user_signature';
 
 export interface SignatureData {
     signature: string | null;

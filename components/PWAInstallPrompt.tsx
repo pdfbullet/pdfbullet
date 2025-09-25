@@ -47,7 +47,7 @@ const PWAInstallPrompt: React.FC = () => {
             <DownloadIcon className="h-6 w-6 text-white"/>
         </div>
         <div className="flex-grow">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100">Install I Love PDFLY App</h3>
+          <h3 className="font-bold text-gray-800 dark:text-gray-100">Install PDFBullet App</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Get a faster, offline-capable experience on your device.</p>
            <div className="mt-4 flex gap-2">
              <button

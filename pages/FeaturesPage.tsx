@@ -13,10 +13,10 @@ const PlaceholderAppIcon: React.FC<{ className?: string }> = ({ className }) => 
 
 const FeaturesPage: React.FC = () => {
     useEffect(() => {
-        document.title = "Features | I Love PDFLY";
+        document.title = "Features | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Discover all the features of I Love PDFLY. Learn about our easy-to-use tools, security measures, premium benefits, and multi-platform support.");
+            metaDesc.setAttribute("content", "Discover all the features of PDFBullet. Learn about our easy-to-use tools, security measures, premium benefits, and multi-platform support.");
         }
     }, []);
 
@@ -29,7 +29,7 @@ const FeaturesPage: React.FC = () => {
                         <div>
                             <h1 className="text-4xl md:text-5xl font-extrabold">Our features</h1>
                             <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
-                                Not so computer-savvy? No problem. Even if it's your first time using iLovePDF, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks.
+                                Not so computer-savvy? No problem. Even if it's your first time using PDFBullet, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks.
                             </p>
                         </div>
                         <div className="flex justify-center">
@@ -104,7 +104,7 @@ const FeaturesPage: React.FC = () => {
                         <div>
                              <h2 className="text-4xl md:text-5xl font-extrabold">Get even more with Premium</h2>
                             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-                                Sometimes you just require a little something extra. Upgrade your iLovePDF experience and boost your document productivity.
+                                Sometimes you just require a little something extra. Upgrade your PDFBullet experience and boost your document productivity.
                             </p>
                             <div className="mt-8 space-y-6">
                                 <div>
@@ -137,11 +137,11 @@ const FeaturesPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold">Edit on the go</h3>
-                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Because business doesn't stop while you are on the go, you can edit and convert your PDFs on your smartphone with iLovePDF Mobile App. Available for iOS and Android.</p>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Because business doesn't stop while you are on the go, you can edit and convert your PDFs on your smartphone with PDFBullet Mobile App. Available for iOS and Android.</p>
                                 </div>
                                  <div>
                                     <h3 className="text-xl font-bold">Bring our tools to your Desktop</h3>
-                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Compress, merge, split, convert and edit your PDF files offline for maximum privacy with iLovePDF Desktop. Process your files directly on your computer and speed up editing performance.</p>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">Compress, merge, split, convert and edit your PDF files offline for maximum privacy with PDFBullet Desktop. Process your files directly on your computer and speed up editing performance.</p>
                                 </div>
                             </div>
                         </div>

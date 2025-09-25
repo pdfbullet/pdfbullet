@@ -8,11 +8,25 @@ interface MobileAuthScreenProps {
     onOpenForgotPasswordModal: () => void;
 }
 
+const getPasskeyButtonText = (isLogin: boolean): string => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isLogin) {
+        if (isIOS) return "Sign in with Face ID / Touch ID";
+        if (isAndroid) return "Sign in with Fingerprint";
+        return "Sign in with Passkey";
+    } else {
+        if (isIOS) return "Sign up with Face ID / Touch ID";
+        if (isAndroid) return "Sign up with Fingerprint";
+        return "Sign up with Passkey";
+    }
+};
+
 const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswordModal }) => {
     const [isLoginView, setIsLoginView] = useState(true);
     const [usernameOrEmail, setUsernameOrEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +36,6 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         loginOrSignupWithGithub,
         signInWithCustomToken
     } = useAuth();
-    // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
     const { register: registerPasskey, login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
 
     const handleSocialAuth = async (provider: 'google' | 'github') => {
@@ -75,7 +88,6 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
         setIsLoading(true);
         try {
             if (isLoginView) {
-                // FIX: Correctly call passkeyLogin with the username/email argument.
                 const result = await passkeyLogin(usernameOrEmail);
                 if (result.token) {
                     await signInWithCustomToken(result.token);
@@ -83,7 +95,6 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
                     throw new Error('Passkey login succeeded but no auth token was returned.');
                 }
             } else {
-                // FIX: Correctly call registerPasskey with the username/email argument.
                 await registerPasskey(usernameOrEmail);
                 setSuccess('Passkey registered! You can now log in.');
             }
@@ -93,21 +104,14 @@ const MobileAuthScreen: React.FC<MobileAuthScreenProps> = ({ onOpenForgotPasswor
             setIsLoading(false);
         }
     };
-
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     
-    let passkeyText = isLoginView ? "Sign in with Passkey" : "Sign up with Passkey";
-    if (isLoginView) {
-        if (isIOS) passkeyText = "Sign in with Face ID / Touch ID";
-        if (isAndroid) passkeyText = "Sign in with Fingerprint";
-    }
+    const passkeyText = getPasskeyButtonText(isLoginView);
     
     return (
         <div className="fixed inset-0 bg-gray-100 dark:bg-gray-900 z-[200] flex flex-col items-center justify-center p-6 text-gray-900 dark:text-white">
             <div className="w-full max-w-sm">
                 <Logo className="h-10 w-auto mx-auto mb-6" />
-                <h1 className="text-2xl font-bold text-center mb-2">Welcome to I Love PDFLY</h1>
+                <h1 className="text-2xl font-bold text-center mb-2">Welcome to PDFBullet</h1>
                 <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
                     {isLoginView ? 'Log in to continue' : 'Create an account to get started'}
                 </p>

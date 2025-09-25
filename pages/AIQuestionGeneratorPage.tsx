@@ -21,7 +21,7 @@ const AIQuestionGeneratorPage: React.FC = () => {
     const [copiedTooltip, setCopiedTooltip] = useState(false);
 
     useEffect(() => {
-      document.title = "AI Question Generator | Create Questions from Text - I Love PDFLY";
+      document.title = "AI Question Generator | Create Questions from Text - PDFBullet";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
           metaDesc.setAttribute("content", "Automatically create questions from any text using AI. Perfect for generating study guides, quizzes, and learning materials quickly and easily.");

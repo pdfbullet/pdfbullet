@@ -137,10 +137,10 @@ const HowToUsePage: React.FC = () => {
     const { t } = useI18n();
 
     useEffect(() => {
-        document.title = "How to Use Our Tools | I Love PDFLY";
+        document.title = "How to Use Our Tools | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Step-by-step guides on how to use all the PDF and image tools on I Love PDFLY. Learn how to merge, split, compress, convert, and more.");
+            metaDesc.setAttribute("content", "Step-by-step guides on how to use all the PDF and image tools on PDFBullet. Learn how to merge, split, compress, convert, and more.");
         }
     }, []);
 

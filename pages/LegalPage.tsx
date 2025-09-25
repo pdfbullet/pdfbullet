@@ -1,4 +1,5 @@
 
+
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LockIcon, ProtectIcon, GavelIcon, CookieIcon } from '../components/icons.tsx';
@@ -19,10 +20,10 @@ const LegalCard: React.FC<{ icon: React.FC<any>, title: string, description: str
 
 const LegalPage: React.FC = () => {
     useEffect(() => {
-        document.title = "Legal Information | I Love PDFLY";
+        document.title = "Legal Information | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Find all legal information for iLovePDFLY, including our data security standards, privacy policy, terms of service, and cookie policy.");
+            metaDesc.setAttribute("content", "Find all legal information for PDFBullet, including our data security standards, privacy policy, terms of service, and cookie policy.");
         }
     }, []);
 
@@ -30,7 +31,7 @@ const LegalPage: React.FC = () => {
         {
             icon: LockIcon,
             title: 'Security',
-            description: 'iLovePDFLY is certified for meeting the requirements established by the international standard ISO/IEC 27001.',
+            description: 'PDFBullet is certified for meeting the requirements established by the international standard ISO/IEC 27001.',
             link: '/security-policy'
         },
         {
@@ -42,7 +43,7 @@ const LegalPage: React.FC = () => {
         {
             icon: GavelIcon,
             title: 'Terms',
-            description: 'Here are the rules you must follow to get your work done in iLovePDFLY. By using iLovePDFLY, you agree to our Terms and Conditions.',
+            description: 'Here are the rules you must follow to get your work done in PDFBullet. By using PDFBullet, you agree to our Terms and Conditions.',
             link: '/terms-of-service'
         },
         {
@@ -59,7 +60,7 @@ const LegalPage: React.FC = () => {
                 <div className="max-w-4xl mx-auto text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Data Security and Privacy policies</h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                        In-depth insight into iLovePDFLY's Privacy and Security Framework
+                        In-depth insight into PDFBullet's Privacy and Security Framework
                     </p>
                 </div>
 

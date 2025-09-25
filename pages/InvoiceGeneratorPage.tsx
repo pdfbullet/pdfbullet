@@ -777,7 +777,7 @@ const InvoiceGeneratorPage: React.FC = () => {
     const faqs = [
         { q: "What is an invoice?", a: "An invoice is a commercial document issued by a seller to a buyer, detailing a transaction and indicating the products, quantities, and agreed prices for products or services the seller has provided. It serves as a request for payment and is a crucial tool for business accounting and record-keeping." },
         { q: "Is the invoice generator really free?", a: "Yes, it is 100% free to create and download unlimited invoices. No watermarks, no hidden fees." },
-        { q: "Can I save my invoice to edit later?", a: "To save your progress and access invoices from any device, you need to sign up for a free ILovePDFLY account. This allows us to securely save your data." },
+        { q: "Can I save my invoice to edit later?", a: "To save your progress and access invoices from any device, you need to sign up for a free PDFBullet account. This allows us to securely save your data." },
         { q: "Is my invoice data saved on your servers?", a: "No. For your privacy, all invoice creation and data processing happens directly in your browser. We do not see or store your financial data unless you are logged in and choose to save it." },
         { q: "Can I add my company logo?", a: "Absolutely! You can upload your company logo in the 'From' section. It will automatically appear on your invoice." },
         { q: "What formats can I download my invoice in?", a: "You can download your final invoice as a universally compatible PDF file or as a high-resolution PNG image." }

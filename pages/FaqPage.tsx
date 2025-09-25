@@ -1,13 +1,9 @@
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const faqData = [
   {
-    question: "Is ILovePDFLY completely free?",
+    question: "Is PDFBullet completely free?",
     answer: <p>Yes! Most of our tools are 100% free for standard use. We offer <Link to="/pricing" className="text-brand-red hover:underline">Premium plans</Link> for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience.</p>
   },
   {
@@ -24,11 +20,11 @@ const faqData = [
   },
   {
     question: "Do I need to install any software?",
-    answer: <p>No installation is required. ILovePDFLY is a fully online service that works directly in your web browser on any operating system. For users who prefer offline work, we also offer optional Desktop and Mobile apps.</p>
+    answer: <p>No installation is required. PDFBullet is a fully online service that works directly in your web browser on any operating system. For users who prefer offline work, we also offer optional Desktop and Mobile apps.</p>
   },
   {
     question: "What are your system requirements?",
-    answer: <p>ILovePDFLY is a web-based application, which means it works on any modern web browser (like Chrome, Firefox, Safari, Edge) on any operating system (Windows, Mac, Linux, etc.). There are no specific system requirements other than a stable internet connection and an up-to-date browser.</p>
+    answer: <p>PDFBullet is a web-based application, which means it works on any modern web browser (like Chrome, Firefox, Safari, Edge) on any operating system (Windows, Mac, Linux, etc.). There are no specific system requirements other than a stable internet connection and an up-to-date browser.</p>
   },
   {
     question: "How can I upload my files?",
@@ -95,10 +91,10 @@ const FaqPage: React.FC = () => {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
 
     useEffect(() => {
-        document.title = "FAQ - Frequently Asked Questions | I Love PDFLY";
+        document.title = "FAQ - Frequently Asked Questions | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Find answers to frequently asked questions about I Love PDFLY's tools, security, and usage. Get help with merging, splitting, compressing PDFs, and more.");
+            metaDesc.setAttribute("content", "Find answers to frequently asked questions about PDFBullet's tools, security, and usage. Get help with merging, splitting, compressing PDFs, and more.");
         }
 
         // Add FAQPage JSON-LD schema for SEO

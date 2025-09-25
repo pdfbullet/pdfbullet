@@ -25,7 +25,7 @@ const TeamPage: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-8 items-center">
                         <div className="flex justify-center order-1 md:order-2">
                             <img 
-                                src="https://www.ilovepdf.com/img/user/team/workspace.svg" 
+                                src="https://www.pdfbullet.com/img/user/team/workspace.svg" 
                                 alt="Team working in a workspace" 
                                 className="max-w-xs w-full"
                                 width="320"
@@ -39,7 +39,7 @@ const TeamPage: React.FC = () => {
                             <ul className="mt-6 space-y-4 text-gray-600 dark:text-gray-400">
                                 <li className="flex items-start gap-3">
                                     <CheckIcon className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                                    <span>Obtain and manage multiple iLovePDFLY licenses inviting several users to your workspace.</span>
+                                    <span>Obtain and manage multiple PDFBullet licenses inviting several users to your workspace.</span>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <CheckIcon className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />

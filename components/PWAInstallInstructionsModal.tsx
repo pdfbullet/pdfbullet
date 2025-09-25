@@ -29,7 +29,7 @@ const PWAInstallInstructionsModal: React.FC = () => {
             <p><strong>Installation steps:</strong></p>
             <ol>
               <li>Open your browser's menu (usually three dots or lines in the corner).</li>
-              <li>Look for an option like "Install App", "Add to Home Screen", or "Install iLovePDFLY".</li>
+              <li>Look for an option like "Install App", "Add to Home Screen", or "Install PDFBullet".</li>
               <li>Follow the on-screen prompts to complete the installation.</li>
             </ol>
             <p className="mt-4 text-xs">Note: This feature is supported on most modern browsers like Chrome, Edge, and Safari on mobile devices.</p>

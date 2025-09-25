@@ -36,8 +36,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          name: 'I Love PDFLY: PDF & Image Tools',
-          short_name: 'PDFLY',
+          name: 'PDFBullet: PDF & Image Tools',
+          short_name: 'PDFBullet',
           description: "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
           start_url: '/',
           display: 'standalone',
@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
             { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
           ],
           screenshots: [
-            { src: '/desktop-view.jpg', sizes: '1280x800', type: 'image/jpeg', form_factor: 'wide', label: 'I Love PDFLY Homepage' },
+            { src: '/desktop-view.jpg', sizes: '1280x800', type: 'image/jpeg', form_factor: 'wide', label: 'PDFBullet Homepage' },
             { src: '/mobile-view.png', sizes: '540x720', type: 'image/png', form_factor: 'narrow', label: 'Mobile PDF Tools' },
           ],
         },

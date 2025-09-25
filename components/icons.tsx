@@ -204,7 +204,7 @@ export const PageNumbersIcon: React.FC<{ className?: string }> = ({ className })
   </svg>
 );
 
-export const ScanToPdfIcon: React.FC<{ className?: string }> = ({ className }) => (
+export const DocumentScannerIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 50 50">
     <path fill="#EE6C4D" d="M8 0h34c2.783 0 3.826.26 4.783.87a5.118 5.118 0 0 1 2.347 2.347c.522 1.044.87 2 .87 4.783v34c0 2.783-.26 3.826-.87 4.783a5.118 5.118 0 0 1-2.347 2.347c-1.044.522-2 .87-4.783.87H8c-2.783 0-3.826-.26-4.783-.87-.956-.608-1.826-1.304-2.347-2.347C.348 45.739 0 44.783 0 42V8c0-2.783.26-3.826.87-4.783A5.119 5.119 0 0 1 3.217.87C4.174.26 5.217 0 8 0Z"></path>
     <mask id="a" fill="#fff">

@@ -7,13 +7,13 @@ const EducationPage: React.FC = () => {
         {
             Icon: ChartBarIcon,
             title: 'Increase productivity',
-            description: 'As efficiency is crucial on the road to success, iLovePDF brings powerful tools for teachers and students alike.',
+            description: 'As efficiency is crucial on the road to success, PDFBullet brings powerful tools for teachers and students alike.',
             color: 'text-blue-500'
         },
         {
             Icon: LockIcon,
             title: 'Keep your projects safe',
-            description: 'Your data matters to us. iLovePDF is built with security, compliance and privacy in mind.',
+            description: 'Your data matters to us. PDFBullet is built with security, compliance and privacy in mind.',
             color: 'text-gray-500'
         },
         {
@@ -40,12 +40,12 @@ const EducationPage: React.FC = () => {
                 <div className="px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div>
-                            <p className="text-brand-red font-semibold">I Love PDFLY Education</p>
+                            <p className="text-brand-red font-semibold">PDFBullet Education</p>
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-800 dark:text-gray-100 mt-2">
                                 Boosting productivity in education
                             </h1>
                             <p className="mt-6 text-lg text-gray-600 dark:text-gray-300">
-                                I Love PDFLY Education version boosts academic productivity by addressing the unique needs of students, teachers and education professionals, driving document efficiency across the entire institution. Register now and enjoy a full year on us.
+                                PDFBullet Education version boosts academic productivity by addressing the unique needs of students, teachers and education professionals, driving document efficiency across the entire institution. Register now and enjoy a full year on us.
                             </p>
                             <div className="mt-8">
                                 <Link to="/signup" className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors">
@@ -72,7 +72,7 @@ const EducationPage: React.FC = () => {
                             Simplifying document workflow for students & faculty
                         </h2>
                         <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                            I Love PDFLY breaks down barriers to file management, making it effortless to modify and optimize documents
+                            PDFBullet breaks down barriers to file management, making it effortless to modify and optimize documents
                         </p>
                     </div>
                     <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
@@ -103,7 +103,7 @@ const EducationPage: React.FC = () => {
                         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">
                             Powerful features to help you stay on top of your work
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
                             Our tools enhance learning & speed up educational chores
                         </p>
                     </div>
@@ -136,7 +136,7 @@ const EducationPage: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">For Institutions</h3>
-                            <p className="mt-2 text-gray-600 dark:text-gray-300">Get a Full Education License and bring I Love PDFLY to your school.</p>
+                            <p className="mt-2 text-gray-600 dark:text-gray-300">Get a Full Education License and bring PDFBullet to your school.</p>
                             <div className="mt-6">
                                 <Link to="/contact" className="inline-block bg-white dark:bg-gray-800 border-2 border-brand-red text-brand-red font-bold py-3 px-6 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                     Contact Us
@@ -160,4 +160,5 @@ const EducationPage: React.FC = () => {
     );
 };
 
+// FIX: Added a default export to the EducationPage component. This is necessary for React.lazy to work correctly in App.tsx.
 export default EducationPage;

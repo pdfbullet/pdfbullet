@@ -5,7 +5,7 @@ export const privacyPolicy = {
   title: 'Privacy Policy',
   content: React.createElement(React.Fragment, null, 
     React.createElement('p', null, React.createElement('strong', null, `Last Updated: ${new Date().toLocaleDateString()}`)),
-    React.createElement('p', null, 'I Love PDFLY ("us", "we", or "our") operates the https://ilovepdfly.com website (the "Service"). This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data. We are committed to protecting your privacy and handling your data in an open and transparent manner.'),
+    React.createElement('p', null, 'PDFBullet ("us", "we", or "our") operates the https://pdfbullet.com website (the "Service"). This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data. We are committed to protecting your privacy and handling your data in an open and transparent manner.'),
     
     React.createElement('h4', null, '1. File Handling and Security'),
     React.createElement('p', null, 'Your privacy is our top priority. For most of our tools, your files are processed entirely within your browser (client-side) and never touch our servers. For features that require server-side processing (e.g., certain complex conversions), files are uploaded over a secure, encrypted HTTPS (SSL/TLS) connection. These files are stored temporarily for processing and are automatically and permanently deleted from our servers within 2 hours. We do not access, copy, analyze, or share your file content.'),
@@ -44,7 +44,7 @@ export const termsOfService = {
   title: 'Terms of Service',
   content: React.createElement(React.Fragment, null,
     React.createElement('p', null, React.createElement('strong', null, `Last Updated: ${new Date().toLocaleDateString()}`)),
-    React.createElement('p', null, 'Please read these Terms of Service ("Terms") carefully before using the https://ilovepdfly.com website (the "Service") operated by I Love PDFLY ("us", "we", or "our"). Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users, and others who access or use the Service.'),
+    React.createElement('p', null, 'Please read these Terms of Service ("Terms") carefully before using the https://pdfbullet.com website (the "Service") operated by PDFBullet ("us", "we", or "our"). Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users, and others who access or use the Service.'),
     
     React.createElement('h4', null, '1. Accounts'),
     React.createElement('p', null, 'When you create an account with us, you must provide information that is accurate and complete. You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. You agree not to disclose your password to any third party and must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.'),
@@ -67,7 +67,7 @@ export const termsOfService = {
     React.createElement('p', null, 'We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.'),
 
     React.createElement('h4', null, '7. Limitation of Liability'),
-    React.createElement('p', null, 'In no event shall I Love PDFLY, nor its developers, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.'),
+    React.createElement('p', null, 'In no event shall PDFBullet, nor its developers, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.'),
 
     React.createElement('h4', null, '8. Governing Law'),
     React.createElement('p', null, 'These Terms shall be governed and construed in accordance with the laws of Nepal, without regard to its conflict of law provisions.')

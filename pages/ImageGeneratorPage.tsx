@@ -13,7 +13,7 @@ const ImageGeneratorPage: React.FC = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-      document.title = "AI Image Generator | Create Images from Text - I Love PDFLY";
+      document.title = "AI Image Generator | Create Images from Text - PDFBullet";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
           metaDesc.setAttribute("content", "Turn your text descriptions into stunning, unique images with the power of AI. Describe what you want to see and our AI image generator will create it for you.");
@@ -84,7 +84,7 @@ const ImageGeneratorPage: React.FC = () => {
         link.href = imageUrl;
         
         const shortPrompt = prompt.substring(0, 30).replace(/\s/g, '_');
-        link.download = `ilovepdfly_img_${shortPrompt}_${index + 1}.jpeg`;
+        link.download = `pdfbullet_img_${shortPrompt}_${index + 1}.jpeg`;
         
         document.body.appendChild(link);
         link.click();

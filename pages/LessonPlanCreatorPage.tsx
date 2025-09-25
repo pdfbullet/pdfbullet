@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleGenAI } from '@google/genai';
@@ -87,7 +88,7 @@ const LessonPlanCreatorPage: React.FC = () => {
     const [copiedTooltip, setCopiedTooltip] = useState(false);
 
     useEffect(() => {
-      document.title = "AI Lesson Plan Creator | I Love PDFLY";
+      document.title = "AI Lesson Plan Creator | PDFBullet";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
           metaDesc.setAttribute("content", "Generate detailed, engaging lesson plans for any subject in seconds. Let AI build a plan with activities, assessments, and homework, saving you valuable time.");

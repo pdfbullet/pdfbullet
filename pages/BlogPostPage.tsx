@@ -12,7 +12,7 @@ const BlogPostPage: React.FC = () => {
 
   useEffect(() => {
     if (post) {
-      document.title = `${post.title} - I Love PDFLY Blog`;
+      document.title = `${post.title} - PDFBullet Blog`;
       window.scrollTo(0, 0);
 
       // Add JSON-LD structured data for SEO
@@ -38,10 +38,10 @@ const BlogPostPage: React.FC = () => {
           },
           "publisher": {
             "@type": "Organization",
-            "name": "I Love PDFLY",
+            "name": "PDFBullet",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://ilovepdfly.com/favicon.png"
+              "url": "https://pdfbullet.com/favicon.png"
             }
           },
           "datePublished": new Date(post.date).toISOString()
@@ -52,7 +52,7 @@ const BlogPostPage: React.FC = () => {
         // Cleanup on unmount
         const scriptToRemove = document.getElementById(scriptId);
         if(scriptToRemove) scriptToRemove.remove();
-        document.title = 'I Love PDFLY - The PDF toolkit for your every need';
+        document.title = 'PDFBullet - The PDF toolkit for your every need';
       };
     } else {
         // If post not found, navigate away

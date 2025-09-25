@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -8,7 +7,7 @@ import {
   HeartbeatIcon, StudentIcon, CheckIcon, DollarIcon, SearchIcon, 
   ApiIcon, CodeIcon, SettingsIcon, NewspaperIcon, ChartBarIcon,
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
-  MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon, ScanToPdfIcon,
+  MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
   GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
 } from './icons.tsx';
@@ -33,8 +32,8 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// FIX: Added 'export' to make the Header component available for import.
-export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
+// FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -136,7 +135,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenS
   const allToolsMenuStructure = useMemo(() => [
     {
       title: 'ORGANIZE PDF',
-      tools: ['merge-pdf', 'split-pdf', 'organize-pdf', 'scan-to-pdf']
+      // FIX: Changed 'scan-to-pdf' to 'document-scanner' to match the correct tool ID from constants.ts.
+      tools: ['merge-pdf', 'split-pdf', 'organize-pdf', 'document-scanner']
     },
     {
       title: 'OPTIMIZE PDF',
@@ -162,8 +162,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenS
 
   const desktopGridMenuData = useMemo(() => ({
     products: [
-      { title: 'iLovePDFLY-Sign', description: 'e-Signing made simple', to: '/workflows', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
-      { title: 'iLoveAPI', description: 'Document automation for developers', to: '/developer', icon: HeartbeatIcon, iconColor: 'bg-teal-500' },
+      { title: 'PDFBullet-Sign', description: 'e-Signing made simple', to: '/workflows', icon: HeartbeatIcon, iconColor: 'bg-blue-600' },
+      { title: 'PDFBullet API', description: 'Document automation for developers', to: '/developer', icon: HeartbeatIcon, iconColor: 'bg-teal-500' },
     ],
     solutions: [
       { title: 'Business', description: 'Streamlined PDF editing and workflows for business teams', to: '/business', icon: ChartBarIcon, iconColor: 'bg-red-500' }
@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenS
       { 
         title: 'Mobile App', 
         description: 'Download the APK for Android', 
-        href: 'https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk', 
+        href: 'https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk', 
         download: 'app-release-signed.apk', 
         icon: PhoneIcon, 
         iconColor: 'bg-red-700' 
@@ -286,7 +286,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenS
                 <MenuIcon className="h-6 w-6" />
               </button>
             </div>
-            <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="I Love PDFLY Home">
+            <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="PDFBullet Home">
               <Logo className="h-8 md:h-10 w-auto" />
             </a>
             <nav className="hidden lg:flex items-center space-x-1">
@@ -587,3 +587,5 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenS
     </>
   );
 };
+
+export default Header;

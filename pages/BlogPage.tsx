@@ -8,10 +8,10 @@ const BlogPage: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "I Love PDFLY Blog | PDF Tips, Tricks, and Updates";
+    document.title = "PDFBullet Blog | PDF Tips, Tricks, and Updates";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-        metaDesc.setAttribute("content", "Explore the I Love PDFLY blog for tips, tricks, and updates. Learn how to make the most of our PDF tools and enhance your document productivity.");
+        metaDesc.setAttribute("content", "Explore the PDFBullet blog for tips, tricks, and updates. Learn how to make the most of our PDF tools and enhance your document productivity.");
     }
   }, []);
 
@@ -43,7 +43,7 @@ const BlogPage: React.FC = () => {
     <div className="py-16 md:py-24 overflow-x-hidden">
       <div className="px-6">
         <div className="max-w-4xl mx-auto text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">I Love PDFLY Blog</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">PDFBullet Blog</h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
             Tips, tricks, and updates from our team to help you make the most of our PDF tools.
           </p>

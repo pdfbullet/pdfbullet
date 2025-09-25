@@ -1,5 +1,3 @@
-
-
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -11,7 +9,8 @@ import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, 
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
-import { Header } from './components/Header.tsx';
+// FIX: Changed to a default import for the Header component to match its updated export type.
+import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
@@ -44,7 +43,7 @@ export const LayoutContext = createContext<{
 // Inlined component to fix import issue
 const DataDeletionPage: React.FC = () => {
     React.useEffect(() => {
-        document.title = "User Data Deletion | I Love PDFLY";
+        document.title = "User Data Deletion | PDFBullet";
     }, []);
 
     return (
@@ -58,7 +57,7 @@ const DataDeletionPage: React.FC = () => {
                         <h3>How to Delete Your Data</h3>
                         <p>You can permanently delete your account and all associated data directly from your account settings. This is the fastest and most secure way to delete your data.</p>
                         <ol>
-                            <li>Log in to your I Love PDFLY account.</li>
+                            <li>Log in to your PDFBullet account.</li>
                             <li>Navigate to the <Link to="/account-settings" className="text-brand-red hover:underline">Account Settings</Link> page.</li>
                             <li>Scroll down to the "Danger Zone" section.</li>
                             <li>Click on "Delete My Account" and follow the on-screen instructions to confirm the deletion.</li>
@@ -67,7 +66,7 @@ const DataDeletionPage: React.FC = () => {
                         <h3 className="mt-6">Alternative Method</h3>
                         <p>If you are unable to access your account, you can request data deletion by sending an email to our support team with the subject line "Data Deletion Request".</p>
                         <p>
-                            <strong>Email:</strong> <a href="mailto:Support@ilovepdfly.com" className="text-brand-red hover:underline">Support@ilovepdfly.com</a>
+                            <strong>Email:</strong> <a href="mailto:Support@pdfbullet.com" className="text-brand-red hover:underline">Support@pdfbullet.com</a>
                         </p>
                         <p>Please include the username and email address associated with your account in your message.</p>
                     </div>
@@ -214,9 +213,9 @@ type Conversation = {
     timestamp: number;
 };
 
-const CHAT_CONVERSATIONS_KEY = 'ilovepdfly_chat_history_v2';
+const CHAT_CONVERSATIONS_KEY = 'pdfbullet_chat_history_v2';
 
-const INITIAL_MESSAGE: ChatMessage = { role: 'model', text: 'Hello! I am Bishal, your support assistant for iLovePDFLY. How can I help you today?' };
+const INITIAL_MESSAGE: ChatMessage = { role: 'model', text: 'Hello! I am Bishal, your support assistant for PDFBullet. How can I help you today?' };
 
 const faqs = [
     { q: 'How do I merge PDF files?', icon: '📄' },
@@ -312,7 +311,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
             const popupTimer = setTimeout(() => {
                 onOpen();
                 sessionStorage.setItem('chatWidgetAutoOpened', 'true');
-                const welcomeMessage = user ? `Welcome, ${user.username}! How can I assist you today?` : `Welcome to iLovePDFLY! How can I help you today?`;
+                const welcomeMessage = user ? `Welcome, ${user.username}! How can I assist you today?` : `Welcome to PDFBullet! How can I help you today?`;
                 speak(welcomeMessage);
                 const closeTimer = setTimeout(() => { if (!userHasInteracted) onClose(); }, 3000);
                 return () => clearTimeout(closeTimer);
@@ -329,12 +328,12 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
             const chatSession = ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {
-                    systemInstruction: `You are an expert, friendly, and helpful customer support assistant for a website called 'iLovePDFLY'. Your name is Bishal, and you represent the company. Your goal is to provide accurate information, guide users on how to use the site, and answer frequently asked questions based *only* on the extensive information provided below.
+                    systemInstruction: `You are an expert, friendly, and helpful customer support assistant for a website called 'PDFBullet'. Your name is Bishal, and you represent the company. Your goal is to provide accurate information, guide users on how to use the site, and answer frequently asked questions based *only* on the extensive information provided below.
 
 **Core Mission & Values:**
-- **Website:** The official website is ilovepdfly.com.
+- **Website:** The official website is pdfbullet.com.
 - **Mission:** To provide a comprehensive online toolkit for PDF and image management that is FREE, fast, secure, and private.
-- **Key Feature - Privacy:** The cornerstone of iLovePDFLY is **client-side processing**. This means most file operations happen directly in the user's browser. Files are NOT uploaded to servers for most tools, guaranteeing 100% privacy. This is a major advantage and should be mentioned when relevant.
+- **Key Feature - Privacy:** The cornerstone of PDFBullet is **client-side processing**. This means most file operations happen directly in the user's browser. Files are NOT uploaded to servers for most tools, guaranteeing 100% privacy. This is a major advantage and should be mentioned when relevant.
 - **Key Feature - Speed:** Because of client-side processing, there are no upload delays, making the tools incredibly fast.
 - **Key Feature - Free Access:** Most tools are completely free to use without limits.
 
@@ -354,14 +353,14 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
 **Company & Support:**
 - **Founder & CEO:** Bishal Mishra.
-- **Support:** The primary support email is Support@ilovepdfly.com. Human support is available via WhatsApp for urgent issues.
+- **Support:** The primary support email is Support@pdfbullet.com. Human support is available via WhatsApp for urgent issues.
 - **Developer API:** A REST API is available for developers at /developer.
 
 **Interaction Guidelines:**
 - **Be Friendly & Professional:** Use emojis sparingly to add warmth ✨.
 - **Provide Links:** When mentioning a tool or page, provide the relative path (e.g., "You can use our /merge-pdf tool for that."). Format them as simple text paths.
 - **Use Markdown:** Use double asterisks for bolding: \`**this is bold**\`. This helps highlight important information.
-- **Stay Focused:** Only answer questions related to iLovePDFLY. If asked about competitors (like 'iLovePDF'), politely state you only have information about iLovePDFLY and its features.`,
+- **Stay Focused:** Only answer questions related to PDFBullet. If asked about competitors (like 'Smallpdf'), politely state you only have information about PDFBullet and its features.`,
                    thinkingConfig: { thinkingBudget: 0 }
                 },
             });
@@ -501,7 +500,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                     onClick={() => setUserHasInteracted(true)}
                 >
                     <div className="flex-shrink-0 p-4 flex justify-between items-center bg-gradient-to-r from-red-600 to-orange-500 rounded-t-2xl">
-                        <p className="font-bold text-white">iLovePDFly Support</p>
+                        <p className="font-bold text-white">PDFBullet Support</p>
                         <div className="flex items-center gap-2">
                             <button onClick={() => setIsMenuOpen(true)} className="p-1.5 rounded-md border border-white/30 text-white/80 hover:bg-white/10 hover:text-white transition-colors" aria-label="Open menu" title="Open menu"><EllipsisHorizontalIcon className="h-5 w-5" /></button>
                             <button onClick={onClose} className="text-white/70 hover:text-white" aria-label="Close chat widget" title="Close chat widget"><CloseIcon className="h-6 w-6" /></button>
@@ -511,7 +510,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                         <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
                             {currentMessages.map((msg, index) => (
                                 <div key={index} className={`flex items-end gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
+                                    {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
                                     <div className={`max-w-[80%] p-3 rounded-2xl text-sm relative group ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
                                         <MarkdownRenderer text={msg.text} sources={msg.sources} />
                                     </div>
@@ -519,7 +518,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                             ))}
                             {isLoading && (
                                 <div className="flex items-end gap-2.5 justify-start">
-                                    <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
+                                    <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
                                     <div className="p-3 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center rounded-bl-none">
                                         <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                                         <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1.5"></span>

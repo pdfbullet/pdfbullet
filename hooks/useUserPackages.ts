@@ -5,7 +5,7 @@ export interface UserPackages {
     sms: number;
 }
 
-const PACKAGES_KEY = 'ilovepdfly_user_packages_v1';
+const PACKAGES_KEY = 'pdfbullet_user_packages_v1';
 
 const initialPackages: UserPackages = {
     signatures: 10, // Start with some initial signatures for demo

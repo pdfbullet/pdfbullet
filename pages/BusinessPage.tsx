@@ -9,10 +9,10 @@ const BusinessPage: React.FC = () => {
     const [activeIndustry, setActiveIndustry] = useState('hr');
 
     useEffect(() => {
-        document.title = "Business Solutions | I Love PDFLY";
+        document.title = "Business Solutions | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Discover how I Love PDFLY can streamline document workflows for your business. Explore solutions for HR, legal, finance, and more with our secure and efficient tools.");
+            metaDesc.setAttribute("content", "Discover how PDFBullet can streamline document workflows for your business. Explore solutions for HR, legal, finance, and more with our secure and efficient tools.");
         }
     }, []);
 
@@ -22,7 +22,7 @@ const BusinessPage: React.FC = () => {
             icon: UsersIcon,
             content: {
                 points: [
-                    { title: "Document Management", text: "HR professionals often handle a high volume of documents such as resumes, contracts, and employee records. I Love PDFLY allows easy merging, splitting, and annotating of PDFs, streamlining document management." },
+                    { title: "Document Management", text: "HR professionals often handle a high volume of documents such as resumes, contracts, and employee records. PDFBullet allows easy merging, splitting, and annotating of PDFs, streamlining document management." },
                     { title: "E-Signatures", text: "The e-Sign feature simplifies the onboarding process by enabling quick and secure electronic signing of employment contracts and other HR-related documents." }
                 ],
                 image: "https://www.ilovepdf.com/img/business/industries/hr.png"
@@ -43,7 +43,7 @@ const BusinessPage: React.FC = () => {
                     <div className="grid lg:grid-cols-5 gap-12 items-center">
                         <div className="lg:col-span-2 text-center lg:text-left">
                             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">
-                                Simplify document management with I Love PDFLY
+                                Simplify document management with PDFBullet
                             </h1>
                             <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
                                 Efficient, reliable, and secure solutions for all your PDF needs – empower your business with seamless PDF integration and collaboration tools.
@@ -57,7 +57,7 @@ const BusinessPage: React.FC = () => {
                         <div className="lg:col-span-3">
                             <img 
                                 src="https://www.ilovepdf.com/img/business/business.png" 
-                                alt="Simplify document management with I Love PDFLY" 
+                                alt="Simplify document management with PDFBullet" 
                                 className="w-full h-auto rounded-lg shadow-2xl"
                                 width="570" height="427" loading="lazy" decoding="async"
                             />
@@ -160,7 +160,7 @@ const BusinessPage: React.FC = () => {
             <section className="py-20 md:py-28">
                 <div className="px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-3xl md:text-4xl font-extrabold">Discover how I Love PDFLY simplifies document management for your business sector</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold">Discover how PDFBullet simplifies document management for your business sector</h2>
                     </div>
                     <div className="mt-16">
                         <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
@@ -200,7 +200,7 @@ const BusinessPage: React.FC = () => {
                         <ApiIcon className="h-12 w-12 mx-auto mb-4" />
                         <h2 className="text-3xl font-extrabold">Integrate our tools with your systems</h2>
                         <p className="mt-4 max-w-2xl mx-auto">
-                           Unlock the full potential of I Love PDFLY with our powerful API. Automate document workflows, integrate our tools into your own applications, and scale your operations with ease.
+                           Unlock the full potential of PDFBullet with our powerful API. Automate document workflows, integrate our tools into your own applications, and scale your operations with ease.
                         </p>
                         <div className="mt-8">
                              <Link to="/developer" className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg text-lg transition-colors hover:bg-gray-100">

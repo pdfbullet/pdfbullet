@@ -54,7 +54,7 @@ const WelcomeInstallModal: React.FC = () => {
             <div className="bg-white dark:bg-black w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
                 <div className="p-8 text-center">
                     <Logo className="h-12 w-auto mx-auto mb-4" />
-                    <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Welcome to iLovePDFLY!</h2>
+                    <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Welcome to PDFBullet!</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">For the best experience, install our app on your device.</p>
 
                     <div className="mt-6 p-6 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">

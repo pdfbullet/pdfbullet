@@ -32,10 +32,10 @@ const KhaltiIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const AboutPage: React.FC = () => {
     useEffect(() => {
-        document.title = "About I Love PDFLY | Our Mission and Story";
+        document.title = "About PDFBullet | Our Mission and Story";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Learn about the mission and story behind I Love PDFLY. Discover our commitment to providing simple, powerful, and secure PDF tools for everyone.");
+            metaDesc.setAttribute("content", "Learn about the mission and story behind PDFBullet. Discover our commitment to providing simple, powerful, and secure PDF tools for everyone.");
         }
     }, []);
 
@@ -45,7 +45,7 @@ const AboutPage: React.FC = () => {
         <section className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Our Mission: To Make Document Management Simple, Secure, and Accessible for Everyone</h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            At I Love PDFLY, we are building a world where document management is no longer a barrier to productivity. We provide a powerful, intuitive, and secure suite of tools designed to streamline workflows for individuals, professionals, and businesses of all sizes.
+            At PDFBullet, we are building a world where document management is no longer a barrier to productivity. We provide a powerful, intuitive, and secure suite of tools designed to streamline workflows for individuals, professionals, and businesses of all sizes.
           </p>
         </section>
 
@@ -54,13 +54,13 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Our Story</h2>
             <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
               <p>
-                I Love PDFLY was founded in 2025 with a clear objective: to solve the everyday frustrations of dealing with PDF files. We saw a need for a reliable, accessible, and high-performance online platform that didn’t compromise on user privacy or experience. Traditional PDF software was often clunky, expensive, and required installation, creating unnecessary friction for simple tasks.
+                PDFBullet was founded in 2025 with a clear objective: to solve the everyday frustrations of dealing with PDF files. We saw a need for a reliable, accessible, and high-performance online platform that didn’t compromise on user privacy or experience. Traditional PDF software was often clunky, expensive, and required installation, creating unnecessary friction for simple tasks.
               </p>
               <p>
                 We started with a handful of core tools—Merge, Split, and Compress—built on the principle of client-side processing to guarantee user privacy. The response was overwhelmingly positive. This initial success fueled our ambition to create a truly all-in-one solution.
               </p>
               <p>
-                Today, I Love PDFLY has grown into a comprehensive toolkit trusted by thousands of users daily, driven by continuous innovation and a commitment to our community. We believe that powerful technology should be available to everyone, and we work tirelessly to ensure our tools are both advanced and easy to use.
+                Today, PDFBullet has grown into a comprehensive toolkit trusted by thousands of users daily, driven by continuous innovation and a commitment to our community. We believe that powerful technology should be available to everyone, and we work tirelessly to ensure our tools are both advanced and easy to use.
               </p>
             </div>
           </section>
@@ -69,7 +69,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Our Technology</h2>
             <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
               <p>
-                What truly sets I Love PDFLY apart is our foundational commitment to a browser-first, privacy-centric architecture. Unlike many other online services, the vast majority of our tools process your files directly on your own device.
+                What truly sets PDFBullet apart is our foundational commitment to a browser-first, privacy-centric architecture. Unlike many other online services, the vast majority of our tools process your files directly on your own device.
               </p>
               <p>
                 <strong>Client-Side Processing:</strong> By harnessing the power of modern web browsers and technologies like WebAssembly, we perform complex operations like merging, compressing, and editing without your files ever leaving your computer. This means no upload time, instant processing, and absolute privacy. Your documents remain yours, from start to finish.
@@ -155,7 +155,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Join Us on Our Journey</h2>
              <div className="bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 text-center">
                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-                    I Love PDFLY is more than just a set of tools; it's a commitment to better productivity for everyone. We are constantly innovating and improving. If you are passionate about building the future of document management and want to make a global impact, we invite you to explore our API.
+                    PDFBullet is more than just a set of tools; it's a commitment to better productivity for everyone. We are constantly innovating and improving. If you are passionate about building the future of document management and want to make a global impact, we invite you to explore our API.
                  </p>
                  <Link to="/developer" className="inline-block mt-6 font-semibold text-brand-red hover:underline">
                     Explore our Developer API &rarr;

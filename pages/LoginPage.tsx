@@ -9,22 +9,36 @@ interface LoginPageProps {
   onOpenForgotPasswordModal: () => void;
 }
 
+const getPasskeyButtonText = (isLogin: boolean): string => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isLogin) {
+        if (isIOS) return "Sign in with Face ID / Touch ID";
+        if (isAndroid) return "Sign in with Fingerprint";
+        return "Sign in with Passkey";
+    } else {
+        if (isIOS) return "Sign up with Face ID / Touch ID";
+        if (isAndroid) return "Sign up with Fingerprint";
+        return "Sign up with Passkey";
+    }
+};
+
 const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub, signInWithCustomToken } = useAuth();
-  // FIX: Correctly call useWebAuthn hook without arguments and destructure its return values.
   const { login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Login | I Love PDFLY";
+    document.title = "Login | PDFBullet";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-        metaDesc.setAttribute("content", "Sign in to your I Love PDFLY account to access all your tools and premium features. Manage your documents easily and securely.");
+        metaDesc.setAttribute("content", "Sign in to your PDFBullet account to access all your tools and premium features. Manage your documents easily and securely.");
     }
   }, []);
   
@@ -36,7 +50,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
     setError('');
     setIsLoading(true);
     try {
-      // FIX: Correctly call passkeyLogin with the username/email argument.
       const result = await passkeyLogin(usernameOrEmail);
       if (result.token) {
           await signInWithCustomToken(result.token);
@@ -91,6 +104,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
         setIsLoading(false);
       }
   };
+
+  const passkeyText = getPasskeyButtonText(true);
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -158,7 +173,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
                 className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                 <SSOIcon className="h-5 w-5" />
-                <span>Login with Passkey</span>
+                <span>{passkeyText}</span>
               </button>
               {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
           </div>
@@ -176,7 +191,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
             <img src="https://ik.imagekit.io/fonepay/imgi_25_home.png?updatedAt=1753968278321" alt="PDF tools illustration" className="w-full h-auto" />
             <h2 className="mt-8 text-2xl font-bold text-gray-900 dark:text-white">PDF tools for productive people</h2>
             <p className="mt-4 text-gray-600 dark:text-gray-400">
-                iLovePDFLY helps you convert, edit, e-sign, and protect PDF files quickly and easily. Enjoy a full suite of tools to effectively manage documents —no matter where you're working.
+                PDFBullet helps you convert, edit, e-sign, and protect PDF files quickly and easily. Enjoy a full suite of tools to effectively manage documents —no matter where you're working.
             </p>
         </div>
       </div>

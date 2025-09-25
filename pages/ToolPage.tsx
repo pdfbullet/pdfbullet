@@ -1,4 +1,7 @@
 
+
+
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -20,7 +23,7 @@ import { useSignature } from '../hooks/useSignature.ts';
 import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
 import { LayoutContext } from '../App.tsx';
-import { GoogleGenAI, Type, Modality } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 
 // FIX: Removed unused and incorrect 'Perms' type from pdf-lib import.
@@ -197,195 +200,70 @@ interface DocumentScannerUIProps {
 
 const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessStart, onProcessSuccess, onProcessError }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const streamRef = useRef<MediaStream | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
     const [scannedPages, setScannedPages] = useState<ScannedPage[]>([]);
-    const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error' | 'not-supported'>('initializing');
+    const [cameraState, setCameraState] = useState<'initializing' | 'active' | 'denied' | 'not-found' | 'error'>('initializing');
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAiProcessing, setIsAiProcessing] = useState<number | null>(null);
     const [ai, setAi] = useState<GoogleGenAI | null>(null);
     const [showUpload, setShowUpload] = useState(false);
-    const [retryCount, setRetryCount] = useState(0);
 
     useEffect(() => {
         if (process.env.API_KEY) {
             setAi(new GoogleGenAI({ apiKey: process.env.API_KEY }));
         } else {
             console.error("API Key for AI features is not configured.");
-            onProcessError("AI features are not available: API Key is missing.");
         }
-    }, [onProcessError]);
+    }, []);
 
-    const processPageWithAI = useCallback(async (imageDataUrl: string): Promise<string> => {
-        if (!ai) return imageDataUrl;
-
-        const base64Data = imageDataUrl.split(',')[1];
-        const mimeType = imageDataUrl.match(/:(.*?);/)?.[1] || 'image/jpeg';
-        
+    const startCamera = useCallback(async () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        setCameraState('initializing');
         try {
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { data: base64Data, mimeType } },
-                        { text: 'This is an image of a document taken with a camera. Please identify the document within the image, crop it to its edges, correct any perspective distortion so it appears as a flat scan, and enhance the brightness and contrast for optimal readability. Return only the processed image.' },
-                    ],
-                },
-                config: {
-                    responseModalities: [Modality.IMAGE, Modality.TEXT],
-                },
-            });
-
-            for (const part of response.candidates[0].content.parts) {
-                if (part.inlineData) {
-                    const processedBase64 = part.inlineData.data;
-                    const processedMimeType = part.inlineData.mimeType;
-                    return `data:${processedMimeType};base64,${processedBase64}`;
-                }
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+            setStream(mediaStream);
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream;
             }
-            console.warn("AI did not return an image part, using original.");
-            return imageDataUrl;
-        } catch (error) {
-            console.error("AI image processing failed:", error);
-            throw error;
-        }
-    }, [ai]);
-
-    const addPage = useCallback(async (imageDataUrl: string) => {
-        const newPageId = Date.now();
-        setIsAiProcessing(newPageId);
-        
-        const tempPage: ScannedPage = {
-            id: newPageId,
-            original: imageDataUrl,
-            filtered: imageDataUrl,
-            filter: 'original',
-        };
-        setScannedPages(prev => [...prev, tempPage]);
-        
-        try {
-            const processedDataUrl = await processPageWithAI(imageDataUrl);
-            const newPage: ScannedPage = {
-                id: newPageId,
-                original: processedDataUrl,
-                filtered: processedDataUrl,
-                filter: 'original',
-            };
-            setScannedPages(prev => prev.map(p => p.id === newPageId ? newPage : p));
-        } catch (e) {
-            console.error("AI processing failed", e);
-        } finally {
-            setIsAiProcessing(null);
-        }
-    }, [processPageWithAI]);
-    
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (e.target?.result) {
-                addPage(e.target.result as string);
+            setCameraState('active');
+        } catch (err) {
+            if (err instanceof DOMException) {
+                if (err.name === 'NotAllowedError') setCameraState('denied');
+                else if (err.name === 'NotFoundError') setCameraState('not-found');
+                else setCameraState('error');
+            } else {
+                setCameraState('error');
             }
-        };
-        reader.readAsDataURL(file);
-      }
-    }, [addPage]);
+            console.error(err);
+        }
+    }, [stream, facingMode]);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'image/*': ['.jpeg', '.jpg', '.png', '.webp']} });
+    const stopCamera = useCallback(() => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            setStream(null);
+        }
+    }, [stream]);
 
     useEffect(() => {
-        if (showUpload) {
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-                streamRef.current = null;
-            }
-            if (videoRef.current) {
-                videoRef.current.srcObject = null;
-            }
-            return;
+        if (!showUpload) {
+            startCamera();
+        } else {
+            stopCamera();
         }
-
-        let isCancelled = false;
-
-        const startCameraAsync = async () => {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                console.error("Camera API is not supported by this browser.");
-                setCameraState('not-supported');
-                return;
-            }
-            
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-            }
-
-            setCameraState('initializing');
-
-            try {
-                // MORE ROBUST: Looser constraints for better device compatibility.
-                // This lets the browser choose the best resolution.
-                const constraints = { video: { facingMode } };
-                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-
-                if (isCancelled) {
-                    mediaStream.getTracks().forEach(track => track.stop());
-                    return;
-                }
-
-                if (!mediaStream.getVideoTracks().length) {
-                    console.error("Camera stream provided no video tracks.");
-                    setCameraState('not-found');
-                    return;
-                }
-
-                streamRef.current = mediaStream;
-                const video = videoRef.current;
-                if (video) {
-                    video.srcObject = mediaStream;
-                    // We now rely on the `onPlaying` handler on the video element
-                    // to set the state to 'active'.
-                    // The explicit play() call here helps trigger autoplay on some browsers.
-                    video.play().catch(e => {
-                        console.warn("video.play() was not successful, possibly due to browser autoplay policies. The `onPlaying` event should still fire once the stream is active.", e);
-                    });
-                } else if (!isCancelled) {
-                    setCameraState('error');
-                }
-            } catch (err) {
-                if (isCancelled) return;
-                console.error("Camera Error:", err);
-                if (err instanceof DOMException) {
-                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') setCameraState('denied');
-                    else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') setCameraState('not-found');
-                    else if (err.name === 'NotReadableError' || err.name === 'OverconstrainedError' || err.name === 'AbortError') setCameraState('error');
-                    else setCameraState('error');
-                } else {
-                    setCameraState('error');
-                }
-            }
-        };
-
-        startCameraAsync();
-
-        return () => {
-            isCancelled = true;
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-                streamRef.current = null;
-            }
-            if (videoRef.current) {
-                videoRef.current.srcObject = null;
-            }
-        };
-    }, [showUpload, facingMode, retryCount]);
-
+        return () => stopCamera();
+    }, [startCamera, stopCamera, showUpload]);
 
     const switchCamera = () => {
         setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
     };
 
     const capturePage = () => {
-        if (!videoRef.current || videoRef.current.paused || videoRef.current.ended || videoRef.current.videoWidth === 0) return;
+        if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
         const canvas = document.createElement('canvas');
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
@@ -395,6 +273,43 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         addPage(dataUrl);
     };
+
+    const addPage = async (imageDataUrl: string) => {
+        const newPageId = Date.now();
+        setIsAiProcessing(newPageId);
+
+        let processedDataUrl = imageDataUrl;
+        if (ai) {
+             processedDataUrl = await processPageWithAI(imageDataUrl);
+        }
+        
+        const newPage: ScannedPage = {
+            id: newPageId,
+            original: processedDataUrl,
+            filtered: processedDataUrl,
+            filter: 'original',
+        };
+        setScannedPages(prev => [...prev, newPage]);
+        setIsAiProcessing(null);
+    };
+    
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        const reader = new FileReader();
+        reader.onload = (e) => addPage(e.target?.result as string);
+        reader.readAsDataURL(file);
+      }
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'image/*': ['.jpeg', '.jpg', '.png', '.webp']} });
+
+
+    const processPageWithAI = async (imageDataUrl: string): Promise<string> => {
+        // AI logic will go here
+        return imageDataUrl; // Placeholder
+    };
+
 
     const handleFilterChange = async (id: number, filter: FilterType) => {
         const pageToUpdate = scannedPages.find(p => p.id === id);
@@ -472,42 +387,19 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
     
     const CameraView = () => (
         <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg shadow-lg bg-black overflow-hidden">
-            <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                muted 
-                className="w-full h-full object-cover"
-                onPlaying={() => cameraState !== 'active' && setCameraState('active')}
-            ></video>
+            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover"></video>
             
             {cameraState !== 'active' && (
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white text-center p-4">
                     {cameraState === 'initializing' && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>}
                     {cameraState === 'denied' && <>
                         <LockIcon className="w-12 h-12 mb-4" />
-                        <h3 className="font-bold text-lg">Camera access denied</h3>
-                        <p className="text-sm mt-2 max-w-xs">To use the scanner, please allow camera access in your browser's settings for this site.</p>
-                        <button onClick={() => setRetryCount(c => c + 1)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry Camera</button>
+                        <h3 className="font-bold">Camera access denied</h3>
+                        <p className="text-sm">Please allow camera access in your browser settings to continue.</p>
+                        <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
                     </>}
-                     {cameraState === 'not-found' && <>
-                        <CameraIcon className="w-12 h-12 mb-4" />
-                        <h3 className="font-bold text-lg">No camera found</h3>
-                        <p className="text-sm mt-2 max-w-xs">We couldn't find a camera on your device. Please make sure one is connected and enabled.</p>
-                         <button onClick={() => setRetryCount(c => c + 1)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Retry</button>
-                    </>}
-                    {cameraState === 'not-supported' && <>
-                        <CameraIcon className="w-12 h-12 mb-4" />
-                        <h3 className="font-bold text-lg">Camera Not Supported</h3>
-                        <p className="text-sm mt-2 max-w-xs">Your browser does not support the camera API. Please try a different browser or upload an image.</p>
-                        <button onClick={() => setShowUpload(true)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Upload Image Instead</button>
-                    </>}
-                    {cameraState === 'error' && <>
-                        <CloseIcon className="w-12 h-12 mb-4 text-red-500" />
-                        <h3 className="font-bold text-lg">Could not start camera</h3>
-                        <p className="text-sm mt-2 max-w-xs">Another app might be using the camera, or the requested resolution is not supported. Please close other camera apps or restart your browser and try again.</p>
-                        <button onClick={() => setRetryCount(c => c + 1)} className="mt-4 px-4 py-2 bg-white/20 rounded-md font-semibold hover:bg-white/30">Try Again</button>
-                    </>}
+                    {cameraState === 'not-found' && <p>No camera found. Please connect a camera and try again.</p>}
+                    {cameraState === 'error' && <p>Could not start camera. Please try again.</p>}
                 </div>
             )}
             
@@ -553,7 +445,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                                 {isAiProcessing === page.id && (
                                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                                        <p className="text-xs mt-2 font-semibold">AI Enhancing...</p>
+                                        <p className="text-xs mt-2 font-semibold">Processing...</p>
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
@@ -570,7 +462,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                             {isProcessing ? 'Processing...' : 'Create PDF'}
                         </button>
                         <button onClick={() => processAndOutput('jpg')} disabled={isProcessing || isAiProcessing !== null} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg disabled:bg-gray-400">
-                            {isProcessing ? 'Processing...' : `Save as ${scannedPages.length > 1 ? 'ZIP' : 'JPG'}`}
+                            {isProcessing ? 'Processing...' : 'Save as JPG'}
                         </button>
                     </div>
                 </div>
@@ -1193,7 +1085,7 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
 };
 
 const toolSeoDescriptions: { [key: string]: string } = {
-  'merge-pdf': 'Combine multiple PDF files into one single PDF document with I Love PDFLY\'s free online PDF merger. Easy to use, no installation needed.',
+  'merge-pdf': 'Combine multiple PDF files into one single PDF document with PDFBullet\'s free online PDF merger. Easy to use, no installation needed.',
   'split-pdf': 'Split a large PDF file into separate pages or extract a specific range of pages into a new PDF document. Fast and secure splitting tool.',
   'compress-pdf': 'Reduce the file size of your PDF documents online for free. Optimize your PDFs for web and email sharing without losing quality.',
   'pdf-to-word': 'Convert your PDF files to editable DOCX Word documents. Our converter preserves layouts, text, and images accurately.',
@@ -1665,15 +1557,15 @@ const ToolPage: React.FC = () => {
       setTool(currentTool);
       handleReset();
 
-      const newTitle = `${t(currentTool.title)} – I Love PDFLY`;
-      const newDescription = toolSeoDescriptions[currentTool.id] || `Use the ${t(currentTool.title)} tool on I Love PDFLY. ${t(currentTool.description)} Fast, free, and secure.`;
+      const newTitle = `${t(currentTool.title)} – PDFBullet`;
+      const newDescription = toolSeoDescriptions[currentTool.id] || `Use the ${t(currentTool.title)} tool on PDFBullet. ${t(currentTool.description)} Fast, free, and secure.`;
       
       const baseKeywords = [
           t(currentTool.title).toLowerCase(),
           `free ${t(currentTool.title).toLowerCase()}`,
           `online ${t(currentTool.title).toLowerCase()}`,
           currentTool.id.replace(/-/g, ' '),
-          `ilovepdf ${t(currentTool.title).toLowerCase()}`,
+          `pdfbullet ${t(currentTool.title).toLowerCase()}`,
           'pdf tools',
           'document management',
       ];
@@ -1711,7 +1603,7 @@ const ToolPage: React.FC = () => {
           "applicationCategory": "ProductivityApplication",
           "operatingSystem": "Web",
           "description": t(currentTool.description),
-          "url": `https://ilovepdfly.com/#/${currentTool.id}`,
+          "url": `https://pdfbullet.com/#/${currentTool.id}`,
           "offers": {
               "@type": "Offer",
               "price": currentTool.isPremium ? "5.00" : "0.00",
@@ -1724,7 +1616,7 @@ const ToolPage: React.FC = () => {
           },
           "publisher": {
             "@type": "Organization",
-            "name": "I Love PDFLY"
+            "name": "PDFBullet"
           }
       };
       script.textContent = JSON.stringify(schema);
@@ -2489,16 +2381,16 @@ const ToolPage: React.FC = () => {
       }
   };
   
-  const onProcessStart = useCallback(() => {
+  const onProcessStart = () => {
       setState(ProcessingState.Processing);
       setProcessingStartTime(Date.now());
       setErrorMessage('');
       setProcessedFileBlob(null);
       setOutputFilename('');
       setProgress({ percentage: 0, status: 'Starting process...'});
-  }, []);
+  };
 
-  const onProcessSuccess = useCallback((blob: Blob, filename: string) => {
+  const onProcessSuccess = (blob: Blob, filename: string) => {
       setProcessedFileBlob(blob);
       setOutputFilename(filename);
       setState(ProcessingState.Success);
@@ -2513,12 +2405,12 @@ const ToolPage: React.FC = () => {
             sendTaskCompletionEmail(t(tool.title), filename);
         }
       }
-  }, [tool, addTask, t, user, sendTaskCompletionEmail]);
+  };
 
-  const onProcessError = useCallback((message: string) => {
+  const onProcessError = (message: string) => {
       setErrorMessage(message);
       setState(ProcessingState.Error);
-  }, []);
+  };
 
 
   if (!tool) {
@@ -2622,19 +2514,19 @@ const ToolPage: React.FC = () => {
                     <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">How can you thank us? Spread the word!</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">Please share the tool to inspire more productive people!</p>
                     <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="https://www.trustpilot.com/review/pdfbullet.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                             <StarIcon className="h-5 w-5 text-green-500" />
                             <span>Trustpilot</span>
                         </a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpdfbullet.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                             <FacebookIcon className="h-5 w-5 text-blue-600" />
                             <span>Facebook</span>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Filovepdfly.com&text=Check%20out%20iLovePDFLY,%20the%20best%20free%20online%20PDF%20toolkit!" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpdfbullet.com&text=Check%20out%20PDFBullet,%20the%20best%20free%20online%20PDF%20toolkit!" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                             <XIcon className="h-5 w-5" />
                             <span>Twitter</span>
                         </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Filovepdfly.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fpdfbullet.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                             <LinkedInIcon className="h-5 w-5 text-blue-700" />
                             <span>LinkedIn</span>
                         </a>
@@ -2644,7 +2536,7 @@ const ToolPage: React.FC = () => {
                 <div className="mt-12 text-center p-6 rounded-lg max-w-5xl mx-auto">
                     <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">The PDF software trusted by millions of users</h2>
                     <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
-                        iLovePDFLY is your number 1 web app for editing PDF with ease. Enjoy all the tools you need to work efficiently with your digital documents while keeping your data safe and secure.
+                        PDFBullet helps you convert, edit, e-sign, and protect PDF files quickly and easily. Enjoy a full suite of tools to effectively manage documents —no matter where you're working.
                     </p>
                     <div className="mt-12 flex flex-wrap justify-center items-center gap-x-20 md:gap-x-32">
                         <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-gray-300">

@@ -302,7 +302,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             <p>Your task '<strong>${toolTitle}</strong>' has been successfully completed.</p>
             <p>The output file is named: <strong>${outputFilename}</strong>.</p>
             <p>You can download it from the success screen in the app.</p>
-            <p>Thank you for using I Love PDFLY!</p>
+            <p>Thank you for using PDFBullet!</p>
           `,
         },
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),

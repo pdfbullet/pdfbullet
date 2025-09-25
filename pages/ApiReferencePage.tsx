@@ -111,7 +111,7 @@ const ApiReferencePage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        document.title = "API Reference | I Love PDFLY";
+        document.title = "API Reference | PDFBullet";
         if (location.hash) {
             const id = location.hash.substring(1);
             setTimeout(() => {
@@ -153,7 +153,6 @@ const ApiReferencePage: React.FC = () => {
         { id: 'start', title: 'Start' },
         { id: 'upload', title: 'Upload' },
         { id: 'process', title: 'Process', isSubHeader: true },
-        // FIX: The `t` variable inside the `map` was shadowing the `t` function from `useI18n`. Renamed the variable to `tool` to resolve the conflict.
         ...TOOLS.filter(tool => tool.api && ['pdf', 'image'].includes(tool.api.category)).map(tool => ({ id: tool.id, title: t(tool.title), isTool: true })),
         { id: 'download', title: 'Download' },
         { id: 'task', title: 'Task' },
@@ -213,8 +212,8 @@ const ApiReferencePage: React.FC = () => {
                     </aside>
                     <main className="w-full lg:flex-grow">
                         <ApiSection id="introduction" title="Introduction" refProp={sectionsRefs.introduction}>
-                            <p>The I Love PDFLY API is organized around REST, has predictable resource-oriented URLs, accepts form-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.</p>
-                            <p>You can use the I Love PDFLY API in test mode, which does not affect your live data or interact with the banking networks. The API key you use to authenticate the request determines whether the request is live mode or test mode.</p>
+                            <p>The PDFBullet API is organized around REST, has predictable resource-oriented URLs, accepts form-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.</p>
+                            <p>You can use the PDFBullet API in test mode, which does not affect your live data or interact with the banking networks. The API key you use to authenticate the request determines whether the request is live mode or test mode.</p>
                             <h4>Libraries</h4>
                             <p>We have client libraries in many languages to help you get started.</p>
                             <div className="grid grid-cols-2 gap-4 my-4">
@@ -237,7 +236,7 @@ const ApiReferencePage: React.FC = () => {
                         </ApiSection>
 
                         <ApiSection id="authentication" title="Authentication" refProp={sectionsRefs.authentication}>
-                            <p>We use a very simple but effective Authentication method: <strong>JSON Web Tokens</strong>. It consists of sending a Bearer Header in every request with a signed token by your Secret Key provided in your I Love PDFLY Developer Account.</p>
+                            <p>We use a very simple but effective Authentication method: <strong>JSON Web Tokens</strong>. It consists of sending a Bearer Header in every request with a signed token by your Secret Key provided in your PDFBullet Developer Account.</p>
                             <EndpointCard method="POST" path="/v1/auth">Authenticate</EndpointCard>
                             <ParamLine name="public_key" type="string" isRequired>Project public key that you can find in admin panel.</ParamLine>
                             <ResponseCard>{`{
@@ -250,7 +249,7 @@ const ApiReferencePage: React.FC = () => {
                         </ApiSection>
 
                         <ApiSection id="request-workflow" title="Request Workflow" refProp={sectionsRefs['request-workflow']}>
-                            <p>The PDF and Image processing workflow with I Love PDFLY API is very simple and consists of 4 basic request instructions: Start task, Upload files, Process files and Download files. Once the API has executed these four steps, your PDF and Image files will have been processed with your desired tool and downloaded anywhere you like.</p>
+                            <p>The PDF and Image processing workflow with PDFBullet API is very simple and consists of 4 basic request instructions: Start task, Upload files, Process files and Download files. Once the API has executed these four steps, your PDF and Image files will have been processed with your desired tool and downloaded anywhere you like.</p>
                             <img src="https://i.imgur.com/eB3b6Y6.png" alt="API Workflow Diagram" className="my-4 rounded-lg"/>
                         </ApiSection>
                         
@@ -259,7 +258,7 @@ const ApiReferencePage: React.FC = () => {
                             <EndpointCard method="GET" path={"/v1/start/{tool}/{region?}"}>Get Server & Task ID</EndpointCard>
                             <ParamLine name="tool" type="string" isRequired>A comma separated list of tools to use.</ParamLine>
                             <ResponseCard>{`{
-  "server": "api11.ilovepdfly.com",
+  "server": "api11.pdfbullet.com",
   "task": "2704efghitmeage...",
   "remaining_credits": 1234
 }`}</ResponseCard>
@@ -525,7 +524,7 @@ const ApiReferencePage: React.FC = () => {
                             <p>The <code>/task</code> resource gives information about processed tasks and the metadata related of their uploaded and result files. For security reasons, only can be accessed by server side code providing your <code>secret_key</code> as a parameter.</p>
                             
                             <h4>List and filter all tasks</h4>
-                            <EndpointCard method="POST" path="https://api.ilovepdfly.com/v1/task">
+                            <EndpointCard method="POST" path="https://api.pdfbullet.com/v1/task">
                                 <p>Lists all tasks. Results are offered paginated in 50 results per page.</p>
                             </EndpointCard>
                             <ParamLine name="secret_key" type="string" isRequired>Your project secret key.</ParamLine>
@@ -575,17 +574,17 @@ const ApiReferencePage: React.FC = () => {
 
                         <ApiSection id="list_signatures" title="List Signatures" refProp={sectionsRefs.list_signatures}>
                              <p>List all created signature requests.</p>
-                             <EndpointCard method="GET" path="https://api.ilovepdfly.com/v1/signature/list?page=0&per-page=100">List all created signature requests</EndpointCard>
+                             <EndpointCard method="GET" path="https://api.pdfbullet.com/v1/signature/list?page=0&per-page=100">List all created signature requests</EndpointCard>
                              <ParamLine name="page" type="integer" isRequired={false}>Lookup page. Default: <code>0</code></ParamLine>
                              <ParamLine name="per-page" type="integer" isRequired={false}>Paginator size. Accepted values are in the range [1, 100]. Default: <code>20</code></ParamLine>
                         </ApiSection>
 
                         <ApiSection id="get_signature_status" title="Get Signature status" refProp={sectionsRefs.get_signature_status}>
-                            <EndpointCard method="GET" path="https://api.ilovepdfly.com/v1/signature/requestreview/<token_requester>">Get Signature status</EndpointCard>
+                            <EndpointCard method="GET" path="https://api.pdfbullet.com/v1/signature/requestreview/<token_requester>">Get Signature status</EndpointCard>
                         </ApiSection>
                         
                         <ApiSection id="get_receiver_info" title="Get Receiver info" refProp={sectionsRefs.get_receiver_info}>
-                            <EndpointCard method="GET" path="https://api.ilovepdfly.com/v1/signature/receiver/info/<receiver_token_requester>">Get Receiver info</EndpointCard>
+                            <EndpointCard method="GET" path="https://api.pdfbullet.com/v1/signature/receiver/info/<receiver_token_requester>">Get Receiver info</EndpointCard>
                         </ApiSection>
                         
                         <ApiSection id="download_audit" title="Download Audit" refProp={sectionsRefs.download_audit}>
@@ -605,29 +604,29 @@ const ApiReferencePage: React.FC = () => {
 
                         <ApiSection id="fix_receiver_email" title="Fix Receiver Email" refProp={sectionsRefs.fix_receiver_email}>
                              <p>Use this endpoint to correct the receiver's email address in the event that the email was not delivered to a valid email address.</p>
-                             <EndpointCard method="PUT" path="https://api.ilovepdfly.com/v1/signature/receiver/fix-email/<receiver_token_requester>">Fix Receiver Email</EndpointCard>
+                             <EndpointCard method="PUT" path="https://api.pdfbullet.com/v1/signature/receiver/fix-email/<receiver_token_requester>">Fix Receiver Email</EndpointCard>
                              <ParamLine name="email" type="string" isRequired>New valid email for the receiver.</ParamLine>
                         </ApiSection>
 
                         <ApiSection id="fix_signer_phone" title="Fix Signer Phone" refProp={sectionsRefs.fix_signer_phone}>
                             <p>Use this endpoint to correct the signer's mobile number in the event that the SMS was not delivered to a valid mobile number.</p>
-                            <EndpointCard method="PUT" path="https://api.ilovepdfly.com/v1/signature/fix/phone/<signer_token_requester>">Fix Signer Phone</EndpointCard>
+                            <EndpointCard method="PUT" path="https://api.pdfbullet.com/v1/signature/fix/phone/<signer_token_requester>">Fix Signer Phone</EndpointCard>
                             <ParamLine name="phone" type="string" isRequired>New valid mobile number for the signer.</ParamLine>
                         </ApiSection>
 
                         <ApiSection id="send_reminders" title="Send Reminders" refProp={sectionsRefs.send_reminders}>
                             <p>When this endpoint is called, sends an email reminder to the receivers that did not finished its action.</p>
-                            <EndpointCard method="POST" path="https://api.ilovepdfly.com/v1/signature/sendReminder/<token_requester>">Send Reminder</EndpointCard>
+                            <EndpointCard method="POST" path="https://api.pdfbullet.com/v1/signature/sendReminder/<token_requester>">Send Reminder</EndpointCard>
                         </ApiSection>
                         
                         <ApiSection id="void_signature" title="Void Signature" refProp={sectionsRefs.void_signature}>
                             <p>It voids a signature that it is currently in progress. Once voided, it will not be accessible for any receiver of the request.</p>
-                            <EndpointCard method="PUT" path="https://api.ilovepdfly.com/v1/signature/void/<token_requester>">Void Signature</EndpointCard>
+                            <EndpointCard method="PUT" path="https://api.pdfbullet.com/v1/signature/void/<token_requester>">Void Signature</EndpointCard>
                         </ApiSection>
                         
                         <ApiSection id="increase_expiration_days" title="Increase Expiration Days" refProp={sectionsRefs.increase_expiration_days}>
                             <p>Increase the number of days in order to prevent the request from expiring and give receivers extra time to perform remaining actions.</p>
-                            <EndpointCard method="PUT" path="https://api.ilovepdfly.com/v1/signature/increase-expiration-days/<token_requester>">Increase Expiration Days</EndpointCard>
+                            <EndpointCard method="PUT" path="https://api.pdfbullet.com/v1/signature/increase-expiration-days/<token_requester>">Increase Expiration Days</EndpointCard>
                             <ParamLine name="days" type="integer" isRequired>The number of days to increase: a minimum of 1 and a maximum of 130.</ParamLine>
                         </ApiSection>
 
@@ -640,7 +639,7 @@ const ApiReferencePage: React.FC = () => {
                         </ApiSection>
 
                          <ApiSection id="errors" title="Errors" refProp={sectionsRefs.errors}>
-                            <p>I Love PDFLY API uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the 2xx range indicate success, codes in the 4xx range indicate an error that failed due to the information provided (e.g. a required parameter was omitted, a process failed, etc.), and codes in the 5xx range indicate an error with I Love PDFLY's servers. All error responses have the same structure, and you'll find all the arguments and errors specified in the param.</p>
+                            <p>PDFBullet API uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the 2xx range indicate success, codes in the 4xx range indicate an error that failed due to the information provided (e.g. a required parameter was omitted, a process failed, etc.), and codes in the 5xx range indicate an error with PDFBullet's servers. All error responses have the same structure, and you'll find all the arguments and errors specified in the param.</p>
                         </ApiSection>
 
                         <ApiSection id="testing" title="Testing" refProp={sectionsRefs.testing}>
@@ -651,9 +650,9 @@ const ApiReferencePage: React.FC = () => {
                         
                         <ApiSection id="credit_consumption" title="Credit consumption" refProp={sectionsRefs.credit_consumption}>
                             <h4>How does credit consumption work?</h4>
-                            <p>I Love PDFLY's subscriptions and pre-paid packages work using credits. These credits allow you to process Files, use Digital signatures, and add SMS authentication to Signature Requests.</p>
+                            <p>PDFBullet's subscriptions and pre-paid packages work using credits. These credits allow you to process Files, use Digital signatures, and add SMS authentication to Signature Requests.</p>
                             <h4>How are the credits consumed?</h4>
-                            <p>I Love PDF provides credits for PDF & Image processing, Digital Signatures, and SMS authentication. Depending on the tool, the credits consumed vary based on number of files, number of tasks or number of pages. Please refer to the pricing page for detailed information.</p>
+                            <p>PDFBullet provides credits for PDF & Image processing, Digital Signatures, and SMS authentication. Depending on the tool, the credits consumed vary based on number of files, number of tasks or number of pages. Please refer to the pricing page for detailed information.</p>
                         </ApiSection>
 
                         <ApiSection id="webhooks" title="Webhooks" refProp={sectionsRefs.webhooks}>

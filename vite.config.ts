@@ -1,4 +1,3 @@
-
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -65,8 +64,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          name: 'I Love PDFLY: PDF & Image Tools',
-          short_name: 'PDFLY',
+          name: 'PDFBullet: PDF & Image Tools',
+          short_name: 'PDFBullet',
           description:
             "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
           start_url: '/',
@@ -136,7 +135,7 @@ export default defineConfig(({ mode }) => {
           },
           protocol_handlers: [
             {
-              protocol: 'web+pdfly',
+              protocol: 'web+pdfbullet',
               url: '/?url=%s'
             }
           ],

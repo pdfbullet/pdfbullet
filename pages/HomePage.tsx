@@ -175,7 +175,7 @@ const AdvantageSection = memo(() => {
         <section ref={sectionRef} className={`py-20 bg-white dark:bg-black scroll-animate ${isVisible ? 'visible' : ''}`}>
             <div className="container max-w-screen-2xl mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The iLovePDFLY Advantage</h2>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">The PDFBullet Advantage</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Secure, fast, and easy-to-use tools, right in your browser.</p>
                 </div>
                 <div className="max-w-7xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -200,9 +200,9 @@ const EcosystemSection = memo(() => {
     const isVisible = useIsVisible(sectionRef);
     
     const solutions = [
-        { title: 'I Love PDFLY Desktop', description: 'Download the', linkText: 'I Love PDFLY Desktop App', descriptionAfter: 'to work with your favorite PDF tools on your Mac or Windows PC. Get a lightweight PDF app that helps you process heavy PDF tasks offline in seconds.' },
-        { title: 'I Love PDFLY Mobile', description: 'Get the', linkText: 'I Love PDFLY Mobile App', descriptionAfter: 'to manage documents remotely or on the move. Turn your Android or iPhone device into a PDF Editor & Scanner to annotate, sign, and share documents with ease.' },
-        { title: 'iLoveIMG', description: '', linkText: 'iLoveIMG', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
+        { title: 'PDFBullet Desktop', description: 'Download the', linkText: 'PDFBullet Desktop App', descriptionAfter: 'to work with your favorite PDF tools on your Mac or Windows PC. Get a lightweight PDF app that helps you process heavy PDF tasks offline in seconds.' },
+        { title: 'PDFBullet Mobile', description: 'Get the', linkText: 'PDFBullet Mobile App', descriptionAfter: 'to manage documents remotely or on the move. Turn your Android or iPhone device into a PDF Editor & Scanner to annotate, sign, and share documents with ease.' },
+        { title: "PDFBullet's Image Tools", description: '', linkText: 'Image Tools', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
     ];
     
     const platforms = [
@@ -247,8 +247,8 @@ const EcosystemSection = memo(() => {
     );
 });
 
-
-const HomePage: React.FC = () => {
+// FIX: Changed component to a default export function to resolve lazy loading issues in App.tsx.
+export default function HomePage() {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [activeCategory, setActiveCategory] = useState<string>('All');
     
@@ -334,18 +334,18 @@ const HomePage: React.FC = () => {
     ];
 
     const testimonials = [
-      { name: 'Bishal Mishra', role: 'Founder & CEO, I Love PDFLY', text: 'The entire suite of tools is impressive. From converting JPGs to PDF for our campaigns to compressing large reports for clients, I Love PDFLY handles everything flawlessly. The client-side processing gives me peace of mind about data security.', image: 'https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20ilovepdfly.jpg?updatedAt=1753167712490' },
-      { name: 'Anam Mishra', role: 'Project Manager', text: 'Organizing and merging project documents from different teams used to be a nightmare. With I Love PDFLY, I can do it in minutes. The Organize PDF tool is particularly brilliant for reordering pages exactly how I need them.', image: 'https://i.ibb.co/nq8D2rCh/IMG-0293.png' },
-      { name: 'Prashant Mishra', role: 'Student', text: 'I recommend I Love PDFLY to all my students. It’s an essential tool for organizing research papers and compressing presentations.The fact that it\'s free is incredible', image: 'https://i.ibb.co/JWCp96YL/IMG-0292.png' },
-      { name: 'Michael Chen', role: 'Small Business Owner', text: 'Protecting confidential client proposals with a password is a critical step for my business. I Love PDFLY makes it incredibly simple and secure. Highly recommended!', image: 'https://i.pravatar.cc/150?u=michael' },
+      { name: 'Bishal Mishra', role: 'Founder & CEO, PDFBullet', text: 'The entire suite of tools is impressive. From converting JPGs to PDF for our campaigns to compressing large reports for clients, PDFBullet handles everything flawlessly. The client-side processing gives me peace of mind about data security.', image: 'https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490' },
+      { name: 'Anam Mishra', role: 'Project Manager', text: 'Organizing and merging project documents from different teams used to be a nightmare. With PDFBullet, I can do it in minutes. The Organize PDF tool is particularly brilliant for reordering pages exactly how I need them.', image: 'https://i.ibb.co/nq8D2rCh/IMG-0293.png' },
+      { name: 'Prashant Mishra', role: 'Student', text: 'I recommend PDFBullet to all my students. It’s an essential tool for organizing research papers and compressing presentations.The fact that it\'s free is incredible', image: 'https://i.ibb.co/JWCp96YL/IMG-0292.png' },
+      { name: 'Michael Chen', role: 'Small Business Owner', text: 'Protecting confidential client proposals with a password is a critical step for my business. PDFBullet makes it incredibly simple and secure. Highly recommended!', image: 'https://i.pravatar.cc/150?u=michael' },
       { name: 'David Miller', role: 'Freelance Designer', text: 'The client-side processing is a game-changer for me. I can handle sensitive client files with confidence, knowing nothing is uploaded. The speed is just a fantastic bonus!', image: 'https://i.pravatar.cc/150?u=david' },
-      { name: 'Emily Carter', role: 'University Professor', text: 'I recommend I Love PDFLY to all my students. It’s an essential tool for organizing research papers and compressing presentations. The fact that it\'s free is incredible.', image: 'https://i.pravatar.cc/150?u=emily' },
+      { name: 'Emily Carter', role: 'University Professor', text: 'I recommend PDFBullet to all my students. It’s an essential tool for organizing research papers and compressing presentations. The fact that it\'s free is incredible.', image: 'https://i.pravatar.cc/150?u=emily' },
     ];
     
     const faqs = [
-        { q: "Is I Love PDFLY completely free?", a: "Yes! Most of our tools are 100% free for standard use. We offer Premium plans for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience." },
+        { q: "Is PDFBullet completely free?", a: "Yes! Most of our tools are 100% free for standard use. We offer Premium plans for users who need advanced features like unlimited processing, larger file sizes, and an ad-free experience." },
         { q: "Are my files secure?", a: "Absolutely. Security is our top priority. For most tools, your files are processed entirely in your browser, meaning they never leave your computer. For tasks requiring server-side processing, we use end-to-end encryption and delete all files automatically within 2 hours. This guarantees that your privacy is always respected." },
-        { q: "Do I need to install any software?", a: "No, you don't need to install anything. I Love PDFLY works directly in your web browser. This means you can access our tools from any device with an internet connection, anywhere in the world." },
+        { q: "Do I need to install any software?", a: "No, you don't need to install anything. PDFBullet works directly in your web browser. This means you can access our tools from any device with an internet connection, anywhere in the world." },
     ];
 
     useEffect(() => {
@@ -500,7 +500,7 @@ const HomePage: React.FC = () => {
             </div>
         </section>
 
-        {/* The iLovePDFLY Advantage Section */}
+        {/* The PDFBullet Advantage Section */}
         <AdvantageSection />
 
         {/* Simple Steps Section */}
@@ -544,7 +544,7 @@ const HomePage: React.FC = () => {
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Our Impact in Numbers</h2>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                        Join thousands of users who trust I Love PDFLY every day.
+                        Join thousands of users who trust PDFBullet every day.
                     </p>
                 </div>
                 <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
@@ -654,10 +654,10 @@ const HomePage: React.FC = () => {
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Your feedback helps us grow and improve.</p>
                 </div>
                 <div className="mt-8 flex justify-center">
-                    <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" title="Review I Love PDFLY on Trustpilot">
+                    <a href="https://www.trustpilot.com/review/pdfbullet.com" target="_blank" rel="noopener noreferrer" title="Review PDFBullet on Trustpilot">
                         <img 
                             src="https://ik.imagekit.io/fonepay/widget.jpg?updatedAt=1752933053507" 
-                            alt="Review I Love PDFLY on Trustpilot" 
+                            alt="Review PDFBullet on Trustpilot" 
                             className="h-auto transition-transform hover:scale-105"
                             style={{ maxWidth: '150px' }}
                             width="150"
@@ -673,28 +673,21 @@ const HomePage: React.FC = () => {
         {/* FAQ Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('Frequently Asked Questions')}</h2>
+                <div className="max-w-4xl mx-auto text-center mb-12">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Common Questions</h2>
                 </div>
-                <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <div className="max-w-3xl mx-auto bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     {faqs.map((faq, index) => (
                         <HomeFaqItem 
-                            key={index} 
+                            key={index}
                             item={faq}
                             isOpen={openFaq === index}
                             toggle={() => toggleFaq(index)}
                         />
                     ))}
                 </div>
-                <div className="mt-8 text-center">
-                     <Link to="/faq" title="View all FAQs" className="text-brand-red font-semibold hover:underline">
-                        View all FAQs &rarr;
-                    </Link>
-                </div>
             </div>
         </section>
     </div>
   );
-};
-
-export default HomePage;
+}

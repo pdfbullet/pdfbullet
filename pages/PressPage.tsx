@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 // FIX: Replaced placeholder icons with the newly added Press-specific icons.
 import { DownloadIcon, HeartbeatIcon, GlobeIcon, PressMobileIcon, PressDesktopIcon, PressUpdatesIcon } from '../components/icons.tsx';
@@ -12,15 +13,15 @@ const BIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const PressPage: React.FC = () => {
     useEffect(() => {
-        document.title = "Press Kit | I Love PDFLY";
+        document.title = "Press Kit | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Download official I Love PDFLY logos, mockups, and learn more about our company's story and mission. All media resources in one place.");
+            metaDesc.setAttribute("content", "Download official PDFBullet logos, mockups, and learn more about our company's story and mission. All media resources in one place.");
         }
     }, []);
 
     const mediaKitItems = [
-        { title: 'I Love PDFLY logos', image: '/logo.svg', downloadLink: '/logo.svg', downloadName: 'ilovepdfly_logos.svg' },
+        { title: 'PDFBullet logos', image: '/logo.svg', downloadLink: '/logo.svg', downloadName: 'pdfbullet_logos.svg' },
         { title: 'Mockup desktop', image: 'https://ik.imagekit.io/fonepay/Desk%20top%20mockup.png?updatedAt=1756018431019', downloadLink: 'https://ik.imagekit.io/fonepay/Desk%20top%20mockup.png?updatedAt=1756018431019', downloadName: 'mockup_desktop.png' },
         { title: 'Mockup mobile', image: 'https://ik.imagekit.io/fonepay/mockup_mobile.png?updatedAt=1756018431039', downloadLink: 'https://ik.imagekit.io/fonepay/mockup_mobile.png?updatedAt=1756018431039', downloadName: 'mockup_mobile.png' },
         { title: 'Mockup web', image: 'https://ik.imagekit.io/fonepay/mockup_web%20PDFLY.png?updatedAt=1756018431063', downloadLink: 'https://ik.imagekit.io/fonepay/mockup_web%20PDFLY.png?updatedAt=1756018431063', downloadName: 'mockup_web.png' }
@@ -28,14 +29,14 @@ const PressPage: React.FC = () => {
 
     const infoCards = [
         {
-            title: 'I Love PDFLY Mobile',
+            title: 'PDFBullet Mobile',
             Icon: PressMobileIcon,
-            content: <>In 2017, we launched our <a href="/#/" className="text-brand-red hover:underline">I Love PDFLY Mobile App</a> to make our tools accessible for all mobile users editing on the go.</>
+            content: <>In 2017, we launched our <a href="/#/" className="text-brand-red hover:underline">PDFBullet Mobile App</a> to make our tools accessible for all mobile users editing on the go.</>
         },
         {
-            title: 'I Love PDFLY Desktop',
+            title: 'PDFBullet Desktop',
             Icon: PressDesktopIcon,
-            content: <>In efforts to make I Love PDFLY suitable for Businesses and Corporations, we launched <a href="/#/" className="text-brand-red hover:underline">I Love PDFLY Desktop</a> application in 2018. Our desktop application runs offline and processes confidential files locally.</>
+            content: <>In efforts to make PDFBullet suitable for Businesses and Corporations, we launched <a href="/#/" className="text-brand-red hover:underline">PDFBullet Desktop</a> application in 2018. Our desktop application runs offline and processes confidential files locally.</>
         },
         {
             title: 'Frequent updates',
@@ -48,7 +49,7 @@ const PressPage: React.FC = () => {
         {
             icon: BIcon,
             title: 'Who are we?',
-            content: "Based in Kathmandu, since 2025 I Love PDFLY has offered user-friendly tools that anyone can use to save time with PDFs."
+            content: "Based in Kathmandu, since 2025 PDFBullet has offered user-friendly tools that anyone can use to save time with PDFs."
         },
         {
             icon: HeartbeatIcon,
@@ -58,7 +59,7 @@ const PressPage: React.FC = () => {
         {
             icon: GlobeIcon,
             title: 'Helping millions worldwide',
-            content: "I Love PDFLY has built a community of millions of users from all over the world, speaks 25 languages and has processed more than 500 million files."
+            content: "PDFBullet has built a community of millions of users from all over the world, speaks 25 languages and has processed more than 500 million files."
         }
     ];
 
@@ -67,7 +68,7 @@ const PressPage: React.FC = () => {
             <div className="container mx-auto px-6 space-y-20">
 
                 <section>
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-12">Some facts about I Love PDFLY</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-12">Some facts about PDFBullet</h1>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {factCards.map((card, index) => (
                             <div key={index} className="bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
@@ -89,7 +90,7 @@ const PressPage: React.FC = () => {
                         {mediaKitItems.map((item, index) => (
                             <div key={index} className="bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 text-center flex flex-col justify-between items-center">
                                 <div className="flex-grow flex items-center justify-center mb-4 h-32">
-                                    {item.title === 'I Love PDFLY logos' ? (
+                                    {item.title === 'PDFBullet logos' ? (
                                         <Logo className="h-16 w-auto" />
                                     ) : (
                                         <img src={item.image} alt={item.title} className="max-h-full max-w-full" />

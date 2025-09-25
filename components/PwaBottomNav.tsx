@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HomeIcon, GridIcon, SettingsIcon, NewspaperIcon, ScanToPdfIcon } from './icons.tsx';
+// FIX: Changed ScanToPdfIcon to DocumentScannerIcon to match the exported member from icons.tsx, resolving an import error.
+import { HomeIcon, GridIcon, SettingsIcon, NewspaperIcon, DocumentScannerIcon } from './icons.tsx';
 
 const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({ to, icon: Icon, label }) => {
     const location = useLocation();
@@ -42,7 +43,8 @@ const PwaBottomNav: React.FC = () => {
                     className="inline-flex items-center justify-center w-16 h-16 bg-brand-red rounded-full shadow-lg text-white transform hover:scale-110 transition-transform"
                     aria-label="Scan Document"
                 >
-                    <ScanToPdfIcon className="h-8 w-8" />
+                    {/* FIX: Replaced ScanToPdfIcon with DocumentScannerIcon to resolve an import error. */}
+                    <DocumentScannerIcon className="h-8 w-8" />
                 </Link>
                 <span className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1">Scan</span>
             </div>

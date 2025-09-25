@@ -14,7 +14,7 @@ export interface WorkflowStep {
     tool: Tool;
 }
 
-const WORKFLOWS_KEY = 'ilovepdfly_workflows_v1';
+const WORKFLOWS_KEY = 'pdfbullet_workflows_v1';
 
 // Initial mock data to populate localStorage if it's empty
 const initialWorkflows: Workflow[] = [

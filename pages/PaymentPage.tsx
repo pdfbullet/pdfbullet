@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -56,7 +57,7 @@ const PaymentPage: React.FC = () => {
             return;
         }
         
-        const message = `Hello! I have made a payment for the *${currentPlan.name}* plan on I Love PDFLY.\n\nMy username is: *${user?.username || 'Not available'}*\n\nPlease verify my payment and activate my account. I have attached the payment screenshot.`;
+        const message = `Hello! I have made a payment for the *${currentPlan.name}* plan on PDFBullet.\n\nMy username is: *${user?.username || 'Not available'}*\n\nPlease verify my payment and activate my account. I have attached the payment screenshot.`;
         const whatsappUrl = `https://wa.me/message/JYA22CVSYSZ4N1?text=${encodeURIComponent(message)}`;
         
         window.open(whatsappUrl, '_blank');

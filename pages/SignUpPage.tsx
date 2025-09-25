@@ -5,6 +5,21 @@ import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon, SSOIcon } from '../componen
 import { Logo } from '../components/Logo.tsx';
 import { useWebAuthn } from '../hooks/useWebAuthn.ts';
 
+const getPasskeyButtonText = (isLogin: boolean): string => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isLogin) {
+        if (isIOS) return "Sign in with Face ID / Touch ID";
+        if (isAndroid) return "Sign in with Fingerprint";
+        return "Sign in with Passkey";
+    } else {
+        if (isIOS) return "Sign up with Face ID / Touch ID";
+        if (isAndroid) return "Sign up with Fingerprint";
+        return "Sign up with Passkey";
+    }
+};
+
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -15,10 +30,10 @@ const SignUpPage: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    document.title = "Sign Up | Create Your Free I Love PDFLY Account";
+    document.title = "Sign Up | Create Your Free PDFBullet Account";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-        metaDesc.setAttribute("content", "Create a free account with I Love PDFLY to unlock more features. Sign up to manage your documents more effectively.");
+        metaDesc.setAttribute("content", "Create a free account with PDFBullet to unlock more features. Sign up to manage your documents more effectively.");
     }
   }, []);
   
@@ -68,6 +83,8 @@ const SignUpPage: React.FC = () => {
       }
   };
 
+  const passkeyText = getPasskeyButtonText(false);
+
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
@@ -114,38 +131,32 @@ const SignUpPage: React.FC = () => {
                 onClick={handlePasskeyRegister}
                 disabled={isLoading || !isWebAuthnSupported}
                 className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
+              >
                 <SSOIcon className="h-5 w-5" />
-                <span>Register with Passkey</span>
+                <span>{passkeyText}</span>
               </button>
-              {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
           </div>
-          
-          <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-            By creating an account, you agree to iLovePDFLY{' '}
-            <Link to="/terms-of-service" className="text-brand-red hover:underline">Terms of Service</Link> and{' '}
-            <Link to="/privacy-policy" className="text-brand-red hover:underline">Privacy Policy</Link>.
-          </p>
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already member?{' '}
-            <Link to="/login" state={{ from: location.state?.from, plan: location.state?.plan }} className="font-medium text-brand-red hover:text-brand-red-dark">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-brand-red hover:text-brand-red-dark">
               Log in
             </Link>
           </p>
         </div>
       </div>
-       <div className="hidden lg:flex flex-1 bg-gray-50 dark:bg-black items-center justify-center p-12 border-l border-gray-200 dark:border-gray-800">
-        <div className="max-w-md text-center">
-            <img src="https://ik.imagekit.io/fonepay/imgi_25_home.png?updatedAt=1753968278321" alt="PDF tools illustration" className="w-full h-auto" />
-            <h2 className="mt-8 text-2xl font-bold text-gray-900 dark:text-white">PDF tools for productive people</h2>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-                iLovePDFLY helps you convert, edit, e-sign, and protect PDF files quickly and easily. Enjoy a full suite of tools to effectively manage documents —no matter where you're working.
-            </p>
-        </div>
+      <div className="hidden lg:flex flex-1 bg-gray-50 dark:bg-black items-center justify-center p-12 border-l border-gray-200 dark:border-gray-800">
+          <div className="max-w-md text-center">
+              <img src="https://ik.imagekit.io/fonepay/imgi_25_home.png?updatedAt=1753968278321" alt="PDF tools illustration" className="w-full h-auto" />
+              <h2 className="mt-8 text-2xl font-bold text-gray-900 dark:text-white">The only PDF toolkit you'll ever need</h2>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Unlock premium features by creating an account. Manage your documents, access your files from anywhere, and get unlimited processing.
+              </p>
+          </div>
       </div>
     </div>
   );
 };
 
+// FIX: Added a default export to the SignUpPage component. This is necessary for React.lazy to work correctly in App.tsx.
 export default SignUpPage;

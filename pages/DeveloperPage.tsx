@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { Link } from 'react-router-dom';
@@ -30,7 +29,7 @@ const DeveloperPage: React.FC = () => {
     const [activeSection, setActiveSection] = useState('dashboard');
 
     useEffect(() => {
-        document.title = "Developer API | I Love PDFLY";
+        document.title = "Developer API | PDFBullet";
         if (user) {
             const userApiKey = user.apiKey || '';
             setApiKey(userApiKey);
@@ -112,7 +111,7 @@ const DeveloperPage: React.FC = () => {
                 />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
                     <h1 className="text-4xl md:text-5xl font-extrabold">All our tools in a REST API for developers</h1>
-                    <p className="mt-4 max-w-2xl text-lg text-gray-200">Whether you are a small startup or a large business, I Love PDFLY API is here to help you automate document processes.</p>
+                    <p className="mt-4 max-w-2xl text-lg text-gray-200">Whether you are a small startup or a large business, PDFBullet API is here to help you automate document processes.</p>
                     <div className="mt-6 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-sm font-semibold">
                         <Link to="/api-pdf" className="hover:underline">PHP</Link>
                         <span>-</span>
@@ -160,7 +159,7 @@ const DeveloperPage: React.FC = () => {
                                         {generationStep === 1 && <div className="text-center">
                                             <h3 className="text-xl font-bold">Step 1: Agree to Terms</h3>
                                             <p className="mt-2 text-gray-600 dark:text-gray-400">Review and agree to our API terms of use to proceed.</p>
-                                            <div className="my-4 p-4 text-left text-xs h-24 overflow-y-auto bg-gray-100 dark:bg-gray-800 rounded-md border dark:border-gray-700">You agree not to misuse the I Love PDFLY API... You will not attempt to reverse engineer the services... You will respect rate limits... etc.</div>
+                                            <div className="my-4 p-4 text-left text-xs h-24 overflow-y-auto bg-gray-100 dark:bg-gray-800 rounded-md border dark:border-gray-700">You agree not to misuse the PDFBullet API... You will not attempt to reverse engineer the services... You will respect rate limits... etc.</div>
                                             <label className="flex items-center justify-center gap-2 cursor-pointer"><input type="checkbox" checked={agreedToTerms} onChange={e => setAgreedToTerms(e.target.checked)} /> I have read and agree to the API Terms of Service</label>
                                             <button onClick={() => setGenerationStep(2)} disabled={!agreedToTerms} className="mt-4 bg-brand-red text-white font-bold py-2 px-6 rounded-lg disabled:bg-gray-400">Next Step &rarr;</button>
                                         </div>}
@@ -226,7 +225,7 @@ const DeveloperPage: React.FC = () => {
                              <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg p-8 space-y-8 animated-border">
                                 <div className="prose dark:prose-invert max-w-none">
                                     <h3>Getting Started</h3>
-                                    <p>Welcome to the I Love PDFLY API! Our API provides programmatic access to our suite of PDF tools, allowing you to integrate powerful document processing directly into your applications. All endpoints are secured via HTTPS and authenticated using Bearer tokens.</p>
+                                    <p>Welcome to the PDFBullet API! Our API provides programmatic access to our suite of PDF tools, allowing you to integrate powerful document processing directly into your applications. All endpoints are secured via HTTPS and authenticated using Bearer tokens.</p>
                                     <h3>Explore our APIs</h3>
                                     <p>Our API is organized into logical categories. Explore the detailed documentation for each category to find the endpoints, parameters, and code examples you need.</p>
                                     <div className="not-prose grid grid-cols-1 md:grid-cols-3 gap-4 my-6">

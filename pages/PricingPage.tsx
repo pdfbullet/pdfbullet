@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -50,10 +51,10 @@ const PricingPage: React.FC = () => {
     ];
 
     useEffect(() => {
-        document.title = "Pricing Plans | I Love PDFLY";
+        document.title = "Pricing Plans | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with I Love PDFLY.");
+            metaDesc.setAttribute("content", "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with PDFBullet.");
         }
 
         const faqSchema = {
@@ -180,13 +181,19 @@ const PricingPage: React.FC = () => {
                                     <th className="px-6 py-4 font-bold text-center text-lg text-blue-600">Pro</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                                {featureComparison.map(item => (
-                                    <tr key={item.feature}>
-                                        <td className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100">{item.feature}</td>
-                                        <td className="px-6 py-4 text-center">{typeof item.basic === 'boolean' ? (item.basic ? <CheckIcon className="h-5 w-5 text-green-500 mx-auto" /> : <MinusIcon className="h-5 w-5 text-red-400 mx-auto" />) : item.basic}</td>
-                                        <td className="px-6 py-4 text-center">{typeof item.premium === 'boolean' ? (item.premium ? <CheckIcon className="h-5 w-5 text-green-500 mx-auto" /> : <MinusIcon className="h-5 w-5 text-red-400 mx-auto" />) : item.premium}</td>
-                                        <td className="px-6 py-4 text-center">{typeof item.pro === 'boolean' ? (item.pro ? <CheckIcon className="h-5 w-5 text-green-500 mx-auto" /> : <MinusIcon className="h-5 w-5 text-red-400 mx-auto" />) : item.pro}</td>
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {featureComparison.map(feat => (
+                                    <tr key={feat.feature}>
+                                        <td className="px-6 py-4 font-semibold">{feat.feature}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            {typeof feat.basic === 'boolean' ? (feat.basic ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.basic}</span>}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            {typeof feat.premium === 'boolean' ? (feat.premium ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.premium}</span>}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            {typeof feat.pro === 'boolean' ? (feat.pro ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.pro}</span>}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -195,23 +202,23 @@ const PricingPage: React.FC = () => {
                 </section>
 
                 <section className="mt-16 md:mt-24">
-                    <div className="max-w-4xl mx-auto">
-                        <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-8">Frequently Asked Questions</h2>
-                         <div className="bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                            {faqData.map((faq, index) => (
-                                <FaqItem
-                                    key={index}
-                                    item={faq}
-                                    isOpen={openFaq === index}
-                                    toggle={() => toggleFaq(index)}
-                                />
-                            ))}
-                        </div>
+                     <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-8">Frequently Asked Questions</h2>
+                     <div className="max-w-3xl mx-auto bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                        {faqData.map((faq, index) => (
+                            <FaqItem 
+                                key={index} 
+                                item={faq}
+                                isOpen={openFaq === index}
+                                toggle={() => toggleFaq(index)}
+                            />
+                        ))}
                     </div>
                 </section>
+
             </div>
         </div>
     );
 };
 
+// FIX: Added a default export to the PricingPage component to resolve a lazy loading issue in App.tsx.
 export default PricingPage;

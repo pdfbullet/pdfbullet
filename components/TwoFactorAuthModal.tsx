@@ -48,7 +48,7 @@ const TwoFactorAuthModal: React.FC<TwoFactorAuthModalProps> = ({ isOpen, onClose
             const base32Secret = toBase32(buffer);
             setSecret(base32Secret);
 
-            const otpAuthUrl = `otpauth://totp/iLovePDFLY:${user.username}?secret=${base32Secret}&issuer=iLovePDFLY`;
+            const otpAuthUrl = `otpauth://totp/PDFBullet:${user.username}?secret=${base32Secret}&issuer=PDFBullet`;
             QRCode.toDataURL(otpAuthUrl, (err, url) => {
                 if (err) {
                     console.error(err);

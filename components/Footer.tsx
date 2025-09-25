@@ -31,7 +31,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
   const handleDownloadLogo = () => {
     const link = document.createElement('a');
     link.href = '/logo.svg';
-    link.download = 'ilovepdfly-logo.svg';
+    link.download = 'pdfbullet-logo.svg';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -76,7 +76,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
         </div>
         <div className="mt-6 space-y-2">
             <p className="text-gray-400 text-sm font-semibold">Get the app</p>
-            <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
+            <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 w-full max-w-[160px] text-left bg-black border border-gray-600 p-2 rounded-lg hover:bg-gray-800 text-white transition-transform hover:scale-105">
                 <AndroidIcon className="h-7 w-7" />
                 <div>
                     <p className="text-xs leading-tight">DOWNLOAD APK</p>
@@ -101,7 +101,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal, onOpenProblemRepor
           
           {/* Logo & Socials */}
           <div className="col-span-2 lg:col-span-2">
-            <a href="/" title="I Love PDFLY Home">
+            <a href="/" title="PDFBullet Home">
               <Logo className="h-10 w-auto mb-3" variant="dark" />
             </a>
             <p className="text-gray-400 text-sm max-w-xs">

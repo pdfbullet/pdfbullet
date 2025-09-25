@@ -43,7 +43,7 @@ const TaskItem: React.FC<{ task: LastTask; onDelete: (id: number) => void; }> = 
                 <div className="overflow-hidden">
                     <p className="font-bold text-gray-800 dark:text-gray-100 truncate">{task.outputFilename}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {task.toolTitle} &middot; {timeAgo(task.timestamp)}
+                        {tool?.title ? tool.title.replace('tool.', '').replace('.title', '').replace(/-/g, ' ') : task.toolTitle} &middot; {timeAgo(task.timestamp)}
                     </p>
                 </div>
             </div>
