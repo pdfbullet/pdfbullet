@@ -8,10 +8,10 @@ const SitemapPage: React.FC = () => {
     const { t } = useI18n();
     
     useEffect(() => {
-      document.title = "Sitemap | I Love PDFLY";
+      document.title = "Sitemap | PDFBullet";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-          metaDesc.setAttribute("content", "Explore the sitemap for I Love PDFLY. Find links to all our PDF tools, blog articles, and main pages to easily navigate our website.");
+          metaDesc.setAttribute("content", "Explore the sitemap for PDFBullet. Find links to all our PDF tools, blog articles, and main pages to easily navigate our website.");
       }
     }, []);
 
@@ -84,7 +84,7 @@ const SitemapPage: React.FC = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Sitemap</h1>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              An overview of all pages and resources available on I Love PDFLY.
+              An overview of all pages and resources available on PDFBullet.
             </p>
           </div>
 

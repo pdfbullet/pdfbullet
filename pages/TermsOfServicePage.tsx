@@ -6,10 +6,10 @@ const TermsOfServicePage: React.FC = () => {
     const observer = useRef<IntersectionObserver | null>(null);
 
     useEffect(() => {
-        document.title = "Terms and Conditions | PDF Bullet";
+        document.title = "Terms and Conditions | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Read the Terms and Conditions for using PDF Bullet. Learn about your rights and responsibilities when using our free online PDF tools.");
+            metaDesc.setAttribute("content", "Read the Terms and Conditions for using PDFBullet. Learn about your rights and responsibilities when using our free online PDF tools.");
         }
 
         const handleIntersect = (entries: IntersectionObserverEntry[]) => {
@@ -214,7 +214,7 @@ const TermsOfServicePage: React.FC = () => {
                                     <li>Advanced electronic signature</li>
                                 </ul>
                                 <h3 id="signature-legal-guarantees">4.2 Legal Guarantees</h3>
-                                <p>The electronic signature services provided by PDFBullet are regulated by Spanish and European Laws, particularly, by EU Regulation 910/2014 ("eIDAS Regulation"), directly applicable in all member countries of the European Union, and Spanish Law 6/2020 (trusted electronic services) where iLovePDF is located. Services could also comply with the requirements of the U.S. Electronic Signature in Global and National Commerce Act of 2000 (ESIGN), and the Uniform Electronic Transactions Act (UETA) or other Laws in many jurisdictions.</p>
+                                <p>The electronic signature services provided by PDFBullet are regulated by Spanish and European Laws, particularly, by EU Regulation 910/2014 ("eIDAS Regulation"), directly applicable in all member countries of the European Union, and Spanish Law 6/2020 (trusted electronic services) where PDFBullet is located. Services could also comply with the requirements of the U.S. Electronic Signature in Global and National Commerce Act of 2000 (ESIGN), and the Uniform Electronic Transactions Act (UETA) or other Laws in many jurisdictions.</p>
                                 <h3 id="signature-pricing">4.3 Pricing</h3>
                                 <p>PDFBullet offers two different kinds of signatures: simple electronic signatures and advanced electronic signatures. Simple electronic signatures are free of use. Signatures may be subject to size or quantity limitations of processing (see pricing for more information). We offer a certain number of advanced electronic signatures at no extra cost for our Premium users each month. We also provide prepaid packs of advanced electronic signatures which can be purchased.</p>
                                 <h3 id="signature-collected-information">4.4 Collected Information</h3>

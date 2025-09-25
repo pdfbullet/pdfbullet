@@ -148,10 +148,10 @@ const ApiSignaturePage: React.FC = () => {
             {/* Why Choose Us Section */}
             <section className="bg-white dark:bg-gray-900 py-16 md:py-24">
                  <div className="container mx-auto px-6 max-w-6xl">
-                    <h2 className="text-3xl font-extrabold text-center mb-12">Why choose the I Love PDFLY API?</h2>
+                    <h2 className="text-3xl font-extrabold text-center mb-12">Why choose the PDFBullet API?</h2>
                     <div className="grid md:grid-cols-3 gap-12">
                         <WhyChooseItem title="Powerful and Secure" text="All documents are stored in european servers and encrypted at rest using AES 256-bit encryption." />
-                        <WhyChooseItem title="Built for scalability" text="I Love PDFLY has 10+ years of experience in document management services, being a reliable software provider trusted by millions." />
+                        <WhyChooseItem title="Built for scalability" text="PDFBullet has 10+ years of experience in document management services, being a reliable software provider trusted by millions." />
                         <WhyChooseItem title="Easy to integrate" text="We provide extensive and detailed documentation that will make your integration quick and hassle-free." />
                     </div>
                 </div>
@@ -163,7 +163,7 @@ const ApiSignaturePage: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="text-center md:text-left">
                             <h2 className="text-3xl font-extrabold">Pricing</h2>
-                            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">I Love PDFLY offers prepaid packages at a competitive price. Create a pack that suits your needs and pay as you go with no commitment.</p>
+                            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">PDFBullet offers prepaid packages at a competitive price. Create a pack that suits your needs and pay as you go with no commitment.</p>
                             <Link to="/api-pricing" className="mt-6 inline-block bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-8 rounded-lg transition-colors">View Pricing</Link>
                         </div>
                         <div className="flex justify-center">
@@ -177,7 +177,7 @@ const ApiSignaturePage: React.FC = () => {
             <section className="bg-blue-50 dark:bg-blue-900/20 py-16 md:py-24">
                 <div className="container mx-auto px-6 text-center max-w-4xl">
                     <h2 className="text-3xl font-extrabold">The security of your data is our #1 priority</h2>
-                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">All files uploaded to I Love PDFLY are encrypted using Hypertext Transfer Protocol Secure (HTTPS). I Love PDFLY does not access, use, analyze or store any processed data. If you want to know more about I Love PDFLY's data collection, read our Privacy Policy.</p>
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">All files uploaded to PDFBullet are encrypted using Hypertext Transfer Protocol Secure (HTTPS). PDFBullet does not access, use, analyze or store any processed data. If you want to know more about PDFBullet's data collection, read our Privacy Policy.</p>
                     <div className="mt-8 flex justify-center items-center gap-8 opacity-60">
                          <span>PDF association</span>
                          <span>ISO certified</span>

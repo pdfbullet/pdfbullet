@@ -12,7 +12,7 @@ const DeveloperAccessPage: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        if (password === 'bishal@@@') {
+        if (password === 'mishra') {
             sessionStorage.setItem('isAdminAuthenticated', 'true');
             navigate('/admin-dashboard');
         } else {

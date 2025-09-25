@@ -97,10 +97,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const newUserProfile: User = {
               uid: firebaseUser.uid,
               username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
-              email: firebaseUser.email || undefined,
-              profileImage: firebaseUser.photoURL || undefined,
+              email: firebaseUser.email || '',
+              profileImage: firebaseUser.photoURL || '',
               isPremium: false,
-              creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
+              creationDate: firebaseUser.metadata?.creationTime || new Date().toISOString(),
               apiPlan: 'free',
               firstName: '',
               lastName: '',

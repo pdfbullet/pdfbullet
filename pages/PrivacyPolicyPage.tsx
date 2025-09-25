@@ -31,10 +31,10 @@ const PrivacyPolicyPage: React.FC = () => {
             "@type": "WebPage",
             "name": "Privacy Policy",
             "url": "https://pdfbullet.com/privacy-policy",
-            "description": "PDF Bullet's Privacy Policy outlining our procedures on the collection, use, and disclosure of your information.",
+            "description": "PDFBullet's Privacy Policy outlining our procedures on the collection, use, and disclosure of your information.",
             "publisher": {
                 "@type": "Organization",
-                "name": "PDF Bullet",
+                "name": "PDFBullet",
                 "url": "https://pdfbullet.com/"
             }
         });
@@ -60,10 +60,10 @@ const PrivacyPolicyPage: React.FC = () => {
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
             <div className="px-6">
                 <div className="max-w-4xl mx-auto bg-white dark:bg-black p-8 md:p-12 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">Privacy Policy for PDF Bullet</h1>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">Privacy Policy for PDFBullet</h1>
                     <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
                         <p><strong>Last Updated: {new Date().toLocaleDateString()}</strong></p>
-                        <p>This Privacy Policy outlines the policies and procedures of PDF Bullet ("the Company", "we", "us", or "our") regarding the collection, use, and disclosure of your information when you use our website, https://pdfbullet.com (the "Service"). It also informs you about your privacy rights and how the law protects you. We are deeply committed to safeguarding your privacy and ensuring the transparent handling of your data.</p>
+                        <p>This Privacy Policy outlines the policies and procedures of PDFBullet ("the Company", "we", "us", or "our") regarding the collection, use, and disclosure of your information when you use our website, https://pdfbullet.com (the "Service"). It also informs you about your privacy rights and how the law protects you. We are deeply committed to safeguarding your privacy and ensuring the transparent handling of your data.</p>
                         
                         <div ref={sectionRefs.s1} className="relative group pt-4">
                             <h3 className="flex items-center gap-2">1. Interpretation and Definitions
@@ -82,7 +82,7 @@ const PrivacyPolicyPage: React.FC = () => {
                                     {copiedTooltip === 's2' && <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded shadow-lg z-10">Copied!</span>}
                                 </div>
                             </h3>
-                            <p>PDF Bullet is architected with a profound commitment to your privacy. The majority of our tools operate on a client-side basis, meaning that when you use them, your files are processed directly within your web browser on your own computer. <strong>Your documents are never uploaded to our servers for these tools.</strong></p>
+                            <p>PDFBullet is architected with a profound commitment to your privacy. The majority of our tools operate on a client-side basis, meaning that when you use them, your files are processed directly within your web browser on your own computer. <strong>Your documents are never uploaded to our servers for these tools.</strong></p>
                             <p>For a select number of advanced features that require more computational power than a browser can provide (such as complex OCR), files are transmitted to our servers over a secure, end-to-end encrypted connection (HTTPS/TLS). These files are stored solely for the purpose of processing your request and are <strong>automatically and permanently deleted from our systems within a maximum of two hours.</strong> We do not, under any circumstances, access, analyze, copy, or share the content of your files.</p>
                         </div>
 
