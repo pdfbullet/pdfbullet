@@ -1,4 +1,5 @@
-# PDFBullet - The Ultimate Free Online PDF Tools
+
+# PDFBullet - The Ultimate Free Online PDF & Image Toolkit
 
 <p align="center">
   <img src="https://pdfbullet.com/logo.svg" alt="PDFBullet Logo" width="200"/>
@@ -9,151 +10,127 @@
 </p>
 
 <p align="center">
-  <a href="https://pdfbullet.com/"><strong>🌍 Live Demo »</strong></a> •
-  <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk"><strong>📱 Download APK »</strong></a>
+  <a href="https://pdfbullet.com/"><strong>Live Demo »</strong></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
-  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white">
-  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white">
-  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black">
-  <img src="https://img.shields.io/badge/Cloudflare-Secured-orange?style=for-the-badge&logo=cloudflare&logoColor=white">
-  <img src="https://img.shields.io/badge/SSL%20Secure-Yes-brightgreen?style=for-the-badge&logo=letsencrypt&logoColor=white">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">
 </p>
 
 ---
 
-## 🚀 About The Project
+## About The Project
 
-**PDFBullet** is a comprehensive suite of free, secure, and fast online tools for all your document and image needs.  
-With **50+ features**, it’s perfect for students, professionals, and businesses.
+PDFBullet is a comprehensive suite of free, secure, and fast online tools for all your document and image needs. Built with a privacy-first approach, most tools process your files directly in your browser, meaning your data never leaves your computer. Merge, split, compress, convert, edit, sign PDFs, remove image backgrounds, generate invoices, create CVs, and much more.
 
-✔️ Merge, split, compress, convert, edit, sign PDFs  
-✔️ AI-powered tools: Chat with PDF, Question Generator, Image Generator  
-✔️ Business tools: Invoices, CV Builder, Lesson Plans  
-✔️ Image tools: Resize, Compress, Remove Background, Convert  
-✔️ Mobile app for Android  
+### Why Choose PDFBullet?
 
----
-
-## 💡 Why Choose PDFBullet?
-
-- ⚡ **Blazing Fast** – Client-side processing with no delays  
-- 🔒 **Ultimate Privacy** – Files processed in your browser  
-- 🛠️ **All-in-One Toolkit** – PDFs, Images, AI, Business tools  
-- 💸 **Free Forever** – No watermarks, no limits on core tools  
-- ☁️ **Secured by Cloudflare + SSL** – Enterprise-grade protection  
-- 💳 **Trusted Payments** – Khalti & Fonepay official gateways  
+*   🚀 **Blazing Fast:** No upload/download delays for most tools thanks to client-side processing.
+*   🔒 **Ultimate Privacy:** Your files are processed in your browser. Nothing is uploaded to our servers unless absolutely necessary, and even then, files are deleted within hours.
+*   🛠️ **Comprehensive Toolkit:** Over 40 tools for PDF, images, AI-powered tasks, and business needs.
+*   💸 **Completely Free:** All core tools are free to use without limits or watermarks.
+*   🌐 **Accessible Anywhere:** No installation required. Works on any device with a modern web browser.
 
 ---
 
-## 🖼️ Screenshots
+## Key Features
 
-### Desktop
-![Desktop Screenshot](https://ik.imagekit.io/fonepay/mockup_web%20PDFLY.png?updatedAt=1756018431063)
+PDFBullet offers a wide array of tools, all accessible from a single, user-friendly interface.
 
-### Mobile
-![Mobile Screenshot](https://ik.imagekit.io/fonepay/mockup_mobile.png?updatedAt=1756018431039)
+### PDF Tools
 
----
+| Category       | Tools                                                                                                                                                                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Organize**   | [Merge PDF](https://pdfbullet.com/#/merge-pdf), [Split PDF](https://pdfbullet.com/#/split-pdf), [Organize PDF](https://pdfbullet.com/#/organize-pdf), [Rotate PDF](https://pdfbullet.com/#/rotate-pdf)                                                                                              |
+| **Optimize**   | [Compress PDF](https://pdfbullet.com/#/compress-pdf), [Repair PDF](https://pdfbullet.com/#/repair-pdf)                                                                                                                                                                                            |
+| **Convert to PDF** | [JPG to PDF](https://pdfbullet.com/#/jpg-to-pdf), [Word to PDF](https://pdfbullet.com/#/word-to-pdf), [PowerPoint to PDF](https://pdfbullet.com/#/powerpoint-to-pdf), [Excel to PDF](https://pdfbullet.com/#/excel-to-pdf), [HTML to PDF](https://pdfbullet.com/#/html-to-pdf), [PSD to PDF](https://pdfbullet.com/#/psd-to-pdf), [Document Scanner](https://pdfbullet.com/#/document-scanner) |
+| **Convert from PDF** | [PDF to JPG](https://pdfbullet.com/#/pdf-to-jpg), [PDF to PNG](https://pdfbullet.com/#/pdf-to-png), [PDF to Word](https://pdfbullet.com/#/pdf-to-word), [PDF to PowerPoint](https://pdfbullet.com/#/pdf-to-powerpoint), [PDF to Excel](https://pdfbullet.com/#/pdf-to-excel), [PDF to PDF/A](https://pdfbullet.com/#/pdf-to-pdfa), [Extract Text](https://pdfbullet.com/#/extract-text) |
+| **Edit**       | [Edit PDF](https://pdfbullet.com/#/edit-pdf), [Page Numbers](https://pdfbullet.com/#/page-numbers), [Crop PDF](https://pdfbullet.com/#/crop-pdf), [OCR PDF](https://pdfbullet.com/#/ocr-pdf), [Compare PDF](https://pdfbullet.com/#/compare-pdf), [Redact PDF](https://pdfbullet.com/#/redact-pdf) |
+| **Security**   | [Unlock PDF](https://pdfbullet.com/#/unlock-pdf), [Protect PDF](https://pdfbullet.com/#/protect-pdf), [Sign PDF](https://pdfbullet.com/#/sign-pdf), [Watermark](https://pdfbullet.com/#/watermark-pdf)                                                                                            |
 
-## 🛠️ Tools
+### Image Tools
 
-### 📂 PDF Tools
+*   [Remove Background](https://pdfbullet.com/#/remove-background)
+*   [Resize Image](https://pdfbullet.com/#/resize-image)
+*   [Compress Image](https://pdfbullet.com/#/compress-image)
+*   [Crop Image](https://pdfbullet.com/#/crop-image)
+*   [Convert to JPG](https://pdfbullet.com/#/convert-to-jpg)
+*   [Convert from JPG](https://pdfbullet.com/#/convert-from-jpg)
+*   [Watermark Image](https://pdfbullet.com/#/watermark-image)
 
-- [Merge PDF](https://pdfbullet.com/merge-pdf)  
-- [Split PDF](https://pdfbullet.com/split-pdf)  
-- [Organize PDF](https://pdfbullet.com/organize-pdf)  
-- [Rotate PDF](https://pdfbullet.com/rotate-pdf)  
-- [Compress PDF](https://pdfbullet.com/compress-pdf)  
-- [Repair PDF](https://pdfbullet.com/repair-pdf)  
-- [JPG to PDF](https://pdfbullet.com/jpg-to-pdf)  
-- [Word to PDF](https://pdfbullet.com/word-to-pdf)  
-- [PowerPoint to PDF](https://pdfbullet.com/powerpoint-to-pdf)  
-- [Excel to PDF](https://pdfbullet.com/excel-to-pdf)  
-- [HTML to PDF](https://pdfbullet.com/html-to-pdf)  
-- [PSD to PDF](https://pdfbullet.com/psd-to-pdf)  
-- [PDF to JPG](https://pdfbullet.com/pdf-to-jpg)  
-- [PDF to PNG](https://pdfbullet.com/pdf-to-png)  
-- [PDF to Word](https://pdfbullet.com/pdf-to-word)  
-- [PDF to PowerPoint](https://pdfbullet.com/pdf-to-powerpoint)  
-- [PDF to Excel](https://pdfbullet.com/pdf-to-excel)  
-- [PDF to PDF/A](https://pdfbullet.com/pdf-to-pdfa)  
-- [Extract Text](https://pdfbullet.com/extract-text)  
-- [Edit PDF](https://pdfbullet.com/edit-pdf)  
-- [Add Page Numbers](https://pdfbullet.com/page-numbers)  
-- [Crop PDF](https://pdfbullet.com/crop-pdf)  
-- [OCR PDF](https://pdfbullet.com/ocr-pdf)  
-- [Compare PDF](https://pdfbullet.com/compare-pdf)  
-- [Redact PDF](https://pdfbullet.com/redact-pdf)  
-- [Unlock PDF](https://pdfbullet.com/unlock-pdf)  
-- [Protect PDF](https://pdfbullet.com/protect-pdf)  
-- [Sign PDF](https://pdfbullet.com/sign-pdf)  
-- [Watermark PDF](https://pdfbullet.com/watermark-pdf)  
+### AI & Business Tools
 
-### 🖼️ Image Tools
-
-- [Remove Background](https://pdfbullet.com/remove-background)  
-- [Resize Image](https://pdfbullet.com/resize-image)  
-- [Compress Image](https://pdfbullet.com/compress-image)  
-- [Crop Image](https://pdfbullet.com/crop-image)  
-- [Convert to JPG](https://pdfbullet.com/convert-to-jpg)  
-- [Convert from JPG](https://pdfbullet.com/convert-from-jpg)  
-- [Watermark Image](https://pdfbullet.com/watermark-image)  
-
-### 🤖 AI & Business Tools
-
-- [AI PDF Assistant](https://pdfbullet.com/ai-pdf-assistant)  
-- [AI Question Generator](https://pdfbullet.com/ai-question-generator)  
-- [AI Image Generator](https://pdfbullet.com/ai-image-generator)  
-- [Lesson Plan Creator](https://pdfbullet.com/lesson-plan-creator)  
-- [Invoice Generator](https://pdfbullet.com/invoice-generator)  
-- [CV Generator](https://pdfbullet.com/cv-generator)  
-- [E-Sign PDF](https://pdfbullet.com/sign-pdf)  
-- [Resume & Cover Letter Builder](https://pdfbullet.com/resume-builder)  
-- [News Dashboard](https://pdfbullet.com/news)  
+*   **AI Assistant:** Chat directly with your PDF documents. Ask questions, get summaries, and find information instantly.
+*   [AI Question Generator](https://pdfbullet.com/#/ai-question-generator): Automatically create quizzes from any text.
+*   [AI Image Generator](https://pdfbullet.com/#/ai-image-generator): Turn your text descriptions into unique images.
+*   [Lesson Plan Creator](https://pdfbullet.com/#/lesson-plan-creator): Generate detailed lesson plans for any subject.
+*   [Invoice Generator](https://pdfbullet.com/#/invoice-generator): Create and customize professional invoices for free.
+*   [CV Generator](https://pdfbullet.com/#/cv-generator): Build a polished, job-ready CV in minutes.
 
 ---
 
-## 📱 Mobile App
+## Technology Stack
 
-Want to use PDFBullet on the go?  
-Download our official **Android app**:  
-➡️ [Download APK](https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk)
+This project is built with a modern, scalable, and performant technology stack:
 
----
-
-## 👨‍💻 Developer API
-
-PDFBullet also provides APIs for integration:
-
-**Free Tier**
-- 100 requests/day  
-- All PDF and Image tools  
-
-**Premium Tier**
-- Unlimited requests  
-- Priority processing  
-- Premium AI features  
-- **Pricing:** Contact us for enterprise plans  
+*   **Frontend:** [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/)
+*   **Backend & Services:** [Firebase](https://firebase.google.com/) (Authentication, Firestore, Storage)
+*   **AI Integration:** [Google Gemini API](https://ai.google.dev/)
+*   **Core Libraries:**
+    *   `pdf-lib` & `pdfjs-dist` for PDF manipulation
+    *   `@imgly/background-removal` for AI background removal
+    *   `tesseract.js` for Optical Character Recognition (OCR)
+    *   `jszip` for file compression
+    *   ...and many more!
 
 ---
 
-## 📜 Legal
+## Getting Started
 
-- [Terms & Conditions](https://pdfbullet.com/terms-of-service)  
-- [Privacy Policy](https://pdfbullet.com/privacy-policy)  
-- [Cookie Policy](https://pdfbullet.com/cookies-policy)  
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+*   Node.js (v18 or later recommended)
+*   npm
+
+### Installation
+
+1.  **Clone the repo**
+    ```sh
+    git clone https://github.com/pdfbullet/pdfbullet.git
+    cd pdfbullet
+    ```
+
+2.  **Install NPM packages**
+    ```sh
+    npm install
+    ```
+
+3.  **Set up environment variables**
+
+    Create a `.env` file in the root of your project and add your API keys. The Firebase configuration is located in `src/firebase/config.ts`.
+
+    ```env
+    # Google Gemini API Key
+    API_KEY=YOUR_GEMINI_API_KEY
+    ```
+
+4.  **Run the development server**
+    ```sh
+    npm run dev
+    ```
+
+    The application will be available at `http://localhost:5173`.
 
 ---
 
-## 📞 Contact
+## Contact
 
-**Bishal Mishra** – [Message from CEO](https://pdfbullet.com/ceo)  
-📧 Support: **Support@pdfbullet.com**  
+Bishal Mishra - [Message from CEO](https://pdfbullet.com/#/ceo) - Support@pdfbullet.com
 
-🔗 [GitHub Repository](https://github.com/pdfbullet/pdfbullet)  
-🌐 [Website](https://pdfbullet.com)  
-📱 [Download APK](https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk)
+Project Link: [https://github.com/pdfbullet/pdfbullet](https://github.com/pdfbullet/pdfbullet)

@@ -1,11 +1,11 @@
 {
-  "name": "I Love PDFLY: PDF & Image Tools",
-  "short_name": "PDFLY",
+  "name": "PDFBullet: PDF & Image Tools",
+  "short_name": "PDFBullet",
   "description": "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#B90B06",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "categories": [
     "productivity",
@@ -41,7 +41,7 @@
       "sizes": "1280x800",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "I Love PDFLY Homepage with all tools"
+      "label": "PDFBullet Homepage with all tools"
     },
     {
       "src": "/mobile-view.png",

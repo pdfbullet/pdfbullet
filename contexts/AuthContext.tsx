@@ -78,6 +78,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const handleFirestoreError = (error: any, operation: string): Error => {
+    console.error(`Firestore error during ${operation}:`, error);
+    if (error.code === 'permission-denied') {
+        return new Error(`Operation failed: Permission Denied. Please check your Firestore security rules to allow this action.`);
+    }
+    if (error.code === 'unavailable') {
+         return new Error(`Could not connect to the database. The service may be temporarily unavailable or blocked by your network.`);
+    }
+    return new Error(`An unexpected error occurred during ${operation}.`);
+};
+
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,8 +102,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // If we have a firebaseUser, we are at least partially logged in.
-      // Create a fallback user object from the auth data first.
       const fallbackUser: User = {
         uid: firebaseUser.uid,
         username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
@@ -100,10 +110,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isPremium: false,
         creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
         apiPlan: 'free',
-        firstName: '',
-        lastName: '',
-        country: '',
-        twoFactorEnabled: false,
       };
 
       try {
@@ -112,10 +118,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         if (docSnap.exists) {
           const firestoreData = docSnap.data() as User;
-          // Merge firestore data with fresh auth data to ensure profile picture and name are up-to-date
           setUser({ ...firestoreData, ...fallbackUser, ...firestoreData });
         } else {
-          // New user, create a profile in Firestore
           const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
           if (isStandalone) {
               fallbackUser.trialEnds = Date.now() + 7 * 24 * 60 * 60 * 1000;
@@ -124,8 +128,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(fallbackUser);
         }
       } catch (err) {
-        console.error("Firestore error during auth state change. Using fallback user data.", err);
-        // If Firestore fails, we still set the user based on auth data. This prevents the user from being logged out.
+        console.error("Critical Firestore error during auth state change:", err);
+        alert("Could not connect to the user database. Please check your connection and Firebase setup. The application may not function correctly.");
         setUser(fallbackUser);
       } finally {
         setLoading(false);
@@ -150,7 +154,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     await auth.createUserWithEmailAndPassword(email, password);
-    // onAuthStateChanged listener will handle creating the user profile in Firestore
   };
 
   const signInWithCustomToken = async (token: string) => {
@@ -172,17 +175,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if(firebaseUser) {
         await firebaseUser.updateProfile({ photoURL: downloadURL });
     }
-
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({ profileImage: downloadURL });
-    setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
+    
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({ profileImage: downloadURL });
+        setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
+    } catch (error) {
+        throw handleFirestoreError(error, 'profile image update');
+    }
   };
   
   const updateUserProfile = async (data: { firstName: string; lastName: string; country: string }) => {
     if (!user) throw new Error("No user is signed in.");
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update(data);
-    setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update(data);
+        setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
+    } catch (error) {
+        throw handleFirestoreError(error, 'user profile update');
+    }
   };
 
   const changePassword = async (oldPassword: string, newPassword: string) => {
@@ -196,24 +207,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const getAllUsers = async (): Promise<User[]> => {
-    const usersCollectionRef = db.collection('users');
-    const snapshot = await usersCollectionRef.get();
-    return snapshot.docs.map(doc => doc.data() as User);
+    try {
+        const usersCollectionRef = db.collection('users');
+        const snapshot = await usersCollectionRef.get();
+        return snapshot.docs.map(doc => doc.data() as User);
+    } catch (error) {
+        throw handleFirestoreError(error, 'fetching all users');
+    }
   };
 
   const updateUserPremiumStatus = async (uid: string, isPremium: boolean) => {
-    const userRef = db.collection('users').doc(uid);
-    await userRef.update({ isPremium });
+    try {
+        const userRef = db.collection('users').doc(uid);
+        await userRef.update({ isPremium });
+    } catch (error) {
+        throw handleFirestoreError(error, 'updating premium status');
+    }
   };
   
   const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
-    const userRef = db.collection('users').doc(uid);
-    await userRef.update({ apiPlan: plan });
+    try {
+        const userRef = db.collection('users').doc(uid);
+        await userRef.update({ apiPlan: plan });
+    } catch (error) {
+        throw handleFirestoreError(error, 'updating API plan');
+    }
   };
   
   const deleteUser = async (uid: string) => {
-    const userRef = db.collection('users').doc(uid);
-    await userRef.delete();
+    try {
+        const userRef = db.collection('users').doc(uid);
+        await userRef.delete();
+    } catch (error) {
+        throw handleFirestoreError(error, 'deleting user');
+    }
   };
 
   const deleteCurrentUser = async () => {
@@ -222,25 +249,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error("No user is currently signed in to delete.");
     }
     
-    // 1. Delete Firestore document
-    const userRef = db.collection('users').doc(firebaseUser.uid);
-    await userRef.delete();
+    try {
+        const userRef = db.collection('users').doc(firebaseUser.uid);
+        await userRef.delete();
+    } catch (error) {
+        throw handleFirestoreError(error, 'deleting current user data');
+    }
     
-    // 2. Delete user from Firebase Auth
-    // This will trigger onAuthStateChanged, which will set user to null
     await firebaseUser.delete();
   };
   
   const generateApiKey = async (): Promise<string> => {
     if (!user) throw new Error("You must be logged in.");
-    // Generate a more realistic-looking API key to address user feedback about mock data.
     const randomBytes = crypto.getRandomValues(new Uint8Array(32));
     const newApiKey = 'sk_live_' + btoa(String.fromCharCode(...randomBytes)).replace(/[^A-Za-z0-9]/g, '').substring(0, 40);
-
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({ apiKey: newApiKey });
-    setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
-    return newApiKey;
+    
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({ apiKey: newApiKey });
+        setUser(prevUser => prevUser ? { ...prevUser, apiKey: newApiKey } : null);
+        return newApiKey;
+    } catch (error) {
+        throw handleFirestoreError(error, 'API key generation');
+    }
   };
   
   const getApiUsage = async (): Promise<{ count: number; limit: number; resetsIn: string }> => {
@@ -252,16 +283,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateTwoFactorStatus = async (enabled: boolean) => {
     if (!user) throw new Error("No user is signed in.");
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({ twoFactorEnabled: enabled });
-    setUser(prevUser => (prevUser ? { ...prevUser, twoFactorEnabled: enabled } : null));
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({ twoFactorEnabled: enabled });
+        setUser(prevUser => (prevUser ? { ...prevUser, twoFactorEnabled: enabled } : null));
+    } catch (error) {
+        throw handleFirestoreError(error, '2FA status update');
+    }
   };
 
   const updateBusinessDetails = async (details: BusinessDetails) => {
     if (!user) throw new Error("No user is signed in.");
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({ businessDetails: details });
-    setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({ businessDetails: details });
+        setUser(prevUser => prevUser ? { ...prevUser, businessDetails: details } : null);
+    } catch (error) {
+        throw handleFirestoreError(error, 'business details update');
+    }
   };
   
   const submitProblemReport = async (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes' | 'screenshotUrl'>) => {
@@ -272,24 +311,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userId: user?.uid,
         userName: user?.username,
     };
-
-    await db.collection('reports').add(report);
+    try {
+        await db.collection('reports').add(report);
+    } catch (error) {
+        throw handleFirestoreError(error, 'problem report submission');
+    }
   };
 
   const getProblemReports = async (): Promise<ProblemReport[]> => {
-      const reportsCollectionRef = db.collection('reports').orderBy('timestamp', 'desc');
-      const snapshot = await reportsCollectionRef.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProblemReport));
+      try {
+          const reportsCollectionRef = db.collection('reports').orderBy('timestamp', 'desc');
+          const snapshot = await reportsCollectionRef.get();
+          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProblemReport));
+      } catch (error) {
+          throw handleFirestoreError(error, 'fetching problem reports');
+      }
   };
 
   const updateReportStatus = async (reportId: string, status: ProblemReport['status']) => {
-      const reportRef = db.collection('reports').doc(reportId);
-      await reportRef.update({ status });
+      try {
+          const reportRef = db.collection('reports').doc(reportId);
+          await reportRef.update({ status });
+      } catch (error) {
+          throw handleFirestoreError(error, 'updating report status');
+      }
   };
   
   const deleteProblemReport = async (reportId: string) => {
-      const reportRef = db.collection('reports').doc(reportId);
-      await reportRef.delete();
+      try {
+          const reportRef = db.collection('reports').doc(reportId);
+          await reportRef.delete();
+      } catch(error) {
+          throw handleFirestoreError(error, 'deleting problem report');
+      }
   };
 
   const sendTaskCompletionEmail = async (toolTitle: string, outputFilename: string) => {
@@ -299,7 +353,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      // In a real app, a Cloud Function would listen for new documents in this collection.
       await db.collection('notifications').add({
         to: user.email,
         message: {
@@ -315,10 +368,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         userId: user.uid,
       });
-      console.log('Email notification queued successfully.');
     } catch (error) {
       console.error("Error queueing email notification:", error);
-      // We don't throw an error here to not interrupt the user's main task flow.
     }
   };
 
