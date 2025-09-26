@@ -32,6 +32,7 @@ export interface ProblemReport {
 interface User {
   uid: string;
   username: string; // Will store displayName or email
+  email?: string;
   profileImage?: string; // Will store photoURL
   isPremium?: boolean;
   creationDate?: string;
@@ -71,6 +72,7 @@ interface AuthContextType {
   getProblemReports: () => Promise<ProblemReport[]>;
   updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
   deleteProblemReport: (reportId: string) => Promise<void>;
+  sendTaskCompletionEmail: (toolTitle: string, outputFilename: string) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -82,41 +84,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: firebase.User | null) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // If we have a firebaseUser, we are at least partially logged in.
+      // Create a fallback user object from the auth data first.
+      const fallbackUser: User = {
+        uid: firebaseUser.uid,
+        username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
+        email: firebaseUser.email || undefined,
+        profileImage: firebaseUser.photoURL || undefined,
+        isPremium: false,
+        creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
+        apiPlan: 'free',
+        firstName: '',
+        lastName: '',
+        country: '',
+        twoFactorEnabled: false,
+      };
+
       try {
-        if (firebaseUser) {
-          const userRef = db.collection('users').doc(firebaseUser.uid);
-          const docSnap = await userRef.get();
-          if (docSnap.exists) {
-            const userData = docSnap.data() as User;
-            setUser({ ...userData, twoFactorEnabled: userData.twoFactorEnabled || false });
-          } else {
-            // New user, create a profile in Firestore
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-            const newUserProfile: User = {
-              uid: firebaseUser.uid,
-              username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
-              profileImage: firebaseUser.photoURL || undefined,
-              isPremium: false,
-              creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
-              apiPlan: 'free',
-              firstName: '',
-              lastName: '',
-              country: '',
-              twoFactorEnabled: false,
-            };
-             // Grant 7-day trial only if the user signs up from the installed PWA
-            if (isStandalone) {
-                newUserProfile.trialEnds = Date.now() + 7 * 24 * 60 * 60 * 1000;
-            }
-            await userRef.set(newUserProfile);
-            setUser(newUserProfile);
-          }
+        const userRef = db.collection('users').doc(firebaseUser.uid);
+        const docSnap = await userRef.get();
+        
+        if (docSnap.exists) {
+          const firestoreData = docSnap.data() as User;
+          // Merge firestore data with fresh auth data to ensure profile picture and name are up-to-date
+          setUser({ ...firestoreData, ...fallbackUser, ...firestoreData });
         } else {
-          setUser(null);
+          // New user, create a profile in Firestore
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+          if (isStandalone) {
+              fallbackUser.trialEnds = Date.now() + 7 * 24 * 60 * 60 * 1000;
+          }
+          await userRef.set(fallbackUser);
+          setUser(fallbackUser);
         }
       } catch (err) {
-        console.error("Auth state change error:", err);
-        setUser(null);
+        console.error("Firestore error during auth state change. Using fallback user data.", err);
+        // If Firestore fails, we still set the user based on auth data. This prevents the user from being logged out.
+        setUser(fallbackUser);
       } finally {
         setLoading(false);
       }
@@ -282,8 +292,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await reportRef.delete();
   };
 
+  const sendTaskCompletionEmail = async (toolTitle: string, outputFilename: string) => {
+    if (!user || !user.email) {
+      console.log("User not logged in, skipping email notification.");
+      return;
+    }
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
+    try {
+      // In a real app, a Cloud Function would listen for new documents in this collection.
+      await db.collection('notifications').add({
+        to: user.email,
+        message: {
+          subject: `✅ Your task '${toolTitle}' is complete!`,
+          html: `
+            <p>Hello ${user.username},</p>
+            <p>Your task '<strong>${toolTitle}</strong>' has been successfully completed.</p>
+            <p>The output file is named: <strong>${outputFilename}</strong>.</p>
+            <p>You can download it from the success screen in the app.</p>
+            <p>Thank you for using PDFBullet!</p>
+          `,
+        },
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: user.uid,
+      });
+      console.log('Email notification queued successfully.');
+    } catch (error) {
+      console.error("Error queueing email notification:", error);
+      // We don't throw an error here to not interrupt the user's main task flow.
+    }
+  };
+
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, auth };
 
   return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };
