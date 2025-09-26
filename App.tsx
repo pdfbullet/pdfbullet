@@ -700,24 +700,19 @@ function AppContent() {
       const redirectInfoStr = sessionStorage.getItem('postLoginRedirect');
       if (redirectInfoStr) {
         sessionStorage.removeItem('postLoginRedirect');
-        try {
-          const redirectInfo = JSON.parse(redirectInfoStr);
-          const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
-          if (pendingDataStr) {
-            sessionStorage.removeItem('pendingInvoiceDataRedirect');
-            navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
-          } else if (redirectInfo.from === 'pricing') {
-            navigate('/payment', { state: { plan: redirectInfo.plan } });
-          } else if (redirectInfo.from === 'developer') {
-            navigate('/developer');
-          } else if (redirectInfo.from === 'workflows_create') {
-            navigate('/workflows/create');
-          } else if (location.pathname === '/login' || location.pathname === '/signup') {
-            navigate('/');
-          }
-        } catch (e) {
-            console.error("Error processing post-login redirect:", e);
-            navigate('/'); // Fallback to home on error
+        const redirectInfo = JSON.parse(redirectInfoStr);
+        const pendingDataStr = sessionStorage.getItem('pendingInvoiceDataRedirect');
+        if (pendingDataStr) {
+          sessionStorage.removeItem('pendingInvoiceDataRedirect');
+          navigate('/invoice-generator', { state: { restoredData: JSON.parse(pendingDataStr) }, replace: true });
+        } else if (redirectInfo.from === 'pricing') {
+          navigate('/payment', { state: { plan: redirectInfo.plan } });
+        } else if (redirectInfo.from === 'developer') {
+          navigate('/developer');
+        } else if (redirectInfo.from === 'workflows_create') {
+          navigate('/workflows/create');
+        } else if (location.pathname === '/login' || location.pathname === '/signup') {
+          navigate('/');
         }
       } else if (location.pathname === '/login' || location.pathname === '/signup') {
         navigate('/');

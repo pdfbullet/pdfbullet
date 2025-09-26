@@ -33,7 +33,7 @@ const PlansAndPackagesPage: React.FC = () => {
                         <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Subscription details</h2>
                         <div className="flex-grow text-gray-600 dark:text-gray-400">
                             <p>
-                                Get full access to all PDF Bullet features. Enjoy simple and fast PDF tools to convert, edit and e-sign your documents.
+                                Get full access to all iLovePDFLY features. Enjoy simple and fast PDF tools to convert, edit and e-sign your documents.
                             </p>
                         </div>
                         <div className="mt-6">

@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -26,22 +28,8 @@ import { LayoutContext } from '../App.tsx';
 import { GoogleGenAI, Type } from '@google/genai';
 
 
-// FIX: Removed unused and incorrect 'Perms' type from pdf-lib import.
-import { PDFDocument, rgb, degrees, StandardFonts, PDFRef, PDFFont, PageSizes, BlendMode, grayscale } from 'pdf-lib';
-import JSZip from 'jszip';
-import * as pdfjsLib from 'pdfjs-dist';
-import type { PDFDocumentProxy, PageViewport } from 'pdfjs-dist';
-import { Document, Packer, Paragraph, TextRun, ImageRun, SectionType, AlignmentType, convertInchesToTwip } from 'docx';
-import PptxGenJS from 'pptxgenjs';
-import Tesseract from 'tesseract.js';
-import pixelmatch from 'pixelmatch';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import * as XLSX from 'xlsx';
-import { readPsd } from 'ag-psd';
-import { removeBackground } from '@imgly/background-removal';
-import * as QRCode from 'qrcode';
-import mammoth from 'mammoth';
+// Dynamically imported libraries to improve performance
+import type { PageViewport } from 'pdfjs-dist';
 
 // These declarations are needed to access the cloud picker SDKs loaded in index.html
 declare const gapi: any;
@@ -331,6 +319,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
         setIsProcessing(true);
         try {
             if (format === 'pdf') {
+                const { jsPDF } = await import('jspdf');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 for (let i = 0; i < scannedPages.length; i++) {
                     const page = scannedPages[i];
@@ -361,6 +350,7 @@ const DocumentScannerUI: React.FC<DocumentScannerUIProps> = ({ tool, onProcessSt
                 const pdfBlob = pdf.output('blob');
                 onProcessSuccess(pdfBlob, 'document_scan.pdf');
             } else { // JPG
+                const JSZip = (await import('jszip')).default;
                 if (scannedPages.length === 1) {
                     const res = await fetch(scannedPages[0].filtered);
                     const blob = await res.blob();
@@ -643,6 +633,7 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
 
 
     const extractPages = useCallback(async () => {
+        const pdfjsLib = await import('pdfjs-dist');
         setIsLoading(true);
         setLoadingMessage('Extracting pages...');
         
@@ -733,6 +724,7 @@ const OrganizePdfUI: React.FC<OrganizePdfUIProps> = ({ files, onProcessStart, on
     const handleOrganize = async () => {
         onProcessStart();
         try {
+            const { PDFDocument, degrees, PageSizes } = await import('pdf-lib');
             const sourcePdfDocs = await Promise.all(
                 files.map(file => file.arrayBuffer().then(bytes => PDFDocument.load(bytes, { ignoreEncryption: true })))
             );
@@ -921,6 +913,7 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
             setIsLoading(true);
             setProgress({ key: 'Starting...', current: 0, total: 100 });
             try {
+                const { removeBackground } = await import('@imgly/background-removal');
                 const resultBlob = await removeBackground(originalFile, {
                     progress: (key, current, total) => {
                         const stage = key === 'download' ? 'Downloading AI Model' : 'Processing Image';
@@ -1223,6 +1216,7 @@ const ToolPage: React.FC = () => {
     setIsQrLoading(true);
     setQrCodeError('');
     try {
+        const QRCode = await import('qrcode');
         const qrUrl = await QRCode.toDataURL(url, { width: 200 });
         setQrCodeUrl(qrUrl);
     } catch (err) {
@@ -1641,6 +1635,7 @@ const ToolPage: React.FC = () => {
     setProgress({ percentage: 0, status: 'Loading document pages...' });
 
     try {
+        const pdfjsLib = await import('pdfjs-dist');
         const previews: string[] = [];
         const newViewports: PageViewport[] = [];
 
@@ -1710,6 +1705,7 @@ const ToolPage: React.FC = () => {
   useEffect(() => {
     if (tool?.id === 'repair-pdf' && files.length > 0) {
         const generatePreviews = async () => {
+            const pdfjsLib = await import('pdfjs-dist');
             setIsGeneratingPreviews(true);
             const allPreviews: { fileIndex: number, fileName: string, dataUrl: string }[] = [];
             for (let i = 0; i < files.length; i++) {
@@ -1814,6 +1810,7 @@ const ToolPage: React.FC = () => {
         let blob: Blob | null = null;
         switch (tool.id) {
           case 'merge-pdf': {
+            const { PDFDocument } = await import('pdf-lib');
             if (files.length < 2) throw new Error("Please select at least two PDF files to merge.");
             const mergedPdf = await PDFDocument.create();
             let fileCounter = 0;
@@ -1831,6 +1828,8 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'split-pdf': {
+            const { PDFDocument } = await import('pdf-lib');
+            const JSZip = (await import('jszip')).default;
             if (files.length !== 1) throw new Error("Please select exactly one PDF file to split.");
             const file = files[0];
             const zip = new JSZip();
@@ -1850,6 +1849,8 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'compress-pdf': {
+            const { PDFDocument } = await import('pdf-lib');
+            const pdfjsLib = await import('pdfjs-dist');
             if (files.length !== 1) throw new Error("Please select one PDF file to compress.");
             const originalFile = files[0];
             const originalSize = originalFile.size;
@@ -1880,7 +1881,6 @@ const ToolPage: React.FC = () => {
                     context.fillStyle = 'white';
                     context.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
                     await page.render({ canvasContext: context, viewport } as any);
         
                     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
@@ -1911,6 +1911,7 @@ const ToolPage: React.FC = () => {
             break;
         }
           case 'rotate-pdf': {
+            const { PDFDocument, degrees } = await import('pdf-lib');
             if (files.length !== 1) throw new Error("Please select one PDF file to rotate.");
             const file = files[0];
             const pdfBytes = await file.arrayBuffer();
@@ -1921,6 +1922,8 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'repair-pdf': {
+            const { PDFDocument } = await import('pdf-lib');
+            const JSZip = (await import('jszip')).default;
             if (files.length === 0) throw new Error("Please select at least one PDF file to repair.");
             const zip = new JSZip();
             let filesProcessed = 0;
@@ -1959,6 +1962,7 @@ const ToolPage: React.FC = () => {
             break;
           }
           case 'sign-pdf': {
+            const { PDFDocument } = await import('pdf-lib');
             if (files.length !== 1) throw new Error("Please select one PDF file to sign.");
             const file = files[0];
             const pdfBytes = await file.arrayBuffer();
@@ -2002,6 +2006,8 @@ const ToolPage: React.FC = () => {
             break;
           }
            case 'powerpoint-to-pdf': {
+                const JSZip = (await import('jszip')).default;
+                const { jsPDF } = await import('jspdf');
                 if (files.length !== 1) throw new Error("Please select one PowerPoint file.");
                 const file = files[0];
                 const arrayBuffer = await file.arrayBuffer();
@@ -2030,6 +2036,7 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'extract-text': {
+                const pdfjsLib = await import('pdfjs-dist');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const pdfjsDoc = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
@@ -2043,6 +2050,7 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'zip-maker': {
+                const JSZip = (await import('jszip')).default;
                 if (files.length === 0) throw new Error("Please select files to zip.");
                 const zip = new JSZip();
                 for (let i = 0; i < files.length; i++) {
@@ -2054,6 +2062,7 @@ const ToolPage: React.FC = () => {
                 break;
             }
              case 'remove-background': {
+                const { removeBackground } = await import('@imgly/background-removal');
                 if (files.length !== 1) throw new Error("Please select one image file.");
                 const file = files[0];
                 setProgress({ percentage: 50, status: 'Removing background...'});
@@ -2062,6 +2071,7 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'jpg-to-pdf': {
+                const { PDFDocument } = await import('pdf-lib');
                 const pdfDoc = await PDFDocument.create();
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
@@ -2085,6 +2095,10 @@ const ToolPage: React.FC = () => {
             }
             case 'word-to-pdf':
             case 'excel-to-pdf': {
+                const mammoth = (await import('mammoth')).default;
+                const XLSX = await import('xlsx');
+                const html2canvas = (await import('html2canvas')).default;
+                const { jsPDF } = await import('jspdf');
                 if (files.length !== 1) throw new Error(`Please select one ${tool.id === 'word-to-pdf' ? 'Word' : 'Excel'} file.`);
                 const file = files[0];
                 const arrayBuffer = await file.arrayBuffer();
@@ -2166,6 +2180,8 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'pdf-to-jpg': {
+                const JSZip = (await import('jszip')).default;
+                const pdfjsLib = await import('pdfjs-dist');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const zip = new JSZip();
@@ -2179,7 +2195,6 @@ const ToolPage: React.FC = () => {
                     const canvas = document.createElement('canvas');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
                     await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
                     const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
                     const imageBlob = await (await fetch(imageDataUrl)).blob();
@@ -2189,6 +2204,8 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'pdf-to-png': {
+                const JSZip = (await import('jszip')).default;
+                const pdfjsLib = await import('pdfjs-dist');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const zip = new JSZip();
@@ -2202,7 +2219,6 @@ const ToolPage: React.FC = () => {
                     const canvas = document.createElement('canvas');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-                    // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
                     await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
                     const imageDataUrl = canvas.toDataURL('image/png');
                     const imageBlob = await (await fetch(imageDataUrl)).blob();
@@ -2212,6 +2228,9 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'pdf-to-word': {
+                const pdfjsLib = await import('pdfjs-dist');
+                const Tesseract = (await import('tesseract.js')).default;
+                const { Document, Packer, Paragraph, TextRun, ImageRun, SectionType } = await import('docx');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const pdfBytes = await file.arrayBuffer();
@@ -2227,7 +2246,6 @@ const ToolPage: React.FC = () => {
                         const canvas = document.createElement('canvas');
                         canvas.width = viewport.width;
                         canvas.height = viewport.height;
-                        // FIX: The render method was called with incorrect parameters. This is likely due to a type definition mismatch. Casting to 'any' bypasses the incorrect type check.
                         await page.render({ canvasContext: canvas.getContext('2d')!, viewport } as any);
                         const imageDataUrl = canvas.toDataURL('image/png');
                         const imageBuffer = await fetch(imageDataUrl).then(res => res.arrayBuffer());
@@ -2235,7 +2253,6 @@ const ToolPage: React.FC = () => {
                         sections.push({
                             children: [new Paragraph({
                                 children: [
-// FIX: Added 'type' property to the ImageRun options to satisfy the IImageOptions interface from the 'docx' library.
                                     new ImageRun({
                                         type: 'png',
                                         data: new Uint8Array(imageBuffer),
@@ -2278,6 +2295,8 @@ const ToolPage: React.FC = () => {
                 break;
             }
              case 'pdf-to-excel': {
+                const pdfjsLib = await import('pdfjs-dist');
+                const XLSX = await import('xlsx');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const pdfBytes = await file.arrayBuffer();
@@ -2298,6 +2317,7 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'unlock-pdf': {
+                const { PDFDocument } = await import('pdf-lib');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const pdfBytes = await file.arrayBuffer();
@@ -2311,12 +2331,12 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'protect-pdf': {
+                const { PDFDocument } = await import('pdf-lib');
                 if (files.length !== 1) throw new Error("Please select one PDF file.");
                 const file = files[0];
                 const pdfBytes = await file.arrayBuffer();
                 const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
                 
-                // FIX: Removed the incorrect 'Perms' type annotation.
                 const permissions = {
                     printing: toolOptions.allowPrinting,
                     copying: toolOptions.allowCopying,
@@ -2332,6 +2352,8 @@ const ToolPage: React.FC = () => {
                 break;
             }
             case 'psd-to-pdf': {
+                const { readPsd } = await import('ag-psd');
+                const { jsPDF } = await import('jspdf');
                 if (files.length !== 1) throw new Error("Please select one PSD file.");
                 const file = files[0];
                 const buffer = await file.arrayBuffer();

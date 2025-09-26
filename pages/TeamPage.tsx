@@ -25,7 +25,7 @@ const TeamPage: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-8 items-center">
                         <div className="flex justify-center order-1 md:order-2">
                             <img 
-                                src="https://www.pdfbullet.com/img/user/team/workspace.svg" 
+                                src="https://www.ilovepdf.com/img/user/team/workspace.svg" 
                                 alt="Team working in a workspace" 
                                 className="max-w-xs w-full"
                                 width="320"

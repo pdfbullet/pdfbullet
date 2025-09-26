@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getDb } from './useLastTasks.ts'; // Import the shared DB instance
 
 export interface SignedDocument {
     id: number; // timestamp
@@ -13,33 +14,7 @@ export interface SignedDocument {
     auditTrail: string; // JSON string of audit events
 }
 
-const DB_NAME = 'ilovepdflyDB';
-const DB_VERSION = 2; // Bump version for new store
 const STORE_NAME = 'signedDocuments';
-const LAST_TASKS_STORE_NAME = 'lastTasks';
-
-
-let dbPromise: Promise<IDBDatabase> | null = null;
-
-const getDb = (): Promise<IDBDatabase> => {
-    if (!dbPromise) {
-        dbPromise = new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-            request.onupgradeneeded = (event) => {
-                const db = (event.target as IDBOpenDBRequest).result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                }
-                if (!db.objectStoreNames.contains(LAST_TASKS_STORE_NAME)) {
-                    db.createObjectStore(LAST_TASKS_STORE_NAME, { keyPath: 'id' });
-                }
-            };
-        });
-    }
-    return dbPromise;
-};
 
 export const useSignedDocuments = () => {
     const [documents, setDocuments] = useState<SignedDocument[]>([]);

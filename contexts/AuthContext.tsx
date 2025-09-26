@@ -32,7 +32,6 @@ export interface ProblemReport {
 interface User {
   uid: string;
   username: string; // Will store displayName or email
-  email?: string;
   profileImage?: string; // Will store photoURL
   isPremium?: boolean;
   creationDate?: string;
@@ -72,7 +71,6 @@ interface AuthContextType {
   getProblemReports: () => Promise<ProblemReport[]>;
   updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
   deleteProblemReport: (reportId: string) => Promise<void>;
-  sendTaskCompletionEmail: (toolTitle: string, outputFilename: string) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -90,17 +88,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const docSnap = await userRef.get();
           if (docSnap.exists) {
             const userData = docSnap.data() as User;
-            setUser({ ...userData, email: firebaseUser.email || undefined, twoFactorEnabled: userData.twoFactorEnabled || false });
+            setUser({ ...userData, twoFactorEnabled: userData.twoFactorEnabled || false });
           } else {
             // New user, create a profile in Firestore
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
             const newUserProfile: User = {
               uid: firebaseUser.uid,
               username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
-              email: firebaseUser.email || '',
-              profileImage: firebaseUser.photoURL || '',
+              profileImage: firebaseUser.photoURL || undefined,
               isPremium: false,
-              creationDate: firebaseUser.metadata?.creationTime || new Date().toISOString(),
+              creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
               apiPlan: 'free',
               firstName: '',
               lastName: '',
@@ -285,38 +282,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await reportRef.delete();
   };
 
-  const sendTaskCompletionEmail = async (toolTitle: string, outputFilename: string) => {
-    if (!user || !user.email) {
-      console.log("User not logged in, skipping email notification.");
-      return;
-    }
 
-    try {
-      // In a real app, a Cloud Function would listen for new documents in this collection.
-      await db.collection('notifications').add({
-        to: user.email,
-        message: {
-          subject: `✅ Your task '${toolTitle}' is complete!`,
-          html: `
-            <p>Hello ${user.username},</p>
-            <p>Your task '<strong>${toolTitle}</strong>' has been successfully completed.</p>
-            <p>The output file is named: <strong>${outputFilename}</strong>.</p>
-            <p>You can download it from the success screen in the app.</p>
-            <p>Thank you for using PDFBullet!</p>
-          `,
-        },
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: user.uid,
-      });
-      console.log('Email notification queued successfully.');
-    } catch (error) {
-      console.error("Error queueing email notification:", error);
-      // We don't throw an error here to not interrupt the user's main task flow.
-    }
-  };
-
-
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, auth };
 
   return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };
