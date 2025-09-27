@@ -8,6 +8,10 @@ body {
   isolation: isolate; /* Create a new stacking context */
 }
 
+.logo-img-dark {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* Keyframes for animations */
 @keyframes float-1 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 @keyframes float-2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(15px); } }
