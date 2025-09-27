@@ -58,7 +58,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
         throw new Error('Passkey verification failed or token not provided.');
       }
     } catch(err: any) {
-       setError(err.message || 'Passkey login failed.');
+       console.error("Passkey Login Error:", err);
+       if (err.message && err.message.includes('No passkey found')) {
+           setError(err.message);
+       } else if (err.code === 'auth/invalid-custom-token') {
+           setError('There was an issue authenticating your passkey. Please try again.');
+       } else {
+           setError('Passkey login failed. Please try again or use another login method.');
+       }
     } finally {
        setIsLoading(false);
     }
@@ -71,10 +78,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
     try {
       await signInWithEmail(usernameOrEmail, password);
     } catch (err: any) {
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email') {
-        setError('Invalid username/email or password. Please try again.');
+      console.error("Login Error:", err);
+      if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-email'].includes(err.code)) {
+        setError('Invalid email or password. Please try again.');
       } else {
-        setError(err.message || 'Failed to sign in. Please check your credentials.');
+        setError('An unexpected error occurred during sign-in. Please try again later.');
       }
     } finally {
       setIsLoading(false);

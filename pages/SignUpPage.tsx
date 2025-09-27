@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -52,7 +51,7 @@ const SignUpPage: React.FC = () => {
     setIsLoading(true);
     try {
         await registerPasskey(email);
-        setSuccess(`Passkey registered for ${email}! You can now use it to log in.`);
+        setSuccess(`Passkey registered! You can now log in.`);
     } catch(err: any) {
         setError(err.message || "Failed to register passkey. Your device might not have a screen lock (PIN, fingerprint, face) set up, or you may have cancelled the request.");
     } finally {
@@ -120,9 +119,20 @@ const SignUpPage: React.FC = () => {
           </div>
 
           {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
-          {success && <p className="text-center text-sm text-green-600 mb-4">{success}</p>}
-           
-           <div className="space-y-4">
+          
+          {success ? (
+            <div className="text-center p-4 my-4 bg-green-100 dark:bg-green-900/20 rounded-lg border border-green-300 dark:border-green-600">
+              <p className="font-semibold text-green-800 dark:text-green-200">{success}</p>
+              <Link
+                to="/login"
+                state={{ from: location.state?.from, plan: location.state?.plan }}
+                className="mt-4 inline-block bg-brand-red text-white font-bold py-2 px-6 rounded-md hover:bg-brand-red-dark"
+              >
+                Log In
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
               <p className="text-center text-sm text-gray-600 dark:text-gray-400">Enter your email to register with a Passkey.</p>
               <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><EmailIcon className="h-5 w-5 text-gray-400" /></div>
@@ -137,7 +147,8 @@ const SignUpPage: React.FC = () => {
                 <span>{passkeyText}</span>
               </button>
               {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
-          </div>
+            </div>
+          )}
           
           <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
             By creating an account, you agree to PDFBullet{' '}

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -135,8 +136,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const allToolsMenuStructure = useMemo(() => [
     {
       title: 'ORGANIZE PDF',
-      // FIX: Changed 'scan-to-pdf' to 'document-scanner' to match the correct tool ID from constants.ts.
-      tools: ['merge-pdf', 'split-pdf', 'organize-pdf', 'document-scanner']
+      tools: ['merge-pdf', 'split-pdf', 'organize-pdf']
     },
     {
       title: 'OPTIMIZE PDF',
