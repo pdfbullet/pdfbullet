@@ -202,7 +202,7 @@ const EcosystemSection = memo(() => {
     const solutions = [
         { title: 'PDFBullet Desktop', description: 'Download the', linkText: 'PDFBullet Desktop App', descriptionAfter: 'to work with your favorite PDF tools on your Mac or Windows PC. Get a lightweight PDF app that helps you process heavy PDF tasks offline in seconds.' },
         { title: 'PDFBullet Mobile', description: 'Get the', linkText: 'PDFBullet Mobile App', descriptionAfter: 'to manage documents remotely or on the move. Turn your Android or iPhone device into a PDF Editor & Scanner to annotate, sign, and share documents with ease.' },
-        { title: "PDFBullet's Image Tools", description: '', linkText: 'Image Tools', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
+        { title: 'iLoveIMG', description: '', linkText: 'iLoveIMG', descriptionAfter: 'is the web app that helps you modify images in bulk for free. Crop, resize, compress, convert, and more. All the tools you need to enhance your images in just a few clicks.' },
     ];
     
     const platforms = [
@@ -247,8 +247,8 @@ const EcosystemSection = memo(() => {
     );
 });
 
-// FIX: Changed component to a default export function to resolve lazy loading issues in App.tsx.
-export default function HomePage() {
+
+const HomePage: React.FC = () => {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [activeCategory, setActiveCategory] = useState<string>('All');
     
@@ -334,7 +334,7 @@ export default function HomePage() {
     ];
 
     const testimonials = [
-      { name: 'Bishal Mishra', role: 'Founder & CEO, PDFBullet', text: 'The entire suite of tools is impressive. From converting JPGs to PDF for our campaigns to compressing large reports for clients, PDFBullet handles everything flawlessly. The client-side processing gives me peace of mind about data security.', image: 'https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490' },
+      { name: 'Bishal Mishra', role: 'Founder & CEO, PDFBullet', text: 'The entire suite of tools is impressive. From converting JPGs to PDF for our campaigns to compressing large reports for clients, PDFBullet handles everything flawlessly. The client-side processing gives me peace of mind about data security.', image: 'https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg' },
       { name: 'Anam Mishra', role: 'Project Manager', text: 'Organizing and merging project documents from different teams used to be a nightmare. With PDFBullet, I can do it in minutes. The Organize PDF tool is particularly brilliant for reordering pages exactly how I need them.', image: 'https://i.ibb.co/nq8D2rCh/IMG-0293.png' },
       { name: 'Prashant Mishra', role: 'Student', text: 'I recommend PDFBullet to all my students. It’s an essential tool for organizing research papers and compressing presentations.The fact that it\'s free is incredible', image: 'https://i.ibb.co/JWCp96YL/IMG-0292.png' },
       { name: 'Michael Chen', role: 'Small Business Owner', text: 'Protecting confidential client proposals with a password is a critical step for my business. PDFBullet makes it incredibly simple and secure. Highly recommended!', image: 'https://i.pravatar.cc/150?u=michael' },
@@ -654,7 +654,7 @@ export default function HomePage() {
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">Your feedback helps us grow and improve.</p>
                 </div>
                 <div className="mt-8 flex justify-center">
-                    <a href="https://www.trustpilot.com/review/pdfbullet.com" target="_blank" rel="noopener noreferrer" title="Review PDFBullet on Trustpilot">
+                    <a href="https://www.trustpilot.com/review/ilovepdfly.com" target="_blank" rel="noopener noreferrer" title="Review PDFBullet on Trustpilot">
                         <img 
                             src="https://ik.imagekit.io/fonepay/widget.jpg?updatedAt=1752933053507" 
                             alt="Review PDFBullet on Trustpilot" 
@@ -673,21 +673,28 @@ export default function HomePage() {
         {/* FAQ Section */}
         <section className="py-20 bg-gray-50 dark:bg-black">
             <div className="container max-w-screen-2xl mx-auto px-6">
-                <div className="max-w-4xl mx-auto text-center mb-12">
-                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">Common Questions</h2>
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-50">{t('Frequently Asked Questions')}</h2>
                 </div>
-                <div className="max-w-3xl mx-auto bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                <div className="max-w-4xl mx-auto mt-12 bg-white dark:bg-surface-dark p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
                     {faqs.map((faq, index) => (
                         <HomeFaqItem 
-                            key={index}
+                            key={index} 
                             item={faq}
                             isOpen={openFaq === index}
                             toggle={() => toggleFaq(index)}
                         />
                     ))}
                 </div>
+                <div className="mt-8 text-center">
+                     <Link to="/faq" title="View all FAQs" className="text-brand-red font-semibold hover:underline">
+                        View all FAQs &rarr;
+                    </Link>
+                </div>
             </div>
         </section>
     </div>
   );
-}
+};
+
+export default HomePage;

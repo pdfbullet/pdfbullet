@@ -256,9 +256,10 @@ interface ChatbotWidgetProps {
   onClose: () => void;
   onOpen: () => void;
   showFab: boolean;
+  isPwa: boolean;
 }
 
-const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, showFab }) => {
+const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, showFab, isPwa }) => {
     const [currentMessages, setCurrentMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
     const [allConversations, setAllConversations] = useState<Conversation[]>([]);
     const [inputValue, setInputValue] = useState('');
@@ -305,21 +306,6 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
         }
     };
     
-    useEffect(() => {
-        const hasOpened = sessionStorage.getItem('chatWidgetAutoOpened');
-        if (!hasOpened) {
-            const popupTimer = setTimeout(() => {
-                onOpen();
-                sessionStorage.setItem('chatWidgetAutoOpened', 'true');
-                const welcomeMessage = user ? `Welcome, ${user.username}! How can I assist you today?` : `Welcome to PDFBullet! How can I help you today?`;
-                speak(welcomeMessage);
-                const closeTimer = setTimeout(() => { if (!userHasInteracted) onClose(); }, 3000);
-                return () => clearTimeout(closeTimer);
-            }, 5000);
-            return () => clearTimeout(popupTimer);
-        }
-    }, [user, userHasInteracted, onOpen, onClose]);
-
     const initializeChat = () => {
         try {
             const apiKey = process.env.API_KEY;
@@ -491,8 +477,10 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
+    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 left-4';
+
     return (
-        <div className="fixed bottom-4 left-4 z-[99] pointer-events-none">
+        <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                 <div 
                     className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800 overflow-hidden"
@@ -510,7 +498,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                         <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto space-y-4">
                             {currentMessages.map((msg, index) => (
                                 <div key={index} className={`flex items-end gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    {msg.role === 'model' && <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
+                                    {msg.role === 'model' && <img src="https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />}
                                     <div className={`max-w-[80%] p-3 rounded-2xl text-sm relative group ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
                                         <MarkdownRenderer text={msg.text} sources={msg.sources} />
                                     </div>
@@ -518,7 +506,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                             ))}
                             {isLoading && (
                                 <div className="flex items-end gap-2.5 justify-start">
-                                    <img src="https://ik.imagekit.io/fonepay/bishal%20mishra%20ceo%20of%20pdfbullet.jpg?updatedAt=1753167712490" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
+                                    <img src="https://i.ibb.co/RpStGhqm/IMG-5251-Original.jpg" alt="Support" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md" />
                                     <div className="p-3 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center rounded-bl-none">
                                         <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                                         <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1.5"></span>
@@ -818,21 +806,11 @@ function AppContent() {
               <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
               <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
               <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-               {isPwa && !isChatbotOpen && (
-                <button
-                    onClick={() => setChatbotOpen(true)}
-                    className="fixed bottom-[88px] right-4 z-50 bg-blue-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform"
-                    aria-label="Open support chat"
-                    title="Support Chat"
-                >
-                    <HeadsetIcon className="h-7 w-7" />
-                </button>
-               )}
               {!isPwa && <ScrollToTopButton />}
               <CookieConsentBanner />
               <PWAInstallPrompt />
               <PWAInstallInstructionsModal />
-              <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={!isPwa} />
+              <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
               <WelcomeInstallModal />
               {isPwa && <PwaBottomNav />}
             </div>

@@ -1,220 +1,205 @@
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { useAuth } from '../contexts/AuthContext.tsx';
-import { DownloadIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, UserIcon, BriefcaseIcon, StudentIcon, PuzzleIcon, BrainIcon } from '../components/icons.tsx';
+import { DownloadIcon, PlusIcon, TrashIcon, UploadIcon, UserIcon, BriefcaseIcon, StudentIcon, PuzzleIcon, BrainIcon } from '../components/icons.tsx';
 import { TOOLS } from '../constants.ts';
 import RichTextEditor from '../components/RichTextEditor.tsx';
 
 // ===================================================================
-// TYPES & INITIAL DATA
+// CV SPECIFIC TYPES & COMPONENTS
 // ===================================================================
 
-type Experience = { id: number; jobTitle: string; company: string; startDate: string; endDate: string; description: string; };
-type Education = { id: number; degree: string; school: string; startDate: string; endDate: string; description: string; };
-type Project = { id: number; name: string; description: string; };
-type Skill = { id: number; name: string; };
 type Template = 'classic' | 'modern' | 'minimalist';
 
-type CVData = {
+interface CVData {
     profilePicture: string | null;
     fullName: string;
     professionalTitle: string;
     summary: string;
-    contact: { email: string; phone: string; address: string; website: string; linkedin: string; };
-    experiences: Experience[];
-    educations: Education[];
-    projects: Project[];
-    skills: Skill[];
-};
+    contact: {
+        email: string;
+        phone: string;
+        address: string;
+        website: string;
+        linkedin: string;
+    };
+    experiences: {
+        id: number;
+        jobTitle: string;
+        company: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    }[];
+    educations: {
+        id: number;
+        degree: string;
+        school: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    }[];
+    skills: {
+        id: number;
+        name: string;
+    }[];
+    projects: {
+        id: number;
+        name: string;
+        description: string;
+    }[];
+}
 
-
-const initialData: CVData = {
-    profilePicture: null,
-    fullName: "Bishal Mishra",
-    professionalTitle: "Senior Frontend Engineer",
-    summary: "A passionate and creative senior frontend engineer with over 10 years of experience in building modern, responsive, and user-friendly web applications. Proficient in React, TypeScript, and modern web technologies. Committed to writing clean, high-quality code and creating exceptional user experiences.",
-    contact: { email: "bishal@example.com", phone: "+1 234 567 890", address: "Kathmandu, Nepal", website: "bishal.dev", linkedin: "linkedin.com/in/bishal" },
-    experiences: [{ id: 1, jobTitle: "Senior Frontend Engineer", company: "Tech Solutions Inc.", startDate: "2020-01", endDate: "Present", description: "<ul><li>Led development of a large-scale React application.</li><li>Mentored junior developers and conducted code reviews.</li></ul>" }],
-    educations: [{ id: 1, degree: "Bachelor of Science in Computer Science", school: "University of Technology", startDate: "2016-08", endDate: "2020-05", description: "Graduated with Honors, GPA: 3.8/4.0" }],
-    projects: [{ id: 1, name: "PDFBullet", description: "A comprehensive suite of online PDF tools with a focus on privacy and client-side processing." }],
-    skills: [{ id: 1, name: "React" }, { id: 2, name: "TypeScript" }, { id: 3, name: "UI/UX Design" }, { id: 4, name: "Node.js" }],
-};
-
-// ===================================================================
-// HELPER COMPONENTS & FUNCTIONS
-// ===================================================================
-
-const formatCurrency = (amount: number, currencySymbol: string) => {
-    return `${currencySymbol}${amount.toFixed(2)}`;
-};
-
-const EditableField: React.FC<{ value: string; onChange: (value: string) => void; placeholder?: string; isTextarea?: boolean; className?: string; type?: string }> = ({ value, onChange, placeholder, isTextarea, className, type = 'text' }) => {
-    const Component = isTextarea ? 'textarea' : 'input';
-    return (
-        <Component
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className={`bg-transparent w-full focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 rounded p-1 text-sm ${className}`}
-            rows={isTextarea ? 2 : undefined}
-            type={type}
-        />
-    );
-};
-
-interface VisibleSections {
+type VisibleSections = {
     experience: boolean;
     education: boolean;
     skills: boolean;
     projects: boolean;
-}
+};
 
-// ===================================================================
-// TEMPLATE COMPONENTS
-// ===================================================================
+const initialData: CVData = {
+    profilePicture: null,
+    fullName: 'Bishal Mishra',
+    professionalTitle: 'Software Engineer',
+    summary: 'A passionate software engineer with 5+ years of experience in web development, specializing in building scalable and user-friendly applications with modern technologies. Proven ability to lead projects and collaborate with cross-functional teams to deliver high-quality products.',
+    contact: {
+        email: 'your.email@example.com',
+        phone: '+123 456 7890',
+        address: 'Kathmandu, Nepal',
+        website: 'yourwebsite.com',
+        linkedin: 'linkedin.com/in/yourprofile',
+    },
+    experiences: [
+        { id: 1, jobTitle: 'Senior Frontend Developer', company: 'Innovate Tech', startDate: '2022-01', endDate: 'Present', description: '<li>Lead the development of a new client-facing dashboard using React and TypeScript, improving user engagement by 25%.</li><li>Mentor junior developers and conduct code reviews to maintain high code quality.</li>' },
+    ],
+    educations: [
+        { id: 1, degree: 'Bachelor of Science in Computer Science', school: 'Tribhuvan University', startDate: '2018-08', endDate: '2022-05', description: '<li>Graduated with Distinction.</li><li>Relevant coursework: Data Structures, Algorithms, Web Development, Database Management.</li>' },
+    ],
+    skills: [
+        { id: 1, name: 'JavaScript' }, { id: 2, name: 'React' }, { id: 3, name: 'TypeScript' },
+        { id: 4, name: 'Node.js' }, { id: 5, name: 'GraphQL' }, { id: 6, name: 'Jest' },
+    ],
+    projects: [
+        { id: 1, name: 'Personal Portfolio Website', description: '<li>Designed and developed a responsive personal portfolio using Next.js to showcase my skills and projects.</li>' },
+    ],
+};
 
-const TemplateRenderer: React.FC<{ data: CVData, template: Template, color: string, visibleSections: VisibleSections }> = ({ data, template, color, visibleSections }) => {
-    const textColor = 'text-gray-800';
+const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
+    <input {...props} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 focus:ring-brand-red focus:border-brand-red" />
+);
 
-    const sectionTitleStyle: React.CSSProperties = {
-        color: color,
-        borderBottom: `2px solid ${color}80`, // Hex with alpha for opacity
-    };
+const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
+    <textarea {...props} rows={4} className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 focus:ring-brand-red focus:border-brand-red" />
+);
+
+const FormSection: React.FC<{ title: string; onToggle?: () => void; isVisible?: boolean; children: React.ReactNode }> = ({ title, onToggle, isVisible, children }) => (
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-t-lg flex justify-between items-center">
+            <h3 className="font-bold">{title}</h3>
+            {onToggle && (
+                <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={isVisible} onChange={onToggle} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                </label>
+            )}
+        </div>
+        <div className="p-4 space-y-4">
+            {children}
+        </div>
+    </div>
+);
+
+const TemplateRenderer: React.FC<{ data: CVData; template: Template; color: string; visibleSections: VisibleSections }> = ({ data, template, color, visibleSections }) => {
+    const accentStyle = { color: color };
+    const borderStyle = { borderColor: color };
+    const backgroundStyle = { backgroundColor: color };
 
     return (
-        <div className={`p-8 bg-white ${textColor} font-sans text-sm A4-size-simulation`}>
-            {/* Header */}
-            <header className="flex items-center gap-6 mb-8">
-                {data.profilePicture && <img src={data.profilePicture} alt="Profile" className="h-28 w-28 rounded-full object-cover border-4 border-gray-200" />}
-                <div>
-                    <h1 className="text-4xl font-bold text-gray-900">{data.fullName}</h1>
-                    <h2 className="text-xl font-semibold" style={{ color }}>{data.professionalTitle}</h2>
+        <div className="bg-white p-8 shadow-lg text-sm font-sans text-gray-800 w-[210mm] min-h-[297mm]">
+            <header className="text-center mb-6">
+                {data.profilePicture && <img src={data.profilePicture} alt="Profile" className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />}
+                <h1 className="text-3xl font-bold" style={accentStyle}>{data.fullName}</h1>
+                <p className="text-lg text-gray-600">{data.professionalTitle}</p>
+                <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 text-xs mt-2 text-gray-500">
+                    <span>{data.contact.email}</span>
+                    <span>{data.contact.phone}</span>
+                    <span>{data.contact.address}</span>
+                    {data.contact.website && <span>{data.contact.website}</span>}
+                    {data.contact.linkedin && <span>{data.contact.linkedin}</span>}
                 </div>
             </header>
-            
-            <div className="grid grid-cols-3 gap-8">
-                {/* Left Column (Contact, Skills) */}
-                <aside className="col-span-1 space-y-6">
-                    <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Contact</h3>
-                        <div className="space-y-2 text-xs">
-                            <p><strong>Email:</strong> {data.contact.email}</p>
-                            <p><strong>Phone:</strong> {data.contact.phone}</p>
-                            <p><strong>Address:</strong> {data.contact.address}</p>
-                            <p><strong>Website:</strong> {data.contact.website}</p>
-                            <p><strong>LinkedIn:</strong> {data.contact.linkedin}</p>
+
+            <section className="mb-6">
+                <h2 className="text-xl font-bold border-b-2 pb-1 mb-2" style={borderStyle}>Summary</h2>
+                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: data.summary }} />
+            </section>
+
+            {visibleSections.experience && data.experiences.length > 0 && (
+                <section className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 pb-1 mb-2" style={borderStyle}>Work Experience</h2>
+                    {data.experiences.map(exp => (
+                        <div key={exp.id} className="mb-4 break-inside-avoid">
+                            <div className="flex justify-between">
+                                <h3 className="font-bold">{exp.jobTitle}</h3>
+                                <p className="text-gray-500 text-xs">{exp.startDate} - {exp.endDate}</p>
+                            </div>
+                            <p className="italic text-gray-600">{exp.company}</p>
+                            <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: exp.description }} />
                         </div>
-                    </section>
-                    {visibleSections.skills && data.skills.length > 0 && (
-                        <section>
-                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Skills</h3>
-                            <ul className="flex flex-wrap gap-2">
-                                {data.skills.map(skill => <li key={skill.id} style={{ backgroundColor: `${color}1A`, color }} className="text-xs font-semibold px-3 py-1 rounded-full">{skill.name}</li>)}
-                            </ul>
-                        </section>
-                    )}
-                </aside>
-                
-                {/* Right Column (Summary, Experience, Education, Projects) */}
-                <main className="col-span-2 space-y-6">
-                    <section>
-                        <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Summary</h3>
-                        <p className="text-sm leading-relaxed">{data.summary}</p>
-                    </section>
-                     {visibleSections.experience && data.experiences.length > 0 && (
-                        <section>
-                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Work Experience</h3>
-                            <div className="space-y-4">
-                                {data.experiences.map(exp => (
-                                    <div key={exp.id}>
-                                        <div className="flex justify-between items-baseline">
-                                            <h4 className="font-bold text-base">{exp.jobTitle}</h4>
-                                            <p className="text-xs font-mono">{exp.startDate} - {exp.endDate}</p>
-                                        </div>
-                                        <p className="text-sm font-semibold italic text-gray-600">{exp.company}</p>
-                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: exp.description }} />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                     )}
-                    {visibleSections.education && data.educations.length > 0 && (
-                        <section>
-                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Education</h3>
-                            <div className="space-y-4">
-                                {data.educations.map(edu => (
-                                    <div key={edu.id}>
-                                        <div className="flex justify-between items-baseline">
-                                            <h4 className="font-bold text-base">{edu.degree}</h4>
-                                            <p className="text-xs font-mono">{edu.startDate} - {edu.endDate}</p>
-                                        </div>
-                                        <p className="text-sm font-semibold italic text-gray-600">{edu.school}</p>
-                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                    {visibleSections.projects && data.projects.length > 0 && (
-                        <section>
-                            <h3 className="font-bold text-lg border-b-2 pb-1 mb-3" style={sectionTitleStyle}>Projects</h3>
-                             <div className="space-y-4">
-                                {data.projects.map(proj => (
-                                    <div key={proj.id}>
-                                        <h4 className="font-bold text-base">{proj.name}</h4>
-                                        <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: proj.description }} />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                </main>
-            </div>
+                    ))}
+                </section>
+            )}
+
+            {visibleSections.education && data.educations.length > 0 && (
+                 <section className="mb-6">
+                     <h2 className="text-xl font-bold border-b-2 pb-1 mb-2" style={borderStyle}>Education</h2>
+                     {data.educations.map(edu => (
+                         <div key={edu.id} className="mb-4 break-inside-avoid">
+                             <div className="flex justify-between">
+                                 <h3 className="font-bold">{edu.degree}</h3>
+                                 <p className="text-gray-500 text-xs">{edu.startDate} - {edu.endDate}</p>
+                             </div>
+                             <p className="italic text-gray-600">{edu.school}</p>
+                             <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />
+                         </div>
+                     ))}
+                 </section>
+            )}
+
+            {visibleSections.skills && data.skills.length > 0 && (
+                <section className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 pb-1 mb-2" style={borderStyle}>Skills</h2>
+                    <div className="flex flex-wrap gap-2">
+                        {data.skills.map(skill => (
+                            <span key={skill.id} className="px-3 py-1 text-sm rounded-full text-white" style={backgroundStyle}>{skill.name}</span>
+                        ))}
+                    </div>
+                </section>
+            )}
+            
+            {visibleSections.projects && data.projects.length > 0 && (
+                <section>
+                    <h2 className="text-xl font-bold border-b-2 pb-1 mb-2" style={borderStyle}>Projects</h2>
+                    {data.projects.map(proj => (
+                        <div key={proj.id} className="mb-4 break-inside-avoid">
+                            <h3 className="font-bold">{proj.name}</h3>
+                            <div className="prose prose-sm max-w-none mt-1" dangerouslySetInnerHTML={{ __html: proj.description }} />
+                        </div>
+                    ))}
+                </section>
+            )}
+
         </div>
     );
 };
 
-// ===================================================================
-// FORM COMPONENTS
-// ===================================================================
-
-const ToggleSwitch: React.FC<{ checked: boolean; onChange: () => void }> = ({ checked, onChange }) => (
-    <button
-        type="button"
-        className={`${checked ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'} relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none`}
-        onClick={onChange}
-        aria-checked={checked}
-        role="switch"
-    >
-        <span className={`${checked ? 'translate-x-6' : 'translate-x-1'} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`} />
-    </button>
-);
-
-const FormSection: React.FC<{ title: string; children: React.ReactNode; onToggle?: () => void; isVisible?: boolean; }> = ({ title, children, onToggle, isVisible }) => (
-    <div className="space-y-4">
-        <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h3 className="text-lg font-bold">{title}</h3>
-            {onToggle && typeof isVisible !== 'undefined' && (
-                 <ToggleSwitch checked={isVisible} onChange={onToggle} />
-            )}
-        </div>
-        {(isVisible === true || typeof isVisible === 'undefined') && children}
-    </div>
-);
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
-    <input {...props} className="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm" />
-);
-const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
-    <textarea {...props} rows={4} className="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm" />
-);
 
 // ===================================================================
 // MAIN PAGE COMPONENT
 // ===================================================================
+
 const CVGeneratorPage: React.FC = () => {
     const tool = TOOLS.find(t => t.id === 'cv-generator');
     const [data, setData] = useState<CVData>(initialData);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext.tsx';
+import { useAuth, TaskLog } from '../contexts/AuthContext.tsx';
 import { ProblemReport } from '../contexts/AuthContext.tsx';
-import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon } from '../components/icons.tsx';
+import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon, DownloadIcon } from '../components/icons.tsx';
 
 interface UserData {
     uid: string;
@@ -11,8 +11,17 @@ interface UserData {
     apiPlan?: 'free' | 'developer' | 'business';
 }
 
+const formatBytes = (bytes: number, decimals = 2): string => {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+};
+
 const AdminDashboardPage: React.FC = () => {
-    const { getAllUsers, updateUserPremiumStatus, updateUserApiPlan, logout, deleteUser, getProblemReports, updateReportStatus, deleteProblemReport } = useAuth();
+    const { getAllUsers, updateUserPremiumStatus, updateUserApiPlan, logout, deleteUser, getProblemReports, updateReportStatus, deleteProblemReport, getTaskHistory, deleteTaskRecord } = useAuth();
     
     const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -24,42 +33,51 @@ const AdminDashboardPage: React.FC = () => {
     const [reportsLoading, setReportsLoading] = useState(true);
     const [reportsError, setReportsError] = useState('');
     
+    const [tasks, setTasks] = useState<TaskLog[]>([]);
+    const [tasksLoading, setTasksLoading] = useState(true);
+    const [tasksError, setTasksError] = useState('');
+    
     const [activeTab, setActiveTab] = useState('users');
 
-    const fetchUsers = async () => {
+    const fetchAllData = async () => {
         setLoading(true);
-        setError('');
+        setReportsLoading(true);
+        setTasksLoading(true);
         try {
-            const usersArray = await getAllUsers();
-            setUsers(usersArray);
+            const [usersData, reportsData, tasksData] = await Promise.all([
+                getAllUsers(),
+                getProblemReports(),
+                getTaskHistory()
+            ]);
+            setUsers(usersData);
+            setReports(reportsData);
+            setTasks(tasksData);
         } catch (e) {
-            setError('Failed to load user data.');
+            setError('Failed to load dashboard data.');
         } finally {
             setLoading(false);
-        }
-    };
-    
-    const fetchReports = async () => {
-        setReportsLoading(true);
-        setReportsError('');
-        try {
-            const reportsData = await getProblemReports();
-            setReports(reportsData);
-        } catch (e) {
-            setReportsError('Failed to load problem reports.');
-        } finally {
             setReportsLoading(false);
+            setTasksLoading(false);
         }
     };
 
     useEffect(() => {
-        if (activeTab === 'users') {
-            fetchUsers();
-        } else if (activeTab === 'reports') {
-            fetchReports();
-        }
-    }, [activeTab]);
+        fetchAllData();
+    }, []);
 
+    const handleRefresh = () => {
+        if (activeTab === 'users') {
+            setLoading(true);
+            getAllUsers().then(setUsers).catch(() => setError('Failed to load users.')).finally(() => setLoading(false));
+        } else if (activeTab === 'reports') {
+            setReportsLoading(true);
+            getProblemReports().then(setReports).catch(() => setReportsError('Failed to load reports.')).finally(() => setReportsLoading(false));
+        } else if (activeTab === 'tasks') {
+            setTasksLoading(true);
+            getTaskHistory().then(setTasks).catch(() => setTasksError('Failed to load tasks.')).finally(() => setTasksLoading(false));
+        }
+    };
+    
     const handleTogglePremium = async (uid: string, currentStatus: boolean | undefined) => {
         setIsUpdating(uid);
         try {
@@ -115,9 +133,23 @@ const AdminDashboardPage: React.FC = () => {
             setIsUpdating(uid);
             try {
                 await deleteUser(uid);
-                await fetchUsers();
+                setUsers(prev => prev.filter(u => u.uid !== uid));
             } catch (e: any) {
                 alert(`Error deleting user: ${e.message}`);
+            } finally {
+                setIsUpdating(null);
+            }
+        }
+    };
+
+    const handleDeleteTask = async (taskId: string, filename: string) => {
+        if (window.confirm(`Are you sure you want to delete the task record for: "${filename}"? This action cannot be undone.`)) {
+            setIsUpdating(taskId);
+            try {
+                await deleteTaskRecord(taskId);
+                setTasks(prev => prev.filter(t => t.id !== taskId));
+            } catch (e) {
+                alert('Failed to delete task record.');
             } finally {
                 setIsUpdating(null);
             }
@@ -135,12 +167,25 @@ const AdminDashboardPage: React.FC = () => {
             report.email.toLowerCase().includes(searchTerm.toLowerCase())
         ), [reports, searchTerm]);
 
-    const stats = useMemo(() => ({
-        totalUsers: users.length,
-        premiumUsers: users.filter(u => u.isPremium).length,
-        apiUsers: users.filter(u => u.apiPlan && u.apiPlan !== 'free').length,
-        newReports: reports.filter(r => r.status === 'New').length,
-    }), [users, reports]);
+    const filteredTasks = useMemo(() => 
+        tasks.filter(task => 
+            task.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            task.toolTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            task.outputFilename.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [tasks, searchTerm]);
+    
+    const stats = useMemo(() => {
+        const now = new Date();
+        const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+        return {
+            totalUsers: users.length,
+            premiumUsers: users.filter(u => u.isPremium).length,
+            tasksToday: tasks.filter(t => t.timestamp && t.timestamp.toDate().getTime() > twentyFourHoursAgo).length,
+            newReports: reports.filter(r => r.status === 'New').length,
+        };
+    }, [users, reports, tasks]);
+
+    const isLoadingData = loading || reportsLoading || tasksLoading;
 
     return (
         <div className="py-16 md:py-24">
@@ -174,8 +219,8 @@ const AdminDashboardPage: React.FC = () => {
                          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md flex items-center gap-4 border-l-4 border-purple-500">
                             <ApiIcon className="h-10 w-10 text-purple-500" />
                             <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Active API Users</p>
-                                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.apiUsers}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Tasks Today</p>
+                                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.tasksToday}</p>
                             </div>
                         </div>
                         <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md flex items-center gap-4 border-l-4 border-orange-500">
@@ -194,6 +239,7 @@ const AdminDashboardPage: React.FC = () => {
                                 Problem Reports
                                 {stats.newReports > 0 && <span className="absolute -top-1 -right-4 bg-brand-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{stats.newReports}</span>}
                             </button>
+                            <button onClick={() => { setActiveTab('tasks'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'tasks' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>Task History</button>
                         </nav>
                     </div>
 
@@ -201,13 +247,13 @@ const AdminDashboardPage: React.FC = () => {
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 items-center">
                              <input 
                                 type="text"
-                                placeholder={`Search by ${activeTab === 'users' ? 'username' : 'email or description'}...`}
+                                placeholder={`Search by ${activeTab === 'users' ? 'username' : activeTab === 'reports' ? 'email or description' : 'user, tool, or filename'}...`}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full sm:w-auto flex-grow px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-200"
                              />
-                             <button onClick={activeTab === 'users' ? fetchUsers : fetchReports} disabled={loading || reportsLoading} className="flex items-center gap-2 text-sm font-semibold bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                                 <RefreshIcon className={`h-4 w-4 ${(loading || reportsLoading) ? 'animate-spin' : ''}`}/> Refresh
+                             <button onClick={handleRefresh} disabled={isLoadingData} className="flex items-center gap-2 text-sm font-semibold bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                 <RefreshIcon className={`h-4 w-4 ${isLoadingData ? 'animate-spin' : ''}`}/> Refresh
                              </button>
                         </div>
                         <div className="overflow-x-auto">
@@ -311,6 +357,45 @@ const AdminDashboardPage: React.FC = () => {
                                             ))
                                         ) : (
                                             <tr><td colSpan={6} className="text-center p-6">No reports found.</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                            {activeTab === 'tasks' && (
+                                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-3">User</th>
+                                            <th scope="col" className="px-6 py-3">Tool</th>
+                                            <th scope="col" className="px-6 py-3">File</th>
+                                            <th scope="col" className="px-6 py-3">Date</th>
+                                            <th scope="col" className="px-6 py-3 text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                         {tasksLoading ? (
+                                            <tr><td colSpan={5} className="text-center p-6">Loading task history...</td></tr>
+                                        ) : tasksError ? (
+                                            <tr><td colSpan={5} className="text-center p-6 text-red-500">{tasksError}</td></tr>
+                                        ) : filteredTasks.length > 0 ? (
+                                            filteredTasks.map(task => (
+                                                <tr key={task.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{task.username}</td>
+                                                    <td className="px-6 py-4 font-semibold">{task.toolTitle}</td>
+                                                    <td className="px-6 py-4 text-xs">
+                                                        <p className="font-semibold truncate" title={task.outputFilename}>{task.outputFilename}</p>
+                                                        <p className="text-gray-400">{formatBytes(task.fileSize)}</p>
+                                                    </td>
+                                                    <td className="px-6 py-4">{task.timestamp ? task.timestamp.toDate().toLocaleString() : 'N/A'}</td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <button onClick={() => handleDeleteTask(task.id, task.outputFilename)} disabled={isUpdating === task.id} title="Delete Task Record" className="p-2 text-gray-400 hover:text-red-500 rounded-full disabled:opacity-50">
+                                                            <TrashIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan={5} className="text-center p-6">No tasks found.</td></tr>
                                         )}
                                     </tbody>
                                 </table>

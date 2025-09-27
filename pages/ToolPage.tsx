@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -1123,7 +1117,7 @@ const ToolPage: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, sendTaskCompletionEmail } = useAuth();
+  const { user, sendTaskCompletionEmail, logTask } = useAuth();
   const { t } = useI18n();
   const { signature, saveSignature } = useSignature();
   const { addSignedDocument } = useSignedDocuments();
@@ -2378,12 +2372,14 @@ const ToolPage: React.FC = () => {
             setState(ProcessingState.Success);
             const filename = getOutputFilename(tool.id, files, toolOptions);
             setOutputFilename(filename);
-            addTask({
+            const taskData = {
                 toolId: tool.id,
                 toolTitle: t(tool.title),
                 outputFilename: filename,
                 fileBlob: blob
-            });
+            };
+            addTask(taskData);
+            logTask(taskData); // Log the task
             if (user) {
                 sendTaskCompletionEmail(t(tool.title), filename);
             }
@@ -2417,12 +2413,14 @@ const ToolPage: React.FC = () => {
       setOutputFilename(filename);
       setState(ProcessingState.Success);
       if (tool) {
-        addTask({
+        const taskData = {
             toolId: tool.id,
             toolTitle: t(tool.title),
             outputFilename: filename,
             fileBlob: blob
-        });
+        };
+        addTask(taskData);
+        logTask(taskData); // Log the task
         if (user) {
             sendTaskCompletionEmail(t(tool.title), filename);
         }

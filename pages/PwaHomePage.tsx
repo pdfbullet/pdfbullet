@@ -1,15 +1,15 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import { 
-    RefreshIcon
+    RefreshIcon, DownloadIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useI18n } from '../contexts/I18nContext.tsx';
+import { useLastTasks, LastTask } from '../hooks/useLastTasks.ts';
 
 const bannerSlides = [
   {
@@ -22,7 +22,7 @@ const bannerSlides = [
     image: 'https://ik.imagekit.io/fonepay/slider-2.png?updatedAt=1758554896182',
     title: 'Discover AI-Powered Tools',
     description: 'Generate invoices, CVs, and lesson plans in seconds with our new AI assistants.',
-    link: '/ai-assistant',
+    link: '/ai-question-generator', // A relevant link for AI tools
   },
   {
     image: 'https://ik.imagekit.io/fonepay/slider-3.png?updatedAt=1758554896137',
@@ -38,7 +38,7 @@ const PwaBannerSlider: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerSlides.length);
-    }, 2000); // Change slide every 2 seconds
+    }, 3000); // Slower, more pleasant transition
 
     return () => clearInterval(timer);
   }, []);
@@ -50,9 +50,9 @@ const PwaBannerSlider: React.FC = () => {
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {bannerSlides.map((banner, index) => (
-          <Link to={banner.link} key={index} className="relative w-full flex-shrink-0 h-full">
-            <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent p-6 flex flex-col justify-center">
+          <Link to={banner.link} key={index} className="relative w-full flex-shrink-0 h-full bg-gray-100 dark:bg-gray-800">
+            <img src={banner.image} alt={banner.title} className="w-full h-full object-contain" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent p-6 flex flex-col justify-center">
               <h3 className="text-2xl font-extrabold text-white">{banner.title}</h3>
               <p className="mt-1 text-sm text-gray-200 max-w-xs">{banner.description}</p>
             </div>
@@ -73,11 +73,64 @@ const PwaBannerSlider: React.FC = () => {
   );
 };
 
+const PwaTaskItem: React.FC<{ task: LastTask }> = ({ task }) => {
+    const tool = TOOLS.find(t => t.id === task.toolId);
+
+    const handleDownload = () => {
+        const url = URL.createObjectURL(task.fileBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = task.outputFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const timeAgo = (timestamp: number) => {
+        const seconds = Math.floor((new Date().getTime() - timestamp) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return `${Math.floor(interval)} years ago`;
+        interval = seconds / 2592000;
+        if (interval > 1) return `${Math.floor(interval)} months ago`;
+        interval = seconds / 86400;
+        if (interval > 1) return `${Math.floor(interval)} days ago`;
+        interval = seconds / 3600;
+        if (interval > 1) return `${Math.floor(interval)} hours ago`;
+        interval = seconds / 60;
+        if (interval > 1) return `${Math.floor(interval)} minutes ago`;
+        return `${Math.floor(seconds)} seconds ago`;
+    };
+
+    return (
+        <div className="flex items-center justify-between p-3 bg-white dark:bg-black rounded-lg shadow-sm border border-gray-200 dark:border-gray-800">
+            <div className="flex items-center gap-4 overflow-hidden">
+                {tool && (
+                    <div className={`p-2 rounded-lg ${tool.color} flex-shrink-0`}>
+                        <tool.Icon className="h-5 w-5 text-white" />
+                    </div>
+                )}
+                <div className="overflow-hidden">
+                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate text-sm">{task.outputFilename}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {tool?.title ? tool.title.replace('tool.', '').replace('.title', '').replace(/-/g, ' ') : task.toolTitle} &middot; {timeAgo(task.timestamp)}
+                    </p>
+                </div>
+            </div>
+            <button onClick={handleDownload} className="p-2 text-gray-500 hover:text-brand-red rounded-full flex-shrink-0" title="Download">
+                <DownloadIcon className="h-5 w-5" />
+            </button>
+        </div>
+    );
+};
 
 const PwaHomePage: React.FC = () => {
     const { user } = useAuth();
-    const { isFavorite, toggleFavorite } = useFavorites();
+    const { isFavorite, toggleFavorite, favorites } = useFavorites();
     const { t } = useI18n();
+    const { tasks, loading: tasksLoading } = useLastTasks();
+
+    const favoriteTools = useMemo(() => TOOLS.filter(tool => favorites.includes(tool.id)), [favorites]);
 
     const quickActionTools = useMemo(() => {
         const toolIds = ['merge-pdf', 'compress-pdf', 'jpg-to-pdf', 'document-scanner'];
@@ -94,6 +147,17 @@ const PwaHomePage: React.FC = () => {
                 <p className="text-gray-500 dark:text-gray-400 mt-1">What would you like to do today?</p>
             </div>
 
+            {favoriteTools.length > 0 && (
+                <section>
+                    <h2 className="text-xl font-bold mb-4">Your Favorites</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {favoriteTools.map(tool => (
+                            <ToolCard key={tool.id} tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} />
+                        ))}
+                    </div>
+                </section>
+            )}
+
             <section>
                 <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -108,9 +172,19 @@ const PwaHomePage: React.FC = () => {
                     <h2 className="text-xl font-bold">Recent Activity</h2>
                     <Link to="/last-tasks" className="text-sm font-semibold text-brand-red hover:underline">View All</Link>
                 </div>
-                <div className="bg-white dark:bg-black p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 text-center text-gray-500 dark:text-gray-400">
-                    <RefreshIcon className="h-8 w-8 mx-auto mb-2" />
-                    <p>Your recently processed files will appear here.</p>
+                <div className="space-y-3">
+                    {tasksLoading ? (
+                        <div className="bg-white dark:bg-black p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 text-center text-gray-500 dark:text-gray-400">
+                            Loading recent files...
+                        </div>
+                    ) : tasks.length === 0 ? (
+                        <div className="bg-white dark:bg-black p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 text-center text-gray-500 dark:text-gray-400">
+                            <RefreshIcon className="h-8 w-8 mx-auto mb-2" />
+                            <p>Your recently processed files will appear here.</p>
+                        </div>
+                    ) : (
+                        tasks.slice(0, 3).map(task => <PwaTaskItem key={task.id} task={task} />)
+                    )}
                 </div>
             </section>
             

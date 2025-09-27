@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { auth, db, storage, firebase } from '../firebase/config.ts';
+import { auth, db, firebase } from '../firebase/config.ts';
 import Preloader from '../components/Preloader.tsx';
 
 // Add and export this interface
@@ -27,6 +27,18 @@ export interface ProblemReport {
     notes?: string;
 }
 
+// New type for Task Logs
+export interface TaskLog {
+    id: string; // Firestore document ID
+    userId: string;
+    username: string;
+    toolId: string;
+    toolTitle: string;
+    outputFilename: string;
+    timestamp: firebase.firestore.Timestamp;
+    fileSize: number;
+}
+
 
 // User interface for our app
 interface User {
@@ -44,6 +56,7 @@ interface User {
   twoFactorEnabled?: boolean;
   businessDetails?: BusinessDetails;
   trialEnds?: number;
+  isAdmin?: boolean;
 }
 
 // Auth Context Type
@@ -73,6 +86,9 @@ interface AuthContextType {
   updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
   deleteProblemReport: (reportId: string) => Promise<void>;
   sendTaskCompletionEmail: (toolTitle: string, outputFilename: string) => Promise<void>;
+  logTask: (taskData: { toolId: string; toolTitle: string; outputFilename: string; fileBlob: Blob | null }) => Promise<void>;
+  getTaskHistory: () => Promise<TaskLog[]>;
+  deleteTaskRecord: (taskId: string) => Promise<void>;
   auth: firebase.auth.Auth;
 }
 
@@ -110,6 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isPremium: false,
         creationDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
         apiPlan: 'free',
+        isAdmin: false,
       };
 
       try {
@@ -167,19 +184,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const updateProfileImage = async (imageFile: File) => {
     if (!user) throw new Error("No user is signed in.");
-    const storageRef = storage.ref(`profile_images/${user.uid}/${imageFile.name}`);
-    const snapshot = await storageRef.put(imageFile);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    
+    // This function will now require Firebase Storage, which is on a paid plan.
+    // For now, we will just simulate this by updating Firestore.
+    // To implement fully, you would need to use Firebase Storage.
+    // const storageRef = storage.ref(`profile_images/${user.uid}/${imageFile.name}`);
+    // const snapshot = await storageRef.put(imageFile);
+    // const downloadURL = await snapshot.ref.getDownloadURL();
+    const mockURL = URL.createObjectURL(imageFile); // For local preview only
+
     const firebaseUser = auth.currentUser;
     if(firebaseUser) {
-        await firebaseUser.updateProfile({ photoURL: downloadURL });
+        await firebaseUser.updateProfile({ photoURL: mockURL });
     }
     
     try {
         const userRef = db.collection('users').doc(user.uid);
-        await userRef.update({ profileImage: downloadURL });
-        setUser(prevUser => prevUser ? { ...prevUser, profileImage: downloadURL } : null);
+        await userRef.update({ profileImage: mockURL });
+        setUser(prevUser => prevUser ? { ...prevUser, profileImage: mockURL } : null);
     } catch (error) {
         throw handleFirestoreError(error, 'profile image update');
     }
@@ -372,9 +393,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("Error queueing email notification:", error);
     }
   };
+  
+  const logTask = async (taskData: { toolId: string; toolTitle: string; outputFilename: string; fileBlob: Blob | null }) => {
+    if (!user || !taskData.fileBlob) return; 
+
+    try {
+        const taskLog = {
+            userId: user.uid,
+            username: user.username,
+            toolId: taskData.toolId,
+            toolTitle: taskData.toolTitle,
+            outputFilename: taskData.outputFilename,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            fileSize: taskData.fileBlob.size,
+        };
+        await db.collection('tasks').add(taskLog);
+    } catch (error) {
+        console.error("Error logging task to Firestore:", error);
+    }
+  };
+
+  const getTaskHistory = async (): Promise<TaskLog[]> => {
+      try {
+          const tasksCollectionRef = db.collection('tasks').orderBy('timestamp', 'desc');
+          const snapshot = await tasksCollectionRef.get();
+          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TaskLog));
+      } catch (error) {
+          throw handleFirestoreError(error, 'fetching task history');
+      }
+  };
+
+  const deleteTaskRecord = async (taskId: string) => {
+      try {
+          const taskRef = db.collection('tasks').doc(taskId);
+          await taskRef.delete();
+      } catch (error) {
+          throw handleFirestoreError(error, 'deleting task record');
+      }
+  };
 
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, auth };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, auth };
 
   return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };

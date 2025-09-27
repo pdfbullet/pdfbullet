@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           display_override: ['window-controls-overlay'],
           background_color: '#ffffff',
-          theme_color: '#FFFFFF',
+          theme_color: '#B90B06',
           orientation: 'portrait-primary',
           dir: 'ltr',
           categories: ['productivity', 'utilities', 'business'],
@@ -136,7 +136,7 @@ export default defineConfig(({ mode }) => {
           },
           protocol_handlers: [
             {
-              protocol: 'web+pdfly',
+              protocol: 'web+pdfbullet',
               url: '/?url=%s'
             }
           ],
