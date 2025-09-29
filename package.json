@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build && npm run generate-sitemap",
     "deploy": "gh-pages -d dist",
-    "generate-sitemap": "node scripts/generate-sitemap.js"
+    "generate-sitemap": "node scripts/generate-sitemap.cjs"
   },
   "dependencies": {
     "@google/genai": "^1.10.0",
