@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -663,6 +664,7 @@ const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
 const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
+const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
 
 function AppContent() {
   const location = useLocation();
@@ -735,6 +737,7 @@ function AppContent() {
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
+                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
                     
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
