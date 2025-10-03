@@ -1,3 +1,5 @@
+
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignature } from '../hooks/useSignature.ts';
@@ -24,7 +26,7 @@ interface Contact {
   phone?: string;
 }
 
-const CONTACTS_KEY = 'pdfbullet_contacts_v1';
+const CONTACTS_KEY = 'ilovepdfly_contacts_v1';
 
 // Mock hook logic for contacts since there's no useContacts hook provided
 const useContacts = () => {
@@ -140,7 +142,7 @@ const ContactsPage: React.FC = () => {
         const worksheet = XLSX.utils.json_to_sheet(contactsToExport.map(({id, ...rest}) => rest));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
-        XLSX.writeFile(workbook, "pdfbullet_contacts.xlsx");
+        XLSX.writeFile(workbook, "ilovepdfly_contacts.xlsx");
     };
 
     const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {

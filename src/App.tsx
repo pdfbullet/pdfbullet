@@ -618,6 +618,7 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
+const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -642,7 +643,6 @@ const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
 const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
 const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));

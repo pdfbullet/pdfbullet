@@ -19,7 +19,7 @@ const TemplatesPage: React.FC = () => {
     const { saveSignature } = useSignature();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
+// FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
     const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
         saveSignature(signatureDataUrl, initialsDataUrl);
         setIsModalOpen(false);
@@ -67,7 +67,7 @@ const TemplatesPage: React.FC = () => {
                 </div>
 
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-right text-xs text-gray-500">
-                    © PDFBullet - {new Date().getFullYear()} - Your PDF Editor
+                    © iLovePDFLY - {new Date().getFullYear()} - Your PDF Editor
                 </div>
             </div>
             
