@@ -1,3 +1,4 @@
+// FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
@@ -30,6 +31,7 @@ import WelcomeInstallModal from './components/WelcomeInstallModal.tsx';
 import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
+import NotFoundPage from './pages/NotFoundPage.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -641,7 +643,6 @@ const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
 const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
 const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
@@ -723,6 +724,7 @@ function AppContent() {
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
               <Header
+                isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                 onOpenSearchModal={() => setSearchModalOpen(true)}
                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}

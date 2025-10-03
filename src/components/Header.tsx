@@ -26,6 +26,7 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
   onOpenQrCodeModal: () => void;
+  isPwa?: boolean;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -35,7 +36,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 // FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -384,27 +385,29 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             )}
 
-            <button
-              onClick={toggleTheme}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-              aria-label="Toggle theme"
-              className={`relative inline-flex items-center h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 dark:focus:ring-offset-black ${
-                theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
-              }`}
-            >
-              <span className="sr-only">Toggle theme</span>
-              <span
-                aria-hidden="true"
-                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
-                  theme === 'dark' ? 'translate-x-7' : 'translate-x-0.5'
+            {!isPwa && (
+              <button
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                aria-label="Toggle theme"
+                className={`relative inline-flex items-center h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 dark:focus:ring-offset-black ${
+                  theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
                 }`}
               >
-                {theme === 'dark' 
-                    ? <MoonIcon className="h-4 w-4 text-gray-700"/>
-                    : <SunIcon className="h-4 w-4 text-yellow-500"/>
-                }
-              </span>
-            </button>
+                <span className="sr-only">Toggle theme</span>
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
+                    theme === 'dark' ? 'translate-x-7' : 'translate-x-0.5'
+                  }`}
+                >
+                  {theme === 'dark' 
+                      ? <MoonIcon className="h-4 w-4 text-gray-700"/>
+                      : <SunIcon className="h-4 w-4 text-yellow-500"/>
+                  }
+                </span>
+              </button>
+            )}
             
             {/* Profile/Auth Icons & Links */}
             {user ? (
