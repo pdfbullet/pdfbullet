@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -12,6 +13,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
+  // FIX: Replaced QrCodeModal with QrCodeIcon as it's an icon, not a modal component.
   GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
@@ -27,6 +29,8 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
   onOpenQrCodeModal: () => void;
+  // FIX: Added 'isPwa' prop to match the props passed in App.tsx.
+  isPwa: boolean;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -36,7 +40,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 // FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -213,8 +217,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { key: 'business' as const, title: 'Business & AI Tools' },
   ];
 
-  // FIX: Explicitly typed the return value of useMemo to ensure TypeScript correctly infers the type of `mobileMenuStructure`, resolving downstream errors where `tool` was typed as `unknown`.
-  const mobileMenuStructure: { title: string; tools: Tool[] }[] = useMemo(() => [
+  // FIX: Explicitly typing mobileMenuStructure helps TypeScript understand the shape of the data,
+  // preventing the 'tool' parameter in the map function from being inferred as 'unknown'.
+  interface MobileMenuCategory {
+      title: string;
+      tools: Tool[];
+  }
+  const mobileMenuStructure = useMemo<MobileMenuCategory[]>(() => [
       ...mobileMenuCategories.map(cat => ({
           title: cat.title,
           tools: TOOLS.filter(tool => tool.category === cat.key && !imageToolIds.has(tool.id))
@@ -562,7 +571,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                           <div key={category.title}>
                              <h4 className="font-semibold text-gray-500 mt-3 mb-1">{category.title}</h4>
                               <div className="space-y-1">
-                                {category.tools.map((tool) => (
+                                {/* FIX: Add explicit type to map parameter to resolve TS errors */}
+                                {category.tools.map((tool: Tool) => (
                                     <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
                                         <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
                                         <span className="font-semibold text-sm">{t(tool.title)}</span>

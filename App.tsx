@@ -723,7 +723,9 @@ function AppContent() {
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+              {/* FIX: Pass the 'isPwa' prop to the Header component to satisfy its required props. */}
               <Header
+                isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                 onOpenSearchModal={() => setSearchModalOpen(true)}
                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}

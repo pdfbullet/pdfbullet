@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -11,6 +12,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
+  // FIX: Replaced QrCodeModal with QrCodeIcon as it's an icon, not a modal component.
   GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
@@ -26,6 +28,8 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
   onOpenQrCodeModal: () => void;
+  // FIX: Added 'isPwa' prop to match the props passed in App.tsx.
+  isPwa: boolean;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -35,7 +39,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 // FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);

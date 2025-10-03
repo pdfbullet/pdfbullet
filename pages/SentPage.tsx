@@ -33,7 +33,7 @@ const SentPage: React.FC = () => {
     const { saveSignature } = useSignature();
     const [isModalOpen, setIsModalOpen] = useState(false);
     
-// FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
+    // FIX: Updated to accept both signature and initials data URLs to match the `onSave` prop of SignatureModal.
     const handleSaveSignature = (signatureDataUrl: string, initialsDataUrl: string) => {
         saveSignature(signatureDataUrl, initialsDataUrl);
         setIsModalOpen(false);

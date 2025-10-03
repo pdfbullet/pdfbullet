@@ -618,7 +618,6 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
@@ -643,6 +642,7 @@ const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
 const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
 const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
+const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 
 // New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
@@ -664,8 +664,6 @@ const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
 const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
-const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
-
 
 function AppContent() {
   const location = useLocation();
@@ -725,6 +723,7 @@ function AppContent() {
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+              {/* FIX: Pass the 'isPwa' prop to the Header component to satisfy its required props. */}
               <Header
                 isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
@@ -738,7 +737,6 @@ function AppContent() {
                     <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
-                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
                     
                     <Route path="/about" element={<AboutPage />} />
