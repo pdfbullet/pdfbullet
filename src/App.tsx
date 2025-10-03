@@ -664,6 +664,8 @@ const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
 const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
+const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
+
 
 function AppContent() {
   const location = useLocation();
@@ -736,6 +738,7 @@ function AppContent() {
                     <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
+                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
                     
                     <Route path="/about" element={<AboutPage />} />
