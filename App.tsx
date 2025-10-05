@@ -10,6 +10,7 @@ import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, 
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
+import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
@@ -689,65 +690,69 @@ function AppContent() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [inAppNotification, setInAppNotification] = useState<string | null>(null);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
-  const prevUnreadCountRef = useRef(0);
+  const prevTotalNotificationsRef = useRef(0);
 
-  const NOTIFICATIONS_KEY = 'pwa_notifications';
-
-  const loadNotifications = useCallback(() => {
-    try {
-      const stored = localStorage.getItem(NOTIFICATIONS_KEY);
-      const parsed = stored ? JSON.parse(stored) : [];
-      setNotifications(parsed);
-      setUnreadCount(parsed.filter((n: any) => !n.read).length);
-    } catch (e) {
-      console.error("Failed to load notifications", e);
-    }
-  }, []);
+  const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
 
   useEffect(() => {
-    loadNotifications();
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === NOTIFICATIONS_KEY || event.key === null) {
-        loadNotifications();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [loadNotifications]);
-  
-  useEffect(() => {
-    if (unreadCount > prevUnreadCountRef.current) {
-      const latestNotification = notifications[0];
-      if (latestNotification) {
-        setInAppNotification(latestNotification.message);
-        setJustReceivedNotification(true);
-      }
-    }
-    prevUnreadCountRef.current = unreadCount;
-  }, [unreadCount, notifications]);
+    if (!isPwa) return; // Only for PWA users
+
+    const unsubscribe = db.collection('pwa_notifications')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot(snapshot => {
+        const readIds = new Set(JSON.parse(localStorage.getItem(READ_NOTIFICATIONS_KEY) || '[]'));
+        
+        const newNotifications = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              message: data.message,
+              timestamp: data.timestamp ? data.timestamp.toDate().getTime() : Date.now(),
+              read: readIds.has(doc.id)
+            };
+        });
+        
+        const newUnreadCount = newNotifications.filter(n => !n.read).length;
+        
+        // On initial load, prevTotal is 0. Don't show banner.
+        // On subsequent updates, if new notifications are added, show banner.
+        if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
+            const latestNotification = newNotifications[0];
+            if (latestNotification && !latestNotification.read) {
+                setInAppNotification(latestNotification.message);
+                setJustReceivedNotification(true);
+            }
+        }
+
+        setNotifications(newNotifications);
+        setUnreadCount(newUnreadCount);
+        prevTotalNotificationsRef.current = newNotifications.length;
+      }, (error) => {
+          console.error("Error listening to notifications:", error);
+      });
+
+    return () => unsubscribe();
+  }, [isPwa]);
 
   const markAllAsRead = useCallback(() => {
     try {
-        const stored = localStorage.getItem(NOTIFICATIONS_KEY);
-        const parsed = stored ? JSON.parse(stored) : [];
-        const updated = parsed.map((n: any) => ({...n, read: true}));
-        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
-        setNotifications(updated);
+        const allIds = notifications.map(n => n.id);
+        // We can get previously read IDs to avoid growing the list indefinitely, 
+        // but for simplicity, we'll just overwrite with all current IDs.
+        localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(allIds));
+        
+        setNotifications(prev => prev.map(n => ({...n, read: true})));
         setUnreadCount(0);
     } catch (e) {
         console.error("Failed to mark notifications as read", e);
     }
-  }, []);
+  }, [notifications]);
 
   const clearAllNotifications = useCallback(() => {
-      if (window.confirm("Are you sure you want to clear all notifications?")) {
-          localStorage.removeItem(NOTIFICATIONS_KEY);
-          setNotifications([]);
-          setUnreadCount(0);
+      if (window.confirm("Are you sure you want to clear all notifications? This will mark them all as read.")) {
+          markAllAsRead();
       }
-  }, []);
+  }, [markAllAsRead]);
 
   useEffect(() => {
     const redirectPath = sessionStorage.getItem('redirect');

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, TaskLog } from '../contexts/AuthContext.tsx';
 import { ProblemReport } from '../contexts/AuthContext.tsx';
 import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon, DownloadIcon, PaperAirplaneIcon } from '../components/icons.tsx';
+import { db, firebase } from '../firebase/config.ts';
 
 interface UserData {
     uid: string;
@@ -25,7 +26,7 @@ const NotificationSender: React.FC = () => {
     const [status, setStatus] = useState('');
     const [isSending, setIsSending] = useState(false);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!message.trim()) {
             setStatus('Please enter a message.');
             setTimeout(() => setStatus(''), 3000);
@@ -34,26 +35,14 @@ const NotificationSender: React.FC = () => {
         setIsSending(true);
         setStatus('');
         try {
-            const newNotification = {
-                id: Date.now(),
+            await db.collection('pwa_notifications').add({
                 message: message.trim(),
-                timestamp: Date.now(),
-                read: false,
-            };
-            // Get existing notifications or start with an empty array
-            const existingNotifications = JSON.parse(localStorage.getItem('pwa_notifications') || '[]');
-            // Add the new notification to the beginning of the array
-            const updatedNotifications = [newNotification, ...existingNotifications];
-            // Store the updated array
-            localStorage.setItem('pwa_notifications', JSON.stringify(updatedNotifications));
-            
-            // Dispatch a storage event to notify other tabs/windows (including the current one)
-            window.dispatchEvent(new Event('storage'));
-
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
             setStatus('Notification sent successfully!');
             setMessage('');
         } catch (e) {
-            setStatus('Failed to send notification. LocalStorage might be full or disabled.');
+            setStatus('Failed to send notification. Could not write to database.');
             console.error(e);
         } finally {
             setIsSending(false);

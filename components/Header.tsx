@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -37,6 +36,11 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
   </svg>
 );
+
+interface MobileMenuCategory {
+  title: string;
+  tools: Tool[];
+}
 
 const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa, unreadCount, justReceivedNotification, onNotificationAnimationEnd }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
@@ -228,10 +232,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { key: 'business' as const, title: 'Business & AI Tools' },
   ];
 
-  interface MobileMenuCategory {
-      title: string;
-      tools: Tool[];
-  }
   const mobileMenuStructure = useMemo<MobileMenuCategory[]>(() => [
       ...mobileMenuCategories.map(cat => ({
           title: cat.title,
@@ -428,7 +428,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             )}
             
             {user ? (
-              <>
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
                   {user.profileImage ? (
@@ -480,17 +479,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                   </div>
                 )}
               </div>
-                {isPwa && (
-                    <Link to="/notifications" className={`relative text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full ${isShaking ? 'animate-shake' : ''}`} aria-label="Notifications" title="Notifications">
-                        <BellIcon className="h-6 w-6" />
-                        {unreadCount > 0 && (
-                            <span className="absolute top-1 right-1 block h-4 w-4 text-xs flex items-center justify-center rounded-full ring-2 ring-white dark:ring-black bg-brand-red text-white">
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
-                    </Link>
-                )}
-              </>
             ) : (
               <>
                 <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
@@ -505,6 +493,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </>
             )}
             
+            {isPwa && (
+                <Link to="/notifications" className={`relative text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full ${isShaking ? 'animate-shake' : ''}`} aria-label="Notifications" title="Notifications">
+                    <BellIcon className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 block h-4 w-4 text-xs flex items-center justify-center rounded-full ring-2 ring-white dark:ring-black bg-brand-red text-white">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    )}
+                </Link>
+            )}
+
             {/* Grid Menu Icon */}
             <div 
                 className="relative" 
