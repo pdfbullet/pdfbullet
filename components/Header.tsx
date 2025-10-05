@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -9,6 +10,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
+  // FIX: Replaced incorrect import of 'QrCodeModal' with 'QrCodeIcon'.
   GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon, BellIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
@@ -26,6 +28,8 @@ interface HeaderProps {
   onOpenQrCodeModal: () => void;
   isPwa: boolean;
   unreadCount: number;
+  justReceivedNotification: boolean;
+  onNotificationAnimationEnd: () => void;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -34,7 +38,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa, unreadCount }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa, unreadCount, justReceivedNotification, onNotificationAnimationEnd }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const [isAdmin, setIsAdmin] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [gridMenuView, setGridMenuView] = useState<'main' | 'help' | 'language'>('main');
+  const [isShaking, setIsShaking] = useState(false);
 
   const gridMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -54,6 +59,18 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const { locale, setLocale, t } = useI18n();
   const navigate = useNavigate();
   const { canInstall, promptInstall } = usePWAInstall();
+
+  useEffect(() => {
+    if (justReceivedNotification) {
+      setIsShaking(true);
+      const timer = setTimeout(() => {
+        setIsShaking(false);
+        onNotificationAnimationEnd();
+      }, 3000); // Animation duration + buffer
+
+      return () => clearTimeout(timer);
+    }
+  }, [justReceivedNotification, onNotificationAnimationEnd]);
 
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
@@ -366,16 +383,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {isPwa && (
-                <Link to="/notifications" className="relative text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Notifications" title="Notifications">
-                    <BellIcon className="h-6 w-6" />
-                    {unreadCount > 0 && (
-                        <span className="absolute top-1 right-1 block h-4 w-4 text-xs flex items-center justify-center rounded-full ring-2 ring-white dark:ring-black bg-brand-red text-white">
-                            {unreadCount}
-                        </span>
-                    )}
-                </Link>
-            )}
             
             <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
               <SearchIcon className="h-6 w-6" />
@@ -421,6 +428,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             )}
             
             {user ? (
+              <>
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
                   {user.profileImage ? (
@@ -472,6 +480,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                   </div>
                 )}
               </div>
+                {isPwa && (
+                    <Link to="/notifications" className={`relative text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full ${isShaking ? 'animate-shake' : ''}`} aria-label="Notifications" title="Notifications">
+                        <BellIcon className="h-6 w-6" />
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1 right-1 block h-4 w-4 text-xs flex items-center justify-center rounded-full ring-2 ring-white dark:ring-black bg-brand-red text-white">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </Link>
+                )}
+              </>
             ) : (
               <>
                 <div className="hidden sm:flex items-center space-x-2 md:space-x-4">

@@ -688,40 +688,45 @@ function AppContent() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [inAppNotification, setInAppNotification] = useState<string | null>(null);
+  const [justReceivedNotification, setJustReceivedNotification] = useState(false);
+  const prevUnreadCountRef = useRef(0);
 
   const NOTIFICATIONS_KEY = 'pwa_notifications';
 
   const loadNotifications = useCallback(() => {
-      try {
-          const stored = localStorage.getItem(NOTIFICATIONS_KEY);
-          const parsed = stored ? JSON.parse(stored) : [];
-          setNotifications(parsed);
-          const newUnreadCount = parsed.filter((n: any) => !n.read).length;
-
-          if (newUnreadCount > unreadCount) { // A new notification has arrived
-              const latestUnread = parsed.find((n: any) => !n.read);
-              if (latestUnread) {
-                  setInAppNotification(latestUnread.message);
-              }
-          }
-          setUnreadCount(newUnreadCount);
-      } catch (e) {
-          console.error("Failed to load notifications", e);
-      }
-  }, [unreadCount]);
+    try {
+      const stored = localStorage.getItem(NOTIFICATIONS_KEY);
+      const parsed = stored ? JSON.parse(stored) : [];
+      setNotifications(parsed);
+      setUnreadCount(parsed.filter((n: any) => !n.read).length);
+    } catch (e) {
+      console.error("Failed to load notifications", e);
+    }
+  }, []);
 
   useEffect(() => {
-      loadNotifications();
-      const handleStorageChange = (event: StorageEvent) => {
-          if (event.key === NOTIFICATIONS_KEY || event.key === null) { // event.key is null for dispatchEvent
-              loadNotifications();
-          }
-      };
-      window.addEventListener('storage', handleStorageChange);
-      return () => {
-          window.removeEventListener('storage', handleStorageChange);
-      };
+    loadNotifications();
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === NOTIFICATIONS_KEY || event.key === null) {
+        loadNotifications();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [loadNotifications]);
+  
+  useEffect(() => {
+    if (unreadCount > prevUnreadCountRef.current) {
+      const latestNotification = notifications[0];
+      if (latestNotification) {
+        setInAppNotification(latestNotification.message);
+        setJustReceivedNotification(true);
+      }
+    }
+    prevUnreadCountRef.current = unreadCount;
+  }, [unreadCount, notifications]);
 
   const markAllAsRead = useCallback(() => {
     try {
@@ -793,6 +798,8 @@ function AppContent() {
                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
                 onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
                 unreadCount={unreadCount}
+                justReceivedNotification={justReceivedNotification}
+                onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
               />
               <main className="flex-grow">
                 <Suspense fallback={<Preloader />}>

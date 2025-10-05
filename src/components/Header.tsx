@@ -1,9 +1,4 @@
 
-
-
-
-
-
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -15,7 +10,6 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
-  // FIX: Replaced QrCodeModal with QrCodeIcon as it's an icon, not a modal component.
   GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
@@ -31,7 +25,6 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
   onOpenQrCodeModal: () => void;
-  // FIX: Added 'isPwa' prop to match the props passed in App.tsx.
   isPwa: boolean;
 }
 
@@ -41,7 +34,12 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
+// FIX: Moved MobileMenuCategory interface outside the component to prevent potential scoping issues with TypeScript.
+interface MobileMenuCategory {
+  title: string;
+  tools: Tool[];
+}
+
 const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -219,12 +217,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { key: 'business' as const, title: 'Business & AI Tools' },
   ];
 
-  // FIX: Explicitly typing mobileMenuStructure helps TypeScript understand the shape of the data,
-  // preventing the 'tool' parameter in the map function from being inferred as 'unknown'.
-  interface MobileMenuCategory {
-      title: string;
-      tools: Tool[];
-  }
   const mobileMenuStructure = useMemo<MobileMenuCategory[]>(() => [
       ...mobileMenuCategories.map(cat => ({
           title: cat.title,
@@ -376,12 +368,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Search Icon */}
+            
             <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
               <SearchIcon className="h-6 w-6" />
             </button>
             
-            {/* QR Code Icon */}
             <button onClick={onOpenQrCodeModal} className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
                 <QrCodeIcon className="h-6 w-6" />
             </button>
@@ -421,7 +412,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             )}
             
-            {/* Profile/Auth Icons & Links */}
             {user ? (
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
@@ -575,7 +565,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                           <div key={category.title}>
                              <h4 className="font-semibold text-gray-500 mt-3 mb-1">{category.title}</h4>
                               <div className="space-y-1">
-                                {/*// FIX: Add explicit type to map parameter to resolve TS errors.*/}
                                 {category.tools.map((tool: Tool) => (
                                     <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
                                         <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />
