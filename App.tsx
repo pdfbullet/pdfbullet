@@ -1,12 +1,12 @@
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
-import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
+import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
-import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon } from './components/icons.tsx';
+import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon, BellIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
@@ -32,6 +32,8 @@ import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
+import InAppNotification from './components/InAppNotification.tsx';
+import NotificationsPage from './pages/NotificationsPage.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -664,6 +666,8 @@ const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
 const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
+const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
+
 
 function AppContent() {
   const location = useLocation();
@@ -680,6 +684,65 @@ function AppContent() {
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
   const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [inAppNotification, setInAppNotification] = useState<string | null>(null);
+
+  const NOTIFICATIONS_KEY = 'pwa_notifications';
+
+  const loadNotifications = useCallback(() => {
+      try {
+          const stored = localStorage.getItem(NOTIFICATIONS_KEY);
+          const parsed = stored ? JSON.parse(stored) : [];
+          setNotifications(parsed);
+          const newUnreadCount = parsed.filter((n: any) => !n.read).length;
+
+          if (newUnreadCount > unreadCount) { // A new notification has arrived
+              const latestUnread = parsed.find((n: any) => !n.read);
+              if (latestUnread) {
+                  setInAppNotification(latestUnread.message);
+              }
+          }
+          setUnreadCount(newUnreadCount);
+      } catch (e) {
+          console.error("Failed to load notifications", e);
+      }
+  }, [unreadCount]);
+
+  useEffect(() => {
+      loadNotifications();
+      const handleStorageChange = (event: StorageEvent) => {
+          if (event.key === NOTIFICATIONS_KEY || event.key === null) { // event.key is null for dispatchEvent
+              loadNotifications();
+          }
+      };
+      window.addEventListener('storage', handleStorageChange);
+      return () => {
+          window.removeEventListener('storage', handleStorageChange);
+      };
+  }, [loadNotifications]);
+
+  const markAllAsRead = useCallback(() => {
+    try {
+        const stored = localStorage.getItem(NOTIFICATIONS_KEY);
+        const parsed = stored ? JSON.parse(stored) : [];
+        const updated = parsed.map((n: any) => ({...n, read: true}));
+        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+        setNotifications(updated);
+        setUnreadCount(0);
+    } catch (e) {
+        console.error("Failed to mark notifications as read", e);
+    }
+  }, []);
+
+  const clearAllNotifications = useCallback(() => {
+      if (window.confirm("Are you sure you want to clear all notifications?")) {
+          localStorage.removeItem(NOTIFICATIONS_KEY);
+          setNotifications([]);
+          setUnreadCount(0);
+      }
+  }, []);
 
   useEffect(() => {
     const redirectPath = sessionStorage.getItem('redirect');
@@ -723,13 +786,13 @@ function AppContent() {
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-              {/* FIX: Pass the 'isPwa' prop to the Header component to satisfy its required props. */}
               <Header
                 isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                 onOpenSearchModal={() => setSearchModalOpen(true)}
                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
                 onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+                unreadCount={unreadCount}
               />
               <main className="flex-grow">
                 <Suspense fallback={<Preloader />}>
@@ -738,7 +801,9 @@ function AppContent() {
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
-                    
+                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
+                    <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
+
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/blog" element={<BlogPage />} />
@@ -807,6 +872,7 @@ function AppContent() {
                   </Routes>
                 </Suspense>
               </main>
+              {inAppNotification && isPwa && <InAppNotification message={inAppNotification} onClose={() => setInAppNotification(null)} />}
               {!isPwa && showFooter && <Footer 
                 onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 onOpenProblemReportModal={() => setProblemReportModalOpen(true)}

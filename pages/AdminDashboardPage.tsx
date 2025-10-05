@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, TaskLog } from '../contexts/AuthContext.tsx';
 import { ProblemReport } from '../contexts/AuthContext.tsx';
-import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon, DownloadIcon } from '../components/icons.tsx';
+import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon, DownloadIcon, PaperAirplaneIcon } from '../components/icons.tsx';
 
 interface UserData {
     uid: string;
@@ -19,6 +19,74 @@ const formatBytes = (bytes: number, decimals = 2): string => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
+
+const NotificationSender: React.FC = () => {
+    const [message, setMessage] = useState('');
+    const [status, setStatus] = useState('');
+    const [isSending, setIsSending] = useState(false);
+
+    const handleSend = () => {
+        if (!message.trim()) {
+            setStatus('Please enter a message.');
+            setTimeout(() => setStatus(''), 3000);
+            return;
+        }
+        setIsSending(true);
+        setStatus('');
+        try {
+            const newNotification = {
+                id: Date.now(),
+                message: message.trim(),
+                timestamp: Date.now(),
+                read: false,
+            };
+            // Get existing notifications or start with an empty array
+            const existingNotifications = JSON.parse(localStorage.getItem('pwa_notifications') || '[]');
+            // Add the new notification to the beginning of the array
+            const updatedNotifications = [newNotification, ...existingNotifications];
+            // Store the updated array
+            localStorage.setItem('pwa_notifications', JSON.stringify(updatedNotifications));
+            
+            // Dispatch a storage event to notify other tabs/windows (including the current one)
+            window.dispatchEvent(new Event('storage'));
+
+            setStatus('Notification sent successfully!');
+            setMessage('');
+        } catch (e) {
+            setStatus('Failed to send notification. LocalStorage might be full or disabled.');
+            console.error(e);
+        } finally {
+            setIsSending(false);
+            setTimeout(() => setStatus(''), 3000);
+        }
+    };
+
+    return (
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-800">
+            <h3 className="text-xl font-bold mb-4">Send PWA Notification</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">This message will be sent as a push notification to all active PWA users.</p>
+            <div className="space-y-4">
+                <div>
+                    <label htmlFor="notif-message" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Message</label>
+                    <textarea 
+                        id="notif-message"
+                        rows={4}
+                        value={message}
+                        onChange={e => setMessage(e.target.value)}
+                        className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red"
+                        placeholder="Enter your notification message..."
+                    />
+                </div>
+                <button onClick={handleSend} disabled={isSending} className="flex items-center gap-2 bg-brand-red text-white font-bold py-2 px-6 rounded-md hover:bg-brand-red-dark disabled:bg-red-300">
+                    <PaperAirplaneIcon className="h-5 w-5" />
+                    {isSending ? 'Sending...' : 'Send Notification'}
+                </button>
+                {status && <p className={`text-sm mt-2 ${status.includes('Failed') ? 'text-red-500' : 'text-green-600'}`}>{status}</p>}
+            </div>
+        </div>
+    );
+};
+
 
 const AdminDashboardPage: React.FC = () => {
     const { getAllUsers, updateUserPremiumStatus, updateUserApiPlan, logout, deleteUser, getProblemReports, updateReportStatus, deleteProblemReport, getTaskHistory, deleteTaskRecord } = useAuth();
@@ -233,13 +301,14 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                        <nav className="-mb-px flex space-x-8">
-                            <button onClick={() => { setActiveTab('users'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>User Management</button>
-                            <button onClick={() => { setActiveTab('reports'); setSearchTerm(''); }} className={`relative py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'reports' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                        <nav className="-mb-px flex space-x-8 overflow-x-auto">
+                            <button onClick={() => { setActiveTab('users'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'users' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>User Management</button>
+                            <button onClick={() => { setActiveTab('reports'); setSearchTerm(''); }} className={`relative py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'reports' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                                 Problem Reports
                                 {stats.newReports > 0 && <span className="absolute -top-1 -right-4 bg-brand-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{stats.newReports}</span>}
                             </button>
-                            <button onClick={() => { setActiveTab('tasks'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'tasks' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>Task History</button>
+                            <button onClick={() => { setActiveTab('tasks'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'tasks' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>Task History</button>
+                            <button onClick={() => { setActiveTab('notifications'); setSearchTerm(''); }} className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'notifications' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>Notifications</button>
                         </nav>
                     </div>
 
@@ -247,10 +316,11 @@ const AdminDashboardPage: React.FC = () => {
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 items-center">
                              <input 
                                 type="text"
-                                placeholder={`Search by ${activeTab === 'users' ? 'username' : activeTab === 'reports' ? 'email or description' : 'user, tool, or filename'}...`}
+                                placeholder={`Search by ${activeTab === 'users' ? 'username' : activeTab === 'reports' ? 'email or description' : activeTab === 'tasks' ? 'user, tool, or filename' : '...'}...`}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full sm:w-auto flex-grow px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-200"
+                                disabled={activeTab === 'notifications'}
                              />
                              <button onClick={handleRefresh} disabled={isLoadingData} className="flex items-center gap-2 text-sm font-semibold bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                                  <RefreshIcon className={`h-4 w-4 ${isLoadingData ? 'animate-spin' : ''}`}/> Refresh
@@ -399,6 +469,11 @@ const AdminDashboardPage: React.FC = () => {
                                         )}
                                     </tbody>
                                 </table>
+                            )}
+                            {activeTab === 'notifications' && (
+                                <div className="p-4">
+                                    <NotificationSender />
+                                </div>
                             )}
                         </div>
                     </div>

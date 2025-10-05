@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -13,8 +9,7 @@ import {
   DesktopIcon, PhoneIcon, LockIcon, LinkIcon, LeftArrowIcon, RightArrowIcon, ChevronUpIcon,
   MergeIcon, SplitIcon, CloseIcon, UploadIcon, OrganizeIcon,
   CompressIcon, RepairIcon, OcrPdfIcon, JpgToPdfIcon, WordIcon, PowerPointIcon, ExcelIcon,
-  // FIX: Replaced QrCodeModal with QrCodeIcon as it's an icon, not a modal component.
-  GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon
+  GlobeIcon, QuestionMarkIcon, QrCodeIcon, DownloadIcon, BellIcon
 } from './icons.tsx';
 import { Logo } from './Logo.tsx';
 import { TOOLS } from '../constants.ts';
@@ -29,8 +24,8 @@ interface HeaderProps {
   onOpenSearchModal: () => void;
   onOpenChangePasswordModal: () => void;
   onOpenQrCodeModal: () => void;
-  // FIX: Added 'isPwa' prop to match the props passed in App.tsx.
   isPwa: boolean;
+  unreadCount: number;
 }
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -39,8 +34,7 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// FIX: Changed to a default export to standardize component exports and prevent potential module resolution issues.
-const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchModal, onOpenChangePasswordModal, onOpenQrCodeModal, isPwa, unreadCount }) => {
   const [isGridMenuOpen, setGridMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -217,8 +211,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { key: 'business' as const, title: 'Business & AI Tools' },
   ];
 
-  // FIX: Explicitly typing mobileMenuStructure helps TypeScript understand the shape of the data,
-  // preventing the 'tool' parameter in the map function from being inferred as 'unknown'.
   interface MobileMenuCategory {
       title: string;
       tools: Tool[];
@@ -374,12 +366,21 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </nav>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Search Icon */}
+            {isPwa && (
+                <Link to="/notifications" className="relative text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Notifications" title="Notifications">
+                    <BellIcon className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 block h-4 w-4 text-xs flex items-center justify-center rounded-full ring-2 ring-white dark:ring-black bg-brand-red text-white">
+                            {unreadCount}
+                        </span>
+                    )}
+                </Link>
+            )}
+            
             <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
               <SearchIcon className="h-6 w-6" />
             </button>
             
-            {/* QR Code Icon */}
             <button onClick={onOpenQrCodeModal} className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
                 <QrCodeIcon className="h-6 w-6" />
             </button>
@@ -419,7 +420,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             )}
             
-            {/* Profile/Auth Icons & Links */}
             {user ? (
                <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="block h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden border-2 border-transparent hover:border-brand-red transition" aria-label="Open user profile menu" title="Open user profile menu">
