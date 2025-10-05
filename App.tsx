@@ -33,7 +33,6 @@ import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
-import InAppNotification from './components/InAppNotification.tsx';
 import NotificationsPage from './pages/NotificationsPage.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
@@ -688,7 +687,6 @@ function AppContent() {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [inAppNotification, setInAppNotification] = useState<string | null>(null);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
   const prevTotalNotificationsRef = useRef(0);
 
@@ -714,12 +712,9 @@ function AppContent() {
         
         const newUnreadCount = newNotifications.filter(n => !n.read).length;
         
-        // On initial load, prevTotal is 0. Don't show banner.
-        // On subsequent updates, if new notifications are added, show banner.
         if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
             const latestNotification = newNotifications[0];
             if (latestNotification && !latestNotification.read) {
-                setInAppNotification(latestNotification.message);
                 setJustReceivedNotification(true);
             }
         }
@@ -737,8 +732,6 @@ function AppContent() {
   const markAllAsRead = useCallback(() => {
     try {
         const allIds = notifications.map(n => n.id);
-        // We can get previously read IDs to avoid growing the list indefinitely, 
-        // but for simplicity, we'll just overwrite with all current IDs.
         localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(allIds));
         
         setNotifications(prev => prev.map(n => ({...n, read: true})));
@@ -884,7 +877,6 @@ function AppContent() {
                   </Routes>
                 </Suspense>
               </main>
-              {inAppNotification && isPwa && <InAppNotification message={inAppNotification} onClose={() => setInAppNotification(null)} />}
               {!isPwa && showFooter && <Footer 
                 onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 onOpenProblemReportModal={() => setProblemReportModalOpen(true)}

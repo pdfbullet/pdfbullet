@@ -1,15 +1,16 @@
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
-import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo } from 'react';
+import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
-import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon } from './components/icons.tsx';
+import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon, BellIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
+import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
@@ -32,6 +33,7 @@ import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
+import NotificationsPage from './pages/NotificationsPage.tsx';
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -664,6 +666,8 @@ const PwaHomePage = lazy(() => import('./pages/PwaHomePage.tsx'));
 const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
+const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
+
 
 function AppContent() {
   const location = useLocation();
@@ -680,6 +684,68 @@ function AppContent() {
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
   const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [justReceivedNotification, setJustReceivedNotification] = useState(false);
+  const prevTotalNotificationsRef = useRef(0);
+
+  const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
+
+  useEffect(() => {
+    if (!isPwa) return; // Only for PWA users
+
+    const unsubscribe = db.collection('pwa_notifications')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot(snapshot => {
+        const readIds = new Set(JSON.parse(localStorage.getItem(READ_NOTIFICATIONS_KEY) || '[]'));
+        
+        const newNotifications = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              message: data.message,
+              timestamp: data.timestamp ? data.timestamp.toDate().getTime() : Date.now(),
+              read: readIds.has(doc.id)
+            };
+        });
+        
+        const newUnreadCount = newNotifications.filter(n => !n.read).length;
+        
+        if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
+            const latestNotification = newNotifications[0];
+            if (latestNotification && !latestNotification.read) {
+                setJustReceivedNotification(true);
+            }
+        }
+
+        setNotifications(newNotifications);
+        setUnreadCount(newUnreadCount);
+        prevTotalNotificationsRef.current = newNotifications.length;
+      }, (error) => {
+          console.error("Error listening to notifications:", error);
+      });
+
+    return () => unsubscribe();
+  }, [isPwa]);
+
+  const markAllAsRead = useCallback(() => {
+    try {
+        const allIds = notifications.map(n => n.id);
+        localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(allIds));
+        
+        setNotifications(prev => prev.map(n => ({...n, read: true})));
+        setUnreadCount(0);
+    } catch (e) {
+        console.error("Failed to mark notifications as read", e);
+    }
+  }, [notifications]);
+
+  const clearAllNotifications = useCallback(() => {
+      if (window.confirm("Are you sure you want to clear all notifications? This will mark them all as read.")) {
+          markAllAsRead();
+      }
+  }, [markAllAsRead]);
 
   useEffect(() => {
     const redirectPath = sessionStorage.getItem('redirect');
@@ -723,13 +789,16 @@ function AppContent() {
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-              {/* FIX: Pass the 'isPwa' prop to the Header component to satisfy its required props. */}
+              {/* FIX: Pass the missing props for notification handling to the Header component. */}
               <Header
                 isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                 onOpenSearchModal={() => setSearchModalOpen(true)}
                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
                 onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+                unreadCount={unreadCount}
+                justReceivedNotification={justReceivedNotification}
+                onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
               />
               <main className="flex-grow">
                 <Suspense fallback={<Preloader />}>
@@ -738,7 +807,9 @@ function AppContent() {
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
-                    
+                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
+                    <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
+
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/blog" element={<BlogPage />} />
