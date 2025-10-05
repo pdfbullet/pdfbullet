@@ -1,3 +1,4 @@
+
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -34,6 +35,8 @@ import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import NotificationsPage from './pages/NotificationsPage.tsx';
+import InAppNotification from './components/InAppNotification.tsx';
+
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -42,6 +45,17 @@ export const LayoutContext = createContext<{
 }>({
   setShowFooter: () => {},
 });
+
+// Define a richer Notification interface
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  url?: string;
+  attachmentUrl?: string;
+}
 
 
 // Inlined component to fix import issue
@@ -685,9 +699,10 @@ function AppContent() {
   const [showFooter, setShowFooter] = useState(true);
   const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
 
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
+  const [inAppNotification, setInAppNotification] = useState<Notification | null>(null);
   const prevTotalNotificationsRef = useRef(0);
 
   const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
@@ -704,18 +719,28 @@ function AppContent() {
             const data = doc.data();
             return {
               id: doc.id,
+              title: data.title || 'Notification',
               message: data.message,
               timestamp: data.timestamp ? data.timestamp.toDate().getTime() : Date.now(),
-              read: readIds.has(doc.id)
+              read: readIds.has(doc.id),
+              url: data.url,
+              attachmentUrl: data.attachmentUrl
             };
         });
         
         const newUnreadCount = newNotifications.filter(n => !n.read).length;
+
+        if ('setAppBadge' in navigator) {
+            (navigator as any).setAppBadge(newUnreadCount).catch((error: any) => {
+                console.error("Failed to set app badge:", error);
+            });
+        }
         
         if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
             const latestNotification = newNotifications[0];
             if (latestNotification && !latestNotification.read) {
-                setJustReceivedNotification(true);
+                setJustReceivedNotification(true); // For bell animation
+                setInAppNotification(latestNotification); // For toast
             }
         }
 
@@ -736,6 +761,11 @@ function AppContent() {
         
         setNotifications(prev => prev.map(n => ({...n, read: true})));
         setUnreadCount(0);
+        if ('clearAppBadge' in navigator) {
+            (navigator as any).clearAppBadge().catch((error: any) => {
+                console.error("Failed to clear app badge:", error);
+            });
+        }
     } catch (e) {
         console.error("Failed to mark notifications as read", e);
     }
@@ -877,6 +907,7 @@ function AppContent() {
                   </Routes>
                 </Suspense>
               </main>
+              {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
               {!isPwa && showFooter && <Footer 
                 onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 onOpenProblemReportModal={() => setProblemReportModalOpen(true)}

@@ -1,12 +1,8 @@
-import React, { useEffect } from 'react';
-import { BellIcon, TrashIcon } from '../components/icons.tsx';
 
-interface Notification {
-    id: number;
-    message: string;
-    timestamp: number;
-    read: boolean;
-}
+import React, { useEffect } from 'react';
+import { BellIcon, TrashIcon, LinkIcon, DownloadIcon } from '../components/icons.tsx';
+import { Notification } from '../App.tsx';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface NotificationsPageProps {
     notifications: Notification[];
@@ -53,9 +49,22 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ notifications, ma
                                 <div className="flex-shrink-0 mt-1">
                                     <BellIcon className={`h-5 w-5 text-gray-400`} />
                                 </div>
-                                <div>
-                                    <p className="text-gray-800 dark:text-gray-100">{n.message}</p>
+                                <div className="flex-grow">
+                                    <p className="font-bold text-gray-800 dark:text-gray-100">{n.title}</p>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{n.message}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{timeAgo(n.timestamp)}</p>
+                                </div>
+                                <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                                    {n.url && (
+                                        <RouterLink to={n.url} className="flex items-center gap-2 px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md text-center hover:bg-blue-600 transition-colors">
+                                            <LinkIcon className="h-3 w-3" /> View
+                                        </RouterLink>
+                                    )}
+                                    {n.attachmentUrl && (
+                                        <a href={n.attachmentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-1 bg-gray-600 text-white text-xs font-semibold rounded-md text-center hover:bg-gray-700 transition-colors">
+                                            <DownloadIcon className="h-3 w-3" /> Download
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </li>

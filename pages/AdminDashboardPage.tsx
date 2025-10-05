@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, TaskLog } from '../contexts/AuthContext.tsx';
 import { ProblemReport } from '../contexts/AuthContext.tsx';
 import { UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon, WarningIcon, DownloadIcon, PaperAirplaneIcon } from '../components/icons.tsx';
-import { db, firebase } from '../firebase/config.ts';
+import { db, storage, firebase } from '../firebase/config.ts';
 
 interface UserData {
     uid: string;
@@ -22,49 +23,86 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 };
 
 const NotificationSender: React.FC = () => {
+    const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
+    const [targetUrl, setTargetUrl] = useState('');
+    const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState('');
     const [isSending, setIsSending] = useState(false);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setFile(e.target.files[0]);
+        } else {
+            setFile(null);
+        }
+    };
+
     const handleSend = async () => {
-        if (!message.trim()) {
-            setStatus('Please enter a message.');
+        if (!title.trim() || !message.trim()) {
+            setStatus('Title and message are required.');
             setTimeout(() => setStatus(''), 3000);
             return;
         }
         setIsSending(true);
-        setStatus('');
+        setStatus('Sending...');
         try {
+            let attachmentUrl = '';
+            if (file) {
+                setStatus('Uploading file...');
+                const storageRef = storage.ref(`notifications/${Date.now()}_${file.name}`);
+                const snapshot = await storageRef.put(file);
+                attachmentUrl = await snapshot.ref.getDownloadURL();
+            }
+
+            setStatus('Sending notification data...');
             await db.collection('pwa_notifications').add({
+                title: title.trim(),
                 message: message.trim(),
+                url: targetUrl.trim(),
+                attachmentUrl: attachmentUrl,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             });
             setStatus('Notification sent successfully!');
+            setTitle('');
             setMessage('');
+            setTargetUrl('');
+            setFile(null);
+            // Also reset the file input visually
+            const fileInput = document.getElementById('notif-file') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+
         } catch (e) {
-            setStatus('Failed to send notification. Could not write to database.');
+            setStatus('Failed to send notification. Check console for details.');
             console.error(e);
         } finally {
             setIsSending(false);
-            setTimeout(() => setStatus(''), 3000);
+            setTimeout(() => setStatus(''), 5000);
         }
     };
 
     return (
         <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-800">
-            <h3 className="text-xl font-bold mb-4">Send PWA Notification</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">This message will be sent as a push notification to all active PWA users.</p>
+            <h3 className="text-xl font-bold mb-4">Send PWA Push Notification</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                This will be sent to all PWA users. An active backend (like a Firebase Function) is needed to listen for this Firestore write and trigger a push service like OneSignal.
+            </p>
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="notif-message" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Message</label>
-                    <textarea 
-                        id="notif-message"
-                        rows={4}
-                        value={message}
-                        onChange={e => setMessage(e.target.value)}
-                        className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red"
-                        placeholder="Enter your notification message..."
-                    />
+                    <label htmlFor="notif-title" className="block text-sm font-semibold mb-1">Title*</label>
+                    <input id="notif-title" type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded-md" placeholder="New Feature Alert!"/>
+                </div>
+                <div>
+                    <label htmlFor="notif-message" className="block text-sm font-semibold mb-1">Message*</label>
+                    <textarea id="notif-message" rows={3} value={message} onChange={e => setMessage(e.target.value)} className="w-full p-2 border rounded-md" placeholder="Check out our new AI-powered image generator..."/>
+                </div>
+                <div>
+                    <label htmlFor="notif-url" className="block text-sm font-semibold mb-1">Target URL (Optional)</label>
+                    <input id="notif-url" type="text" value={targetUrl} onChange={e => setTargetUrl(e.target.value)} className="w-full p-2 border rounded-md" placeholder="/image-generator"/>
+                </div>
+                 <div>
+                    <label htmlFor="notif-file" className="block text-sm font-semibold mb-1">File Attachment (Optional)</label>
+                    <input id="notif-file" type="file" onChange={handleFileChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-red/10 file:text-brand-red hover:file:bg-brand-red/20"/>
                 </div>
                 <button onClick={handleSend} disabled={isSending} className="flex items-center gap-2 bg-brand-red text-white font-bold py-2 px-6 rounded-md hover:bg-brand-red-dark disabled:bg-red-300">
                     <PaperAirplaneIcon className="h-5 w-5" />
