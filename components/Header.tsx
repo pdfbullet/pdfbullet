@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -216,7 +217,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
       { key: 'business' as const, title: 'Business & AI Tools' },
   ];
 
-  const mobileMenuStructure = useMemo(() => [
+  // FIX: Explicitly typing mobileMenuStructure helps TypeScript understand the shape of the data,
+  // preventing the 'tool' parameter in the map function from being inferred as 'unknown'.
+  interface MobileMenuCategory {
+      title: string;
+      tools: Tool[];
+  }
+  const mobileMenuStructure = useMemo<MobileMenuCategory[]>(() => [
       ...mobileMenuCategories.map(cat => ({
           title: cat.title,
           tools: TOOLS.filter(tool => tool.category === cat.key && !imageToolIds.has(tool.id))
@@ -388,27 +395,29 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             )}
 
-            <button
-              onClick={toggleTheme}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-              aria-label="Toggle theme"
-              className={`relative inline-flex items-center h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 dark:focus:ring-offset-black ${
-                theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
-              }`}
-            >
-              <span className="sr-only">Toggle theme</span>
-              <span
-                aria-hidden="true"
-                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
-                  theme === 'dark' ? 'translate-x-7' : 'translate-x-0.5'
+            {!isPwa && (
+              <button
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                aria-label="Toggle theme"
+                className={`relative inline-flex items-center h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 dark:focus:ring-offset-black ${
+                  theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
                 }`}
               >
-                {theme === 'dark' 
-                    ? <MoonIcon className="h-4 w-4 text-gray-700"/>
-                    : <SunIcon className="h-4 w-4 text-yellow-500"/>
-                }
-              </span>
-            </button>
+                <span className="sr-only">Toggle theme</span>
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
+                    theme === 'dark' ? 'translate-x-7' : 'translate-x-0.5'
+                  }`}
+                >
+                  {theme === 'dark' 
+                      ? <MoonIcon className="h-4 w-4 text-gray-700"/>
+                      : <SunIcon className="h-4 w-4 text-yellow-500"/>
+                  }
+                </span>
+              </button>
+            )}
             
             {/* Profile/Auth Icons & Links */}
             {user ? (
@@ -564,7 +573,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                           <div key={category.title}>
                              <h4 className="font-semibold text-gray-500 mt-3 mb-1">{category.title}</h4>
                               <div className="space-y-1">
-                                {/* FIX: Add explicit type to map parameter to resolve TS errors */}
                                 {category.tools.map((tool: Tool) => (
                                     <Link key={tool.id} to={`/${tool.id}`} onClick={closeAllMenus} className="flex items-center gap-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
                                         <tool.Icon className={`h-5 w-5 flex-shrink-0 ${tool.textColor}`} />

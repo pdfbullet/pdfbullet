@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon } from '../components/icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon } from '../components/icons.tsx';
+import { useTheme } from '../contexts/ThemeContext.tsx';
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div>
@@ -22,6 +23,7 @@ const SettingLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, 
 const PwaSettingsPage: React.FC = () => {
     const { t } = useI18n();
     const { promptInstall } = usePWAInstall();
+    const { theme, toggleTheme } = useTheme();
 
     const solutions = [
       { path: '/education', nameKey: 'footer.solution_links.education' },
@@ -49,6 +51,36 @@ const PwaSettingsPage: React.FC = () => {
         <div className="p-4 sm:p-6 space-y-8">
             <h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Settings & Information</h1>
             
+            <Section title="Appearance">
+                <div className="p-4 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        {theme === 'dark' ? <MoonIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" /> : <SunIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />}
+                        <span className="font-semibold text-gray-700 dark:text-gray-200">Dark Mode</span>
+                    </div>
+                    <button
+                      onClick={toggleTheme}
+                      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                      aria-label="Toggle theme"
+                      className={`relative inline-flex items-center h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 dark:focus:ring-offset-black ${
+                        theme === 'dark' ? 'bg-brand-red' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span className="sr-only">Toggle theme</span>
+                      <span
+                        aria-hidden="true"
+                        className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
+                          theme === 'dark' ? 'translate-x-7' : 'translate-x-0.5'
+                        }`}
+                      >
+                        {theme === 'dark' 
+                            ? <MoonIcon className="h-4 w-4 text-brand-red"/>
+                            : <SunIcon className="h-4 w-4 text-gray-700"/>
+                        }
+                      </span>
+                    </button>
+                </div>
+            </Section>
+
             <Section title={t('footer.solutions')}>
                 {solutions.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
             </Section>
@@ -69,7 +101,7 @@ const PwaSettingsPage: React.FC = () => {
                         <a href="https://www.youtube.com/@btmobilecare" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-red-600"><YoutubeIcon className="h-7 w-7" /></a>
                     </div>
                      <div className="mt-6 flex flex-wrap gap-4">
-                        <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
+                        <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
                             <AndroidIcon className="h-8 w-8" />
                             <div>
                                 <p className="text-xs leading-tight">DOWNLOAD APK</p>
