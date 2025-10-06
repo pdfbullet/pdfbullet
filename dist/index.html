@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg" href="/favicon.svg" />
+    <link rel="icon" type="image/svg" href="/favicon.png" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#B90B06" />
@@ -22,9 +22,15 @@
     
    <!-- SEO Meta Tags -->
     <meta id="meta-description" name="description" content="The only PDF toolkit you'll ever need. PDFBullet provides a complete suite of free, secure, and fast online tools. Merge, split, compress, convert, edit, and sign PDFs with ease. Client-side processing ensures your files are 100% private." />
-    <meta id="meta-keywords" name="keywords" content="pdf tools, merge pdf, split pdf, compress pdf, convert pdf, pdf editor, image background remover, free pdf tools, online pdf tools, document management, secure pdf processing" />
+    <meta id="meta-keywords" name="keywords" content="pdf tools, merge pdf, split pdf, compress pdf, convert pdf, pdf editor, image background remover, free pdf tools, online pdf tools, document management, secure pdf processing, pdf to word, word to pdf, edit pdf, sign pdf, ocr pdf, image tools, ai tools, invoice generator, cv generator, remove background" />
     <link rel="canonical" href="https://pdfbullet.com/" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+
+    <!-- Hreflang Tags for Multilingual Support -->
+    <link rel="alternate" hreflang="en" href="https://pdfbullet.com/" />
+    <link rel="alternate" hreflang="hi" href="https://pdfbullet.com/" />
+    <link rel="alternate" hreflang="ne" href="https://pdfbullet.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://pdfbullet.com/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -69,7 +75,11 @@
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
-          appId: "c712037e-1215-4c92-8da7-cf48c97bdf24",
+          appId: "83aefc95-5949-46d8-ad2a-ae2824ef4a78",
+          safari_web_id: "web.onesignal.auto.10bba952-d3e6-4be7-b269-bd5caae877a4",
+          notifyButton: {
+            enable: true,
+          },
         });
       });
     </script>
@@ -93,13 +103,7 @@
       },
       "description": "A comprehensive suite of free tools for PDF management, including merging, splitting, compressing, converting, editing, and signing.",
       "featureList": [
-        "Merge PDF",
-        "Split PDF",
-        "Compress PDF",
-        "PDF to Word",
-        "JPG to PDF",
-        "Edit PDF",
-        "Sign PDF"
+        "Merge PDF", "Split PDF", "Compress PDF", "PDF to Word", "PDF to Excel", "PDF to PowerPoint", "Word to PDF", "Excel to PDF", "PowerPoint to PDF", "JPG to PDF", "Edit PDF", "Sign PDF", "Unlock PDF", "Protect PDF", "Watermark PDF", "Rotate PDF", "Organize PDF", "OCR PDF", "Remove Background", "Invoice Generator", "CV Generator", "AI Question Generator"
       ],
       "publisher": {
         "@type": "Organization",
@@ -113,11 +117,13 @@
       "@type": "Organization",
       "name": "PDFBullet",
       "url": "https://pdfbullet.com/",
-      "logo": "https://pdfbullet.com/favicon.svg",
+      "logo": "https://pdfbullet.com/favicon.pngg",
       "sameAs": [
         "https://www.facebook.com/share/16sdjGNVGr/?mibextid=wwXIfr",
         "https://wa.me/message/JYA22CVSYSZ4N1",
-        "https://www.youtube.com/@btmobilecare"
+        "https://www.youtube.com/@btmobilecare",
+        "https://x.com/pdfbullet",
+        "https://www.linkedin.com/company/pdfbullet"
       ],
       "contactPoint": {
         "@type": "ContactPoint",
@@ -142,6 +148,36 @@
       }
     }
 </script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Online Document & Image Processing",
+      "provider": {
+        "@type": "Organization",
+        "name": "PDFBullet"
+      },
+      "name": "PDFBullet Online Tools",
+      "description": "A comprehensive suite of over 40 free online tools for PDF and image management, including merging, splitting, compressing, converting, editing, signing, and AI-powered document creation.",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "PDF & Image Tools",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Merge PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Split PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Compress PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "PDF to Word" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Word to PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "JPG to PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Edit PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Sign PDF" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Remove Background" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Invoice Generator" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CV Generator" } }
+        ]
+      }
+    }
+</script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P5XW4L7TBK"></script>
@@ -151,8 +187,9 @@
   gtag('js', new Date());
 
   gtag('config', 'G-P5XW4L7TBK');
-</script>
-
+</script>
+<link rel="preload" href="/index.css" as="style">
+<link rel="stylesheet" href="/index.css">
 <script type="importmap">
 {
   "imports": {
@@ -185,12 +222,10 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/main-CKNZpjee.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/react-Ckhrjn13.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-CjB0opEP.css">
-<link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+</head>
   <body class="bg-white dark:bg-black">
-    <div id="root"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
     <!-- Cloud Picker SDKs -->
     <script src="https://apis.google.com/js/api.js" async defer></script>
     <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="roteftycciwco5q" async defer></script>
