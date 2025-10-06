@@ -6,13 +6,13 @@ import 'firebase/compat/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD02G-p2zeQZLFRfX89Sm89vcSBOESyMs8",
-  authDomain: "pdfbullet-1d791.firebaseapp.com",
-  projectId: "pdfbullet-1d791",
-  storageBucket: "pdfbullet-1d791.appspot.com",
-  messagingSenderId: "196115080623",
-  appId: "1:196115080623:web:62afd9a4b96f6a2897fb5a",
-  measurementId: "G-YF3R88H1JV"
+  apiKey: "AIzaSyCyuWX133uQ8CAxs5IvNiN8Tf9Q09Zi1-E",
+  authDomain: "pdfbullet-a766e.firebaseapp.com",
+  projectId: "pdfbullet-a766e",
+  storageBucket: "pdfbullet-a766e.appspot.com",
+  messagingSenderId: "491932898021",
+  appId: "1:491932898021:web:a7c1c9f5197e655c1f7a0c",
+  measurementId: "G-PYLVB5NKSY"
 };
 
 // Initialize Firebase, preventing re-initialization
