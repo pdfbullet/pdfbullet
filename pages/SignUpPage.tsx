@@ -22,10 +22,12 @@ const getPasskeyButtonText = (isLogin: boolean): string => {
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { loginOrSignupWithGoogle, loginOrSignupWithGithub } = useAuth();
+  const { loginOrSignupWithGoogle, loginOrSignupWithGithub, signUpWithEmail } = useAuth();
   const { register: registerPasskey, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
 
@@ -37,6 +39,37 @@ const SignUpPage: React.FC = () => {
     }
   }, []);
   
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await signUpWithEmail(email, password);
+      // onAuthStateChanged in AuthContext will handle navigation
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Please log in.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('The password is too weak. Please use a stronger password.');
+      } else {
+        setError(err.message || 'Failed to create account. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handlePasskeyRegister = async () => {
     if (!email) {
         setError("Please enter your email address to register a passkey.");
@@ -117,27 +150,35 @@ const SignUpPage: React.FC = () => {
               <div className="absolute inset-0 flex items-center" aria-hidden="true"><div className="w-full border-t border-gray-300 dark:border-gray-700" /></div>
               <div className="relative flex justify-center text-sm"><span className="bg-gray-100 dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">OR</span></div>
           </div>
-
-          {error && <p className="text-center text-sm text-red-500 mb-4">{error}</p>}
           
-          {success ? (
-            <div className="text-center p-4 my-4 bg-green-100 dark:bg-green-900/20 rounded-lg border border-green-300 dark:border-green-600">
-              <p className="font-semibold text-green-800 dark:text-green-200">{success}</p>
-              <Link
-                to="/login"
-                state={{ from: location.state?.from, plan: location.state?.plan }}
-                className="mt-4 inline-block bg-brand-red text-white font-bold py-2 px-6 rounded-md hover:bg-brand-red-dark"
-              >
-                Log In
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-center text-sm text-gray-600 dark:text-gray-400">Enter your email to register with a Passkey.</p>
+          {error && <p className="text-center text-sm text-red-500 bg-red-100 dark:bg-red-900/20 p-2 rounded-md mb-4">{error}</p>}
+          {success && <p className="text-center text-sm text-green-600 bg-green-100 dark:bg-green-900/20 p-2 rounded-md mb-4">{success}</p>}
+
+          <form className="space-y-4" onSubmit={handleEmailSignUp}>
               <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><EmailIcon className="h-5 w-5 text-gray-400" /></div>
-                  <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Email for Passkey" />
+                  <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Email address" />
               </div>
+              <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><KeyIcon className="h-5 w-5 text-gray-400" /></div>
+                  <input id="password" name="password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Password" />
+              </div>
+               <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><KeyIcon className="h-5 w-5 text-gray-400" /></div>
+                  <input id="confirm-password" name="confirm-password" type="password" autoComplete="new-password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-black py-2.5 pl-10 pr-3 placeholder-gray-500 focus:border-brand-red focus:outline-none focus:ring-brand-red" placeholder="Confirm Password" />
+              </div>
+              <div>
+                  <button type="submit" disabled={isLoading} className="w-full flex justify-center rounded-md border border-transparent bg-brand-red py-2.5 px-4 text-sm font-medium text-white hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-brand-red-dark focus:ring-offset-2 disabled:opacity-50 transition-colors">
+                      {isLoading ? 'Creating Account...' : 'Sign up'}
+                  </button>
+              </div>
+          </form>
+          
+          <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true"><div className="w-full border-t border-gray-300 dark:border-gray-700" /></div>
+          </div>
+
+          <div>
               <button
                 onClick={handlePasskeyRegister}
                 disabled={isLoading || !isWebAuthnSupported}
@@ -147,17 +188,16 @@ const SignUpPage: React.FC = () => {
                 <span>{passkeyText}</span>
               </button>
               {!isWebAuthnSupported && <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Your device does not support Passkeys.</p>}
-            </div>
-          )}
-          
+          </div>
+
           <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-            By creating an account, you agree to PDFBullet{' '}
+            By creating an account, you agree to PDFBullet's{' '}
             <Link to="/terms-of-service" className="text-brand-red hover:underline">Terms of Service</Link> and{' '}
             <Link to="/privacy-policy" className="text-brand-red hover:underline">Privacy Policy</Link>.
           </p>
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already member?{' '}
+            Already a member?{' '}
             <Link to="/login" state={{ from: location.state?.from, plan: location.state?.plan }} className="font-medium text-brand-red hover:text-brand-red-dark">
               Log in
             </Link>
