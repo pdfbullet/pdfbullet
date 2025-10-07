@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 import { GoogleIcon, EmailIcon, KeyIcon, GitHubIcon, SSOIcon, UserIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 import { useWebAuthn } from '../hooks/useWebAuthn.ts';
-import FaceLoginModal from '../components/FaceLoginModal.tsx';
 
 const getPasskeyButtonText = (isLogin: boolean): string => {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -28,7 +27,6 @@ const SignUpPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isFaceLoginModalOpen, setIsFaceLoginModalOpen] = useState(false);
   const { loginOrSignupWithGoogle, loginOrSignupWithGithub, signUpWithEmail } = useAuth();
   const { register: registerPasskey, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
@@ -183,14 +181,6 @@ const SignUpPage: React.FC = () => {
 
             <div className="space-y-4">
                 <button
-                  onClick={() => setIsFaceLoginModalOpen(true)}
-                  disabled={isLoading}
-                  className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                  <UserIcon className="h-5 w-5" />
-                  <span>Continue with Face ID</span>
-                </button>
-                <button
                   onClick={handlePasskeyRegister}
                   disabled={isLoading || !isWebAuthnSupported}
                   className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -225,11 +215,6 @@ const SignUpPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <FaceLoginModal
-        mode="signup_redirect"
-        isOpen={isFaceLoginModalOpen}
-        onClose={() => setIsFaceLoginModalOpen(false)}
-      />
     </>
   );
 };

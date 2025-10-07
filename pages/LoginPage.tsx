@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 import { GoogleIcon, KeyIcon, GitHubIcon, SSOIcon, UserIcon } from '../components/icons.tsx';
 import { Logo } from '../components/Logo.tsx';
 import { useWebAuthn } from '../hooks/useWebAuthn.ts';
-import FaceLoginModal from '../components/FaceLoginModal.tsx';
 
 interface LoginPageProps {
   onOpenForgotPasswordModal: () => void;
@@ -30,7 +29,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isFaceLoginModalOpen, setIsFaceLoginModalOpen] = useState(false);
   const { loginOrSignupWithGoogle, signInWithEmail, loginOrSignupWithGithub, signInWithCustomToken } = useAuth();
   const { login: passkeyLogin, isWebAuthnSupported } = useWebAuthn();
   const location = useLocation();
@@ -179,14 +177,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
 
             <div className="space-y-4">
                 <button
-                  onClick={() => setIsFaceLoginModalOpen(true)}
-                  disabled={isLoading}
-                  className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                  <UserIcon className="h-5 w-5" />
-                  <span>Continue with Face ID</span>
-                </button>
-                <button
                   onClick={handlePasskeyLogin}
                   disabled={isLoading || !isWebAuthnSupported}
                   className="w-full flex justify-center items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -215,11 +205,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onOpenForgotPasswordModal }) => {
           </div>
         </div>
       </div>
-      <FaceLoginModal
-        mode="login"
-        isOpen={isFaceLoginModalOpen}
-        onClose={() => setIsFaceLoginModalOpen(false)}
-      />
     </>
   );
 };

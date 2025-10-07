@@ -1,4 +1,5 @@
 
+
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -681,6 +682,8 @@ const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
 const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
+const PwaLoginPage = lazy(() => import('./pages/PwaLoginPage.tsx'));
+const PwaSignUpPage = lazy(() => import('./pages/PwaSignUpPage.tsx'));
 
 
 function AppContent() {
@@ -843,8 +846,8 @@ function AppContent() {
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/blog" element={<BlogPage />} />
                     <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/login" element={isPwa ? <PwaLoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} /> : <LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+                    <Route path="/signup" element={isPwa ? <PwaSignUpPage /> : <SignUpPage />} />
                     <Route path="/developer" element={<DeveloperPage />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/sitemap" element={<SitemapPage />} />
