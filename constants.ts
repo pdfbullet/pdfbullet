@@ -30,6 +30,7 @@ import {
   CVIcon,
   ZipIcon,
   ResizeIcon,
+  DocumentScannerIcon,
 } from './components/icons.tsx';
 
 export const TOOLS: Tool[] = [
@@ -203,6 +204,21 @@ export const TOOLS: Tool[] = [
     api: { category: 'pdf' },
     fileTypeDisplayName: 'EXCEL',
     fileTypeNounPlural: 'files',
+  },
+  {
+    id: 'document-scanner',
+    title: 'tool.document-scanner.title',
+    description: 'tool.document-scanner.description',
+    Icon: DocumentScannerIcon,
+    color: 'bg-cyan-500',
+    hoverColor: 'hover:bg-cyan-600',
+    textColor: 'text-cyan-600',
+    isNew: true,
+    category: 'convert-to',
+    accept: {},
+    api: { category: 'utility' },
+    fileTypeDisplayName: 'images',
+    fileTypeNounPlural: 'to scan',
   },
 
   // Convert From
