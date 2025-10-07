@@ -18,7 +18,6 @@ const getPasskeyButtonText = (isLogin: boolean): string => {
     return "Sign up with Passkey";
 };
 
-
 const PwaSignUpPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -72,7 +71,7 @@ const PwaSignUpPage: React.FC = () => {
   
     return (
     <>
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-black p-4">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-800 p-4">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
             <Logo className="h-12 w-auto mx-auto mb-4" />
@@ -87,8 +86,8 @@ const PwaSignUpPage: React.FC = () => {
 
           <div className="separator">OR</div>
           
-          {error && <p className="text-center text-sm text-red-500 font-semibold">{error}</p>}
-          {success && <p className="text-center text-sm text-green-600 font-semibold">{success}</p>}
+          {error && <p className="text-center text-sm text-red-500 font-semibold bg-red-100 dark:bg-red-900/20 p-3 rounded-md">{error}</p>}
+          {success && <p className="text-center text-sm text-green-600 font-semibold bg-green-100 dark:bg-green-900/20 p-3 rounded-md">{success}</p>}
 
           <div className="space-y-4">
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">Sign up password-free with a Passkey or Face ID. Enter your email to begin.</p>
@@ -106,25 +105,26 @@ const PwaSignUpPage: React.FC = () => {
           </p>
         </div>
       </div>
-      <FaceLoginModal mode="signup_redirect" isOpen={isFaceLoginModalOpen} onClose={() => setIsFaceLoginModalOpen(false)} />
+      <FaceLoginModal mode="register" isOpen={isFaceLoginModalOpen} onClose={() => setIsFaceLoginModalOpen(false)} />
        <style>{`
-        .social-btn { display: flex; justify-content: center; align-items: center; gap: 0.5rem; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.625rem 1rem; font-semibold; transition: background-color 0.2s; width: 100%; }
+        .social-btn { display: flex; justify-content: center; align-items: center; gap: 0.75rem; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.75rem 1rem; font-semibold; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); width: 100%; }
         .dark .social-btn { border-color: #4B5563; background-color: #1F2937; color: #E5E7EB; }
-        .social-btn:hover { background-color: #F9FAFB; }
+        .social-btn:hover { background-color: #F9FAFB; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .dark .social-btn:hover { background-color: #374151; }
         .separator { position: relative; text-align: center; color: #6B7280; font-size: 0.875rem; margin: 1.5rem 0; }
-        .separator::before, .separator::after { content: ''; position: absolute; top: 50%; width: calc(50% - 20px); border-top: 1px solid #D1D5DB; }
-        .dark .separator::before, .dark .separator::after { border-color: #4B5563; }
+        .separator::before, .separator::after { content: ''; position: absolute; top: 50%; width: calc(50% - 20px); border-top: 1px solid #E5E7EB; }
+        .dark .separator::before, .dark .separator::after { border-color: #374151; }
         .separator::before { left: 0; }
         .separator::after { right: 0; }
         .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
-        .input-field { width: 100%; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.625rem 0.75rem 0.625rem 2.5rem; }
+        .input-field { width: 100%; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.75rem 0.75rem 0.75rem 2.5rem; transition: border-color 0.2s, box-shadow 0.2s; }
         .dark .input-field { border-color: #4B5563; background-color: #1F2937; }
-        .secondary-btn { width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.625rem 1rem; font-semibold; transition: background-color 0.2s; }
+        .input-field:focus { outline: none; border-color: #B90B06; box-shadow: 0 0 0 1px #B90B06; }
+        .secondary-btn { width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.75rem; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: white; padding: 0.75rem 1rem; font-semibold; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
         .dark .secondary-btn { border-color: #4B5563; background-color: #1F2937; color: #E5E7EB; }
-        .secondary-btn:hover { background-color: #F9FAFB; }
+        .secondary-btn:hover { background-color: #F9FAFB; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .dark .secondary-btn:hover { background-color: #374151; }
-        .secondary-btn:disabled { opacity: 0.5; }
+        .secondary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
       `}</style>
     </>
   );
