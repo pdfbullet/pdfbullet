@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { UserIcon, StarIcon, ApiIcon, WarningIcon } from '../components/icons.tsx';
+import FaceLoginModal from '../components/FaceLoginModal.tsx';
 
 const countries = [
   { code: 'AF', name: 'Afghanistan', flag: '🇦🇫' }, { code: 'AL', name: 'Albania', flag: '🇦🇱' },
@@ -97,6 +98,7 @@ const AccountSettingsPage: React.FC = () => {
     const [country, setCountry] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [isFaceLoginModalOpen, setIsFaceLoginModalOpen] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -133,67 +135,89 @@ const AccountSettingsPage: React.FC = () => {
     };
 
     return (
-        <div className="w-full space-y-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">My account</h1>
-            
-            {/* Personal Info */}
-            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><UserIcon className="h-6 w-6" /> Personal information</h2>
-                <form onSubmit={handleSave} className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First name</label>
-                            <input type="text" id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full p-2 border rounded-md" />
+        <>
+            <div className="w-full space-y-8">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100">My account</h1>
+                
+                {/* Personal Info */}
+                <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><UserIcon className="h-6 w-6" /> Personal information</h2>
+                    <form onSubmit={handleSave} className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First name</label>
+                                <input type="text" id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full p-2 border rounded-md" />
+                            </div>
+                            <div>
+                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last name</label>
+                                <input type="text" id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full p-2 border rounded-md" />
+                            </div>
                         </div>
                         <div>
-                            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last name</label>
-                            <input type="text" id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full p-2 border rounded-md" />
+                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+                            <select id="country" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-md">
+                                <option value="">Select country</option>
+                                {countries.map(c => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
+                            </select>
                         </div>
-                    </div>
-                    <div>
-                        <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
-                        <select id="country" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-md">
-                            <option value="">Select country</option>
-                            {countries.map(c => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
-                        </select>
-                    </div>
-                    {message && <p className={`mt-2 text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
-                    <div className="text-right">
-                        <button type="submit" disabled={isLoading} className="bg-brand-red text-white font-bold py-2 px-6 rounded-md disabled:bg-red-300">{isLoading ? 'Saving...' : 'Save'}</button>
-                    </div>
-                </form>
-            </div>
+                        {message && <p className={`mt-2 text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
+                        <div className="text-right">
+                            <button type="submit" disabled={isLoading} className="bg-brand-red text-white font-bold py-2 px-6 rounded-md disabled:bg-red-300">{isLoading ? 'Saving...' : 'Save'}</button>
+                        </div>
+                    </form>
+                </div>
 
-            {/* Subscription */}
-            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><StarIcon className="h-6 w-6" /> Subscription</h2>
-                <div className="flex justify-between items-center">
-                    <p>You are on the <span className="font-bold">{user?.isPremium ? 'Premium' : 'Free'}</span> plan.</p>
-                    <Link to="/pricing" className="text-brand-red font-semibold hover:underline">Manage subscription</Link>
+                {/* Subscription */}
+                <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><StarIcon className="h-6 w-6" /> Subscription</h2>
+                    <div className="flex justify-between items-center">
+                        <p>You are on the <span className="font-bold">{user?.isPremium ? 'Premium' : 'Free'}</span> plan.</p>
+                        <Link to="/pricing" className="text-brand-red font-semibold hover:underline">Manage subscription</Link>
+                    </div>
+                </div>
+
+                {/* Face Login Setup */}
+                <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><UserIcon className="h-6 w-6" /> Face Login</h2>
+                    {user?.faceDescriptor ? (
+                        <p className="text-gray-600 dark:text-gray-400">Face Login is enabled for your account.</p>
+                    ) : (
+                        <>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Set up passwordless login using your face. This will register your face data to your account on this device.</p>
+                            <button onClick={() => setIsFaceLoginModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">
+                                Set up Face Login
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {/* API Access */}
+                <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ApiIcon className="h-6 w-6" /> API Access</h2>
+                    <div className="flex justify-between items-center">
+                        <p>Your API plan is: <span className="font-bold">{user?.apiPlan || 'free'}</span>.</p>
+                        <Link to="/api-pricing" className="text-brand-red font-semibold hover:underline">Manage API Plan</Link>
+                    </div>
+                </div>
+
+                {/* Danger Zone */}
+                <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border-2 border-red-500/50">
+                    <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><WarningIcon className="h-6 w-6" /> Danger Zone</h2>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <p className="font-semibold">Delete your account</p>
+                            <p className="text-sm text-gray-500">Once you delete your account, there is no going back. Please be certain.</p>
+                        </div>
+                        <button onClick={handleDeleteAccount} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700">Delete My Account</button>
+                    </div>
                 </div>
             </div>
-
-            {/* API Access */}
-            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ApiIcon className="h-6 w-6" /> API Access</h2>
-                <div className="flex justify-between items-center">
-                    <p>Your API plan is: <span className="font-bold">{user?.apiPlan || 'free'}</span>.</p>
-                    <Link to="/api-pricing" className="text-brand-red font-semibold hover:underline">Manage API Plan</Link>
-                </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="bg-white dark:bg-surface-dark p-8 rounded-lg shadow-lg border-2 border-red-500/50">
-                <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><WarningIcon className="h-6 w-6" /> Danger Zone</h2>
-                <div className="flex justify-between items-center">
-                    <div>
-                        <p className="font-semibold">Delete your account</p>
-                        <p className="text-sm text-gray-500">Once you delete your account, there is no going back. Please be certain.</p>
-                    </div>
-                    <button onClick={handleDeleteAccount} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700">Delete My Account</button>
-                </div>
-            </div>
-        </div>
+            <FaceLoginModal
+                mode="register"
+                isOpen={isFaceLoginModalOpen}
+                onClose={() => setIsFaceLoginModalOpen(false)}
+            />
+        </>
     );
 };
 export default AccountSettingsPage;

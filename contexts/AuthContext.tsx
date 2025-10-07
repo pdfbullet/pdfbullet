@@ -57,6 +57,7 @@ interface User {
   businessDetails?: BusinessDetails;
   trialEnds?: number;
   isAdmin?: boolean;
+  faceDescriptor?: number[];
 }
 
 // Auth Context Type
@@ -90,6 +91,8 @@ interface AuthContextType {
   getTaskHistory: () => Promise<TaskLog[]>;
   deleteTaskRecord: (taskId: string) => Promise<void>;
   auth: firebase.auth.Auth;
+  saveFaceDescriptor: (descriptor: number[]) => Promise<void>;
+  loginWithFace: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -432,8 +435,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
   };
 
+  const saveFaceDescriptor = async (descriptor: number[]) => {
+    if (!user) throw new Error("No user is signed in.");
+    try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({ faceDescriptor: descriptor });
+        setUser(prevUser => prevUser ? { ...prevUser, faceDescriptor: descriptor } : null);
+    } catch (error) {
+        throw handleFirestoreError(error, 'saving face descriptor');
+    }
+  };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, auth };
+  const loginWithFace = async (email: string) => {
+    try {
+        const usersRef = db.collection('users');
+        const q = usersRef.where('email', '==', email).limit(1);
+        const snapshot = await q.get();
+        
+        if (snapshot.empty) {
+            throw new Error("No account found with this email address.");
+        }
+        
+        const userData = snapshot.docs[0].data() as User;
+
+        // This is an insecure mock login method for demonstration purposes, as requested.
+        // It bypasses Firebase Auth's password/token verification by directly setting
+        // the user state in the React context.
+        // FOR PRODUCTION: This should be replaced with a secure custom token flow.
+        setUser(userData);
+
+    } catch (error) {
+        if (error instanceof Error) throw error;
+        throw handleFirestoreError(error, 'face login');
+    }
+  };
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPremiumStatus, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, auth, saveFaceDescriptor, loginWithFace };
 
   return <AuthContext.Provider value={value}>{loading ? <Preloader /> : children}</AuthContext.Provider>;
 };
