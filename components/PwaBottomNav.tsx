@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HomeIcon, GridIcon, SettingsIcon, NewspaperIcon, BgRemoveIcon } from './icons.tsx';
+import { HomeIcon, GridIcon, SettingsIcon, StorageIcon, BgRemoveIcon } from './icons.tsx';
 
 const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({ to, icon: Icon, label }) => {
     const location = useLocation();
@@ -22,14 +22,14 @@ const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({
 const PwaBottomNav: React.FC = () => {
     return (
         <div className="fixed bottom-0 left-0 right-0 h-[72px] z-50 pointer-events-none">
-            <nav className="absolute bottom-0 left-0 right-0 h-[72px] bg-white/80 dark:bg-black/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 flex items-center justify-around pointer-events-auto">
+            <nav className="absolute bottom-0 left-0 right-0 h-[72px] bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 flex items-center justify-around pointer-events-auto">
                 <div className="w-1/5 flex justify-center"><NavItem to="/" icon={HomeIcon} label="Home" /></div>
                 <div className="w-1/5 flex justify-center"><NavItem to="/tools" icon={GridIcon} label="Tools" /></div>
                 
                 {/* Spacer for the central button */}
                 <div className="w-1/5"></div>
                 
-                <div className="w-1/5 flex justify-center"><NavItem to="/articles" icon={NewspaperIcon} label="Articles" /></div>
+                <div className="w-1/5 flex justify-center"><NavItem to="/storage" icon={StorageIcon} label="Storage" /></div>
                 <div className="w-1/5 flex justify-center"><NavItem to="/settings" icon={SettingsIcon} label="More" /></div>
             </nav>
             

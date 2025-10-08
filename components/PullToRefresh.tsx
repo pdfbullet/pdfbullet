@@ -67,13 +67,13 @@ const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
   }, []);
 
-  const indicatorRotation = Math.min(pullDistance / PULL_THRESHOLD, 1) * 360;
-  const indicatorOpacity = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  
   const wrapperStyle: React.CSSProperties = {
-      transform: `translateY(${isRefreshing ? PULL_THRESHOLD : pullDistance}px)`,
+      transform: (pullDistance > 0 || isRefreshing) ? `translateY(${isRefreshing ? PULL_THRESHOLD : pullDistance}px)` : 'none',
       transition: pullStart === null && !isRefreshing ? 'transform 0.3s' : 'none',
   };
+  
+  const indicatorRotation = Math.min(pullDistance / PULL_THRESHOLD, 1) * 360;
+  const indicatorOpacity = Math.min(pullDistance / PULL_THRESHOLD, 1);
   
   const indicatorStyle: React.CSSProperties = {
       opacity: isRefreshing ? 1 : indicatorOpacity,

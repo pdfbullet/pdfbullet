@@ -1,29 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
 import { Logo } from './Logo.tsx';
-import { DownloadIcon, CloseIcon, StarIcon } from './icons.tsx';
+import { DownloadIcon, CloseIcon, StarIcon, CheckIcon, BgRemoveIcon, RightArrowIcon } from './icons.tsx';
 import { Link } from 'react-router-dom';
-
-// Simple platform-specific icons for instructions
-const ShareIOSIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M16 5l-1.42 1.42L16 8H8v2h8l-1.42 1.58L16 13l4-4-4-4zM6 5H4v14h2V5z" />
-        <path d="M13 11v-2l-4 4 4 4v-2h6v-2h-6z" transform="translate(-1, 0) rotate(90 12 12)" />
-    </svg>
-);
-const MoreIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-  </svg>
-);
 
 const WelcomeInstallModal: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const { promptInstall } = usePWAInstall();
-    const [isAndroid, setIsAndroid] = useState(false);
 
     useEffect(() => {
-        setIsAndroid(/android/i.test(navigator.userAgent));
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
         const hasBeenShown = sessionStorage.getItem('welcome_install_modal_shown');
 
@@ -49,64 +34,69 @@ const WelcomeInstallModal: React.FC = () => {
         return null;
     }
 
+    const premiumFeatures = [
+        'Unlimited document tasks',
+        'Process multiple files at once',
+        'Ad-free experience',
+        'Access to all Premium tools'
+    ];
+
     return (
-        <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 animate-fade-in-down" onClick={handleClose}>
-            <div className="bg-white dark:bg-black w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
-                <div className="p-8 text-center">
-                    <Logo className="h-12 w-auto mx-auto mb-4" />
-                    <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Welcome to PDFBullet!</h2>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">For the best experience, install our app on your device.</p>
+        <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4" onClick={handleClose}>
+            <div className="bg-white dark:bg-black w-full max-w-xs rounded-2xl shadow-2xl overflow-hidden relative animate-fade-in-up" onClick={e => e.stopPropagation()}>
+                <div className="relative p-3 text-center bg-gradient-to-br from-brand-red to-orange-500 text-white">
+                    <Logo className="h-7 w-auto mx-auto mb-2" variant="dark" />
+                    <h2 className="text-xl font-extrabold">Get the Full PDFBullet Experience</h2>
+                    <p className="mt-1 text-xs opacity-90">Install the app for faster, offline access and unlock exclusive trial features.</p>
+                </div>
 
-                    <div className="mt-6 p-6 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
-                        <div className="flex items-center justify-center gap-2 text-yellow-500">
-                            <StarIcon className="h-6 w-6" />
-                            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Get a 7-Day FREE Premium Trial!</h3>
+                <div className="p-3 space-y-2">
+                    <div className="text-left">
+                        <div className="flex items-center gap-2">
+                            <StarIcon className="h-5 w-5 text-yellow-400" />
+                            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">7-Day Premium Trial on Install</h3>
                         </div>
-                        <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                            Install our app and sign up to automatically unlock a <strong>7-day free trial</strong> of all Premium features.
-                        </p>
+                        <ul className="mt-2 space-y-1 text-xs text-gray-600 dark:text-gray-300 pl-4">
+                            {premiumFeatures.map(feature => (
+                                <li key={feature} className="flex items-center gap-2">
+                                    <CheckIcon className="h-4 w-4 text-green-500" />
+                                    <span>{feature}</span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
 
-                    <div className="mt-6 text-left">
-                        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-2">How to Install:</h4>
-                        <div className="text-sm space-y-2 text-gray-600 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                                <span className="flex-shrink-0 font-bold w-4 text-center">1.</span>
-                                <span>Tap your browser's menu (<MoreIcon className="h-4 w-4 inline-block align-middle"/>) or share icon (<ShareIOSIcon className="h-4 w-4 inline-block align-middle"/>).</span>
+                    <Link to="/remove-background" onClick={handleClose} className="block p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-left group hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-purple-200 dark:bg-purple-800 rounded-full">
+                                <BgRemoveIcon className="h-4 w-4 text-purple-600 dark:text-purple-300" />
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="flex-shrink-0 font-bold w-4 text-center">2.</span>
-                                <span>Select '<strong>Install app</strong>' or '<strong>Add to Home Screen</strong>'.</span>
+                            <div>
+                                <h4 className="font-bold text-sm text-purple-800 dark:text-purple-200">Try our new AI Tool</h4>
+                                <p className="text-xs text-purple-700 dark:text-purple-300">Remove image backgrounds instantly.</p>
                             </div>
+                            <RightArrowIcon className="h-5 w-5 ml-auto text-purple-500 group-hover:translate-x-1 transition-transform" />
                         </div>
-                    </div>
-                    
-                    {isAndroid ? (
-                        <a
-                            href="https://ilovepdfly.github.io/ilovepdfly/apk/app-release-signed.apk"
-                            download
-                            onClick={handleClose}
-                            className="mt-8 w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
-                        >
-                            <DownloadIcon className="h-6 w-6" />
-                            Download APK & Get Free Trial
-                        </a>
-                    ) : (
+                    </Link>
+
+                    <div className="space-y-1 pt-1">
                         <button
                             onClick={handleInstall}
-                            className="mt-8 w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors"
                         >
-                            <DownloadIcon className="h-6 w-6" />
+                            <DownloadIcon className="h-5 w-5" />
                             Install App & Get Free Trial
                         </button>
-                    )}
-                    
-                    <p className="mt-4 text-xs text-gray-400">
-                        By continuing, you agree to our <Link to="/terms-of-service" onClick={handleClose} className="underline hover:text-brand-red">Terms</Link> and <Link to="/privacy-policy" onClick={handleClose} className="underline hover:text-brand-red">Privacy Policy</Link>.
-                    </p>
+                         <button
+                            onClick={handleClose}
+                            className="w-full text-center text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red transition-colors py-1"
+                        >
+                            Continue without Installing
+                        </button>
+                    </div>
                 </div>
-                 <button onClick={handleClose} className="absolute top-3 right-3 text-gray-400 hover:text-gray-800 dark:hover:text-white bg-white/50 dark:bg-black/50 rounded-full p-1 transition-colors" aria-label="Close">
-                    <CloseIcon className="h-5 w-5" />
+                 <button onClick={handleClose} className="absolute top-2 right-2 text-white/70 hover:text-white bg-black/20 rounded-full p-1 transition-colors" aria-label="Close">
+                    <CloseIcon className="h-4 w-4" />
                 </button>
             </div>
         </div>

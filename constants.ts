@@ -179,7 +179,7 @@ export const TOOLS: Tool[] = [
   },
   {
     id: 'powerpoint-to-pdf',
-    title: 'tool.powerpoint-to-pdf.title',
+    title: 'powerpoint to pdf',
     description: 'tool.powerpoint-to-pdf.description',
     Icon: PowerPointIcon,
     color: 'bg-red-500',

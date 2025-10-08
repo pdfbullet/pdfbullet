@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import { 
-    RefreshIcon, DownloadIcon
+    RefreshIcon, DownloadIcon, LockIcon, ShoppingBagIcon
 } from '../components/icons.tsx';
 import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
@@ -124,6 +124,71 @@ const PwaTaskItem: React.FC<{ task: LastTask }> = ({ task }) => {
     );
 };
 
+const useIsVisible = (ref: React.RefObject<HTMLElement>) => {
+    const [isIntersecting, setIntersecting] = useState(false);
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setIntersecting(true);
+                observer.unobserve(entry.target);
+            }
+        }, { threshold: 0.1 });
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
+        }
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef);
+            }
+        };
+    }, [ref]);
+    return isIntersecting;
+};
+
+const AdvantageSection = memo(() => {
+    const sectionRef = useRef<HTMLElement>(null);
+    const isVisible = useIsVisible(sectionRef);
+
+    const advantages = [
+        {
+            icon: LockIcon,
+            title: 'Secure & Private',
+            description: 'Your files are processed client-side. Nothing is ever uploaded, guaranteeing 100% privacy.'
+        },
+        {
+            icon: RefreshIcon,
+            title: 'Blazing Fast',
+            description: "Because all processing happens in your browser, there are no upload or download delays. Get results instantly."
+        },
+        {
+            icon: ShoppingBagIcon,
+            title: 'Completely Free',
+            description: "All our core tools are free to use, without limits. No hidden fees, no sign-up required for most features."
+        }
+    ];
+
+    return (
+        <section ref={sectionRef} className={`py-8 scroll-animate ${isVisible ? 'visible' : ''}`}>
+            <div className="max-w-7xl mx-auto">
+                <h2 className="text-xl font-bold mb-4">Key Features</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {advantages.map((adv, index) => (
+                        <div key={index} className="bg-white dark:bg-black p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 text-center">
+                            <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-brand-red/10 mb-4">
+                                <adv.icon className="h-7 w-7 text-brand-red" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{adv.title}</h3>
+                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{adv.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+});
+
+
 const PwaHomePage: React.FC = () => {
     const { user } = useAuth();
     const { isFavorite, toggleFavorite, favorites } = useFavorites();
@@ -166,11 +231,13 @@ const PwaHomePage: React.FC = () => {
                     ))}
                 </div>
             </section>
+            
+            <AdvantageSection />
 
             <section>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Recent Activity</h2>
-                    <Link to="/last-tasks" className="text-sm font-semibold text-brand-red hover:underline">View All</Link>
+                    <Link to="/storage" className="text-sm font-semibold text-brand-red hover:underline">View All</Link>
                 </div>
                 <div className="space-y-3">
                     {tasksLoading ? (
