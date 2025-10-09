@@ -113,7 +113,7 @@ const PwaToolsPage: React.FC = () => {
                 </div>
             )}
 
-            <div className="pb-4 sticky top-[60px] bg-white/80 dark:bg-black/80 backdrop-blur-sm z-10 -mx-4 px-4">
+            <div className="pb-4 sticky top-[60px] bg-gray-50/80 dark:bg-soft-dark/80 backdrop-blur-sm z-10 -mx-4 px-4">
                 <div className="overflow-x-auto no-scrollbar">
                     <div className="flex items-center justify-start gap-3 w-max">
                         {filterCategories.map(({ labelKey, category }) => (

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -10,6 +11,7 @@ import { useFavorites } from '../hooks/useFavorites.ts';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { useLastTasks, LastTask } from '../hooks/useLastTasks.ts';
+import { usePwaLayout } from '../contexts/PwaLayoutContext.tsx';
 
 const bannerSlides = [
   {
@@ -194,6 +196,11 @@ const PwaHomePage: React.FC = () => {
     const { isFavorite, toggleFavorite, favorites } = useFavorites();
     const { t } = useI18n();
     const { tasks, loading: tasksLoading } = useLastTasks();
+    const { setTitle } = usePwaLayout();
+
+    useEffect(() => {
+        setTitle('Home');
+    }, [setTitle]);
 
     const favoriteTools = useMemo(() => TOOLS.filter(tool => favorites.includes(tool.id)), [favorites]);
 
@@ -250,26 +257,14 @@ const PwaHomePage: React.FC = () => {
                             <p>Your recently processed files will appear here.</p>
                         </div>
                     ) : (
+                        // FIX: Completed truncated line and map function to render PwaTaskItem components.
                         tasks.slice(0, 3).map(task => <PwaTaskItem key={task.id} task={task} />)
                     )}
                 </div>
-            </section>
-            
-            <section>
-                <h2 className="text-xl font-bold mb-4">Explore</h2>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Link to="/tools" className="block p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <h3 className="font-bold text-blue-800 dark:text-blue-200">All Tools</h3>
-                        <p className="text-sm text-blue-700 dark:text-blue-300">Browse the complete suite of over 40 PDF and image tools.</p>
-                    </Link>
-                     <Link to="/articles" className="block p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <h3 className="font-bold text-green-800 dark:text-green-200">Tips & Tricks</h3>
-                        <p className="text-sm text-green-700 dark:text-green-300">Read our blog for guides and updates to boost your productivity.</p>
-                    </Link>
-                 </div>
             </section>
         </div>
     );
 };
 
+// FIX: Added default export to resolve React.lazy() import error in App.tsx.
 export default PwaHomePage;

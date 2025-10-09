@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
+import { PwaLayoutProvider } from './contexts/PwaLayoutContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon, BellIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
@@ -13,6 +14,7 @@ import { TOOLS } from './constants.ts';
 import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
+import PwaHeader from './components/PwaHeader.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
@@ -654,10 +656,30 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                 </div>
             </div>
             {showFab && (
-                <button onClick={onOpen} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
-                    <ChatbotIcon className="h-6 w-6 relative" />
-                </button>
+                isPwa ? (
+                    <button
+                        onClick={onOpen}
+                        className={`pointer-events-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                        aria-label="Open Chat Support"
+                        title="Open Chat Support"
+                    >
+                        <img 
+                            src="https://ik.imagekit.io/fonepay/chatbot%20icon.png?updatedAt=1760017579423" 
+                            alt="Chat Support"
+                            className="w-16 h-16 rounded-full shadow-lg"
+                        />
+                    </button>
+                ) : (
+                    <button
+                        onClick={onOpen}
+                        className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                        aria-label="Open chat support"
+                        title="Open chat support"
+                    >
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
+                        <ChatbotIcon className="h-6 w-6 relative" />
+                    </button>
+                )
             )}
         </div>
     );
@@ -863,124 +885,158 @@ function AppContent() {
       }
     }
   }, [user, loading, navigate, location.pathname]);
+
+  const pwaRoutes = (
+      <Routes>
+          <Route path="/" element={<PwaHomePage />} />
+          <Route path="/tools" element={<PwaToolsPage />} />
+          <Route path="/articles" element={<PwaArticlesPage />} />
+          <Route path="/settings" element={<PwaSettingsPage />} />
+          <Route path="/storage" element={<PwaStoragePage />} />
+          <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/:toolId" element={<ToolPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+          {/* Add other PWA-relevant routes here if needed */}
+      </Routes>
+  );
+
+  const webRoutes = (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/developer" element={<DeveloperPage />} />
+      <Route path="/faq" element={<FaqPage />} />
+      <Route path="/sitemap" element={<SitemapPage />} />
+      <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+      <Route path="/cv-generator" element={<CVGeneratorPage />} />
+      <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+      <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+      <Route path="/image-generator" element={<ImageGeneratorPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/api-pricing" element={<ApiPricingPage />} />
+      <Route path="/premium-feature" element={<PremiumFeaturePage />} />
+      <Route path="/payment" element={<PaymentPage />} />
+      <Route path="/developer-access" element={<DeveloperAccessPage />} />
+      <Route path="/how-to-use" element={<HowToUsePage />} />
+      <Route path="/education" element={<EducationPage />} />
+      <Route path="/business" element={<BusinessPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+      <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+      <Route path="/ceo" element={<CeoPage />} />
+      <Route path="/press" element={<PressPage />} />
+      <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+      <Route path="/legal" element={<LegalPage />} />
+      <Route path="/security-policy" element={<SecurityPolicyPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      
+      <Route path="/api-reference" element={<ApiReferencePage />} />
+      <Route path="/api-pdf" element={<ApiPdfPage />} />
+      <Route path="/api-image" element={<ApiImagePage />} />
+      <Route path="/api-signature" element={<ApiSignaturePage />} />
+
+      <Route element={<AdminProtectedRoute />}>
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+      </Route>
+
+      <Route element={<UserProtectedRoute />}>
+          <Route element={<UserDashboardLayout />}>
+              <Route path="/account-settings" element={<AccountSettingsPage />} />
+              <Route path="/workflows" element={<WorkflowsPage />} />
+              <Route path="/security" element={<SecurityPage />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/last-tasks" element={<LastTasksPage />} />
+              <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+              <Route path="/sent" element={<SentPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/signed" element={<SignedPage />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+              <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+              <Route path="/business-details" element={<BusinessDetailsPage />} />
+              <Route path="/invoices" element={<InvoicesPage />} />
+                <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
+          </Route>
+          <Route path="/workflows/create" element={<CreateWorkflowPage />} />
+      </Route>
+      
+      <Route path="/:toolId" element={<ToolPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+  
+  if (isPwa) {
+    return (
+      <PwaLayoutProvider>
+        <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
+          <PullToRefresh>
+            <PwaHeader 
+              onOpenSearchModal={() => setSearchModalOpen(true)} 
+              unreadCount={unreadCount}
+              justReceivedNotification={justReceivedNotification}
+              onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+            />
+            <main className="pt-[60px] pb-[72px] bg-gray-50 dark:bg-soft-dark min-h-screen">
+              <Suspense fallback={<Preloader />}>
+                  {pwaRoutes}
+              </Suspense>
+            </main>
+            <PwaBottomNav />
+            <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
+            <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
+            <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+          </PullToRefresh>
+        </MobileAuthGate>
+      </PwaLayoutProvider>
+    );
+  }
   
   return (
     <LayoutContext.Provider value={layoutContextValue}>
-      <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
-        <MainBackground />
-        <PullToRefresh>
-            <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-              <Header
-                isPwa={isPwa}
-                onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-                onOpenSearchModal={() => setSearchModalOpen(true)}
-                onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-                onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
-                unreadCount={unreadCount}
-                justReceivedNotification={justReceivedNotification}
-                onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
-              />
-              <main className="flex-grow">
-                <Suspense fallback={<Preloader />}>
-                  <Routes>
-                    <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
-                    <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
-                    <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
-                    <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
-                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
-                    <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
-
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/blog/:slug" element={<BlogPostPage />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/login" element={isPwa ? <PwaLoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} /> : <LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-                    <Route path="/signup" element={isPwa ? <PwaSignUpPage /> : <SignUpPage />} />
-                    <Route path="/developer" element={<DeveloperPage />} />
-                    <Route path="/faq" element={<FaqPage />} />
-                    <Route path="/sitemap" element={<SitemapPage />} />
-                    <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
-                    <Route path="/cv-generator" element={<CVGeneratorPage />} />
-                    <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
-                    <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-                    <Route path="/image-generator" element={<ImageGeneratorPage />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/api-pricing" element={<ApiPricingPage />} />
-                    <Route path="/premium-feature" element={<PremiumFeaturePage />} />
-                    <Route path="/payment" element={<PaymentPage />} />
-                    <Route path="/developer-access" element={<DeveloperAccessPage />} />
-                    <Route path="/how-to-use" element={<HowToUsePage />} />
-                    <Route path="/education" element={<EducationPage />} />
-                    <Route path="/business" element={<BusinessPage />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                    <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                    <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
-                    <Route path="/ceo" element={<CeoPage />} />
-                    <Route path="/press" element={<PressPage />} />
-                    <Route path="/user-data-deletion" element={<DataDeletionPage />} />
-                    <Route path="/legal" element={<LegalPage />} />
-                    <Route path="/security-policy" element={<SecurityPolicyPage />} />
-                    <Route path="/features" element={<FeaturesPage />} />
-                    
-                    <Route path="/api-reference" element={<ApiReferencePage />} />
-                    <Route path="/api-pdf" element={<ApiPdfPage />} />
-                    <Route path="/api-image" element={<ApiImagePage />} />
-                    <Route path="/api-signature" element={<ApiSignaturePage />} />
-
-                    <Route element={<AdminProtectedRoute />}>
-                        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-                    </Route>
-
-                    <Route element={<UserProtectedRoute />}>
-                        <Route element={<UserDashboardLayout />}>
-                            <Route path="/account-settings" element={<AccountSettingsPage />} />
-                            <Route path="/workflows" element={<WorkflowsPage />} />
-                            <Route path="/security" element={<SecurityPage />} />
-                            <Route path="/team" element={<TeamPage />} />
-                            <Route path="/last-tasks" element={<LastTasksPage />} />
-                            <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
-                            <Route path="/sent" element={<SentPage />} />
-                            <Route path="/inbox" element={<InboxPage />} />
-                            <Route path="/signed" element={<SignedPage />} />
-                            <Route path="/templates" element={<TemplatesPage />} />
-                            <Route path="/contacts" element={<ContactsPage />} />
-                            <Route path="/signature-settings" element={<SignatureSettingsPage />} />
-                            <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
-                            <Route path="/business-details" element={<BusinessDetailsPage />} />
-                            <Route path="/invoices" element={<InvoicesPage />} />
-                             <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
-                        </Route>
-                        <Route path="/workflows/create" element={<CreateWorkflowPage />} />
-                    </Route>
-                    
-                    <Route path="/:toolId" element={<ToolPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </Suspense>
-              </main>
-              {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
-              {!isPwa && showFooter && <Footer 
-                onOpenCalendarModal={() => setCalendarModalOpen(true)}
-                onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
-              />}
-              
-              <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
-              <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
-              <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
-              <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
-              <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
-              <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
-              <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-              {!isPwa && <ScrollToTopButton />}
-              <CookieConsentBanner />
-              <PWAInstallPrompt />
-              <PWAInstallInstructionsModal />
-              <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
-              <WelcomeInstallModal />
-              {isPwa && <PwaBottomNav />}
-            </div>
-        </PullToRefresh>
-      </MobileAuthGate>
+      <MainBackground />
+      <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+        <Header
+          isPwa={isPwa}
+          onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+          onOpenSearchModal={() => setSearchModalOpen(true)}
+          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+          onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+          unreadCount={unreadCount}
+          justReceivedNotification={justReceivedNotification}
+          onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+        />
+        <main className="flex-grow">
+          <Suspense fallback={<Preloader />}>
+            {webRoutes}
+          </Suspense>
+        </main>
+        {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
+        {showFooter && <Footer 
+          onOpenCalendarModal={() => setCalendarModalOpen(true)}
+          onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
+        />}
+        
+        <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+        <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
+        <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+        <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
+        <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
+        <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
+        <ScrollToTopButton />
+        <CookieConsentBanner />
+        <PWAInstallPrompt />
+        <PWAInstallInstructionsModal />
+        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
+        <WelcomeInstallModal />
+      </div>
     </LayoutContext.Provider>
   );
 }
