@@ -72,22 +72,25 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[100] flex items-center justify-center p-4"
+    <div
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[100] flex items-center justify-center p-4 animate-fade-in-down"
+      style={{animationDuration: '300ms'}}
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="change-password-modal-title"
     >
-      <div 
-        className="bg-white dark:bg-gray-900 w-full max-w-lg flex flex-col rounded-lg shadow-2xl"
+      <div
+        className="bg-white dark:bg-gray-900 w-full max-w-lg flex flex-col rounded-xl shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 id="change-password-modal-title" className="text-xl font-bold text-gray-800 dark:text-gray-100">Change Password</h2>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors" aria-label="Close modal">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
+        <header className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-t-xl border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <h2 id="change-password-modal-title" className="text-xl font-bold text-gray-800 dark:text-gray-100">Change Password</h2>
+            <button onClick={handleClose} className="p-1 rounded-full text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors" aria-label="Close modal">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
         </header>
         <form onSubmit={handleSubmit}>
           <main className="p-8 space-y-4">
@@ -107,7 +110,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                 <input type="password" id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-red focus:border-brand-red text-gray-800 dark:text-gray-200" />
             </div>
           </main>
-          <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
+          <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
             <button type="button" onClick={handleClose} className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
             <button type="submit" disabled={isLoading || !!success} className="px-4 py-2 text-sm font-semibold text-white bg-brand-red rounded-md hover:bg-brand-red-dark transition-colors disabled:bg-red-300 dark:disabled:bg-red-800 disabled:cursor-not-allowed">
                 {isLoading ? 'Saving...' : 'Save Changes'}

@@ -43,14 +43,14 @@ const WelcomeInstallModal: React.FC = () => {
 
     return (
         <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4" onClick={handleClose}>
-            <div className="bg-white dark:bg-black w-full max-w-xs rounded-2xl shadow-2xl overflow-hidden relative animate-fade-in-up" onClick={e => e.stopPropagation()}>
-                <div className="relative p-3 text-center bg-gradient-to-br from-brand-red to-orange-500 text-white">
+            <div className="bg-white dark:bg-black w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden relative animate-popup" onClick={e => e.stopPropagation()}>
+                <div className="relative p-6 text-center bg-gradient-to-br from-brand-red to-orange-500 text-white">
                     <Logo className="h-7 w-auto mx-auto mb-2" variant="dark" />
                     <h2 className="text-xl font-extrabold">Get the Full PDFBullet Experience</h2>
                     <p className="mt-1 text-xs opacity-90">Install the app for faster, offline access and unlock exclusive trial features.</p>
                 </div>
 
-                <div className="p-3 space-y-2">
+                <div className="p-6 space-y-4">
                     <div className="text-left">
                         <div className="flex items-center gap-2">
                             <StarIcon className="h-5 w-5 text-yellow-400" />
@@ -79,17 +79,17 @@ const WelcomeInstallModal: React.FC = () => {
                         </div>
                     </Link>
 
-                    <div className="space-y-1 pt-1">
+                    <div className="space-y-2 pt-2">
                         <button
                             onClick={handleInstall}
-                            className="w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold py-3 px-3 rounded-lg text-sm transition-colors"
                         >
                             <DownloadIcon className="h-5 w-5" />
                             Install App & Get Free Trial
                         </button>
                          <button
                             onClick={handleClose}
-                            className="w-full text-center text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red transition-colors py-1"
+                            className="w-full text-center text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red transition-colors py-2"
                         >
                             Continue without Installing
                         </button>

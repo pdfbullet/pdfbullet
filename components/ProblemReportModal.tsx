@@ -52,13 +52,15 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[100] flex items-center justify-center p-4" onClick={handleClose}>
-        <div className="bg-white dark:bg-black w-full max-w-lg rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
-            <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Report a Problem</h2>
-                <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Close modal">
-                    &times;
-                </button>
+    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[100] flex items-center justify-center p-4 animate-fade-in-down" style={{animationDuration: '300ms'}} onClick={handleClose}>
+        <div className="bg-white dark:bg-black w-full max-w-lg rounded-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+            <header className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-t-xl border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Report a Problem</h2>
+                    <button onClick={handleClose} className="p-1 rounded-full text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors" aria-label="Close modal">
+                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </header>
             {success ? (
                 <div className="p-8 text-center">
@@ -88,7 +90,7 @@ const ProblemReportModal: React.FC<ProblemReportModalProps> = ({ isOpen, onClose
                         </div>
                         {error && <div className="text-sm text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</div>}
                     </main>
-                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
                         <button type="button" onClick={handleClose} className="px-6 py-2 text-sm font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">Cancel</button>
                         <button type="submit" disabled={isLoading} className="flex items-center gap-2 bg-brand-red text-white font-bold py-2 px-6 rounded-md disabled:bg-red-300 hover:bg-brand-red-dark">
                             <PaperAirplaneIcon className="h-5 w-5"/>

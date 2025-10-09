@@ -105,7 +105,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       aria-labelledby="search-modal-title"
     >
       <div
-        className="bg-white dark:bg-black w-full max-w-2xl rounded-lg shadow-2xl"
+        className="bg-white dark:bg-black w-full max-w-2xl rounded-xl shadow-2xl transform transition-all animate-fade-in-down" 
+        style={{animationDuration: '300ms'}}
         onClick={e => e.stopPropagation()}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">

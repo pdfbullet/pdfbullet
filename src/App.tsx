@@ -10,7 +10,6 @@ import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, 
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
-import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
@@ -33,15 +32,31 @@ import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
-import NotificationsPage from './pages/NotificationsPage.tsx';
+import { db } from './firebase/config.ts';
 
-// Create and export LayoutContext to manage shared layout state across components.
-// This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
-export const LayoutContext = createContext<{
-  setShowFooter: (show: boolean) => void;
-}>({
-  setShowFooter: () => {},
-});
+// Placeholder for NotificationsPage as it was not provided in the file list
+const NotificationsPage: React.FC<{ notifications: any[], markAllAsRead: () => void, clearAll: () => void }> = ({ notifications, markAllAsRead, clearAll }) => {
+    useEffect(() => {
+      markAllAsRead();
+    }, [markAllAsRead]);
+    
+    return (
+        <div className="p-4 sm:p-6">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Notifications</h1>
+                <button onClick={clearAll} className="text-sm font-semibold text-brand-red hover:underline">Clear all</button>
+            </div>
+            <div className="space-y-4">
+                {notifications.length > 0 ? notifications.map(n => (
+                  <div key={n.id} className={`p-4 rounded-lg border ${n.read ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'}`}>
+                    <p className="text-gray-800 dark:text-gray-200">{n.message}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{new Date(n.timestamp).toLocaleString()}</p>
+                  </div>
+                )) : <p className="text-gray-500 text-center py-8">No notifications yet.</p>}
+            </div>
+        </div>
+    );
+};
 
 
 // Inlined component to fix import issue
@@ -668,7 +683,6 @@ const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
 const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
 
-
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -683,19 +697,19 @@ function AppContent() {
   const [isQrCodeModalOpen, setQrCodeModalOpen] = useState(false);
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
-  const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
 
+  // FIX: Add state and logic for PWA notifications
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
   const prevTotalNotificationsRef = useRef(0);
-
   const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
 
   useEffect(() => {
-    if (!isPwa) return; // Only for PWA users
+    if (!isPwa || !user) return; // Only for PWA users
 
     const unsubscribe = db.collection('pwa_notifications')
+      .where('userId', '==', user.uid)
       .orderBy('timestamp', 'desc')
       .onSnapshot(snapshot => {
         const readIds = new Set(JSON.parse(localStorage.getItem(READ_NOTIFICATIONS_KEY) || '[]'));
@@ -727,7 +741,7 @@ function AppContent() {
       });
 
     return () => unsubscribe();
-  }, [isPwa]);
+  }, [isPwa, user]);
 
   const markAllAsRead = useCallback(() => {
     try {
@@ -746,6 +760,7 @@ function AppContent() {
           markAllAsRead();
       }
   }, [markAllAsRead]);
+
 
   useEffect(() => {
     const redirectPath = sessionStorage.getItem('redirect');
@@ -785,7 +800,6 @@ function AppContent() {
   }, [user, loading, navigate, location.pathname]);
   
   return (
-    <LayoutContext.Provider value={layoutContextValue}>
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
@@ -807,9 +821,10 @@ function AppContent() {
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
+                    {/* FIX: Added PWA routes */}
                     <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
                     <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
-
+                    
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/blog" element={<BlogPage />} />
@@ -873,7 +888,7 @@ function AppContent() {
                         <Route path="/workflows/create" element={<CreateWorkflowPage />} />
                     </Route>
                     
-                    <Route path="/:toolId" element={<ToolPage />} />
+                    <Route path="/:toolId" element={<ToolPage setShowFooter={setShowFooter} />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Suspense>
@@ -900,7 +915,6 @@ function AppContent() {
             </div>
         </PullToRefresh>
       </MobileAuthGate>
-    </LayoutContext.Provider>
   );
 }
 
