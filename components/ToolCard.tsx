@@ -9,9 +9,10 @@ interface ToolCardProps {
   tool: Tool;
   isFavorite: boolean;
   onToggleFavorite: (toolId: string) => void;
+  filesToPass?: File[];
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite, filesToPass }) => {
   const { id, title, description, Icon, isNew, isPremium, textColor } = tool;
   const { t } = useI18n();
 
@@ -24,6 +25,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite 
   return (
     <Link 
       to={`/${id}`} 
+      state={filesToPass ? { files: filesToPass } : undefined}
       title={`Open the ${t(title)} tool`}
       className="relative flex flex-col items-start p-3 sm:p-4 bg-white dark:bg-surface-dark border border-gray-400 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg h-40 sm:h-48 transition-all duration-300 group hover:-translate-y-1 hover:border-gray-900/30 dark:hover:border-gray-300/30"
     >

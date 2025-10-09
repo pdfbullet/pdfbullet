@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -1188,6 +1189,13 @@ const ToolPage: React.FC = () => {
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const addMenuRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (location.state?.files) {
+        setFiles(location.state.files);
+        // Clear state after loading
+        navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
 
   const totalSize = useMemo(() => files.reduce((acc, file) => acc + file.size, 0), [files]);
 

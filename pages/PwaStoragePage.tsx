@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IOSIcon, AndroidIcon, FileIcon } from '../components/icons.tsx';
 
 declare const Dropbox: any;
@@ -7,6 +8,7 @@ declare const Dropbox: any;
 const PwaStoragePage: React.FC = () => {
     const [os, setOs] = useState<'ios' | 'android' | 'other'>('other');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
@@ -24,21 +26,25 @@ const PwaStoragePage: React.FC = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const files = Array.from(event.target.files);
-            console.log('Selected device files:', files);
-            alert(`${files.length} file(s) selected from your device. In a real app, you would now choose a tool to process them.`);
+            navigate('/tools', { state: { files: files } });
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
         }
     };
     
-    const handleCloudFile = async (url: string, name: string) => {
+    const handleCloudFile = async (url: string, name: string): Promise<File | null> => {
         try {
-            console.log(`File from cloud: ${name} at ${url}`);
-            alert(`Selected "${name}" from Dropbox. In a real app, this file would now be downloaded and prepared for processing.`);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch file: ${response.statusText}`);
+            }
+            const blob = await response.blob();
+            return new File([blob], name, { type: blob.type });
         } catch (error) {
-            console.error("Error handling cloud file:", error);
-            alert(`Could not handle file from cloud storage.`);
+            console.error(`Error fetching cloud file "${name}":`, error);
+            alert(`Could not download "${name}" from cloud storage.`);
+            return null;
         }
     };
 
@@ -48,8 +54,12 @@ const PwaStoragePage: React.FC = () => {
             return;
         }
         Dropbox.choose({
-            success: (files: any[]) => {
-                files.forEach(file => handleCloudFile(file.link, file.name));
+            success: async (files: any[]) => {
+                const filePromises = files.map(file => handleCloudFile(file.link, file.name));
+                const processedFiles = (await Promise.all(filePromises)).filter((f): f is File => f !== null);
+                if (processedFiles.length > 0) {
+                    navigate('/tools', { state: { files: processedFiles } });
+                }
             },
             linkType: "direct",
             multiselect: true,

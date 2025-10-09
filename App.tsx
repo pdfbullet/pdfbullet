@@ -541,13 +541,13 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
-    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 left-4';
+    const widgetPositionClasses = isPwa ? 'bottom-24 left-4 sm:bottom-6 sm:left-6' : 'bottom-4 left-4';
 
     return (
         <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                 <div 
-                    className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800 overflow-hidden"
+                    className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white/90 dark:bg-black/80 backdrop-blur-lg rounded-2xl shadow-2xl flex flex-col border border-gray-200/30 dark:border-gray-700/30 overflow-hidden"
                     onMouseEnter={() => setUserHasInteracted(true)}
                     onClick={() => setUserHasInteracted(true)}
                 >
@@ -592,7 +592,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                             )}
                         </div>
                          {error && <p className="text-xs text-red-500 text-center px-4 pb-2">{error}</p>}
-                         <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-700">
+                         <div className="flex-shrink-0 p-3 border-t border-gray-200/50 dark:border-gray-700/50">
                             <a href="https://wa.me/9779827801575" target="_blank" rel="noopener noreferrer" className="mb-2 w-full text-center bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center justify-center gap-2 transition-colors">
                                 <UserIcon className="h-4 w-4" /><span>Talk to human support</span>
                             </a>
