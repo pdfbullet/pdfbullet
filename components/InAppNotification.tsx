@@ -1,11 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BellIcon, CloseIcon } from './icons.tsx';
 import { Notification } from '../App.tsx';
 
 interface InAppNotificationProps {
-    notification: Notification;
+    notification: Notification | null;
     onClose: () => void;
 }
 
@@ -13,9 +12,15 @@ const InAppNotification: React.FC<InAppNotificationProps> = ({ notification, onC
     const navigate = useNavigate();
     
     useEffect(() => {
-        const timer = setTimeout(onClose, 7000); // Auto-close after 7 seconds
-        return () => clearTimeout(timer);
-    }, [onClose]);
+        if (notification) {
+            const timer = setTimeout(onClose, 7000); // Auto-close after 7 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [notification, onClose]);
+    
+    if (!notification) {
+        return null;
+    }
     
     const handleClick = () => {
         if (notification.url) {

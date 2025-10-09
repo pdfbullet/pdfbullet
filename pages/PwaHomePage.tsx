@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
-import { TOOLS } from '../constants.ts';
+import { TOOLS, blogPosts } from '../constants.ts';
 import ToolCard from '../components/ToolCard.tsx';
 import { Tool } from '../types.ts';
 import { 
@@ -257,7 +256,6 @@ const PwaHomePage: React.FC = () => {
                             <p>Your recently processed files will appear here.</p>
                         </div>
                     ) : (
-                        // FIX: Completed truncated line and map function to render PwaTaskItem components.
                         tasks.slice(0, 3).map(task => <PwaTaskItem key={task.id} task={task} />)
                     )}
                 </div>
@@ -266,5 +264,4 @@ const PwaHomePage: React.FC = () => {
     );
 };
 
-// FIX: Added default export to resolve React.lazy() import error in App.tsx.
 export default PwaHomePage;
