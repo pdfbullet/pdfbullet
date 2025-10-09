@@ -751,8 +751,6 @@ const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
 const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
-const PwaLoginPage = lazy(() => import('./pages/PwaLoginPage.tsx'));
-const PwaSignUpPage = lazy(() => import('./pages/PwaSignUpPage.tsx'));
 
 
 function AppContent() {
