@@ -10,6 +10,7 @@ import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, 
 import { GoogleGenAI, Chat } from '@google/genai';
 import { Logo } from './components/Logo.tsx';
 import { TOOLS } from './constants.ts';
+import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.tsx';
@@ -32,7 +33,9 @@ import PwaBottomNav from './components/PwaBottomNav.tsx';
 import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
-import { db } from './firebase/config.ts';
+import NotificationsPage from './pages/NotificationsPage.tsx';
+import InAppNotification from './components/InAppNotification.tsx';
+
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -42,30 +45,62 @@ export const LayoutContext = createContext<{
   setShowFooter: () => {},
 });
 
-// Placeholder for NotificationsPage as it was not provided in the file list
-const NotificationsPage: React.FC<{ notifications: any[], markAllAsRead: () => void, clearAll: () => void }> = ({ notifications, markAllAsRead, clearAll }) => {
-    useEffect(() => {
-      markAllAsRead();
-    }, [markAllAsRead]);
-    
-    return (
-        <div className="p-4 sm:p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Notifications</h1>
-                <button onClick={clearAll} className="text-sm font-semibold text-brand-red hover:underline">Clear all</button>
-            </div>
-            <div className="space-y-4">
-                {notifications.length > 0 ? notifications.map(n => (
-                  <div key={n.id} className={`p-4 rounded-lg border ${n.read ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'}`}>
-                    <p className="text-gray-800 dark:text-gray-200">{n.message}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{new Date(n.timestamp).toLocaleString()}</p>
-                  </div>
-                )) : <p className="text-gray-500 text-center py-8">No notifications yet.</p>}
-            </div>
-        </div>
-    );
-};
+// Define a richer Notification interface
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  url?: string;
+  attachmentUrl?: string;
+}
 
+const MainBackground: React.FC = () => (
+  <div className="main-background-svg-container">
+    <svg className="main-background-svg" width="1389" height="1479" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <mask id="a" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="0" y="0" width="1389" height="1479">
+          <path fill="#D9D9D9" d="M0 0h1389v1479H0z" />
+        </mask>
+        <g mask="url(#a)">
+          <ellipse opacity=".5" cy="1007.5" rx="160" ry="160.5" fill="url(#b)" />
+          <circle opacity=".5" cx="857.242" cy="375.085" r="91.111" fill="url(#c)" />
+          <rect opacity=".5" x="-.664" y="273.555" width="386.866" height="386.866" rx="24" transform="rotate(-45 -.664 273.555)" fill="url(#d)" />
+          <rect opacity=".5" x="288.662" y="1179.43" width="718.993" height="424.487" rx="32" transform="rotate(-45 288.662 1179.43)" fill="url(#e)" />
+          <circle opacity=".5" cx="1389.13" cy="530.129" r="220.13" fill="url(#f)" />
+          <circle opacity=".5" cx="1205.72" cy="1387.95" r="91.111" fill="url(#g)" />
+        </g>
+      </g>
+      <defs>
+        <linearGradient id="b" x1="-61.873" y1="861.062" x2=".372" y2="1167.92" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="c" x1="766.131" y1="250.722" x2="857.242" y2="466.196" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset="1" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="d" x1="117.967" y1="290.503" x2="192.769" y2="660.421" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="e" x1="616.714" y1="1247.46" x2="920.97" y2="1639.19" gradientUnits="userSpaceOnUse">
+          <stop offset=".091" stopColor="#F5F5FA" />
+          <stop offset=".948" stopColor="#E5322d" />
+        </linearGradient>
+        <linearGradient id="f" x1="1456.96" y1="604.614" x2="1389.13" y2="750.259" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="g" x1="1242.3" y1="1427.85" x2="1140.55" y2="1333.41" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset="1" stopColor="#F5F5FA" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+);
 
 // Inlined component to fix import issue
 const DataDeletionPage: React.FC = () => {
@@ -144,11 +179,13 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
-                <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Reset Password</h2>
-                    <button onClick={onClose} aria-label="Close modal" className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors">&times;</button>
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 animate-fade-in-down" style={{animationDuration: '300ms'}} onClick={onClose}>
+            <div className="bg-white dark:bg-black w-full max-w-lg rounded-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+                <header className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-t-xl border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Reset Password</h2>
+                        <button onClick={onClose} aria-label="Close modal" className="p-1 rounded-full text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"><CloseIcon className="h-6 w-6" /></button>
+                    </div>
                 </header>
                 {success ? (
                   <div className="p-8 text-center">
@@ -171,7 +208,7 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
                       </div>
                       {error && <p className="text-sm text-red-500">{error}</p>}
                     </main>
-                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
                       <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">Cancel</button>
                       <button type="submit" disabled={isLoading} className="px-4 py-2 text-sm font-semibold text-white bg-brand-red rounded-md disabled:bg-red-300 hover:bg-brand-red-dark">
                         {isLoading ? 'Sending...' : 'Send Reset Link'}
@@ -643,7 +680,9 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
+const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
+const ApiPricingPage = lazy(() => import('./pages/ApiPricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
 const DeveloperAccessPage = lazy(() => import('./pages/DeveloperAccessPage.tsx'));
@@ -655,21 +694,21 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.tsx'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.tsx'));
 const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage.tsx'));
 const CeoPage = lazy(() => import('./pages/CeoPage.tsx'));
-const ApiPricingPage = lazy(() => import('./pages/ApiPricingPage.tsx'));
+const PressPage = lazy(() => import('./pages/PressPage.tsx'));
+const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
+const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
+
+// API Documentation Pages
 const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage.tsx'));
 const ApiPdfPage = lazy(() => import('./pages/ApiPdfPage.tsx'));
 const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
+
+// User Dashboard Pages
 const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
-const PressPage = lazy(() => import('./pages/PressPage.tsx'));
 const WorkflowsPage = lazy(() => import('./pages/WorkflowsPage.tsx'));
 const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
-const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
-const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
-const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
-
-// New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
 const TeamPage = lazy(() => import('./pages/TeamPage.tsx'));
 const LastTasksPage = lazy(() => import('./pages/LastTasksPage.tsx'));
@@ -690,6 +729,9 @@ const PwaToolsPage = lazy(() => import('./pages/PwaToolsPage.tsx'));
 const PwaArticlesPage = lazy(() => import('./pages/PwaArticlesPage.tsx'));
 const PwaSettingsPage = lazy(() => import('./pages/PwaSettingsPage.tsx'));
 const PwaStoragePage = lazy(() => import('./pages/PwaStoragePage.tsx'));
+const PwaLoginPage = lazy(() => import('./pages/PwaLoginPage.tsx'));
+const PwaSignUpPage = lazy(() => import('./pages/PwaSignUpPage.tsx'));
+
 
 function AppContent() {
   const location = useLocation();
@@ -707,18 +749,18 @@ function AppContent() {
   const [showFooter, setShowFooter] = useState(true);
   const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
 
-  // FIX: Add state and logic for PWA notifications
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
+  const [inAppNotification, setInAppNotification] = useState<Notification | null>(null);
   const prevTotalNotificationsRef = useRef(0);
+
   const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
 
   useEffect(() => {
-    if (!isPwa || !user) return; // Only for PWA users
+    if (!isPwa) return; // Only for PWA users
 
     const unsubscribe = db.collection('pwa_notifications')
-      .where('userId', '==', user.uid)
       .orderBy('timestamp', 'desc')
       .onSnapshot(snapshot => {
         const readIds = new Set(JSON.parse(localStorage.getItem(READ_NOTIFICATIONS_KEY) || '[]'));
@@ -727,18 +769,28 @@ function AppContent() {
             const data = doc.data();
             return {
               id: doc.id,
+              title: data.title || 'Notification',
               message: data.message,
               timestamp: data.timestamp ? data.timestamp.toDate().getTime() : Date.now(),
-              read: readIds.has(doc.id)
+              read: readIds.has(doc.id),
+              url: data.url,
+              attachmentUrl: data.attachmentUrl
             };
         });
         
         const newUnreadCount = newNotifications.filter(n => !n.read).length;
+
+        if ('setAppBadge' in navigator) {
+            (navigator as any).setAppBadge(newUnreadCount).catch((error: any) => {
+                console.error("Failed to set app badge:", error);
+            });
+        }
         
         if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
             const latestNotification = newNotifications[0];
             if (latestNotification && !latestNotification.read) {
-                setJustReceivedNotification(true);
+                setJustReceivedNotification(true); // For bell animation
+                setInAppNotification(latestNotification); // For toast
             }
         }
 
@@ -750,7 +802,7 @@ function AppContent() {
       });
 
     return () => unsubscribe();
-  }, [isPwa, user]);
+  }, [isPwa]);
 
   const markAllAsRead = useCallback(() => {
     try {
@@ -759,6 +811,11 @@ function AppContent() {
         
         setNotifications(prev => prev.map(n => ({...n, read: true})));
         setUnreadCount(0);
+        if ('clearAppBadge' in navigator) {
+            (navigator as any).clearAppBadge().catch((error: any) => {
+                console.error("Failed to clear app badge:", error);
+            });
+        }
     } catch (e) {
         console.error("Failed to mark notifications as read", e);
     }
@@ -769,7 +826,6 @@ function AppContent() {
           markAllAsRead();
       }
   }, [markAllAsRead]);
-
 
   useEffect(() => {
     const redirectPath = sessionStorage.getItem('redirect');
@@ -811,9 +867,9 @@ function AppContent() {
   return (
     <LayoutContext.Provider value={layoutContextValue}>
       <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
+        <MainBackground />
         <PullToRefresh>
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-              {/* FIX: Pass the missing props for notification handling to the Header component. */}
               <Header
                 isPwa={isPwa}
                 onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
@@ -831,16 +887,15 @@ function AppContent() {
                     <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
                     <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
                     <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
-                    {/* FIX: Added PWA routes */}
                     <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
                     <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
-                    
+
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/blog/:slug" element={<BlogPostPage />} />
                     <Route path="/blog" element={<BlogPage />} />
                     <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/login" element={isPwa ? <PwaLoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} /> : <LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+                    <Route path="/signup" element={isPwa ? <PwaSignUpPage /> : <SignUpPage />} />
                     <Route path="/developer" element={<DeveloperPage />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/sitemap" element={<SitemapPage />} />
@@ -903,6 +958,7 @@ function AppContent() {
                   </Routes>
                 </Suspense>
               </main>
+              {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
               {!isPwa && showFooter && <Footer 
                 onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
