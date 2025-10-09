@@ -284,7 +284,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: #B90B06; /* brand-red */
+    background-color: #16a34a; /* green-600 */
     color: white;
     font-weight: bold;
     padding: 0.75rem 1.5rem;
@@ -293,7 +293,7 @@ body {
 }
 
 .success-download-btn:hover {
-    background-color: #a20d08; /* brand-red-dark */
+    background-color: #15803d; /* green-700 */
 }
 
 .success-secondary-actions {

@@ -2462,19 +2462,11 @@ const ToolPage: React.FC = () => {
                     </button>
 
                     <div className="success-main-actions">
-                        <button onClick={handleDownload} className="success-download-btn">
+                        <button onClick={handleDownload} className="success-download-btn" title={`Download ${filename}`}>
                             <DownloadIcon className="h-6 w-6" />
-                            <span>Download {filename}</span>
+                            <span>Download</span>
                         </button>
                         <div className="success-secondary-actions">
-                            <button
-                                onClick={() => alert('Save to Google Drive coming soon!')}
-                                className="success-action-btn"
-                                aria-label="Save to Google Drive"
-                                title="Save to Google Drive"
-                            >
-                                <GoogleDriveIcon className="h-6 w-6" />
-                            </button>
                             <button
                                 onClick={openShareModal}
                                 className="success-action-btn"
