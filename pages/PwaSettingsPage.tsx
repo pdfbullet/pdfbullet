@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon, CodeIcon, DollarIcon } from '../components/icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon, CodeIcon, DollarIcon, HeadsetIcon, UserIcon, NewspaperIcon } from '../components/icons.tsx';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -36,11 +36,11 @@ const PwaSettingsPage: React.FC = () => {
     ];
 
     const company = [
-      { path: '/about', nameKey: 'footer.company_links.about' },
-      { path: '/blog', nameKey: 'footer.company_links.blog' },
-      { path: '/press', nameKey: 'footer.company_links.press' },
-      { path: '/contact', nameKey: 'footer.company_links.contact' },
-      { path: '/ceo', nameKey: 'footer.company_links.ceo_message' },
+      { path: '/about', nameKey: 'footer.company_links.about', icon: UserIcon },
+      { path: '/blog', nameKey: 'footer.company_links.blog', icon: NewspaperIcon },
+      { path: '/press', nameKey: 'footer.company_links.press', icon: NewspaperIcon },
+      { path: '/contact', nameKey: 'footer.company_links.contact', icon: HeadsetIcon },
+      { path: '/ceo', nameKey: 'footer.company_links.ceo_message', icon: UserIcon },
     ];
     
     const legal = [
@@ -95,7 +95,7 @@ const PwaSettingsPage: React.FC = () => {
             </Section>
 
             <Section title={t('footer.company')}>
-                 {company.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
+                 {company.map(l => <SettingLink key={l.path} to={l.path} icon={l.icon}>{t(l.nameKey)}</SettingLink>)}
             </Section>
             
             <Section title="Admin">

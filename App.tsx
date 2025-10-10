@@ -895,6 +895,9 @@ function AppContent() {
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/blog" element={<BlogPage />} />
 
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
+
           {/* AI and Generator Tools */}
           <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
           <Route path="/cv-generator" element={<CVGeneratorPage />} />
@@ -918,6 +921,10 @@ function AppContent() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/how-to-use" element={<HowToUsePage />} />
           <Route path="/developer-access" element={<DeveloperAccessPage />} />
+
+          <Route element={<AdminProtectedRoute />}>
+              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          </Route>
 
           {/* Fallback for other tools */}
           <Route path="/:toolId" element={<ToolPage />} />
@@ -1018,10 +1025,18 @@ function AppContent() {
             </main>
             <PwaBottomNav />
           </PullToRefresh>
-          <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
-          <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
-          <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
         </MobileAuthGate>
+        
+        {/* Global Modals & Widgets */}
+        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
+        <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+        <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
+        <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+        <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
+        <PWAInstallPrompt />
+        <PWAInstallInstructionsModal />
+        <WelcomeInstallModal />
       </PwaLayoutProvider>
     );
   }
@@ -1045,7 +1060,7 @@ function AppContent() {
             {webRoutes}
           </Suspense>
         </main>
-        {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
+        <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
         {showFooter && <Footer 
           onOpenCalendarModal={() => setCalendarModalOpen(true)}
           onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
