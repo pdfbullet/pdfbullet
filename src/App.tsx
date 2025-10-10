@@ -543,7 +543,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
-    const widgetPositionClasses = isPwa ? 'bottom-24 left-4 sm:bottom-6 sm:left-6' : 'bottom-4 left-4';
+    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 left-4';
 
     return (
         <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
@@ -971,13 +971,14 @@ function AppContent() {
     </Routes>
   );
   
-  const showChatbotFab = isPwa ? location.pathname === '/settings' : true;
+  const showChatbotFab = true;
 
   if (isPwa) {
     return (
       <PwaLayoutProvider>
         <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
           <PullToRefresh>
+            {/* FIX: Pass missing props to PwaHeader to resolve TypeScript error. */}
             <PwaHeader 
               onOpenSearchModal={() => setSearchModalOpen(true)} 
               unreadCount={unreadCount}
