@@ -1,3 +1,4 @@
+
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
