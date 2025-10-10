@@ -767,7 +767,7 @@ function AppContent() {
   const [isQrCodeModalOpen, setQrCodeModalOpen] = useState(false);
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
-  const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
+  const layoutContextValue = useMemo(() => ({ setShowFooter }), [setShowFooter]);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -893,9 +893,35 @@ function AppContent() {
           <Route path="/storage" element={<PwaStoragePage />} />
           <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+
+          {/* AI and Generator Tools */}
+          <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+          <Route path="/cv-generator" element={<CVGeneratorPage />} />
+          <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+          <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+          <Route path="/image-generator" element={<ImageGeneratorPage />} />
+
+          {/* Static Info Pages */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/press" element={<PressPage />} />
+          <Route path="/ceo" element={<CeoPage />} />
+          <Route path="/education" element={<EducationPage />} />
+          <Route path="/business" element={<BusinessPage />} />
+          <Route path="/legal" element={<LegalPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+          <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+          <Route path="/security-policy" element={<SecurityPolicyPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/how-to-use" element={<HowToUsePage />} />
+          <Route path="/developer-access" element={<DeveloperAccessPage />} />
+
+          {/* Fallback for other tools */}
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="*" element={<NotFoundPage />} />
-          {/* Add other PWA-relevant routes here if needed */}
       </Routes>
   );
 
@@ -970,6 +996,8 @@ function AppContent() {
     </Routes>
   );
   
+  const showChatbotFab = isPwa ? location.pathname === '/settings' : true;
+
   if (isPwa) {
     return (
       <PwaLayoutProvider>
@@ -990,7 +1018,7 @@ function AppContent() {
               </Suspense>
             </main>
             <PwaBottomNav />
-            <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
+            <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
             <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
             <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
           </PullToRefresh>
@@ -1035,7 +1063,7 @@ function AppContent() {
         <CookieConsentBanner />
         <PWAInstallPrompt />
         <PWAInstallInstructionsModal />
-        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
+        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
         <WelcomeInstallModal />
       </div>
     </LayoutContext.Provider>
