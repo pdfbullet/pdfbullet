@@ -918,6 +918,9 @@ function AppContent() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/how-to-use" element={<HowToUsePage />} />
           <Route path="/developer-access" element={<DeveloperAccessPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+
 
           {/* Fallback for other tools */}
           <Route path="/:toolId" element={<ToolPage />} />
@@ -1018,6 +1021,7 @@ function AppContent() {
             </main>
             <PwaBottomNav />
           </PullToRefresh>
+          {/* Moved these outside PullToRefresh to fix stacking context issues */}
           <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
           <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
           <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
