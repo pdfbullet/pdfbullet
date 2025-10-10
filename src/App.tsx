@@ -884,20 +884,25 @@ function AppContent() {
     }
   }, [user, loading, navigate, location.pathname]);
 
-  const routes = (
+  const allRoutes = (
     <Routes>
-      {isPwa ? (
+      {/* PWA-specific home, differing from web home */}
+      <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
+      
+      {/* PWA-only routes */}
+      {isPwa && (
         <>
-          <Route path="/" element={<PwaHomePage />} />
           <Route path="/tools" element={<PwaToolsPage />} />
           <Route path="/articles" element={<PwaArticlesPage />} />
           <Route path="/settings" element={<PwaSettingsPage />} />
           <Route path="/storage" element={<PwaStoragePage />} />
           <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
         </>
-      ) : (
+      )}
+
+      {/* Web-only routes */}
+      {!isPwa && (
         <>
-          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
           <Route path="/signup" element={<SignUpPage />} />
         </>
@@ -940,32 +945,31 @@ function AppContent() {
       <Route path="/api-signature" element={<ApiSignaturePage />} />
 
       <Route element={<AdminProtectedRoute />}>
-        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
       </Route>
 
       <Route element={<UserProtectedRoute />}>
-        <Route element={<UserDashboardLayout />}>
-          <Route path="/account-settings" element={<AccountSettingsPage />} />
-          <Route path="/workflows" element={<WorkflowsPage />} />
-          <Route path="/security" element={<SecurityPage />} />
-          <Route path="/team" element={<TeamPage />} />
-          <Route path="/last-tasks" element={<LastTasksPage />} />
-          <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
-          <Route path="/sent" element={<SentPage />} />
-          <Route path="/inbox" element={<InboxPage />} />
-          <Route path="/signed" element={<SignedPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/contacts" element={<ContactsPage />} />
-          <Route path="/signature-settings" element={<SignatureSettingsPage />} />
-          <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
-          <Route path="/business-details" element={<BusinessDetailsPage />} />
-          <Route path="/invoices" element={<InvoicesPage />} />
-          <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
-        </Route>
-        <Route path="/workflows/create" element={<CreateWorkflowPage />} />
+          <Route element={<UserDashboardLayout />}>
+              <Route path="/account-settings" element={<AccountSettingsPage />} />
+              <Route path="/workflows" element={<WorkflowsPage />} />
+              <Route path="/security" element={<SecurityPage />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/last-tasks" element={<LastTasksPage />} />
+              <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+              <Route path="/sent" element={<SentPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/signed" element={<SignedPage />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+              <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+              <Route path="/business-details" element={<BusinessDetailsPage />} />
+              <Route path="/invoices" element={<InvoicesPage />} />
+              <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
+          </Route>
+          <Route path="/workflows/create" element={<CreateWorkflowPage />} />
       </Route>
       
-      {/* Fallback for tools must be last */}
       <Route path="/:toolId" element={<ToolPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
@@ -978,7 +982,6 @@ function AppContent() {
       <PwaLayoutProvider>
         <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
           <PullToRefresh>
-            {/* FIX: Pass missing props to PwaHeader to resolve TypeScript error. */}
             <PwaHeader 
               onOpenSearchModal={() => setSearchModalOpen(true)} 
               unreadCount={unreadCount}
@@ -989,7 +992,7 @@ function AppContent() {
             />
             <main className="pt-[60px] pb-[72px] bg-gray-50 dark:bg-soft-dark min-h-screen">
               <Suspense fallback={<Preloader />}>
-                  {routes}
+                  {allRoutes}
               </Suspense>
             </main>
             <PwaBottomNav />
@@ -1018,7 +1021,7 @@ function AppContent() {
         />
         <main className="flex-grow">
           <Suspense fallback={<Preloader />}>
-            {routes}
+            {allRoutes}
           </Suspense>
         </main>
         {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}

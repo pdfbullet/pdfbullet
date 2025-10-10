@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon } from '../components/icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon, CodeIcon, DollarIcon } from '../components/icons.tsx';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -14,9 +14,13 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
     </div>
 );
 
-const SettingLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
-    <Link to={to} className="block text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold p-4 transition-colors">
-        {children}
+const SettingLink: React.FC<{ to: string; children: React.ReactNode, icon?: React.FC<{className?: string}> }> = ({ to, children, icon: Icon }) => (
+    <Link to={to} className="flex items-center justify-between text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold p-4 transition-colors">
+        <div className="flex items-center gap-3">
+            {Icon && <Icon className="h-5 w-5 text-gray-500" />}
+            <span>{children}</span>
+        </div>
+        <span className="text-gray-400">&rarr;</span>
     </Link>
 );
 
@@ -81,6 +85,11 @@ const PwaSettingsPage: React.FC = () => {
                 </div>
             </Section>
 
+            <Section title="General">
+                <SettingLink to="/pricing" icon={DollarIcon}>Pricing</SettingLink>
+                <SettingLink to="/developer" icon={CodeIcon}>Developer</SettingLink>
+            </Section>
+
             <Section title={t('footer.solutions')}>
                 {solutions.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
             </Section>
@@ -88,9 +97,9 @@ const PwaSettingsPage: React.FC = () => {
             <Section title={t('footer.company')}>
                  {company.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
             </Section>
-
-            <Section title={t('footer.legal')}>
-                 {legal.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
+            
+            <Section title="Admin">
+                <SettingLink to="/developer-access" icon={CodeIcon}>Admin Access</SettingLink>
             </Section>
 
             <Section title="Follow Us & Get the App">
@@ -101,7 +110,7 @@ const PwaSettingsPage: React.FC = () => {
                         <a href="https://www.youtube.com/@btmobilecare" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-red-600"><YoutubeIcon className="h-7 w-7" /></a>
                     </div>
                      <div className="mt-6 flex flex-wrap gap-4">
-                        <a href="https://github.com/ilovepdfly/ilovepdfly/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
+                        <a href="https://github.com/pdfbullet/pdfbullet/releases/download/v1.0/app-release-signed.apk" download className="flex items-center gap-2 text-left bg-gray-800 p-2 rounded-lg hover:bg-gray-700 text-white transition-transform hover:scale-105">
                             <AndroidIcon className="h-8 w-8" />
                             <div>
                                 <p className="text-xs leading-tight">DOWNLOAD APK</p>
