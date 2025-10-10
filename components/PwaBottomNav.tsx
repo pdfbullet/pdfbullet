@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HomeIcon, GridIcon, SettingsIcon, StorageIcon, BgRemoveIcon } from './icons.tsx';
+import { HomeIcon, GridIcon, SettingsIcon, StorageIcon } from './icons.tsx';
 
 const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({ to, icon: Icon, label }) => {
     const location = useLocation();
@@ -37,10 +37,10 @@ const PwaBottomNav: React.FC = () => {
             <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 text-center pointer-events-auto">
                 <Link
                     to="/remove-background"
-                    className="inline-flex items-center justify-center w-16 h-16 bg-brand-red rounded-full shadow-lg text-white transform hover:scale-110 transition-all duration-200"
+                    className="inline-block w-16 h-16 rounded-full shadow-lg transform hover:scale-110 transition-all duration-200 bg-brand-red"
                     aria-label="Remove Background"
                 >
-                    <BgRemoveIcon className="h-8 w-8" />
+                    <img src="https://ik.imagekit.io/fonepay/bg%20remove%20icon.png?updatedAt=1760067581051" alt="BG Remover" className="w-full h-full object-cover rounded-full" />
                 </Link>
                 <span className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1 pointer-events-none">
                     BG Remover

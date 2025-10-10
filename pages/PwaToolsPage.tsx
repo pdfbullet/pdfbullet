@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TOOLS } from '../constants.ts';
@@ -53,7 +52,7 @@ const PwaToolsPage: React.FC = () => {
     const { isFavorite, toggleFavorite, favorites } = useFavorites();
     const { t } = useI18n();
 
-    const favoriteTools = useMemo(() => TOOLS.filter(tool => isFavorite(tool.id)), [isFavorite]);
+    const favoriteTools = useMemo(() => TOOLS.filter(tool => isFavorite(tool.id)), [favorites]);
     const otherTools = useMemo(() => TOOLS.filter(tool => !isFavorite(tool.id)), [isFavorite]);
 
     const imageToolIds = useMemo(() => new Set(TOOLS.filter(t => t.api?.category === 'image' || ['jpg-to-pdf', 'psd-to-pdf', 'pdf-to-jpg', 'pdf-to-png', 'scan-to-pdf'].includes(t.id)).map(t => t.id)), []);
@@ -65,7 +64,8 @@ const PwaToolsPage: React.FC = () => {
         { labelKey: 'homepage.filter_convert', category: 'convert' },
         { labelKey: 'homepage.filter_edit', category: 'edit' },
         { labelKey: 'homepage.filter_security', category: 'security' },
-        { labelKey: 'image Tools', category: 'image' },
+        { labelKey: 'Image Tools', category: 'image' },
+        { labelKey: 'Business & AI', category: 'business' },
     ];
 
     const handleCategoryClick = (category: string) => {
@@ -85,12 +85,8 @@ const PwaToolsPage: React.FC = () => {
             }
         }
 
-        if (files) {
-            tools = tools.filter(tool => areFilesCompatible(tool, files));
-        }
-
         return tools;
-    }, [activeCategory, favoriteTools, otherTools, imageToolIds, files]);
+    }, [activeCategory, favoriteTools, otherTools, imageToolIds]);
     
     const handleClearFiles = () => {
         navigate(location.pathname, { replace: true, state: {} });
@@ -109,7 +105,7 @@ const PwaToolsPage: React.FC = () => {
                     <ul className="mt-2 text-sm text-gray-700 dark:text-gray-300 list-disc list-inside max-h-24 overflow-y-auto">
                         {files.map((file, index) => <li key={index} className="truncate">{file.name}</li>)}
                     </ul>
-                    <p className="text-xs text-blue-600 dark:text-blue-300 mt-2 font-semibold">Showing compatible tools below. Select a tool to continue.</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-300 mt-2 font-semibold">Select a tool to continue.</p>
                 </div>
             )}
 
@@ -120,14 +116,14 @@ const PwaToolsPage: React.FC = () => {
                             <button
                                 key={labelKey}
                                 onClick={() => handleCategoryClick(category)}
-                                title={`Filter by ${t(labelKey)}`}
+                                title={`Filter by ${labelKey === 'Business & AI' ? 'Business & AI' : t(labelKey)}`}
                                 className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap ${
                                     activeCategory === category
                                         ? 'bg-gray-900 dark:bg-gray-200 text-white dark:text-black shadow-md'
                                         : 'bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700'
                                 }`}
                             >
-                                {t(labelKey)}
+                                {labelKey === 'Business & AI' ? 'Business & AI' : t(labelKey)}
                             </button>
                         ))}
                     </div>
@@ -135,12 +131,15 @@ const PwaToolsPage: React.FC = () => {
             </div>
 
             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                {filteredTools.length > 0 ? filteredTools.map((tool) => (
-                    <div key={tool.id}>
-                        <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} filesToPass={files || undefined} />
-                    </div>
-                )) : (
-                    <p className="col-span-full text-center text-gray-500 py-10">No compatible tools found for the selected files.</p>
+                {filteredTools.length > 0 ? filteredTools.map((tool) => {
+                    const isIncompatible = files ? !areFilesCompatible(tool, files) : false;
+                    return (
+                        <div key={tool.id}>
+                            <ToolCard tool={tool} isFavorite={isFavorite(tool.id)} onToggleFavorite={toggleFavorite} filesToPass={files || undefined} disabled={isIncompatible} />
+                        </div>
+                    );
+                }) : (
+                    <p className="col-span-full text-center text-gray-500 py-10">No tools found for this category.</p>
                 )}
             </div>
         </div>

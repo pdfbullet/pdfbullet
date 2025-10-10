@@ -975,11 +975,14 @@ function AppContent() {
       <PwaLayoutProvider>
         <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
           <PullToRefresh>
+            {/* FIX: Pass missing props to PwaHeader to resolve TypeScript error. */}
             <PwaHeader 
               onOpenSearchModal={() => setSearchModalOpen(true)} 
               unreadCount={unreadCount}
               justReceivedNotification={justReceivedNotification}
               onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+              onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+              onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
             />
             <main className="pt-[60px] pb-[72px] bg-gray-50 dark:bg-soft-dark min-h-screen">
               <Suspense fallback={<Preloader />}>
