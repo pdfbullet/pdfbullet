@@ -1,4 +1,3 @@
-
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -544,7 +543,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
-    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 left-4';
+    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 right-4';
 
     return (
         <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
@@ -885,35 +884,56 @@ function AppContent() {
     }
   }, [user, loading, navigate, location.pathname]);
 
-  const allRoutes = (
-    <Routes>
-      {/* PWA-specific home, differing from web home */}
-      <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
-      
-      {/* PWA-only routes */}
-      {isPwa && (
-        <>
+  const pwaRoutes = (
+      <Routes>
+          <Route path="/" element={<PwaHomePage />} />
           <Route path="/tools" element={<PwaToolsPage />} />
           <Route path="/articles" element={<PwaArticlesPage />} />
           <Route path="/settings" element={<PwaSettingsPage />} />
           <Route path="/storage" element={<PwaStoragePage />} />
           <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
-        </>
-      )}
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/blog" element={<BlogPage />} />
 
-      {/* Web-only routes */}
-      {!isPwa && (
-        <>
-          <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-          <Route path="/signup" element={<SignUpPage />} />
-        </>
-      )}
+          {/* AI and Generator Tools */}
+          <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+          <Route path="/cv-generator" element={<CVGeneratorPage />} />
+          <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+          <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+          <Route path="/image-generator" element={<ImageGeneratorPage />} />
 
-      {/* Common routes for both web and PWA */}
+          {/* Static Info Pages */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/press" element={<PressPage />} />
+          <Route path="/ceo" element={<CeoPage />} />
+          <Route path="/education" element={<EducationPage />} />
+          <Route path="/business" element={<BusinessPage />} />
+          <Route path="/legal" element={<LegalPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+          <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+          <Route path="/security-policy" element={<SecurityPolicyPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/how-to-use" element={<HowToUsePage />} />
+          <Route path="/developer-access" element={<DeveloperAccessPage />} />
+
+          {/* Fallback for other tools */}
+          <Route path="/:toolId" element={<ToolPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+  );
+
+  const webRoutes = (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/blog/:slug" element={<BlogPostPage />} />
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+      <Route path="/signup" element={<SignUpPage />} />
       <Route path="/developer" element={<DeveloperPage />} />
       <Route path="/faq" element={<FaqPage />} />
       <Route path="/sitemap" element={<SitemapPage />} />
@@ -966,7 +986,7 @@ function AppContent() {
               <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
               <Route path="/business-details" element={<BusinessDetailsPage />} />
               <Route path="/invoices" element={<InvoicesPage />} />
-              <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
+                <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
           </Route>
           <Route path="/workflows/create" element={<CreateWorkflowPage />} />
       </Route>
@@ -993,14 +1013,14 @@ function AppContent() {
             />
             <main className="pt-[60px] pb-[72px] bg-gray-50 dark:bg-soft-dark min-h-screen">
               <Suspense fallback={<Preloader />}>
-                  {allRoutes}
+                  {pwaRoutes}
               </Suspense>
             </main>
             <PwaBottomNav />
-            <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
-            <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
-            <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
           </PullToRefresh>
+          <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
+          <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
+          <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
         </MobileAuthGate>
       </PwaLayoutProvider>
     );
@@ -1022,7 +1042,7 @@ function AppContent() {
         />
         <main className="flex-grow">
           <Suspense fallback={<Preloader />}>
-            {allRoutes}
+            {webRoutes}
           </Suspense>
         </main>
         {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
