@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { MessengerIcon, CloseIcon, PaperAirplaneIcon, UserIcon, RefreshIcon } from './icons.tsx';
@@ -99,7 +98,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, o
             {showFab && !isOpen && (
                 <button
                     onClick={onOpen}
-                    className="fixed bottom-6 right-6 z-[90] bg-brand-red text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform"
+                    className="fixed bottom-24 right-6 sm:bottom-6 z-[90] bg-brand-red text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform"
                     aria-label="Open Chat"
                 >
                     <MessengerIcon className="h-8 w-8" />

@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { I18nProvider, useI18n } from './contexts/I18nContext.tsx';
 import { PWAInstallProvider, usePWAInstall } from './contexts/PWAInstallContext.tsx';
+import { PwaLayoutProvider } from './contexts/PwaLayoutContext.tsx';
 import PullToRefresh from './components/PullToRefresh.tsx';
 import { EmailIcon, CheckIcon, UserIcon, RefreshIcon, MicrophoneIcon, CopyIcon, GlobeIcon, CloseIcon, HeadsetIcon, TrashIcon, BellIcon } from './components/icons.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
@@ -13,6 +14,7 @@ import { TOOLS } from './constants.ts';
 import { db } from './firebase/config.ts';
 // FIX: Changed to a default import for the Header component to match its updated export type.
 import Header from './components/Header.tsx';
+import PwaHeader from './components/PwaHeader.tsx';
 import Footer from './components/Footer.tsx';
 import ScrollToTopButton from './components/ScrollToTopButton.tsx';
 import ProfileImageModal from './components/ProfileImageModal.tsx';
@@ -34,6 +36,8 @@ import UserDashboardLayout from './components/UserDashboardLayout.tsx';
 import PlaceholderPage from './components/PlaceholderPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import NotificationsPage from './pages/NotificationsPage.tsx';
+import InAppNotification from './components/InAppNotification.tsx';
+
 
 // Create and export LayoutContext to manage shared layout state across components.
 // This context will provide a way for pages like ToolPage to control parts of the main layout, such as the footer visibility.
@@ -43,6 +47,62 @@ export const LayoutContext = createContext<{
   setShowFooter: () => {},
 });
 
+// Define a richer Notification interface
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  url?: string;
+  attachmentUrl?: string;
+}
+
+const MainBackground: React.FC = () => (
+  <div className="main-background-svg-container">
+    <svg className="main-background-svg" width="1389" height="1479" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <mask id="a" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="0" y="0" width="1389" height="1479">
+          <path fill="#D9D9D9" d="M0 0h1389v1479H0z" />
+        </mask>
+        <g mask="url(#a)">
+          <ellipse opacity=".5" cy="1007.5" rx="160" ry="160.5" fill="url(#b)" />
+          <circle opacity=".5" cx="857.242" cy="375.085" r="91.111" fill="url(#c)" />
+          <rect opacity=".5" x="-.664" y="273.555" width="386.866" height="386.866" rx="24" transform="rotate(-45 -.664 273.555)" fill="url(#d)" />
+          <rect opacity=".5" x="288.662" y="1179.43" width="718.993" height="424.487" rx="32" transform="rotate(-45 288.662 1179.43)" fill="url(#e)" />
+          <circle opacity=".5" cx="1389.13" cy="530.129" r="220.13" fill="url(#f)" />
+          <circle opacity=".5" cx="1205.72" cy="1387.95" r="91.111" fill="url(#g)" />
+        </g>
+      </g>
+      <defs>
+        <linearGradient id="b" x1="-61.873" y1="861.062" x2=".372" y2="1167.92" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="c" x1="766.131" y1="250.722" x2="857.242" y2="466.196" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset="1" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="d" x1="117.967" y1="290.503" x2="192.769" y2="660.421" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="e" x1="616.714" y1="1247.46" x2="920.97" y2="1639.19" gradientUnits="userSpaceOnUse">
+          <stop offset=".091" stopColor="#F5F5FA" />
+          <stop offset=".948" stopColor="#E5322d" />
+        </linearGradient>
+        <linearGradient id="f" x1="1456.96" y1="604.614" x2="1389.13" y2="750.259" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset=".993" stopColor="#F5F5FA" />
+        </linearGradient>
+        <linearGradient id="g" x1="1242.3" y1="1427.85" x2="1140.55" y2="1333.41" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E5322d" />
+          <stop offset="1" stopColor="#F5F5FA" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+);
 
 // Inlined component to fix import issue
 const DataDeletionPage: React.FC = () => {
@@ -121,11 +181,13 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-black w-full max-w-md rounded-lg shadow-xl" onClick={e => e.stopPropagation()}>
-                <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Reset Password</h2>
-                    <button onClick={onClose} aria-label="Close modal" className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors">&times;</button>
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 animate-fade-in-down" style={{animationDuration: '300ms'}} onClick={onClose}>
+            <div className="bg-white dark:bg-black w-full max-w-lg rounded-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+                <header className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-t-xl border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Reset Password</h2>
+                        <button onClick={onClose} aria-label="Close modal" className="p-1 rounded-full text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"><CloseIcon className="h-6 w-6" /></button>
+                    </div>
                 </header>
                 {success ? (
                   <div className="p-8 text-center">
@@ -148,7 +210,7 @@ const ForgotPasswordModal: React.FC<{ isOpen: boolean; onClose: () => void; }> =
                       </div>
                       {error && <p className="text-sm text-red-500">{error}</p>}
                     </main>
-                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                    <footer className="flex justify-end gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
                       <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">Cancel</button>
                       <button type="submit" disabled={isLoading} className="px-4 py-2 text-sm font-semibold text-white bg-brand-red rounded-md disabled:bg-red-300 hover:bg-brand-red-dark">
                         {isLoading ? 'Sending...' : 'Send Reset Link'}
@@ -481,13 +543,13 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
-    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 left-4';
+    const widgetPositionClasses = isPwa ? 'bottom-24 left-4 sm:bottom-6 sm:left-6' : 'bottom-4 left-4';
 
     return (
         <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                 <div 
-                    className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white dark:bg-black rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800 overflow-hidden"
+                    className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white/90 dark:bg-black/80 backdrop-blur-lg rounded-2xl shadow-2xl flex flex-col border border-gray-200/30 dark:border-gray-700/30 overflow-hidden"
                     onMouseEnter={() => setUserHasInteracted(true)}
                     onClick={() => setUserHasInteracted(true)}
                 >
@@ -532,7 +594,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                             )}
                         </div>
                          {error && <p className="text-xs text-red-500 text-center px-4 pb-2">{error}</p>}
-                         <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-700">
+                         <div className="flex-shrink-0 p-3 border-t border-gray-200/50 dark:border-gray-700/50">
                             <a href="https://wa.me/9779827801575" target="_blank" rel="noopener noreferrer" className="mb-2 w-full text-center bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center justify-center gap-2 transition-colors">
                                 <UserIcon className="h-4 w-4" /><span>Talk to human support</span>
                             </a>
@@ -594,10 +656,30 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                 </div>
             </div>
             {showFab && (
-                <button onClick={onOpen} className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`} aria-label="Open chat support" title="Open chat support">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
-                    <ChatbotIcon className="h-6 w-6 relative" />
-                </button>
+                isPwa ? (
+                    <button
+                        onClick={onOpen}
+                        className={`pointer-events-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                        aria-label="Open Chat Support"
+                        title="Open Chat Support"
+                    >
+                        <img 
+                            src="https://ik.imagekit.io/fonepay/chatbot%20icon.png?updatedAt=1760017579423" 
+                            alt="Chat Support"
+                            className="w-16 h-16 rounded-full shadow-lg"
+                        />
+                    </button>
+                ) : (
+                    <button
+                        onClick={onOpen}
+                        className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                        aria-label="Open chat support"
+                        title="Open chat support"
+                    >
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
+                        <ChatbotIcon className="h-6 w-6 relative" />
+                    </button>
+                )
             )}
         </div>
     );
@@ -620,7 +702,9 @@ const InvoiceGeneratorPage = lazy(() => import('./pages/InvoiceGeneratorPage.tsx
 const CVGeneratorPage = lazy(() => import('./pages/CVGeneratorPage.tsx'));
 const LessonPlanCreatorPage = lazy(() => import('./pages/LessonPlanCreatorPage.tsx'));
 const AIQuestionGeneratorPage = lazy(() => import('./pages/AIQuestionGeneratorPage.tsx'));
+const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.tsx'));
+const ApiPricingPage = lazy(() => import('./pages/ApiPricingPage.tsx'));
 const PremiumFeaturePage = lazy(() => import('./pages/PremiumFeaturePage.tsx'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage.tsx'));
 const DeveloperAccessPage = lazy(() => import('./pages/DeveloperAccessPage.tsx'));
@@ -632,21 +716,21 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.tsx'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.tsx'));
 const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage.tsx'));
 const CeoPage = lazy(() => import('./pages/CeoPage.tsx'));
-const ApiPricingPage = lazy(() => import('./pages/ApiPricingPage.tsx'));
+const PressPage = lazy(() => import('./pages/PressPage.tsx'));
+const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
+const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
+
+// API Documentation Pages
 const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage.tsx'));
 const ApiPdfPage = lazy(() => import('./pages/ApiPdfPage.tsx'));
 const ApiImagePage = lazy(() => import('./pages/ApiImagePage.tsx'));
 const ApiSignaturePage = lazy(() => import('./pages/ApiSignaturePage.tsx'));
+
+// User Dashboard Pages
 const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage.tsx'));
-const PressPage = lazy(() => import('./pages/PressPage.tsx'));
 const WorkflowsPage = lazy(() => import('./pages/WorkflowsPage.tsx'));
 const CreateWorkflowPage = lazy(() => import('./pages/CreateWorkflowPage.tsx'));
-const LegalPage = lazy(() => import('./pages/LegalPage.tsx'));
-const SecurityPolicyPage = lazy(() => import('./pages/SecurityPolicyPage.tsx'));
-const FeaturesPage = lazy(() => import('./pages/FeaturesPage.tsx'));
-const ImageGeneratorPage = lazy(() => import('./pages/ImageGeneratorPage.tsx'));
-
-// New Dashboard Pages
 const SecurityPage = lazy(() => import('./pages/SecurityPage.tsx'));
 const TeamPage = lazy(() => import('./pages/TeamPage.tsx'));
 const LastTasksPage = lazy(() => import('./pages/LastTasksPage.tsx'));
@@ -683,11 +767,12 @@ function AppContent() {
   const [isQrCodeModalOpen, setQrCodeModalOpen] = useState(false);
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
-  const layoutContextValue = useMemo(() => ({ setShowFooter }), []);
+  const layoutContextValue = useMemo(() => ({ setShowFooter }), [setShowFooter]);
 
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [justReceivedNotification, setJustReceivedNotification] = useState(false);
+  const [inAppNotification, setInAppNotification] = useState<Notification | null>(null);
   const prevTotalNotificationsRef = useRef(0);
 
   const READ_NOTIFICATIONS_KEY = 'read_notification_ids';
@@ -704,18 +789,28 @@ function AppContent() {
             const data = doc.data();
             return {
               id: doc.id,
+              title: data.title || 'Notification',
               message: data.message,
               timestamp: data.timestamp ? data.timestamp.toDate().getTime() : Date.now(),
-              read: readIds.has(doc.id)
+              read: readIds.has(doc.id),
+              url: data.url,
+              attachmentUrl: data.attachmentUrl
             };
         });
         
         const newUnreadCount = newNotifications.filter(n => !n.read).length;
+
+        if ('setAppBadge' in navigator) {
+            (navigator as any).setAppBadge(newUnreadCount).catch((error: any) => {
+                console.error("Failed to set app badge:", error);
+            });
+        }
         
         if (newNotifications.length > prevTotalNotificationsRef.current && prevTotalNotificationsRef.current > 0) {
             const latestNotification = newNotifications[0];
             if (latestNotification && !latestNotification.read) {
-                setJustReceivedNotification(true);
+                setJustReceivedNotification(true); // For bell animation
+                setInAppNotification(latestNotification); // For toast
             }
         }
 
@@ -736,6 +831,11 @@ function AppContent() {
         
         setNotifications(prev => prev.map(n => ({...n, read: true})));
         setUnreadCount(0);
+        if ('clearAppBadge' in navigator) {
+            (navigator as any).clearAppBadge().catch((error: any) => {
+                console.error("Failed to clear app badge:", error);
+            });
+        }
     } catch (e) {
         console.error("Failed to mark notifications as read", e);
     }
@@ -783,123 +883,187 @@ function AppContent() {
       }
     }
   }, [user, loading, navigate, location.pathname]);
+
+  const pwaRoutes = (
+      <Routes>
+          <Route path="/" element={<PwaHomePage />} />
+          <Route path="/tools" element={<PwaToolsPage />} />
+          <Route path="/articles" element={<PwaArticlesPage />} />
+          <Route path="/settings" element={<PwaSettingsPage />} />
+          <Route path="/storage" element={<PwaStoragePage />} />
+          <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+
+          {/* AI and Generator Tools */}
+          <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+          <Route path="/cv-generator" element={<CVGeneratorPage />} />
+          <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+          <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+          <Route path="/image-generator" element={<ImageGeneratorPage />} />
+
+          {/* Static Info Pages */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/press" element={<PressPage />} />
+          <Route path="/ceo" element={<CeoPage />} />
+          <Route path="/education" element={<EducationPage />} />
+          <Route path="/business" element={<BusinessPage />} />
+          <Route path="/legal" element={<LegalPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+          <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+          <Route path="/security-policy" element={<SecurityPolicyPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/how-to-use" element={<HowToUsePage />} />
+
+          {/* Fallback for other tools */}
+          <Route path="/:toolId" element={<ToolPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+  );
+
+  const webRoutes = (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/developer" element={<DeveloperPage />} />
+      <Route path="/faq" element={<FaqPage />} />
+      <Route path="/sitemap" element={<SitemapPage />} />
+      <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
+      <Route path="/cv-generator" element={<CVGeneratorPage />} />
+      <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
+      <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
+      <Route path="/image-generator" element={<ImageGeneratorPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/api-pricing" element={<ApiPricingPage />} />
+      <Route path="/premium-feature" element={<PremiumFeaturePage />} />
+      <Route path="/payment" element={<PaymentPage />} />
+      <Route path="/developer-access" element={<DeveloperAccessPage />} />
+      <Route path="/how-to-use" element={<HowToUsePage />} />
+      <Route path="/education" element={<EducationPage />} />
+      <Route path="/business" element={<BusinessPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+      <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
+      <Route path="/ceo" element={<CeoPage />} />
+      <Route path="/press" element={<PressPage />} />
+      <Route path="/user-data-deletion" element={<DataDeletionPage />} />
+      <Route path="/legal" element={<LegalPage />} />
+      <Route path="/security-policy" element={<SecurityPolicyPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      
+      <Route path="/api-reference" element={<ApiReferencePage />} />
+      <Route path="/api-pdf" element={<ApiPdfPage />} />
+      <Route path="/api-image" element={<ApiImagePage />} />
+      <Route path="/api-signature" element={<ApiSignaturePage />} />
+
+      <Route element={<AdminProtectedRoute />}>
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+      </Route>
+
+      <Route element={<UserProtectedRoute />}>
+          <Route element={<UserDashboardLayout />}>
+              <Route path="/account-settings" element={<AccountSettingsPage />} />
+              <Route path="/workflows" element={<WorkflowsPage />} />
+              <Route path="/security" element={<SecurityPage />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/last-tasks" element={<LastTasksPage />} />
+              <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+              <Route path="/sent" element={<SentPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/signed" element={<SignedPage />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+              <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+              <Route path="/business-details" element={<BusinessDetailsPage />} />
+              <Route path="/invoices" element={<InvoicesPage />} />
+                <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
+          </Route>
+          <Route path="/workflows/create" element={<CreateWorkflowPage />} />
+      </Route>
+      
+      <Route path="/:toolId" element={<ToolPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+  
+  const showChatbotFab = isPwa ? location.pathname === '/settings' : true;
+
+  if (isPwa) {
+    return (
+      <PwaLayoutProvider>
+        <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
+          <PullToRefresh>
+            {/* FIX: Pass missing props to PwaHeader to resolve TypeScript error. */}
+            <PwaHeader 
+              onOpenSearchModal={() => setSearchModalOpen(true)} 
+              unreadCount={unreadCount}
+              justReceivedNotification={justReceivedNotification}
+              onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+              onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+              onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+            />
+            <main className="pt-[60px] pb-[72px] bg-gray-50 dark:bg-soft-dark min-h-screen">
+              <Suspense fallback={<Preloader />}>
+                  {pwaRoutes}
+              </Suspense>
+            </main>
+            <PwaBottomNav />
+            <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
+            <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
+            <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+          </PullToRefresh>
+        </MobileAuthGate>
+      </PwaLayoutProvider>
+    );
+  }
   
   return (
     <LayoutContext.Provider value={layoutContextValue}>
-      <MobileAuthGate onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)}>
-        <PullToRefresh>
-            <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-              {/* FIX: Pass the missing props for notification handling to the Header component. */}
-              <Header
-                isPwa={isPwa}
-                onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-                onOpenSearchModal={() => setSearchModalOpen(true)}
-                onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-                onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
-                unreadCount={unreadCount}
-                justReceivedNotification={justReceivedNotification}
-                onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
-              />
-              <main className="flex-grow">
-                <Suspense fallback={<Preloader />}>
-                  <Routes>
-                    <Route path="/" element={isPwa ? <PwaHomePage /> : <HomePage />} />
-                    <Route path="/tools" element={isPwa ? <PwaToolsPage /> : <Navigate to="/" />} />
-                    <Route path="/articles" element={isPwa ? <PwaArticlesPage /> : <BlogPage />} />
-                    <Route path="/settings" element={isPwa ? <PwaSettingsPage /> : <Navigate to="/" />} />
-                    <Route path="/storage" element={isPwa ? <PwaStoragePage /> : <Navigate to="/" />} />
-                    <Route path="/notifications" element={isPwa ? <NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} /> : <Navigate to="/" />} />
-
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/blog/:slug" element={<BlogPostPage />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/login" element={<LoginPage onOpenForgotPasswordModal={() => setForgotPasswordModalOpen(true)} />} />
-                    <Route path="/signup" element={<SignUpPage />} />
-                    <Route path="/developer" element={<DeveloperPage />} />
-                    <Route path="/faq" element={<FaqPage />} />
-                    <Route path="/sitemap" element={<SitemapPage />} />
-                    <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
-                    <Route path="/cv-generator" element={<CVGeneratorPage />} />
-                    <Route path="/lesson-plan-creator" element={<LessonPlanCreatorPage />} />
-                    <Route path="/ai-question-generator" element={<AIQuestionGeneratorPage />} />
-                    <Route path="/image-generator" element={<ImageGeneratorPage />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/api-pricing" element={<ApiPricingPage />} />
-                    <Route path="/premium-feature" element={<PremiumFeaturePage />} />
-                    <Route path="/payment" element={<PaymentPage />} />
-                    <Route path="/developer-access" element={<DeveloperAccessPage />} />
-                    <Route path="/how-to-use" element={<HowToUsePage />} />
-                    <Route path="/education" element={<EducationPage />} />
-                    <Route path="/business" element={<BusinessPage />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                    <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                    <Route path="/cookies-policy" element={<CookiesPolicyPage />} />
-                    <Route path="/ceo" element={<CeoPage />} />
-                    <Route path="/press" element={<PressPage />} />
-                    <Route path="/user-data-deletion" element={<DataDeletionPage />} />
-                    <Route path="/legal" element={<LegalPage />} />
-                    <Route path="/security-policy" element={<SecurityPolicyPage />} />
-                    <Route path="/features" element={<FeaturesPage />} />
-                    
-                    <Route path="/api-reference" element={<ApiReferencePage />} />
-                    <Route path="/api-pdf" element={<ApiPdfPage />} />
-                    <Route path="/api-image" element={<ApiImagePage />} />
-                    <Route path="/api-signature" element={<ApiSignaturePage />} />
-
-                    <Route element={<AdminProtectedRoute />}>
-                        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-                    </Route>
-
-                    <Route element={<UserProtectedRoute />}>
-                        <Route element={<UserDashboardLayout />}>
-                            <Route path="/account-settings" element={<AccountSettingsPage />} />
-                            <Route path="/workflows" element={<WorkflowsPage />} />
-                            <Route path="/security" element={<SecurityPage />} />
-                            <Route path="/team" element={<TeamPage />} />
-                            <Route path="/last-tasks" element={<LastTasksPage />} />
-                            <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
-                            <Route path="/sent" element={<SentPage />} />
-                            <Route path="/inbox" element={<InboxPage />} />
-                            <Route path="/signed" element={<SignedPage />} />
-                            <Route path="/templates" element={<TemplatesPage />} />
-                            <Route path="/contacts" element={<ContactsPage />} />
-                            <Route path="/signature-settings" element={<SignatureSettingsPage />} />
-                            <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
-                            <Route path="/business-details" element={<BusinessDetailsPage />} />
-                            <Route path="/invoices" element={<InvoicesPage />} />
-                             <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
-                        </Route>
-                        <Route path="/workflows/create" element={<CreateWorkflowPage />} />
-                    </Route>
-                    
-                    <Route path="/:toolId" element={<ToolPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </Suspense>
-              </main>
-              {!isPwa && showFooter && <Footer 
-                onOpenCalendarModal={() => setCalendarModalOpen(true)}
-                onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
-              />}
-              
-              <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
-              <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
-              <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
-              <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
-              <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
-              <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
-              <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-              {!isPwa && <ScrollToTopButton />}
-              <CookieConsentBanner />
-              <PWAInstallPrompt />
-              <PWAInstallInstructionsModal />
-              <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />
-              <WelcomeInstallModal />
-              {isPwa && <PwaBottomNav />}
-            </div>
-        </PullToRefresh>
-      </MobileAuthGate>
+      <MainBackground />
+      <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+        <Header
+          isPwa={isPwa}
+          onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+          onOpenSearchModal={() => setSearchModalOpen(true)}
+          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+          onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+          unreadCount={unreadCount}
+          justReceivedNotification={justReceivedNotification}
+          onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+        />
+        <main className="flex-grow">
+          <Suspense fallback={<Preloader />}>
+            {webRoutes}
+          </Suspense>
+        </main>
+        {inAppNotification && <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />}
+        {showFooter && <Footer 
+          onOpenCalendarModal={() => setCalendarModalOpen(true)}
+          onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
+        />}
+        
+        <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+        <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
+        <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+        <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
+        <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
+        <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
+        <ScrollToTopButton />
+        <CookieConsentBanner />
+        <PWAInstallPrompt />
+        <PWAInstallInstructionsModal />
+        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
+        <WelcomeInstallModal />
+      </div>
     </LayoutContext.Provider>
   );
 }

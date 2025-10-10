@@ -92,10 +92,6 @@ const PwaSettingsPage: React.FC = () => {
             <Section title={t('footer.company')}>
                  {company.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
             </Section>
-
-            <Section title={t('footer.legal')}>
-                 {legal.map(l => <SettingLink key={l.path} to={l.path}>{t(l.nameKey)}</SettingLink>)}
-            </Section>
             
             <Section title="Admin">
                 <SettingLink to="/developer-access" icon={CodeIcon}>Admin Access</SettingLink>
