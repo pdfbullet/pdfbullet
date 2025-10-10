@@ -1,3 +1,4 @@
+
 // FIX: Replaced incomplete file content with the full App component definition and default export to resolve the import error in index.tsx.
 import React, { lazy, Suspense, useState, useRef, useEffect, createContext, useMemo, useCallback } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -918,9 +919,6 @@ function AppContent() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/how-to-use" element={<HowToUsePage />} />
           <Route path="/developer-access" element={<DeveloperAccessPage />} />
-          <Route path="/developer" element={<DeveloperPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-
 
           {/* Fallback for other tools */}
           <Route path="/:toolId" element={<ToolPage />} />
@@ -1021,7 +1019,6 @@ function AppContent() {
             </main>
             <PwaBottomNav />
           </PullToRefresh>
-          {/* Moved these outside PullToRefresh to fix stacking context issues */}
           <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
           <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
           <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />

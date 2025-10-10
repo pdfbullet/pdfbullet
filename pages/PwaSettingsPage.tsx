@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
-import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon, CodeIcon } from '../components/icons.tsx';
+import { FacebookIcon, WhatsAppIcon, YoutubeIcon, AppStoreIconSimple, AndroidIcon, SunIcon, MoonIcon, CodeIcon, DollarIcon } from '../components/icons.tsx';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -83,6 +83,11 @@ const PwaSettingsPage: React.FC = () => {
                       </span>
                     </button>
                 </div>
+            </Section>
+
+            <Section title="General">
+                <SettingLink to="/pricing" icon={DollarIcon}>Pricing</SettingLink>
+                <SettingLink to="/developer" icon={CodeIcon}>Developer</SettingLink>
             </Section>
 
             <Section title={t('footer.solutions')}>
