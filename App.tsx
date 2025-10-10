@@ -334,9 +334,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
     const [chat, setChat] = useState<Chat | null>(null);
     const [useGoogleSearch, setUseGoogleSearch] = useState(false);
     const [isListening, setIsListening] = useState(false);
-    const [copiedTooltip, setCopiedTooltip] = useState<string | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [userHasInteracted, setUserHasInteracted] = useState(false);
     const { user } = useAuth();
     const { t } = useI18n();
 
@@ -355,22 +353,6 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
             }
         } catch (e) { console.error("Failed to load chat history", e); }
     }, []);
-    
-    const speak = (text: string) => {
-        if ('speechSynthesis' in window && text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            const trySpeak = () => {
-                const voices = window.speechSynthesis.getVoices();
-                const femaleVoice = voices.find(voice => voice.lang === 'en-US' && (voice.name.includes('Google') || voice.name.includes('Female')));
-                if (femaleVoice) utterance.voice = femaleVoice;
-                window.speechSynthesis.speak(utterance);
-            };
-            if (window.speechSynthesis.getVoices().length > 0) trySpeak();
-            else window.speechSynthesis.onvoiceschanged = trySpeak;
-        }
-    };
     
     const initializeChat = () => {
         try {
@@ -431,7 +413,6 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     useEffect(() => {
         if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-            // FIX: Cast window to `any` to access non-standard SpeechRecognition APIs.
             const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
             const recognition = new SpeechRecognition();
             recognition.continuous = false;
@@ -543,15 +524,42 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
 
     const conversationStarted = currentMessages.length > 1;
 
-    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-4 right-4';
+    const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-6 left-6';
 
     return (
-        <div className={`fixed z-[99] pointer-events-none ${widgetPositionClasses}`}>
+        <div className={`fixed z-[90] flex flex-col-reverse ${isPwa ? 'items-end' : 'items-start'} gap-2 ${widgetPositionClasses}`}>
+            {/* FAB is first in source order, rendered at the bottom */}
+            {showFab && (
+                isPwa ? (
+                    <button
+                        onClick={onOpen}
+                        className={`transition-opacity duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        aria-label="Open Chat Support"
+                        title="Open Chat Support"
+                    >
+                        <img 
+                            src="https://ik.imagekit.io/fonepay/chatbot%20icon.png?updatedAt=1760017579423" 
+                            alt="Chat Support"
+                            className="w-16 h-16 rounded-full shadow-lg"
+                        />
+                    </button>
+                ) : (
+                    <button
+                        onClick={onOpen}
+                        className={`relative transition-opacity duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 animate-wave-float ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        aria-label="Open chat support"
+                        title="Open chat support"
+                    >
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
+                        <ChatbotIcon className="h-6 w-6 relative" />
+                    </button>
+                )
+            )}
+            
+            {/* Chat window is second, rendered on top */}
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                 <div 
                     className="w-full max-w-[calc(100vw-2rem)] sm:w-80 h-[60vh] max-h-[480px] sm:max-h-[500px] bg-white/90 dark:bg-black/80 backdrop-blur-lg rounded-2xl shadow-2xl flex flex-col border border-gray-200/30 dark:border-gray-700/30 overflow-hidden"
-                    onMouseEnter={() => setUserHasInteracted(true)}
-                    onClick={() => setUserHasInteracted(true)}
                 >
                     <div className="flex-shrink-0 p-4 flex justify-between items-center bg-gradient-to-r from-red-600 to-orange-500 rounded-t-2xl">
                         <p className="font-bold text-white">PDFBullet Support</p>
@@ -655,32 +663,6 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                     </div>
                 </div>
             </div>
-            {showFab && (
-                isPwa ? (
-                    <button
-                        onClick={onOpen}
-                        className={`pointer-events-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-                        aria-label="Open Chat Support"
-                        title="Open Chat Support"
-                    >
-                        <img 
-                            src="https://ik.imagekit.io/fonepay/chatbot%20icon.png?updatedAt=1760017579423" 
-                            alt="Chat Support"
-                            className="w-16 h-16 rounded-full shadow-lg"
-                        />
-                    </button>
-                ) : (
-                    <button
-                        onClick={onOpen}
-                        className={`relative transition-all duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 pointer-events-auto animate-wave-float ${!isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-                        aria-label="Open chat support"
-                        title="Open chat support"
-                    >
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75 animate-ping-slow"></span>
-                        <ChatbotIcon className="h-6 w-6 relative" />
-                    </button>
-                )
-            )}
         </div>
     );
 };
@@ -1074,45 +1056,48 @@ function AppContent() {
   }
   
   return (
-    <LayoutContext.Provider value={layoutContextValue}>
-      <MainBackground />
-      <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-        <Header
-          isPwa={isPwa}
-          onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-          onOpenSearchModal={() => setSearchModalOpen(true)}
-          onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-          onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
-          unreadCount={unreadCount}
-          justReceivedNotification={justReceivedNotification}
-          onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
-        />
-        <main className="flex-grow">
-          <Suspense fallback={<Preloader />}>
-            {webRoutes}
-          </Suspense>
-        </main>
-        <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
-        {showFooter && <Footer 
-          onOpenCalendarModal={() => setCalendarModalOpen(true)}
-          onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
-        />}
-        
-        <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
-        <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
-        <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
-        <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
-        <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
-        <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
-        <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
-        <ScrollToTopButton />
-        <CookieConsentBanner />
-        <PWAInstallPrompt />
-        <PWAInstallInstructionsModal />
-        <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
-        <WelcomeInstallModal />
-      </div>
-    </LayoutContext.Provider>
+    <>
+      <LayoutContext.Provider value={layoutContextValue}>
+        <MainBackground />
+        <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
+          <Header
+            isPwa={isPwa}
+            onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+            onOpenSearchModal={() => setSearchModalOpen(true)}
+            onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+            onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
+            unreadCount={unreadCount}
+            justReceivedNotification={justReceivedNotification}
+            onNotificationAnimationEnd={() => setJustReceivedNotification(false)}
+          />
+          <main className="flex-grow">
+            <Suspense fallback={<Preloader />}>
+              {webRoutes}
+            </Suspense>
+          </main>
+          {showFooter && <Footer 
+            onOpenCalendarModal={() => setCalendarModalOpen(true)}
+            onOpenProblemReportModal={() => setProblemReportModalOpen(true)}
+          />}
+        </div>
+      </LayoutContext.Provider>
+      
+      {/* Global Modals & Widgets are moved outside wrappers to fix positioning */}
+      <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
+      <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
+      <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
+      <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
+      <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+      <ProblemReportModal isOpen={isProblemReportModalOpen} onClose={() => setProblemReportModalOpen(false)} />
+      <ForgotPasswordModal isOpen={isForgotPasswordModalOpen} onClose={() => setForgotPasswordModalOpen(false)} />
+      <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
+      <ScrollToTopButton />
+      <CookieConsentBanner />
+      <PWAInstallPrompt />
+      <PWAInstallInstructionsModal />
+      <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
+      <WelcomeInstallModal />
+    </>
   );
 }
 
