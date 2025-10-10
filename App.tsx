@@ -894,9 +894,9 @@ function AppContent() {
           <Route path="/notifications" element={<NotificationsPage notifications={notifications} markAllAsRead={markAllAsRead} clearAll={clearAllNotifications} />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/blog" element={<BlogPage />} />
-
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/developer" element={<DeveloperPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
 
           {/* AI and Generator Tools */}
           <Route path="/invoice-generator" element={<InvoiceGeneratorPage />} />
@@ -921,9 +921,41 @@ function AppContent() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/how-to-use" element={<HowToUsePage />} />
           <Route path="/developer-access" element={<DeveloperAccessPage />} />
+          
+          {/* Add all other web routes for PWA feature parity */}
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/sitemap" element={<SitemapPage />} />
+          <Route path="/api-pricing" element={<ApiPricingPage />} />
+          <Route path="/premium-feature" element={<PremiumFeaturePage />} />
+          <Route path="/api-reference" element={<ApiReferencePage />} />
+          <Route path="/api-pdf" element={<ApiPdfPage />} />
+          <Route path="/api-image" element={<ApiImagePage />} />
+          <Route path="/api-signature" element={<ApiSignaturePage />} />
 
           <Route element={<AdminProtectedRoute />}>
               <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          </Route>
+
+          <Route element={<UserProtectedRoute />}>
+              <Route element={<UserDashboardLayout />}>
+                  <Route path="/account-settings" element={<AccountSettingsPage />} />
+                  <Route path="/workflows" element={<WorkflowsPage />} />
+                  <Route path="/security" element={<SecurityPage />} />
+                  <Route path="/team" element={<TeamPage />} />
+                  <Route path="/last-tasks" element={<LastTasksPage />} />
+                  <Route path="/signatures-overview" element={<SignaturesOverviewPage />} />
+                  <Route path="/sent" element={<SentPage />} />
+                  <Route path="/inbox" element={<InboxPage />} />
+                  <Route path="/signed" element={<SignedPage />} />
+                  <Route path="/templates" element={<TemplatesPage />} />
+                  <Route path="/contacts" element={<ContactsPage />} />
+                  <Route path="/signature-settings" element={<SignatureSettingsPage />} />
+                  <Route path="/plans-packages" element={<PlansAndPackagesPage />} />
+                  <Route path="/business-details" element={<BusinessDetailsPage />} />
+                  <Route path="/invoices" element={<InvoicesPage />} />
+                  <Route path="/placeholder" element={<PlaceholderPage title="Placeholder" />} />
+              </Route>
+              <Route path="/workflows/create" element={<CreateWorkflowPage />} />
           </Route>
 
           {/* Fallback for other tools */}
@@ -1027,7 +1059,7 @@ function AppContent() {
           </PullToRefresh>
         </MobileAuthGate>
         
-        {/* Global Modals & Widgets */}
+        {/* Global Modals & Widgets are moved outside wrappers to fix positioning */}
         <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={showChatbotFab} isPwa={isPwa} />
         <InAppNotification notification={inAppNotification} onClose={() => setInAppNotification(null)} />
         <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
