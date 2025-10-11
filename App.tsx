@@ -527,13 +527,13 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
     const widgetPositionClasses = isPwa ? 'bottom-24 right-4 sm:bottom-6 sm:right-6' : 'bottom-6 left-6';
 
     return (
-        <div className={`fixed z-[90] flex flex-col-reverse ${isPwa ? 'items-end' : 'items-start'} gap-2 ${widgetPositionClasses}`}>
+        <div className={`fixed z-[90] flex flex-col-reverse ${isPwa ? 'items-end' : 'items-start'} gap-2 ${widgetPositionClasses} pointer-events-none`}>
             {/* FAB is first in source order, rendered at the bottom */}
             {showFab && (
                 isPwa ? (
                     <button
                         onClick={onOpen}
-                        className={`transition-opacity duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        className={`pointer-events-auto transition-opacity duration-300 ease-in-out transform hover:scale-110 hover:brightness-110 ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         aria-label="Open Chat Support"
                         title="Open Chat Support"
                     >
@@ -546,7 +546,7 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isOpen, onClose, onOpen, 
                 ) : (
                     <button
                         onClick={onOpen}
-                        className={`relative transition-opacity duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 animate-wave-float ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        className={`pointer-events-auto relative transition-opacity duration-300 ease-in-out bg-brand-red text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 animate-wave-float ${!isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         aria-label="Open chat support"
                         title="Open chat support"
                     >
