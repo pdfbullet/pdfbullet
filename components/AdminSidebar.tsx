@@ -9,7 +9,8 @@ import {
     SettingsIcon,
     LogoutIcon,
     ChevronDownIcon,
-    LeftArrowIcon
+    LeftArrowIcon,
+    GridIcon
 } from './icons.tsx';
 
 interface AdminSidebarProps {
@@ -28,6 +29,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
         { id: 'tasks', name: 'Task History', icon: RefreshIcon },
         { id: 'feedback', name: 'User Feedback', icon: ChatbotIcon },
         { id: 'notifications', name: 'Notifications', icon: BellIcon },
+        { id: 'seo', name: 'Page SEO', icon: GridIcon },
         { id: 'settings', name: 'Site Settings', icon: SettingsIcon },
     ];
 
@@ -40,7 +42,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
             />
 
             {/* Sidebar */}
-            <aside className={`fixed top-16 left-0 bottom-0 z-50 w-64 bg-white dark:bg-black border-r border-gray-100 dark:border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`fixed top-0 left-0 bottom-0 z-50 w-64 bg-white dark:bg-black border-r border-gray-100 dark:border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">

@@ -160,7 +160,7 @@ export function AppShell({ children }: AppShellProps) {
         <LayoutContext.Provider value={layoutContextValue}>
             <MainBackground />
             <div className="flex flex-col min-h-screen text-gray-800 dark:text-gray-200">
-                <Header
+                {!isAdminDashboard && <Header
                     isPwa={isPwa}
                     onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                     onOpenSearchModal={() => setSearchModalOpen(true)}
@@ -169,7 +169,7 @@ export function AppShell({ children }: AppShellProps) {
                     unreadCount={0}
                     justReceivedNotification={false}
                     onNotificationAnimationEnd={() => {}}
-                />
+                />}
                 <main className="flex-grow">
                     {children}
                 </main>

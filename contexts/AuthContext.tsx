@@ -127,6 +127,8 @@ interface AuthContextType {
   updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
   purgeTaskHistory: (days: number) => Promise<number>;
   resetAllUserTrials: (daysFromNow: number) => Promise<number>;
+  getPageSeo: () => Promise<{ path: string; title: string; description: string }[]>;
+  updatePageSeo: (seoData: { path: string; title: string; description: string }[]) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -235,11 +237,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateUserPlan = async (uid: string, plan: 'tools' | 'flipbook', status: boolean) => {
-    // Admin plan update mock or backend trigger
+    const isToolsPremium = plan === 'tools' ? status : undefined;
+    const isFlipbookPremium = plan === 'flipbook' ? status : undefined;
+    const res = await fetch('/api/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, isToolsPremium, isFlipbookPremium })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to update plan');
+    }
   };
 
   const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
-    // Admin API plan update mock
+    const res = await fetch('/api/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, apiPlan: plan })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to update API plan');
+    }
   };
 
   const deleteUser = async (uid: string) => {
@@ -299,11 +319,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateReportStatus = async (reportId: string, status: ProblemReport['status']) => {
-    // Admin update status
+    const res = await fetch('/api/reports', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: reportId, status })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to update report status');
+    }
   };
 
   const deleteProblemReport = async (reportId: string) => {
-    // Admin delete report
+    const res = await fetch(`/api/reports?id=${reportId}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to delete report');
+    }
   };
 
   const sendTaskCompletionEmail = async (toolTitle: string, outputFilename: string) => {
@@ -335,7 +369,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const deleteTaskRecord = async (taskId: string) => {
-    // Admin delete task log
+    const res = await fetch(`/api/tasks?id=${taskId}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to delete task record');
+    }
   };
 
   const submitFeedback = async (feedbackData: { rating: number, message: string }) => {
@@ -361,7 +401,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const deleteFeedback = async (feedbackId: string) => {
-    // Admin delete feedback
+    const res = await fetch(`/api/feedbacks?id=${feedbackId}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to delete feedback');
+    }
+  };
+
+  const getPageSeo = async (): Promise<{ path: string; title: string; description: string }[]> => {
+    const res = await fetch('/api/page-seo');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch page SEO config');
+    return data.seo;
+  };
+
+  const updatePageSeo = async (seoData: { path: string; title: string; description: string }[]) => {
+    const res = await fetch('/api/page-seo', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(seoData)
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to update page SEO config');
+    }
   };
 
   const saveFaceDescriptor = async (descriptor: number[]) => {
@@ -411,7 +476,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await signInWithEmail('admin@pdfbullet.com', 'password123');
   };
 
-  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPlan, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithYahoo, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, submitFeedback, getFeedbacks, deleteFeedback, auth: mockAuth, saveFaceDescriptor, loginWithFace, getSiteSettings, updateSiteSettings, purgeTaskHistory, resetAllUserTrials };
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPlan, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithYahoo, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, submitFeedback, getFeedbacks, deleteFeedback, auth: mockAuth, saveFaceDescriptor, loginWithFace, getSiteSettings, updateSiteSettings, purgeTaskHistory, resetAllUserTrials, getPageSeo, updatePageSeo };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

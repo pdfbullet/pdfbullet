@@ -5,7 +5,7 @@ import {
     UserIcon, StarIcon, TrashIcon, ApiIcon, RefreshIcon,
     WarningIcon, DownloadIcon, PaperAirplaneIcon, MenuIcon,
     ChatbotIcon, SettingsIcon, ChartBarIcon, BellIcon,
-    SearchIcon, CheckCircleIcon, CloseIcon
+    SearchIcon, CheckCircleIcon, CloseIcon, GridIcon
 } from '../components/icons.tsx';
 import { db, storage, firebase } from '../firebase/config.ts';
 import { LayoutContext } from '../App.tsx';
@@ -191,6 +191,133 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () 
             <button onClick={onClose} className="ml-4 p-2 hover:bg-white/20 rounded-xl transition-all">
                 <CloseIcon className="h-4 w-4" />
             </button>
+        </div>
+    );
+};
+
+const SeoEditor: React.FC = () => {
+    const { getPageSeo, updatePageSeo } = useAuth();
+    const [seoData, setSeoData] = useState<{ path: string; title: string; description: string }[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [search, setSearch] = useState('');
+    const [status, setStatus] = useState('');
+
+    useEffect(() => {
+        const fetchSeo = async () => {
+            try {
+                const data = await getPageSeo();
+                setSeoData(data);
+            } catch (e) {
+                console.error(e);
+                setStatus('Failed to load SEO data');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSeo();
+    }, [getPageSeo]);
+
+    const handleSave = async () => {
+        setSaving(true);
+        setStatus('Saving to server...');
+        try {
+            await updatePageSeo(seoData);
+            setStatus('SEO configurations saved successfully!');
+        } catch (e) {
+            console.error(e);
+            setStatus('Failed to save SEO configurations');
+        } finally {
+            setSaving(false);
+            setTimeout(() => setStatus(''), 4000);
+        }
+    };
+
+    const handleChange = (path: string, field: 'title' | 'description', value: string) => {
+        setSeoData(prev => prev.map(item => item.path === path ? { ...item, [field]: value } : item));
+    };
+
+    const filtered = seoData.filter(item => 
+        item.path.toLowerCase().includes(search.toLowerCase()) ||
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (loading) {
+        return <div className="text-center py-20 font-bold text-gray-400">Loading page SEO configurations...</div>;
+    }
+
+    return (
+        <div className="bg-white dark:bg-gray-900/50 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h3 className="text-xl font-bold flex items-center gap-2">
+                        <GridIcon className="h-6 w-6 text-brand-red" />
+                        Page SEO & Meta Configurations
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Instantly update title tags and meta descriptions for all 72+ site pages.
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <input 
+                        type="text" 
+                        placeholder="Filter pages..." 
+                        value={search} 
+                        onChange={e => setSearch(e.target.value)} 
+                        className="p-3 bg-gray-50 dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-brand-red outline-none text-sm transition-all w-64"
+                    />
+                    <button 
+                        onClick={handleSave} 
+                        disabled={saving}
+                        className="bg-brand-red hover:bg-brand-red-dark text-white font-extrabold px-6 py-3 rounded-xl transition-all shadow-md shadow-brand-red/20 disabled:bg-red-300 text-sm flex items-center gap-2"
+                    >
+                        {saving ? 'Saving...' : 'Save All Changes'}
+                    </button>
+                </div>
+            </div>
+
+            {status && (
+                <div className={`p-4 rounded-xl text-center text-sm font-semibold mb-6 animate-fade-in-up ${status.includes('Failed') ? 'bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400' : 'bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400'}`}>
+                    {status}
+                </div>
+            )}
+
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {filtered.map((item, index) => (
+                    <div key={item.path} className="p-6 bg-gray-50/50 dark:bg-black/30 border border-gray-100 dark:border-gray-800 rounded-xl relative group hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs font-bold font-mono text-brand-red bg-red-50 dark:bg-red-950/30 px-2.5 py-1 rounded-md">
+                                {item.path}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">Page #{index + 1}</span>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Meta Title</label>
+                                <input 
+                                    type="text" 
+                                    value={item.title} 
+                                    onChange={e => handleChange(item.path, 'title', e.target.value)}
+                                    className="w-full p-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-1 focus:ring-brand-red outline-none text-sm transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Meta Description</label>
+                                <textarea 
+                                    rows={2}
+                                    value={item.description} 
+                                    onChange={e => handleChange(item.path, 'description', e.target.value)}
+                                    className="w-full p-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-1 focus:ring-brand-red outline-none text-sm transition-all resize-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {filtered.length === 0 && (
+                    <p className="text-center text-gray-400 py-8 italic">No pages found matching filters.</p>
+                )}
+            </div>
         </div>
     );
 };
@@ -463,7 +590,7 @@ const AdminDashboardPage: React.FC = () => {
             />
 
             {/* Main Content Area */}
-            <main className={`lg:ml-64 min-h-screen transition-all duration-300 pt-16 ${isSidebarOpen ? 'ml-64 blur-sm lg:blur-none' : 'ml-0'}`}>
+            <main className={`lg:ml-64 min-h-screen transition-all duration-300 pt-0 ${isSidebarOpen ? 'ml-64 blur-sm lg:blur-none' : 'ml-0'}`}>
                 <div className="p-4 lg:p-8">
                     {/* Header Mobile Toggle */}
                     <div className="flex items-center justify-between mb-8 lg:hidden">
@@ -821,6 +948,9 @@ const AdminDashboardPage: React.FC = () => {
                                 ))}
                             </div>
                         )}
+
+                        {/* ====== SEO TAB ====== */}
+                        {activeTab === 'seo' && <SeoEditor />}
 
                         {/* ====== NOTIFICATIONS TAB ====== */}
                         {activeTab === 'notifications' && <NotificationSender />}

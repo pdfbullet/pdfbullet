@@ -63,3 +63,50 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+// Admin: update report status/notes
+export async function PATCH(request: Request) {
+  try {
+    const admin = await getAuthenticatedUser(request);
+    if (!admin || !admin.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { id, status, notes } = await request.json();
+    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+    const updateData: any = {};
+    if (status !== undefined) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+
+    const updated = await prisma.problemReport.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json({ success: true, id: updated.id });
+  } catch (error) {
+    console.error('Update report error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// Admin: delete a report
+export async function DELETE(request: Request) {
+  try {
+    const admin = await getAuthenticatedUser(request);
+    if (!admin || !admin.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+    await prisma.problemReport.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete report error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

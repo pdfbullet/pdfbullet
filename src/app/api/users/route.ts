@@ -124,6 +124,40 @@ export async function PUT(request: Request) {
   }
 }
 
+// Admin: update any user's plan/apiPlan by targeting their userId
+export async function PATCH(request: Request) {
+  try {
+    const admin = await getAuthenticatedUser(request);
+    if (!admin || !admin.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const data = await request.json();
+    const { uid, ...fields } = data;
+
+    if (!uid) {
+      return NextResponse.json({ error: 'uid is required' }, { status: 400 });
+    }
+
+    const updateData: any = {};
+    if (fields.isToolsPremium !== undefined) updateData.isToolsPremium = fields.isToolsPremium;
+    if (fields.isFlipbookPremium !== undefined) updateData.isFlipbookPremium = fields.isFlipbookPremium;
+    if (fields.apiPlan !== undefined) updateData.apiPlan = fields.apiPlan;
+    if (fields.isAdmin !== undefined) updateData.isAdmin = fields.isAdmin;
+    if (fields.trialEnds !== undefined) updateData.trialEnds = fields.trialEnds ? new Date(fields.trialEnds) : null;
+
+    const updated = await prisma.user.update({
+      where: { id: uid },
+      data: updateData,
+    });
+
+    return NextResponse.json({ success: true, uid: updated.id });
+  } catch (error: any) {
+    console.error('Admin patch user error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);

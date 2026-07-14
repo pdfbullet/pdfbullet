@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper: checks if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    // Helper: checks if authenticated user is the owner of the document
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+    
+    // Helper: checks if authenticated user has isAdmin flag set in their user document
+    function isAdmin() {
+      return isAuth() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // 1. Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuth();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 2. PWA Notifications (Broadcast system)
+    match /pwa_notifications/{notificationId} {
+      allow read: if true; // All PWA users fetch push announcements
+      allow write: if isAdmin(); // Only admins can create/update broadcasts
+    }
+
+    // 3. Problem Reports
+    match /problem_reports/{reportId} {
+      allow create: if true; // Guests can submit bug/problem reports
+      allow read, update, delete: if isAdmin(); // Only admins can inspect/triage/delete reports
+    }
+
+    // 4. Task Logs
+    match /task_logs/{logId} {
+      allow create: if true; // Users and guests log tasks
+      allow read: if isAuth() && (resource.data.userId == request.auth.uid) || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // 5. Feedbacks
+    match /feedbacks/{feedbackId} {
+      allow create: if true; // Anyone can submit feedback
+      allow read, update, delete: if isAdmin(); // Only admins can view feedback list/delete items
+    }
+    
+    // 6. Site Settings
+    match /site_config/{configId} {
+      allow read: if true; // Anyone reads site settings/maintenance mode
+      allow write: if isAdmin(); // Only admins modify site configuration
+    }
+  }
+}
