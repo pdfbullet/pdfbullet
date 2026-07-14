@@ -1,13 +1,30 @@
 import { PrismaClient } from '@prisma/client';
+import path from 'path';
 
 let prisma: PrismaClient;
 
+const databaseUrl = process.env.NODE_ENV === 'production'
+  ? 'file:/var/task/prisma/dev.db'
+  : 'file:./dev.db';
+
 if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: databaseUrl
+      }
+    }
+  });
 } else {
   // Prevent multiple instances of Prisma Client in development
   if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
+    (global as any).prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: databaseUrl
+        }
+      }
+    });
   }
   prisma = (global as any).prisma;
 }
