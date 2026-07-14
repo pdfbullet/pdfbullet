@@ -14,11 +14,8 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import ProfileImageModal from '../../components/ProfileImageModal';
 import SearchModal from '../../components/SearchModal';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
-import PWAInstallPrompt from '../../components/PWAInstallPrompt';
-import PWAInstallInstructionsModal from '../../components/PWAInstallInstructionsModal';
 import MobileAuthGate from '../../components/MobileAuthGate';
 import CalendarModal from '../../components/CalendarModal';
-import AppInstallBanner from '../../components/AppInstallBanner';
 import PwaBackground from '../../components/PwaBackground';
 import CookieConsentBanner from '../../components/CookieConsentBanner';
 import { ChatbotWidget } from './ChatbotWidget';
@@ -187,9 +184,6 @@ export function AppShell({ children }: AppShellProps) {
             <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
             <ScrollToTopButton />
             <CookieConsentBanner />
-            <AppInstallBanner />
-            <PWAInstallPrompt />
-            <PWAInstallInstructionsModal />
             {!isMobile && <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />}
         </LayoutContext.Provider>
     );
