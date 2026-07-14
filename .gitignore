@@ -18,6 +18,7 @@ build/
 bin/
 scratch/
 .agents/
+data/*.json
 *.keystore
 *.apk
 *.aab

@@ -1,14 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { blogPosts } from '../constants.ts';
+import { useDynamicBlogPost } from '../hooks/useDynamicContent.ts';
 import SocialShareButtons from '../components/SocialShareButtons.tsx';
 import { Logo } from '../components/Logo.tsx';
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const post = blogPosts.find(p => p.slug === slug);
+  const { post, loading } = useDynamicBlogPost(slug);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -66,13 +66,21 @@ const BlogPostPage: React.FC = () => {
       setIsExpanded(false);
   }, [slug]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-8 h-8 border-4 border-brand-red border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (!post) {
     return null;
   }
 
   const postUrl = window.location.href;
   const CONTENT_THRESHOLD = 400;
-  const isLongPost = post.content.length > CONTENT_THRESHOLD;
+  const isLongPost = (post.content || '').length > CONTENT_THRESHOLD;
 
   const renderContent = (content: string) => {
     // This is a simplistic approach; a proper solution would use a library like react-markdown
@@ -91,7 +99,7 @@ const BlogPostPage: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2 mb-4">
-              {post.tags.map(tag => (
+              {(post.tags || []).map(tag => (
                   <span key={tag} className="text-xs bg-brand-red/10 text-brand-red font-semibold px-2.5 py-1 rounded-full">
                       {tag}
                   </span>
@@ -119,7 +127,7 @@ const BlogPostPage: React.FC = () => {
             <SocialShareButtons url={postUrl} title={post.title} />
           </div>
           
-          <img src={post.image} alt={post.title} className="w-full max-w-3xl mx-auto h-auto object-contain rounded-lg shadow-lg mb-12" width="1200" height="628" loading="eager" decoding="async" fetchPriority="high" />
+          <img src={post.image || post.coverImage || ''} alt={post.title} className="w-full max-w-3xl mx-auto h-auto object-contain rounded-lg shadow-lg mb-12" width="1200" height="628" loading="eager" decoding="async" />
 
           <div className="prose lg:prose-xl dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
             {isLongPost && !isExpanded ? (
@@ -135,7 +143,7 @@ const BlogPostPage: React.FC = () => {
                     </div>
                 </>
             ) : (
-                renderContent(post.content)
+                renderContent(post.content || '')
             )}
           </div>
         </div>

@@ -24,32 +24,32 @@ const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({
 
 const PwaBottomNav: React.FC = () => {
     return (
-        <div className="fixed bottom-0 left-0 right-0 h-[60px] z-50 pointer-events-none">
-            <nav className="absolute bottom-0 left-0 right-0 h-[60px] bg-white/70 dark:bg-black/60 backdrop-blur-lg flex items-stretch justify-around pointer-events-auto shadow-[0_-5px_25px_-5px_rgba(0,0,0,0.1)] dark:shadow-[0_-5px_25px_-5px_rgba(0,0,0,0.3)]">
-                <div className="w-1/5 flex justify-center p-1.5"><NavItem to="/" icon={HomeIcon} label="Home" /></div>
-                <div className="w-1/5 flex justify-center p-1.5"><NavItem to="/tools" icon={GridIcon} label="Tools" /></div>
+        <div className="fixed bottom-0 left-0 right-0 z-50 w-full transform-gpu translate-z-0 select-none pb-[env(safe-area-inset-bottom)] bg-white/80 dark:bg-black/75 backdrop-blur-xl border-t border-gray-150 dark:border-gray-800 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_-8px_30px_rgb(0,0,0,0.3)]">
+            <nav className="h-[64px] flex items-center justify-around w-full px-2">
+                <div className="w-1/5 flex justify-center"><NavItem to="/" icon={HomeIcon} label="Home" /></div>
+                <div className="w-1/5 flex justify-center"><NavItem to="/tools" icon={GridIcon} label="Tools" /></div>
                 
                 {/* Spacer for the central button */}
                 <div className="w-1/5"></div>
                 
-                <div className="w-1/5 flex justify-center p-1.5"><NavItem to="/storage" icon={StorageIcon} label="Storage" /></div>
-                <div className="w-1/5 flex justify-center p-1.5"><NavItem to="/settings" icon={SettingsIcon} label="More" /></div>
+                <div className="w-1/5 flex justify-center"><NavItem to="/storage" icon={StorageIcon} label="Storage" /></div>
+                <div className="w-1/5 flex justify-center"><NavItem to="/settings" icon={SettingsIcon} label="More" /></div>
             </nav>
             
             {/* Central Floating Action Button */}
-            <div className="absolute left-1/2 top-2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-auto">
+            <div className="absolute left-1/2 -top-4 -translate-x-1/2 text-center z-50">
                 <Link
                     to="/remove-background"
                     aria-label="Remove Background"
-                    className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 border-2 border-black dark:border-white"
+                    className="w-14 h-14 bg-brand-red text-white rounded-full shadow-lg flex items-center justify-center transition-transform active:scale-95 border-2 border-white dark:border-gray-900"
                 >
                     <img
                         src="https://ik.imagekit.io/fixedmyspeaker/IMG_0865.gif?updatedAt=1762718107389"
                         alt="BG Remover"
-                        className="w-10 h-10 rounded-full"
+                        className="w-9 h-9 rounded-full object-cover"
                     />
                 </Link>
-                <span className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1 pointer-events-none">
+                <span className="block text-[10px] font-bold text-gray-700 dark:text-gray-200 mt-1">
                     BG Remover
                 </span>
             </div>

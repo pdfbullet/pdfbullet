@@ -10,6 +10,7 @@ import {
 import { db, storage, firebase } from '../firebase/config.ts';
 import { LayoutContext } from '../App.tsx';
 import AdminSidebar from '../components/AdminSidebar.tsx';
+import { SiteContentEditor, BlogManager } from '../components/CmsEditor.tsx';
 
 interface UserData extends User { }
 
@@ -614,12 +615,15 @@ const AdminDashboardPage: React.FC = () => {
                                             activeTab === 'tasks' ? 'System activity and file processing logs' :
                                                 activeTab === 'feedback' ? 'User satisfaction and comments' :
                                                     activeTab === 'notifications' ? 'Global push notification system' :
-                                                        'System wide configuration and security'}
+                                                        activeTab === 'site-content' ? 'Edit all homepage sections, text, stats, and images' :
+                                                            activeTab === 'blogs' ? 'Create, edit, and delete blog articles' :
+                                                                activeTab === 'seo' ? 'Edit meta titles and descriptions for 72+ pages' :
+                                                                    'System wide configuration and security'}
                             </p>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            {activeTab !== 'notifications' && activeTab !== 'settings' && activeTab !== 'overview' && (
+                            {activeTab !== 'notifications' && activeTab !== 'settings' && activeTab !== 'overview' && activeTab !== 'site-content' && activeTab !== 'blogs' && activeTab !== 'seo' && (
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <SearchIcon className="h-4 w-4 text-gray-400 group-focus-within:text-brand-red transition-colors" />
@@ -1057,6 +1061,17 @@ const AdminDashboardPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* ====== SITE CONTENT TAB ====== */}
+                        {activeTab === 'site-content' && (
+                            <SiteContentEditor />
+                        )}
+
+                        {/* ====== BLOGS MANAGER TAB ====== */}
+                        {activeTab === 'blogs' && (
+                            <BlogManager />
+                        )}
+
                     </div>
                 </div>
             </main>

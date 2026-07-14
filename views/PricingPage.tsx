@@ -1,9 +1,8 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { CheckIcon, MinusIcon, StarIcon } from '../components/icons.tsx';
+import { CheckIcon, MinusIcon } from '../components/icons.tsx';
+import { useSiteContent } from '../hooks/useDynamicContent.ts';
 
 const FaqItem: React.FC<{
     item: { question: string, answer: string },
@@ -27,8 +26,11 @@ const PricingPage: React.FC = () => {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { content } = useSiteContent();
 
-    const faqData = [
+    const dynamic = content?.pricingPage || {};
+
+    const faqData = dynamic.faqs || [
       {
         question: "How do I pay for a plan?",
         answer: "We currently accept payments through the Fonepay digital wallet. On the payment page, you will find a QR code to scan and complete the payment. After paying, you'll need to upload a screenshot of the transaction confirmation."
@@ -52,21 +54,21 @@ const PricingPage: React.FC = () => {
     ];
 
     useEffect(() => {
-        document.title = "Pricing Plans | PDFBullet";
+        document.title = dynamic.metaTitle || "Pricing Plans | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with PDFBullet.");
+            metaDesc.setAttribute("content", dynamic.metaDescription || "Choose the perfect plan for your needs. From our free Basic plan to Premium and Pro, unlock more features and unlimited processing with PDFBullet.");
         }
 
         const faqSchema = {
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": faqData.map(faq => ({
+            "mainEntity": faqData.map((faq: any) => ({
                 "@type": "Question",
-                "name": faq.question,
+                "name": faq.question || faq.q,
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": faq.answer
+                    "text": faq.answer || faq.a
                 }
             }))
         };
@@ -87,7 +89,7 @@ const PricingPage: React.FC = () => {
                 scriptToRemove.remove();
             }
         };
-    }, [faqData]);
+    }, [faqData, dynamic]);
 
     const handleChoosePlan = (plan: string) => {
         if (user) {
@@ -103,8 +105,8 @@ const PricingPage: React.FC = () => {
     
     const plans = {
         basic: { name: 'Basic', price: 'Free', features: ['Access to most tools', 'Limited document processing', 'Work on Web'] },
-        premium: { name: 'Premium', price: '$5/year', features: ['Full access to all tools', 'Unlimited document processing', 'Work on Web, Mobile and Desktop', 'No Ads', 'Customer support'] },
-        pro: { name: 'Pro', price: '$10/lifetime', features: ['All Premium features', 'Largest file size limits', 'Unlimited AI Assistant queries', 'Dedicated servers for faster processing', 'Priority customer support'] }
+        premium: { name: 'Premium', price: 'NPR 299/mo', features: ['Full access to all tools', 'Unlimited document processing', 'Work on Web, Mobile and Desktop', 'No Ads', 'Customer support'] },
+        pro: { name: 'Pro', price: 'NPR 999/mo', features: ['All Premium features', 'Largest file size limits', 'Unlimited AI Assistant queries', 'Dedicated servers for faster processing', 'Priority customer support'] }
     };
 
     const featureComparison = [
@@ -120,19 +122,20 @@ const PricingPage: React.FC = () => {
         { feature: 'Team Features', basic: false, premium: false, pro: true },
     ];
 
-
     return (
         <div className="py-16 md:py-24 bg-gray-50 dark:bg-black">
             <div className="container mx-auto px-6">
                 <div className="max-w-4xl mx-auto text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Choose the plan that suits you</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">
+                        {dynamic.heroHeadline || "Choose the plan that suits you"}
+                    </h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                        Start for free and scale up as you grow. Powerful tools for individuals and teams.
+                        {dynamic.heroSubheadline || "Start for free and scale up as you grow. Powerful tools for individuals and teams."}
                     </p>
                 </div>
                 
                  <div className="mb-12 p-6 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl shadow-lg text-center">
-                    <h2 className="text-2xl font-bold">Try Premium for Free!</h2>
+                    <h2 className="text-2xl font-bold">{dynamic.badgeText || "Try Premium for Free!"}</h2>
                     <p className="mt-2">New users get a 7-day free trial of all Premium features. No credit card required.</p>
                     <Link to="/signup" className="mt-4 inline-block bg-white text-brand-red font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors">
                         Start Free Trial
@@ -173,7 +176,7 @@ const PricingPage: React.FC = () => {
                 <section className="mt-16 md:mt-24">
                      <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-8">Feature Comparison</h2>
                      <div className="max-w-6xl mx-auto overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
-                         <table className="w-full min-w-[700px] text-sm text-left bg-white dark:bg-black">
+                          <table className="w-full min-w-[700px] text-sm text-left bg-white dark:bg-black">
                             <thead className="bg-gray-50 dark:bg-gray-900/50">
                                 <tr>
                                     <th className="px-6 py-4 font-bold text-lg">Features</th>
@@ -187,28 +190,30 @@ const PricingPage: React.FC = () => {
                                     <tr key={feat.feature}>
                                         <td className="px-6 py-4 font-semibold">{feat.feature}</td>
                                         <td className="px-6 py-4 text-center">
-                                            {typeof feat.basic === 'boolean' ? (feat.basic ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.basic}</span>}
+                                            {typeof feat.basic === 'boolean' ? (feat.basic ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>) : <span>{feat.basic}</span>}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            {typeof feat.premium === 'boolean' ? (feat.premium ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.premium}</span>}
+                                            {typeof feat.premium === 'boolean' ? (feat.premium ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>) : <span>{feat.premium}</span>}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            {typeof feat.pro === 'boolean' ? (feat.pro ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <MinusIcon className="h-6 w-6 text-gray-400 mx-auto" />) : <span>{feat.pro}</span>}
+                                            {typeof feat.pro === 'boolean' ? (feat.pro ? <CheckIcon className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>) : <span>{feat.pro}</span>}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
-                         </table>
+                          </table>
                      </div>
                 </section>
 
                 <section className="mt-16 md:mt-24">
-                     <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-8">Frequently Asked Questions</h2>
+                     <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-8">
+                        {dynamic.faqTitle || "Frequently Asked Questions"}
+                     </h2>
                      <div className="max-w-3xl mx-auto bg-white dark:bg-black p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
-                        {faqData.map((faq, index) => (
+                        {faqData.map((faq: any, index: number) => (
                             <FaqItem 
                                 key={index} 
-                                item={faq}
+                                item={{ question: faq.question || faq.q, answer: faq.answer || faq.a }}
                                 isOpen={openFaq === index}
                                 toggle={() => toggleFaq(index)}
                             />
@@ -221,5 +226,4 @@ const PricingPage: React.FC = () => {
     );
 };
 
-// FIX: Added a default export to the PricingPage component to resolve a lazy loading issue in App.tsx.
 export default PricingPage;

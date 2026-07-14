@@ -10,7 +10,9 @@ import {
     LogoutIcon,
     ChevronDownIcon,
     LeftArrowIcon,
-    GridIcon
+    GridIcon,
+    EditIcon,
+    ArticleIcon
 } from './icons.tsx';
 
 interface AdminSidebarProps {
@@ -30,6 +32,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
         { id: 'feedback', name: 'User Feedback', icon: ChatbotIcon },
         { id: 'notifications', name: 'Notifications', icon: BellIcon },
         { id: 'seo', name: 'Page SEO', icon: GridIcon },
+        { id: 'site-content', name: 'Site Content', icon: EditIcon },
+        { id: 'blogs', name: 'Blog Manager', icon: ArticleIcon },
         { id: 'settings', name: 'Site Settings', icon: SettingsIcon },
     ];
 

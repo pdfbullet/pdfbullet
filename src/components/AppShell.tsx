@@ -143,8 +143,8 @@ export function AppShell({ children }: AppShellProps) {
                             <main className={`text-gray-800 dark:text-gray-200 pt-[60px] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
                                 {children}
                             </main>
-                            {!isFlipbookViewerPage && !isAdminDashboard && <PwaBottomNav />}
                         </PullToRefresh>
+                        {!isFlipbookViewerPage && !isAdminDashboard && <PwaBottomNav />}
                     </MobileAuthGate>
 
                     {!isMobile && !isAdminDashboard && <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />}

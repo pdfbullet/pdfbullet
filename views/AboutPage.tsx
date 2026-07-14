@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BrainIcon, GlobeIcon, RefreshIcon, StarIcon, UserIcon, LockIcon } from '../components/icons.tsx';
+import { useSiteContent } from '../hooks/useDynamicContent.ts';
 
 // Define new icons locally to avoid touching other files and ensure this page works correctly.
 const CloudflareIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -32,51 +33,60 @@ const KhaltiIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 
 const AboutPage: React.FC = () => {
+    const { content } = useSiteContent();
+    const dynamic = content?.aboutPage || {};
+
     useEffect(() => {
-        document.title = "About PDF Bullet | Our Mission and Story";
+        document.title = dynamic.metaTitle || "About PDF Bullet | Our Mission and Story";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Learn about the mission and story behind PDF Bullet. Discover our commitment to providing simple, powerful, and secure PDF tools for everyone.");
+            metaDesc.setAttribute("content", dynamic.metaDescription || "Learn about the mission and story behind PDF Bullet. Discover our commitment to providing simple, powerful, and secure PDF tools for everyone.");
         }
-    }, []);
+    }, [dynamic]);
 
   return (
     <div className="py-16 md:py-24 overflow-x-hidden">
       <div className="px-6">
         <section className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">Our Mission: To Make Document Management Simple, Secure, and Accessible for Everyone</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">
+            {dynamic.heroHeadline || "Our Mission: To Make Document Management Simple, Secure, and Accessible for Everyone"}
+          </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            At PDF Bullet, we are building a world where document management is no longer a barrier to productivity. We provide a powerful, intuitive, and secure suite of tools designed to streamline workflows for individuals, professionals, and businesses of all sizes.
+            {dynamic.heroSubheadline || "At PDF Bullet, we are building a world where document management is no longer a barrier to productivity. We provide a powerful, intuitive, and secure suite of tools designed to streamline workflows for individuals, professionals, and businesses of all sizes."}
           </p>
         </section>
 
         <div className="max-w-5xl mx-auto mt-16 text-left space-y-16">
           <section>
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Our Story</h2>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">
+              {dynamic.ourStoryTitle || "Our Story"}
+            </h2>
             <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
               <p>
-                PDF Bullet was founded in 2025 with a clear objective: to solve the everyday frustrations of dealing with PDF files. We saw a need for a reliable, accessible, and high-performance online platform that didn’t compromise on user privacy or experience. Traditional PDF software was often clunky, expensive, and required installation, creating unnecessary friction for simple tasks.
+                {dynamic.ourStoryContent1 || "PDF Bullet was founded in 2025 with a clear objective: to solve the everyday frustrations of dealing with PDF files. We saw a need for a reliable, accessible, and high-performance online platform that didn't compromise on user privacy or experience. Traditional PDF software was often clunky, expensive, and required installation, creating unnecessary friction for simple tasks."}
               </p>
               <p>
-                We started with a handful of core tools—Merge, Split, and Compress—built on the principle of client-side processing to guarantee user privacy. The response was overwhelmingly positive. This initial success fueled our ambition to create a truly all-in-one solution.
+                {dynamic.ourStoryContent2 || "We started with a handful of core tools—Merge, Split, and Compress—built on the principle of client-side processing to guarantee user privacy. The response was overwhelmingly positive. This initial success fueled our ambition to create a truly all-in-one solution."}
               </p>
               <p>
-                Today, PDF Bullet has grown into a comprehensive toolkit trusted by thousands of users daily, driven by continuous innovation and a commitment to our community. We believe that powerful technology should be available to everyone, and we work tirelessly to ensure our tools are both advanced and easy to use.
+                {dynamic.ourStoryContent3 || "Today, PDF Bullet has grown into a comprehensive toolkit trusted by thousands of users daily, driven by continuous innovation and a commitment to our community. We believe that powerful technology should be available to everyone, and we work tirelessly to ensure our tools are both advanced and easy to use."}
               </p>
             </div>
           </section>
           
           <section>
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Our Technology</h2>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">
+              {dynamic.technologyTitle || "Our Technology"}
+            </h2>
             <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed bg-white dark:bg-black p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
               <p>
-                What truly sets PDF Bullet apart is our foundational commitment to a browser-first, privacy-centric architecture. Unlike many other online services, the vast majority of our tools process your files directly on your own device.
+                {dynamic.technologyContent1 || "What truly sets PDF Bullet apart is our foundational commitment to a browser-first, privacy-centric architecture. Unlike many other online services, the vast majority of our tools process your files directly on your own device."}
               </p>
               <p>
-                <strong>Client-Side Processing:</strong> By harnessing the power of modern web browsers and technologies like WebAssembly, we perform complex operations like merging, compressing, and editing without your files ever leaving your computer. This means no upload time, instant processing, and absolute privacy. Your documents remain yours, from start to finish.
+                <strong>Client-Side Processing:</strong> {dynamic.technologyContent2 || "By harnessing the power of modern web browsers and technologies like WebAssembly, we perform complex operations like merging, compressing, and editing without your files ever leaving your computer. This means no upload time, instant processing, and absolute privacy. Your documents remain yours, from start to finish."}
               </p>
                <p>
-                <strong>Secure Server-Side Tasks:</strong> For select tools that require intensive computational power beyond the browser's capabilities (like advanced OCR or certain conversions), we utilize a secure, encrypted connection for temporary file handling. Even then, your files are automatically and permanently deleted from our servers within a few hours. We don’t store, we don’t analyze, and we certainly don’t share your data. This hybrid model ensures both maximum performance and uncompromising security.
+                <strong>Secure Server-Side Tasks:</strong> {dynamic.technologyContent3 || "For select tools that require intensive computational power beyond the browser's capabilities (like advanced OCR or certain conversions), we utilize a secure, encrypted connection for temporary file handling. Even then, your files are automatically and permanently deleted from our servers within a few hours. We don't store, we don't analyze, and we certainly don't share your data. This hybrid model ensures both maximum performance and uncompromising security."}
               </p>
             </div>
           </section>
@@ -171,3 +181,4 @@ const AboutPage: React.FC = () => {
 };
 
 export default AboutPage;
+

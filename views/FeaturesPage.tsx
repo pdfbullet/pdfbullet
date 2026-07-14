@@ -1,10 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { 
     FileIcon, ProtectIcon,
     GoogleDriveIcon, DropboxIcon, IOSIcon, AndroidIcon, WindowsIcon, MacOSIcon,
     UsersIcon
 } from '../components/icons.tsx';
+import { useSiteContent } from '../hooks/useDynamicContent.ts';
 
 // Placeholder for a generic icon from the screenshot
 const PlaceholderAppIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -13,13 +13,16 @@ const PlaceholderAppIcon: React.FC<{ className?: string }> = ({ className }) => 
 
 
 const FeaturesPage: React.FC = () => {
+    const { content } = useSiteContent();
+    const dynamic = content?.featuresPage || {};
+
     useEffect(() => {
-        document.title = "Features | PDFBullet";
+        document.title = dynamic.metaTitle || "Features | PDFBullet";
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.setAttribute("content", "Discover all the features of PDFBullet. Learn about our easy-to-use tools, security measures, premium benefits, and multi-platform support.");
+            metaDesc.setAttribute("content", dynamic.metaDescription || "Discover all the features of PDFBullet. Learn about our easy-to-use tools, security measures, premium benefits, and multi-platform support.");
         }
-    }, []);
+    }, [dynamic]);
 
     return (
         <div className="bg-gray-50 dark:bg-black text-gray-800 dark:text-gray-200">
@@ -28,9 +31,11 @@ const FeaturesPage: React.FC = () => {
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-extrabold">Our features</h1>
+                            <h1 className="text-4xl md:text-5xl font-extrabold">
+                                {dynamic.heroHeadline || "Our features"}
+                            </h1>
                             <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
-                                Not so computer-savvy? No problem. Even if it's your first time using PDFBullet, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks.
+                                {dynamic.heroSubheadline || "Not so computer-savvy? No problem. Even if it's your first time using PDFBullet, we made it extremely simple. Our interface is user friendly. Our tools know how to do their job. So you shouldn't encounter any setbacks."}
                             </p>
                         </div>
                         <div className="flex justify-center">
@@ -47,7 +52,7 @@ const FeaturesPage: React.FC = () => {
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="flex justify-center order-2 md:order-1">
-                            <div className="relative w-full max-w-md h-64 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6 flex items-center justify-center">
+                            <div className="relative w-full max-w-md h-64 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-750 p-6 flex items-center justify-center">
                                 <div className="w-40 h-40 border-8 border-green-500 rounded-full flex items-center justify-center text-3xl font-bold text-green-500">80%</div>
                             </div>
                         </div>

@@ -22,6 +22,8 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 // Set persistence to LOCAL so auth state (including redirect results) survives page reloads
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+if (typeof window !== 'undefined') {
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+}
 
 export { auth, db, storage, firebase };

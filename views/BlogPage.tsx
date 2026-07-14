@@ -1,12 +1,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { blogPosts } from '../constants.ts';
+import { useDynamicBlogs } from '../hooks/useDynamicContent.ts';
 import { Logo } from '../components/Logo.tsx';
 
 const BlogPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const { posts: blogPosts, loading } = useDynamicBlogs();
 
   useEffect(() => {
     document.title = "PDFBullet Blog | PDF Tips, Tricks, and Updates";
@@ -42,6 +43,12 @@ const BlogPage: React.FC = () => {
 
   return (
     <div className="py-16 md:py-24 overflow-x-hidden">
+      {loading && (
+        <div className="flex items-center justify-center py-32">
+          <div className="w-8 h-8 border-4 border-brand-red border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      {!loading && (
       <div className="px-6">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100">PDFBullet Blog</h1>
@@ -155,6 +162,7 @@ const BlogPage: React.FC = () => {
           </aside>
         </div>
       </div>
+      )}
     </div>
   );
 };
