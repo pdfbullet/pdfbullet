@@ -5,6 +5,7 @@ import { OutletContext } from 'react-router-dom';
 // Import protectors and layouts
 import UserProtectedRoute from '../../../components/UserProtectedRoute';
 import UserDashboardLayout from '../../../components/UserDashboardLayout';
+import AdminProtectedRoute from '../../../components/AdminProtectedRoute';
 
 // Import views
 import ToolPage from '../../../views/ToolPage';
@@ -14,6 +15,23 @@ import InvoiceGeneratorPage from '../../../views/InvoiceGeneratorPage';
 import CVGeneratorPage from '../../../views/CVGeneratorPage';
 import LessonPlanCreatorPage from '../../../views/LessonPlanCreatorPage';
 import PremiumFeaturePage from '../../../views/PremiumFeaturePage';
+
+// Import public static views
+import FeaturesPage from '../../../views/FeaturesPage';
+import HowToUsePage from '../../../views/HowToUsePage';
+import BusinessPage from '../../../views/BusinessPage';
+import EducationPage from '../../../views/EducationPage';
+import PressPage from '../../../views/PressPage';
+import CeoPage from '../../../views/CeoPage';
+import LegalPage from '../../../views/LegalPage';
+import PrivacyPolicyPage from '../../../views/PrivacyPolicyPage';
+import TermsOfServicePage from '../../../views/TermsOfServicePage';
+import CookiesPolicyPage from '../../../views/CookiesPolicyPage';
+import SecurityPolicyPage from '../../../views/SecurityPolicyPage';
+import SubmitTicketPage from '../../../views/SubmitTicketPage';
+
+// Import admin views
+import AdminDashboardPage from '../../../views/AdminDashboardPage';
 
 // Import dashboard views
 import AccountSettingsPage from '../../../views/AccountSettingsPage';
@@ -36,12 +54,22 @@ export default function ToolRoute() {
   const params = useParams();
   const toolId = params?.toolId as string;
 
-  // 1. Check if this is a premium redirect route
+  // 1. Admin Dashboard Route
+  if (toolId === 'admin-dashboard') {
+    const adminPage = <AdminDashboardPage />;
+    return (
+      <OutletContext.Provider value={adminPage}>
+        <AdminProtectedRoute />
+      </OutletContext.Provider>
+    );
+  }
+
+  // 2. Premium Redirect Route
   if (toolId === 'premium-feature') {
     return <PremiumFeaturePage />;
   }
 
-  // 2. Check if this is a custom tool page
+  // 3. Custom AI/Generator Tools
   if (toolId === 'ai-image-generator') {
     return <AIImageGeneratorPage />;
   }
@@ -58,7 +86,21 @@ export default function ToolRoute() {
     return <LessonPlanCreatorPage />;
   }
 
-  // 3. User Dashboard Child Routes (Single-segment)
+  // 4. Public Static Info Pages
+  if (toolId === 'features') return <FeaturesPage />;
+  if (toolId === 'how-to-use') return <HowToUsePage />;
+  if (toolId === 'business') return <BusinessPage />;
+  if (toolId === 'education') return <EducationPage />;
+  if (toolId === 'press') return <PressPage />;
+  if (toolId === 'ceo') return <CeoPage />;
+  if (toolId === 'legal') return <LegalPage />;
+  if (toolId === 'privacy-policy') return <PrivacyPolicyPage />;
+  if (toolId === 'terms-of-service') return <TermsOfServicePage />;
+  if (toolId === 'cookies-policy') return <CookiesPolicyPage />;
+  if (toolId === 'security-policy') return <SecurityPolicyPage />;
+  if (toolId === 'submit-ticket') return <SubmitTicketPage />;
+
+  // 5. User Dashboard Child Routes (Single-segment)
   const dashboardPages = [
     'account-settings', 'workflows', 'security', 'team',
     'last-tasks', 'signatures-overview', 'sent', 'inbox',
@@ -100,6 +142,6 @@ export default function ToolRoute() {
     );
   }
 
-  // 4. Default to standard PDF tools page
+  // 6. Default to standard PDF tools page
   return <ToolPage />;
 }
