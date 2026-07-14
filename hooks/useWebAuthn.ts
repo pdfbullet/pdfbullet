@@ -2,7 +2,7 @@
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useCallback } from 'react';
 
-const MOCK_RP_ID = window.location.hostname;
+const MOCK_RP_ID = typeof window !== 'undefined' ? window.location.hostname : 'pdfbullet.com';
 const MOCK_RP_NAME = 'Pdf Bullet';
 const PASSKEYS_STORAGE_KEY = 'pdfbullet_passkeys';
 
