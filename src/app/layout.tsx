@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { Providers } from '../components/Providers';
 import AppShell from '../components/AppShell';
 import '../../index.css';
+import CanonicalHeader from '../components/CanonicalHeader';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="en" className={`${nunito.variable}`}>
       <head>
         <link rel="icon" type="image/svg" href="/favicon.png" />
+        <CanonicalHeader />
       </head>
       <body className="bg-white dark:bg-black font-sans antialiased">
         <Providers>
