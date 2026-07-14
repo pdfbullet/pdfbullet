@@ -173,7 +173,7 @@ export function AppShell({ children }: AppShellProps) {
                 <main className="flex-grow">
                     {children}
                 </main>
-                {showFooter && <Footer
+                {showFooter && !isAdminDashboard && <Footer
                     onOpenCalendarModal={() => setCalendarModalOpen(true)}
                 />}
             </div>
@@ -185,7 +185,7 @@ export function AppShell({ children }: AppShellProps) {
             <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
             <ScrollToTopButton />
             <CookieConsentBanner />
-            {!isMobile && <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />}
+            {!isMobile && !isAdminDashboard && <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />}
         </LayoutContext.Provider>
     );
 }
