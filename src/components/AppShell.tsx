@@ -19,7 +19,7 @@ import CalendarModal from '../../components/CalendarModal';
 import PwaBackground from '../../components/PwaBackground';
 import CookieConsentBanner from '../../components/CookieConsentBanner';
 import { ChatbotWidget } from './ChatbotWidget';
-import { LayoutContext } from '../../App';
+import { LayoutContext } from '../../App.tsx';
 import { TOOLS } from '../../constants';
 
 const MainBackground: React.FC = () => (
@@ -149,8 +149,6 @@ export function AppShell({ children }: AppShellProps) {
                     <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
                     <ProfileImageModal isOpen={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)} />
                     <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
-                    <PWAInstallPrompt />
-                    <PWAInstallInstructionsModal />
                 </div>
             </LayoutContext.Provider>
         );
