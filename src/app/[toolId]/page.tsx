@@ -3,34 +3,34 @@ import { useParams } from 'next/navigation';
 import { OutletContext } from 'react-router-dom';
 
 // Import protectors and layouts
-import UserProtectedRoute from '../../components/UserProtectedRoute';
-import UserDashboardLayout from '../../components/UserDashboardLayout';
+import UserProtectedRoute from '../../../components/UserProtectedRoute';
+import UserDashboardLayout from '../../../components/UserDashboardLayout';
 
 // Import views
-import ToolPage from '../../views/ToolPage';
-import AIQuestionGeneratorPage from '../../views/AIQuestionGeneratorPage';
-import AIImageGeneratorPage from '../../views/AIImageGeneratorPage';
-import InvoiceGeneratorPage from '../../views/InvoiceGeneratorPage';
-import CVGeneratorPage from '../../views/CVGeneratorPage';
-import LessonPlanCreatorPage from '../../views/LessonPlanCreatorPage';
-import PremiumFeaturePage from '../../views/PremiumFeaturePage';
+import ToolPage from '../../../views/ToolPage';
+import AIQuestionGeneratorPage from '../../../views/AIQuestionGeneratorPage';
+import AIImageGeneratorPage from '../../../views/AIImageGeneratorPage';
+import InvoiceGeneratorPage from '../../../views/InvoiceGeneratorPage';
+import CVGeneratorPage from '../../../views/CVGeneratorPage';
+import LessonPlanCreatorPage from '../../../views/LessonPlanCreatorPage';
+import PremiumFeaturePage from '../../../views/PremiumFeaturePage';
 
 // Import dashboard views
-import AccountSettingsPage from '../../views/AccountSettingsPage';
-import WorkflowsPage from '../../views/WorkflowsPage';
-import SecurityPage from '../../views/SecurityPage';
-import TeamPage from '../../views/TeamPage';
-import LastTasksPage from '../../views/LastTasksPage';
-import SignaturesOverviewPage from '../../views/SignaturesOverviewPage';
-import SentPage from '../../views/SentPage';
-import InboxPage from '../../views/InboxPage';
-import SignedPage from '../../views/SignedPage';
-import TemplatesPage from '../../views/TemplatesPage';
-import ContactsPage from '../../views/ContactsPage';
-import SignatureSettingsPage from '../../views/SignatureSettingsPage';
-import PlansAndPackagesPage from '../../views/PlansAndPackagesPage';
-import BusinessDetailsPage from '../../views/BusinessDetailsPage';
-import InvoicesPage from '../../views/InvoicesPage';
+import AccountSettingsPage from '../../../views/AccountSettingsPage';
+import WorkflowsPage from '../../../views/WorkflowsPage';
+import SecurityPage from '../../../views/SecurityPage';
+import TeamPage from '../../../views/TeamPage';
+import LastTasksPage from '../../../views/LastTasksPage';
+import SignaturesOverviewPage from '../../../views/SignaturesOverviewPage';
+import SentPage from '../../../views/SentPage';
+import InboxPage from '../../../views/InboxPage';
+import SignedPage from '../../../views/SignedPage';
+import TemplatesPage from '../../../views/TemplatesPage';
+import ContactsPage from '../../../views/ContactsPage';
+import SignatureSettingsPage from '../../../views/SignatureSettingsPage';
+import PlansAndPackagesPage from '../../../views/PlansAndPackagesPage';
+import BusinessDetailsPage from '../../../views/BusinessDetailsPage';
+import InvoicesPage from '../../../views/InvoicesPage';
 
 export default function ToolRoute() {
   const params = useParams();
