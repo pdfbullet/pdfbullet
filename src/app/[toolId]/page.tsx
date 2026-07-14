@@ -15,6 +15,10 @@ import InvoiceGeneratorPage from '../../../views/InvoiceGeneratorPage';
 import CVGeneratorPage from '../../../views/CVGeneratorPage';
 import LessonPlanCreatorPage from '../../../views/LessonPlanCreatorPage';
 import PremiumFeaturePage from '../../../views/PremiumFeaturePage';
+import PwaToolsPage from '../../../views/PwaToolsPage';
+import PwaStoragePage from '../../../views/PwaStoragePage';
+import PwaSettingsPage from '../../../views/PwaSettingsPage';
+import NotificationsPage from '../../../views/NotificationsPage';
 
 // Import public static views
 import FeaturesPage from '../../../views/FeaturesPage';
@@ -53,6 +57,20 @@ import InvoicesPage from '../../../views/InvoicesPage';
 export default function ToolRoute() {
   const params = useParams();
   const toolId = params?.toolId as string;
+
+  // PWA Routes
+  if (toolId === 'tools') {
+    return <PwaToolsPage />;
+  }
+  if (toolId === 'storage') {
+    return <PwaStoragePage />;
+  }
+  if (toolId === 'settings') {
+    return <PwaSettingsPage />;
+  }
+  if (toolId === 'notifications') {
+    return <NotificationsPage notifications={[]} markAllAsRead={() => {}} clearAll={() => {}} />;
+  }
 
   // 1. Admin Dashboard Route
   if (toolId === 'admin-dashboard') {

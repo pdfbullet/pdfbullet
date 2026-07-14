@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
   const { user, logout, auth } = useAuth();
   const { locale, setLocale, t } = useI18n();
   const navigate = useNavigate();
-  const { canInstall, promptInstall } = usePWAInstall();
+  const { promptInstall } = usePWAInstall();
 
   const hasPasswordProvider = auth.currentUser?.providerData.some(
     (provider) => provider.providerId === 'password'
@@ -401,16 +401,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 <QrCodeIcon className="h-6 w-6" />
             </button>
             
-            {canInstall && (
-              <button
-                onClick={promptInstall}
-                className="hidden sm:flex items-center gap-2 bg-brand-red text-white font-bold py-1.5 px-3 text-sm rounded-md hover:bg-brand-red-dark transition-colors"
-                title="Install App"
-              >
-                <DownloadIcon className="h-5 w-5" />
-                <span>Install</span>
-              </button>
-            )}
 
             <button
               onClick={toggleTheme}

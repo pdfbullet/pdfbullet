@@ -14,6 +14,7 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import ProfileImageModal from '../../components/ProfileImageModal';
 import SearchModal from '../../components/SearchModal';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
+import QrCodeModal from '../../components/QrCodeModal';
 import MobileAuthGate from '../../components/MobileAuthGate';
 import CalendarModal from '../../components/CalendarModal';
 import PwaBackground from '../../components/PwaBackground';
@@ -85,6 +86,7 @@ export function AppShell({ children }: AppShellProps) {
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
     const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
     const [isChatbotOpen, setChatbotOpen] = useState(false);
+    const [isQrCodeModalOpen, setQrCodeModalOpen] = useState(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -163,7 +165,7 @@ export function AppShell({ children }: AppShellProps) {
                     onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
                     onOpenSearchModal={() => setSearchModalOpen(true)}
                     onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-                    onOpenQrCodeModal={() => {}}
+                    onOpenQrCodeModal={() => setQrCodeModalOpen(true)}
                     unreadCount={0}
                     justReceivedNotification={false}
                     onNotificationAnimationEnd={() => {}}
@@ -180,6 +182,7 @@ export function AppShell({ children }: AppShellProps) {
             <SearchModal isOpen={isSearchModalOpen} onClose={() => setSearchModalOpen(false)} />
             <CalendarModal isOpen={isCalendarModalOpen} onClose={() => setCalendarModalOpen(false)} />
             <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setChangePasswordModalOpen(false)} />
+            <QrCodeModal isOpen={isQrCodeModalOpen} onClose={() => setQrCodeModalOpen(false)} />
             <ScrollToTopButton />
             <CookieConsentBanner />
             {!isMobile && <ChatbotWidget isOpen={isChatbotOpen} onClose={() => setChatbotOpen(false)} onOpen={() => setChatbotOpen(true)} showFab={true} isPwa={isPwa} />}

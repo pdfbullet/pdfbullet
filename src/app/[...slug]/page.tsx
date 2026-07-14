@@ -28,6 +28,10 @@ import PlansAndPackagesPage from '../../../views/PlansAndPackagesPage';
 import BusinessDetailsPage from '../../../views/BusinessDetailsPage';
 import InvoicesPage from '../../../views/InvoicesPage';
 import NotFoundPage from '../../../views/NotFoundPage';
+import PwaToolsPage from '../../../views/PwaToolsPage';
+import PwaStoragePage from '../../../views/PwaStoragePage';
+import PwaSettingsPage from '../../../views/PwaSettingsPage';
+import NotificationsPage from '../../../views/NotificationsPage';
 
 // Import flipbook sub-views
 import ExploreView from '../../../views/manage-flipbooks/ExploreView';
@@ -37,6 +41,20 @@ export default function CatchAllRoute() {
   const params = useParams();
   const slug = params?.slug;
   const path = Array.isArray(slug) ? slug.join('/') : slug;
+
+  // PWA Routes
+  if (path === 'tools') {
+    return <PwaToolsPage />;
+  }
+  if (path === 'storage') {
+    return <PwaStoragePage />;
+  }
+  if (path === 'settings') {
+    return <PwaSettingsPage />;
+  }
+  if (path === 'notifications') {
+    return <NotificationsPage notifications={[]} markAllAsRead={() => {}} clearAll={() => {}} />;
+  }
 
   // 1. Admin Dashboard Route
   if (path === 'admin-dashboard') {

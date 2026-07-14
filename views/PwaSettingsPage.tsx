@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext.tsx';
 import { usePWAInstall } from '../contexts/PWAInstallContext.tsx';
@@ -50,12 +50,20 @@ const PwaSettingsPage: React.FC = () => {
         setTitle('More');
     }, [setTitle]);
     
-    const viewMode = localStorage.getItem('viewMode');
-    const isAppMode = viewMode !== 'browser';
+    const [isAppMode, setIsAppMode] = useState(true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const viewMode = localStorage.getItem('viewMode');
+            setIsAppMode(viewMode !== 'browser');
+        }
+    }, []);
 
     const handleViewModeToggle = () => {
-        localStorage.setItem('viewMode', isAppMode ? 'browser' : 'app');
-        window.location.reload();
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('viewMode', isAppMode ? 'browser' : 'app');
+            window.location.reload();
+        }
     };
     
     const handleShareApp = async () => {
