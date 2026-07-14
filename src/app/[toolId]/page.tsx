@@ -87,6 +87,12 @@ export default function ToolRoute() {
   }
 
   // 4. Public Static Info Pages
+  if (toolId === 'user-data-deletion') {
+    if (typeof window !== 'undefined') {
+      window.location.replace('/user-data-deletion/');
+    }
+    return null;
+  }
   if (toolId === 'features') return <FeaturesPage />;
   if (toolId === 'how-to-use') return <HowToUsePage />;
   if (toolId === 'business') return <BusinessPage />;
