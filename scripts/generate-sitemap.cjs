@@ -4,9 +4,8 @@ const path = require("path");
 // Today's date
 const today = new Date().toISOString().split("T")[0];
 
-// List all pages with their changefreq and priority
-const pages = [
-  // Main Pages
+// Main static pages (guaranteed pages)
+const staticPages = [
   { loc: "/", changefreq: "daily", priority: "1.0" },
   { loc: "/about", changefreq: "monthly", priority: "0.8" },
   { loc: "/blog", changefreq: "weekly", priority: "0.9" },
@@ -22,14 +21,14 @@ const pages = [
   { loc: "/press", changefreq: "yearly", priority: "0.5" },
   { loc: "/features", changefreq: "monthly", priority: "0.8" },
   { loc: "/user-data-deletion", changefreq: "yearly", priority: "0.5" },
-
+  
   // Legal Pages
   { loc: "/legal", changefreq: "yearly", priority: "0.5" },
   { loc: "/privacy-policy", changefreq: "yearly", priority: "0.5" },
   { loc: "/terms-of-service", changefreq: "yearly", priority: "0.5" },
   { loc: "/cookies-policy", changefreq: "yearly", priority: "0.5" },
   { loc: "/security-policy", changefreq: "yearly", priority: "0.5" },
-
+  
   // Developer & API Pages
   { loc: "/developer", changefreq: "monthly", priority: "0.7" },
   { loc: "/api-pricing", changefreq: "monthly", priority: "0.7" },
@@ -37,94 +36,86 @@ const pages = [
   { loc: "/api-pdf", changefreq: "weekly", priority: "0.8" },
   { loc: "/api-image", changefreq: "weekly", priority: "0.8" },
   { loc: "/api-signature", changefreq: "weekly", priority: "0.8" },
-
+  
   // Auth & Account Pages
   { loc: "/login", changefreq: "monthly", priority: "0.9" },
-  { loc: "/signup", changefreq: "monthly", priority: "0.9" },
-  { loc: "/account-settings", changefreq: "monthly", priority: "0.8" },
-  { loc: "/workflows", changefreq: "monthly", priority: "0.7" },
-  { loc: "/security", changefreq: "monthly", priority: "0.7" },
-  { loc: "/team", changefreq: "monthly", priority: "0.7" },
-  { loc: "/last-tasks", changefreq: "weekly", priority: "0.7" },
-  { loc: "/signatures-overview", changefreq: "weekly", priority: "0.7" },
-  { loc: "/sent", changefreq: "weekly", priority: "0.7" },
-  { loc: "/inbox", changefreq: "weekly", priority: "0.7" },
-  { loc: "/signed", changefreq: "weekly", priority: "0.7" },
-  { loc: "/templates", changefreq: "monthly", priority: "0.7" },
-  { loc: "/contacts", changefreq: "monthly", priority: "0.7" },
-  { loc: "/signature-settings", changefreq: "monthly", priority: "0.7" },
-  { loc: "/plans-packages", changefreq: "monthly", priority: "0.7" },
-  { loc: "/business-details", changefreq: "monthly", priority: "0.7" },
-  { loc: "/invoices", changefreq: "monthly", priority: "0.7" },
-
-  // Tool Pages
-  { loc: "/merge-pdf", changefreq: "weekly", priority: "0.9" },
-  { loc: "/split-pdf", changefreq: "weekly", priority: "0.9" },
-  { loc: "/organize-pdf", changefreq: "weekly", priority: "0.8" },
-  { loc: "/rotate-pdf", changefreq: "weekly", priority: "0.8" },
-  { loc: "/zip-maker", changefreq: "weekly", priority: "0.7" },
-  { loc: "/compress-pdf", changefreq: "weekly", priority: "0.9" },
-  { loc: "/repair-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/resize-file", changefreq: "weekly", priority: "0.7" },
-  { loc: "/jpg-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/psd-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/word-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/powerpoint-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/excel-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/html-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/document-scanner", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-jpg", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-png", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-word", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-powerpoint", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-excel", changefreq: "weekly", priority: "0.7" },
-  { loc: "/pdf-to-pdfa", changefreq: "weekly", priority: "0.7" },
-  { loc: "/extract-text", changefreq: "weekly", priority: "0.7" },
-  { loc: "/edit-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/page-numbers", changefreq: "weekly", priority: "0.7" },
-  { loc: "/crop-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/ocr-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/compare-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/redact-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/ai-question-generator", changefreq: "weekly", priority: "0.7" },
-  { loc: "/invoice-generator", changefreq: "weekly", priority: "0.7" },
-  { loc: "/cv-generator", changefreq: "weekly", priority: "0.7" },
-  { loc: "/lesson-plan-creator", changefreq: "weekly", priority: "0.7" },
-  { loc: "/unlock-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/protect-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/sign-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/watermark-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/resize-image", changefreq: "weekly", priority: "0.7" },
-  { loc: "/remove-background", changefreq: "weekly", priority: "0.7" },
-  { loc: "/crop-image", changefreq: "weekly", priority: "0.7" },
-  { loc: "/convert-to-jpg", changefreq: "weekly", priority: "0.7" },
-  { loc: "/convert-from-jpg", changefreq: "weekly", priority: "0.7" },
-  { loc: "/compress-image", changefreq: "weekly", priority: "0.7" },
-  { loc: "/watermark-image", changefreq: "weekly", priority: "0.7" },
-
-  // Blog Pages
-  { loc: "/blog/nepal-bans-facebook-social-media", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/neb-class-12-result-2081-2082", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/build-a-professional-cv-in-minutes-with-ai", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/ai-lesson-plan-creator-for-teachers", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/turn-any-text-into-a-quiz-ai-question-generator", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/you-can-now-edit-images-in-pdfbullet", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/the-best-free-graphic-design-software-2025", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/how-to-convert-html-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/how-to-add-password-to-pdf", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/are-digital-signatures-legally-binding", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/smart-ocr-tips-get-most-out-of-scanned-documents", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/how-to-edit-pdf-text-online", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/pdfbullet-web-vs-desktop-vs-mobile-which-is-for-you", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/introducing-pdfbullet-chatgpt-custom-pdf-gpt", changefreq: "weekly", priority: "0.7" },
-  { loc: "/blog/see-result-2081-2082", changefreq: "weekly", priority: "0.7" }
+  { loc: "/signup", changefreq: "monthly", priority: "0.9" }
 ];
+
+// Let's dynamically read tools and blogs from constants.ts!
+const constantsPath = path.resolve(process.cwd(), 'constants.ts');
+let dynamicPages = [];
+
+try {
+  let constantsContent = fs.readFileSync(constantsPath, 'utf8');
+  // Handle UTF-16 if present
+  if (constantsContent.includes('\u0000')) {
+    constantsContent = fs.readFileSync(constantsPath, 'utf16le');
+  }
+
+  // 1. Extract tools
+  // Tools are defined in the TOOLS array, look for id: '...' or id: "..."
+  const toolMatches = constantsContent.matchAll(/id:\s*['"]([^'"]+)['"]/g);
+  const toolIds = [];
+  for (const match of toolMatches) {
+    if (match[1] && !toolIds.includes(match[1]) && !['merge-pdf', 'split-pdf'].includes(match[1]) && match[1] !== 'premium-feature') {
+      toolIds.push(match[1]);
+    }
+  }
+  
+  // Core tools fallback to ensure they exist regardless of regex
+  const coreTools = [
+    'merge-pdf', 'split-pdf', 'organize-pdf', 'rotate-pdf', 'zip-maker', 
+    'compress-pdf', 'repair-pdf', 'jpg-to-pdf', 'psd-to-pdf', 'word-to-pdf', 
+    'powerpoint-to-pdf', 'excel-to-pdf', 'pdf-to-jpg', 'pdf-to-png', 
+    'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint', 'pdf-reader', 
+    'ocr-pdf', 'ai-image-generator', 'ai-question-generator', 'invoice-generator', 
+    'cv-generator', 'lesson-plan-creator', 'unlock-pdf', 'protect-pdf', 
+    'sign-pdf', 'watermark-pdf', 'remove-background'
+  ];
+  
+  const allTools = [...new Set([...coreTools, ...toolIds])];
+  allTools.forEach(toolId => {
+    dynamicPages.push({ loc: `/${toolId}`, changefreq: 'weekly', priority: '0.8' });
+  });
+
+  // 2. Extract blog posts
+  // Look for slug: '...' or slug: "..."
+  const blogMatches = constantsContent.matchAll(/slug:\s*['"]([^'"]+)['"]/g);
+  const blogSlugs = [];
+  for (const match of blogMatches) {
+    if (match[1] && !blogSlugs.includes(match[1]) && !['admin-dashboard', 'dashboard/my-flipbooks'].includes(match[1])) {
+      blogSlugs.push(match[1]);
+    }
+  }
+  
+  const coreBlogs = [
+    'nepal-bans-facebook-social-media', 'neb-class-12-result-2081-2082', 
+    'build-a-professional-cv-in-minutes-with-ai', 'ai-lesson-plan-creator-for-teachers', 
+    'turn-any-text-into-a-quiz-ai-question-generator', 'you-can-now-edit-images-in-pdfbullet', 
+    'the-best-free-graphic-design-software-2025', 'how-to-convert-html-to-pdf', 
+    'how-to-add-password-to-pdf', 'are-digital-signatures-legally-binding', 
+    'smart-ocr-tips-get-most-out-of-scanned-documents', 'how-to-edit-pdf-text-online', 
+    'pdfbullet-web-vs-desktop-vs-mobile-which-is-for-you', 
+    'introducing-pdfbullet-chatgpt-custom-pdf-gpt', 'see-result-2081-2082'
+  ];
+
+  const allBlogs = [...new Set([...coreBlogs, ...blogSlugs])];
+  allBlogs.forEach(slug => {
+    dynamicPages.push({ loc: `/blog/${slug}`, changefreq: 'weekly', priority: '0.7' });
+  });
+
+} catch (err) {
+  console.error("Could not parse constants.ts for dynamic paths, using static fallbacks.", err);
+}
+
+const allPages = [...staticPages, ...dynamicPages];
 
 // Build sitemap XML
 let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
 xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n`;
 
-pages.forEach(page => {
+allPages.forEach(page => {
   xml += `  <url>\n`;
   xml += `    <loc>https://pdfbullet.com${page.loc}</loc>\n`;
   xml += `    <lastmod>${today}</lastmod>\n`;
@@ -135,7 +126,7 @@ pages.forEach(page => {
 
 xml += `\n</urlset>`;
 
-// Write to sitemap.xml
-fs.writeFileSync(path.join(__dirname, "sitemap.xml"), xml);
-
-console.log("✅ sitemap.xml generated successfully!");
+// Write directly to public/sitemap.xml
+const publicPath = path.resolve(process.cwd(), 'public/sitemap.xml');
+fs.writeFileSync(publicPath, xml);
+console.log(`✅ sitemap.xml generated successfully! Total pages: ${allPages.length}`);
