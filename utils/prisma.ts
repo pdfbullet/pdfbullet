@@ -3,9 +3,7 @@ import path from 'path';
 
 let prisma: PrismaClient;
 
-const databaseUrl = process.env.NODE_ENV === 'production'
-  ? 'file:/var/task/prisma/dev.db'
-  : 'file:./dev.db';
+const databaseUrl = `file:${path.resolve(process.cwd(), 'prisma/dev.db')}`;
 
 if (process.env.NODE_ENV === 'production') {
   prisma = new PrismaClient({

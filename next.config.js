@@ -16,6 +16,11 @@ const nextConfig = {
   env: {
     API_KEY: process.env.GEMINI_API_KEY || process.env.API_KEY || '',
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./prisma/dev.db'],
+    },
+  },
   webpack: (config, { isServer }) => {
     // Alias react-router-dom to compatibility layer
     config.resolve.alias = {
