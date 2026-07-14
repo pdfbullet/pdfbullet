@@ -32,6 +32,7 @@ import PwaToolsPage from '../../../views/PwaToolsPage';
 import PwaStoragePage from '../../../views/PwaStoragePage';
 import PwaSettingsPage from '../../../views/PwaSettingsPage';
 import NotificationsPage from '../../../views/NotificationsPage';
+import DeveloperAccessPage from '../../../views/DeveloperAccessPage';
 
 // Import flipbook sub-views
 import ExploreView from '../../../views/manage-flipbooks/ExploreView';
@@ -41,6 +42,11 @@ export default function CatchAllRoute() {
   const params = useParams();
   const slug = params?.slug;
   const path = Array.isArray(slug) ? slug.join('/') : slug;
+
+  // Developer Access Route
+  if (path === 'developer-access') {
+    return <DeveloperAccessPage />;
+  }
 
   // PWA Routes
   if (path === 'tools') {

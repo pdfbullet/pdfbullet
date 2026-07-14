@@ -15,6 +15,7 @@ import InvoiceGeneratorPage from '../../../views/InvoiceGeneratorPage';
 import CVGeneratorPage from '../../../views/CVGeneratorPage';
 import LessonPlanCreatorPage from '../../../views/LessonPlanCreatorPage';
 import PremiumFeaturePage from '../../../views/PremiumFeaturePage';
+import DeveloperAccessPage from '../../../views/DeveloperAccessPage';
 import PwaToolsPage from '../../../views/PwaToolsPage';
 import PwaStoragePage from '../../../views/PwaStoragePage';
 import PwaSettingsPage from '../../../views/PwaSettingsPage';
@@ -57,6 +58,11 @@ import InvoicesPage from '../../../views/InvoicesPage';
 export default function ToolRoute() {
   const params = useParams();
   const toolId = params?.toolId as string;
+
+  // Developer Access Route
+  if (toolId === 'developer-access') {
+    return <DeveloperAccessPage />;
+  }
 
   // PWA Routes
   if (toolId === 'tools') {
