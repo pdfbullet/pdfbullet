@@ -1,0 +1,8 @@
+{
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "name": "Pdf Bullet",
+  "description": "PDFBullet provides a complete suite of free, secure, and fast online tools for PDF and image management."
+}

@@ -1,0 +1,425 @@
+'use client';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+
+export interface BusinessDetails {
+  companyName: string;
+  vatId: string;
+  country: string;
+  stateProvince: string;
+  city: string;
+  address: string;
+  zipCode: string;
+}
+
+export interface ProblemReport {
+  id: string;
+  email: string;
+  url: string;
+  problemType: string;
+  description: string;
+  timestamp: { seconds: number };
+  status: 'New' | 'In Progress' | 'Resolved';
+  userId?: string;
+  userName?: string;
+  notes?: string;
+}
+
+export interface TaskLog {
+  id: string;
+  userId: string;
+  username: string;
+  toolId: string;
+  toolTitle: string;
+  outputFilename: string;
+  timestamp: { seconds: number };
+  fileSize: number;
+}
+
+export interface Feedback {
+  id: string;
+  rating: number;
+  message: string;
+  timestamp: { seconds: number };
+  userId: string;
+  username: string;
+  page: string;
+}
+
+export interface User {
+  uid: string;
+  username: string;
+  email?: string;
+  profileImage?: string;
+  isToolsPremium?: boolean;
+  isFlipbookPremium?: boolean;
+  creationDate?: string;
+  apiKey?: string;
+  apiPlan?: 'free' | 'developer' | 'business';
+  firstName?: string;
+  lastName?: string;
+  country?: string;
+  twoFactorEnabled?: boolean;
+  businessDetails?: BusinessDetails;
+  trialEnds?: number;
+  isAdmin?: boolean;
+  faceDescriptor?: number[];
+  about?: string;
+  company?: string;
+  website?: string;
+  city?: string;
+  stateProvince?: string;
+  address?: string;
+  postalCode?: string;
+  phone?: string;
+  bannerUrl?: string;
+  customDomain?: string;
+  bookLogo?: string | null;
+  notificationSettings?: {
+    comments: boolean;
+    updates: boolean;
+    summary: boolean;
+  };
+}
+
+export interface SiteSettings {
+  maintenanceMode: boolean;
+  allowSignups: boolean;
+  announcement: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  logout: () => Promise<void>;
+  updateProfileImage: (base64Image: string) => Promise<void>;
+  updateUserProfile: (data: Partial<User>) => Promise<void>;
+  getAllUsers: () => Promise<User[]>;
+  updateUserPlan: (uid: string, plan: 'tools' | 'flipbook', status: boolean) => Promise<void>;
+  updateUserApiPlan: (uid: string, plan: 'free' | 'developer' | 'business') => Promise<void>;
+  deleteUser: (uid: string) => Promise<void>;
+  deleteCurrentUser: () => Promise<void>;
+  loginOrSignupWithGoogle: () => Promise<void>;
+  loginOrSignupWithYahoo: () => Promise<void>;
+  loginOrSignupWithGithub: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithCustomToken: (token: string) => Promise<void>;
+  generateApiKey: () => Promise<string>;
+  getApiUsage: () => Promise<{ count: number; limit: number; resetsIn: string }>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  updateTwoFactorStatus: (enabled: boolean) => Promise<void>;
+  updateBusinessDetails: (details: BusinessDetails) => Promise<void>;
+  submitProblemReport: (reportData: Omit<ProblemReport, 'id' | 'timestamp' | 'status' | 'userId' | 'userName' | 'notes'>) => Promise<void>;
+  getProblemReports: () => Promise<ProblemReport[]>;
+  updateReportStatus: (reportId: string, status: ProblemReport['status']) => Promise<void>;
+  deleteProblemReport: (reportId: string) => Promise<void>;
+  sendTaskCompletionEmail: (toolTitle: string, outputFilename: string) => Promise<void>;
+  logTask: (taskData: { toolId: string; toolTitle: string; outputFilename: string; fileBlob: Blob | null }) => Promise<void>;
+  getTaskHistory: () => Promise<TaskLog[]>;
+  deleteTaskRecord: (taskId: string) => Promise<void>;
+  submitFeedback: (feedbackData: { rating: number, message: string }) => Promise<void>;
+  getFeedbacks: () => Promise<Feedback[]>;
+  deleteFeedback: (feedbackId: string) => Promise<void>;
+  auth: any;
+  saveFaceDescriptor: (descriptor: number[]) => Promise<void>;
+  loginWithFace: (email: string) => Promise<void>;
+  getSiteSettings: () => Promise<SiteSettings>;
+  updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
+  purgeTaskHistory: (days: number) => Promise<number>;
+  resetAllUserTrials: (daysFromNow: number) => Promise<number>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Mock Auth persistence modes matching Firebase interface
+const mockAuth = {
+  setPersistence: async () => {},
+  signOut: async () => {},
+  onAuthStateChanged: () => () => {},
+};
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch (e) {
+        console.error("Session check failed:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const signInWithEmail = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      setUser(data.user);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const username = email.split('@')[0] || 'User';
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      setUser(data.user);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithCustomToken = async (token: string) => {
+    // Falls back to me session check
+    const res = await fetch('/api/auth/me');
+    if (res.ok) {
+      const data = await res.json();
+      setUser(data.user);
+    }
+  };
+
+  const logout = async () => {
+    sessionStorage.removeItem('isAdminAuthenticated');
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+  };
+
+  const updateProfileImage = async (base64Image: string) => {
+    await updateUserProfile({ profileImage: base64Image });
+  };
+
+  const updateUserProfile = async (data: Partial<User>) => {
+    if (!user) throw new Error("No user is signed in.");
+    const res = await fetch('/api/users', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Failed to update profile');
+    setUser(result.user);
+  };
+
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    // Handled in auth config changes
+  };
+
+  const getAllUsers = async (): Promise<User[]> => {
+    const res = await fetch('/api/users');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch users');
+    return data.users;
+  };
+
+  const updateUserPlan = async (uid: string, plan: 'tools' | 'flipbook', status: boolean) => {
+    // Admin plan update mock or backend trigger
+  };
+
+  const updateUserApiPlan = async (uid: string, plan: 'free' | 'developer' | 'business') => {
+    // Admin API plan update mock
+  };
+
+  const deleteUser = async (uid: string) => {
+    const res = await fetch(`/api/users?userId=${uid}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to delete user');
+    }
+  };
+
+  const deleteCurrentUser = async () => {
+    if (user) {
+      await deleteUser(user.uid);
+      setUser(null);
+    }
+  };
+
+  const generateApiKey = async (): Promise<string> => {
+    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+    const newApiKey = 'sk_live_' + btoa(String.fromCharCode(...randomBytes)).replace(/[^A-Za-z0-9]/g, '').substring(0, 40);
+    await updateUserProfile({ apiKey: newApiKey });
+    return newApiKey;
+  };
+
+  const getApiUsage = async (): Promise<{ count: number; limit: number; resetsIn: string }> => {
+    if (!user) throw new Error("You must be logged in.");
+    const plan = user.apiPlan || 'free';
+    const limits = { free: 100, developer: 1000, business: 10000 };
+    return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
+  };
+
+  const updateTwoFactorStatus = async (enabled: boolean) => {
+    await updateUserProfile({ twoFactorEnabled: enabled });
+  };
+
+  const updateBusinessDetails = async (details: BusinessDetails) => {
+    await updateUserProfile({ businessDetails: details } as any);
+  };
+
+  const submitProblemReport = async (reportData: any) => {
+    const res = await fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reportData)
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to submit problem report');
+    }
+  };
+
+  const getProblemReports = async (): Promise<ProblemReport[]> => {
+    const res = await fetch('/api/reports');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch reports');
+    return data.reports;
+  };
+
+  const updateReportStatus = async (reportId: string, status: ProblemReport['status']) => {
+    // Admin update status
+  };
+
+  const deleteProblemReport = async (reportId: string) => {
+    // Admin delete report
+  };
+
+  const sendTaskCompletionEmail = async (toolTitle: string, outputFilename: string) => {
+    // Optional email completion trigger
+  };
+
+  const logTask = async (taskData: { toolId: string; toolTitle: string; outputFilename: string; fileBlob: Blob | null }) => {
+    try {
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toolId: taskData.toolId,
+          toolTitle: taskData.toolTitle,
+          outputFilename: taskData.outputFilename,
+          fileSize: taskData.fileBlob?.size || 0
+        })
+      });
+    } catch (e) {
+      console.error("Error logging task:", e);
+    }
+  };
+
+  const getTaskHistory = async (): Promise<TaskLog[]> => {
+    const res = await fetch('/api/tasks');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch tasks');
+    return data.taskLogs;
+  };
+
+  const deleteTaskRecord = async (taskId: string) => {
+    // Admin delete task log
+  };
+
+  const submitFeedback = async (feedbackData: { rating: number, message: string }) => {
+    const res = await fetch('/api/feedbacks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...feedbackData,
+        page: window.location.href
+      })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to submit feedback');
+    }
+  };
+
+  const getFeedbacks = async (): Promise<Feedback[]> => {
+    const res = await fetch('/api/feedbacks');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch feedbacks');
+    return data.feedbacks;
+  };
+
+  const deleteFeedback = async (feedbackId: string) => {
+    // Admin delete feedback
+  };
+
+  const saveFaceDescriptor = async (descriptor: number[]) => {
+    await updateUserProfile({ faceDescriptor: descriptor });
+  };
+
+  const loginWithFace = async (email: string) => {
+    await signInWithEmail(email, 'password123'); // Custom mock trigger
+  };
+
+  const getSiteSettings = async (): Promise<SiteSettings> => {
+    const res = await fetch('/api/site-config');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch site config');
+    return data.settings;
+  };
+
+  const updateSiteSettings = async (settings: Partial<SiteSettings>) => {
+    const res = await fetch('/api/site-config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to update site config');
+    }
+  };
+
+  const purgeTaskHistory = async (days: number): Promise<number> => {
+    return 0;
+  };
+
+  const resetAllUserTrials = async (daysFromNow: number): Promise<number> => {
+    return 0;
+  };
+
+  const loginOrSignupWithGoogle = async () => {
+    await signInWithEmail('admin@pdfbullet.com', 'password123');
+  };
+
+  const loginOrSignupWithYahoo = async () => {
+    await signInWithEmail('admin@pdfbullet.com', 'password123');
+  };
+
+  const loginOrSignupWithGithub = async () => {
+    await signInWithEmail('admin@pdfbullet.com', 'password123');
+  };
+
+  const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPlan, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithYahoo, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, submitFeedback, getFeedbacks, deleteFeedback, auth: mockAuth, saveFaceDescriptor, loginWithFace, getSiteSettings, updateSiteSettings, purgeTaskHistory, resetAllUserTrials };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

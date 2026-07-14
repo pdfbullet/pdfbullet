@@ -1,0 +1,106 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  username         String
+  passwordHash     String
+  profileImage     String?
+  isToolsPremium   Boolean           @default(false)
+  isFlipbookPremium Boolean          @default(false)
+  creationDate     DateTime          @default(now())
+  apiKey           String?           @unique
+  apiPlan          String            @default("free") // "free", "developer", "business"
+  firstName        String?
+  lastName         String?
+  country          String?
+  twoFactorEnabled Boolean           @default(false)
+  trialEnds        DateTime?
+  isAdmin          Boolean           @default(false)
+  faceDescriptor   String?
+  // Relations
+  taskLogs         TaskLog[]
+  problemReports   ProblemReport[]
+  feedbacks        Feedback[]
+  signedDocuments  SignedDocument[]
+  workflows        Workflow[]
+  businessDetails  BusinessDetails?
+}
+
+model BusinessDetails {
+  id             String  @id @default(uuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName    String
+  vatId          String
+  country        String
+  stateProvince  String
+  city           String
+  address        String
+  zipCode        String
+}
+
+model TaskLog {
+  id             String   @id @default(uuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  username       String
+  toolId         String
+  toolTitle      String
+  outputFilename String
+  timestamp      DateTime @default(now())
+  fileSize       Int      @default(0)
+}
+
+model ProblemReport {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email       String
+  url         String
+  problemType String
+  description String
+  timestamp   DateTime @default(now())
+  status      String   @default("New") // "New", "In Progress", "Resolved"
+  notes       String?
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  username  String
+  rating    Int
+  message   String
+  timestamp DateTime @default(now())
+  page      String
+}
+
+model SignedDocument {
+  id               String   @id @default(uuid())
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  originator       String
+  originalFileName String
+  signedFileName   String
+  status           String   @default("Signed")
+  fileBlobUrl      String?
+  auditTrail       String
+  timestamp        DateTime @default(now())
+}
+
+model Workflow {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  tools     String
+  createdAt DateTime @default(now())
+}

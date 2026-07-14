@@ -1,0 +1,90 @@
+
+import React, { useEffect } from 'react';
+import { BellIcon, TrashIcon, LinkIcon, DownloadIcon } from '../components/icons.tsx';
+import { Notification } from '../App.tsx';
+import { Link as RouterLink } from 'react-router-dom';
+
+interface NotificationsPageProps {
+    notifications: Notification[];
+    markAllAsRead: () => void;
+    clearAll: () => void;
+}
+
+const NotificationsPage: React.FC<NotificationsPageProps> = ({ notifications, markAllAsRead, clearAll }) => {
+    useEffect(() => {
+        document.title = "Notifications | PDFBullet";
+        markAllAsRead();
+    }, [markAllAsRead]);
+
+    const timeAgo = (timestamp: number) => {
+        const seconds = Math.floor((new Date().getTime() - timestamp) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return `${Math.floor(interval)} years ago`;
+        interval = seconds / 2592000;
+        if (interval > 1) return `${Math.floor(interval)} months ago`;
+        interval = seconds / 86400;
+        if (interval > 1) return `${Math.floor(interval)} days ago`;
+        interval = seconds / 3600;
+        if (interval > 1) return `${Math.floor(interval)} hours ago`;
+        interval = seconds / 60;
+        if (interval > 1) return `${Math.floor(interval)} minutes ago`;
+        return `${Math.floor(seconds)} seconds ago`;
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto py-12 px-4">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Notifications</h1>
+                {notifications.length > 0 && (
+                    <button onClick={clearAll} className="flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                        <TrashIcon className="h-4 w-4" /> Clear All
+                    </button>
+                )}
+            </div>
+            {notifications.length > 0 ? (
+                <ul className="space-y-4">
+                    {notifications.map(n => (
+                        <li key={n.id} className={`p-4 rounded-lg shadow-sm border bg-white dark:bg-black border-gray-200 dark:border-gray-800`}>
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0 mt-1">
+                                    <BellIcon className={`h-5 w-5 text-gray-400`} />
+                                </div>
+                                <div className="flex-grow">
+                                    <p className="font-bold text-gray-800 dark:text-gray-100">{n.title}</p>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{n.message}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{timeAgo(n.timestamp)}</p>
+                                </div>
+                                <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                                    {n.imageBase64 && (
+                                        <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 mb-1">
+                                            <img src={n.imageBase64} alt="Notification" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col gap-2">
+                                        {n.url && (
+                                            <RouterLink to={n.url} className="flex items-center gap-2 px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md text-center hover:bg-blue-600 transition-colors">
+                                                <LinkIcon className="h-3 w-3" /> View
+                                            </RouterLink>
+                                        )}
+                                        {n.attachmentUrl && (
+                                            <a href={n.attachmentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-1 bg-gray-600 text-white text-xs font-semibold rounded-md text-center hover:bg-gray-700 transition-colors">
+                                                <DownloadIcon className="h-3 w-3" /> Download
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <div className="text-center py-16 text-gray-500">
+                    <BellIcon className="h-12 w-12 mx-auto mb-4" />
+                    <p>You have no notifications yet.</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default NotificationsPage;

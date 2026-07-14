@@ -1,0 +1,25 @@
+<svg viewBox="0 0 580 130" xmlns="http://www.w3.org/2000/svg" font-family="'Nunito', sans-serif">
+  <defs>
+    <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ff0000" flood-opacity="0.75" />
+    </filter>
+  </defs>
+
+  <g transform="translate(15, 15) scale(0.9)">
+    <g filter="url(#neon-glow)">
+        <path d="M35 15 H75 L95 35 V95 H35 Z" fill="#ff1a1a" />
+        <path d="M75 15 L95 35 H75 Z" fill="#ff4d4d" />
+        <text x="65" y="68" font-size="24" font-weight="bold" fill="rgba(255,255,255,0.8)" text-anchor="middle">PDF</text>
+        <path d="M15 50 C -20 50, -20 105, 40 105" stroke="#ff1a1a" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path d="M40 105 L30 115 L45 115 Z" fill="#ff1a1a" />
+        <path d="M115 60 C 150 60, 150 5, 90 5" stroke="#ff1a1a" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path d="M90 5 L100 -5 L85 -5 Z" fill="#ff1a1a" />
+    </g>
+  </g>
+  
+  <text x="150" y="90" font-size="80" font-weight="800">
+    <tspan fill="#1F2937">PDFBullet</tspan>
+  </text>
+  
+  <text x="555" y="50" font-size="25" fill="#1F2937">®</text>
+</svg>
