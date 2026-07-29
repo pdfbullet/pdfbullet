@@ -28,20 +28,19 @@ const nextConfig = {
       'react-router-dom': path.resolve(__dirname, 'utils/routerCompat.tsx'),
       'react': path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+      // Always mock @imgly/background-removal at build time for BOTH server and client.
+      // The real library is loaded via dynamic import() at browser runtime only.
+      // This prevents onnxruntime-web WebGPU bundles (which use import.meta) from
+      // ever being processed by webpack/Terser — eliminating all build errors.
+      '@imgly/background-removal': path.resolve(__dirname, 'utils/mockBgRemoval.js'),
     };
-
-    // Mock background removal on the server - only use real library on client
-    if (isServer) {
-      config.resolve.alias['@imgly/background-removal'] = path.resolve(__dirname, 'utils/mockBgRemoval.js');
-    }
 
     // Treat onnxruntime-node as external so Webpack doesn't compile it
     config.externals = config.externals || [];
     config.externals.push('onnxruntime-node');
 
-    // Handle .mjs files from node_modules (e.g. onnxruntime-web WebGPU bundles).
-    // These files use `import.meta` which Next.js can only handle when the module
-    // type is set to 'javascript/auto' — otherwise Terser/webpack crashes at build.
+    // Handle .mjs files from node_modules using javascript/auto type.
+    // This prevents webpack from enforcing strict ESM rules on these files.
     config.module.rules.push({
       test: /\.mjs$/,
       include: /node_modules/,
