@@ -26,8 +26,11 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'react-router-dom': path.resolve(__dirname, 'utils/routerCompat.tsx'),
-      '@imgly/background-removal': path.resolve(__dirname, 'utils/mockBgRemoval.js'),
     };
+
+    if (isServer) {
+      config.resolve.alias['@imgly/background-removal'] = path.resolve(__dirname, 'utils/mockBgRemoval.js');
+    }
 
     // Treat onnxruntime-node as external so Webpack doesn't compile it
     config.externals = config.externals || [];
