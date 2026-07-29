@@ -9,10 +9,12 @@ const staticPages = [
   { loc: "/", changefreq: "daily", priority: "1.0" },
   { loc: "/about", changefreq: "monthly", priority: "0.8" },
   { loc: "/blog", changefreq: "weekly", priority: "0.9" },
+  { loc: "/articles", changefreq: "weekly", priority: "0.9" },
   { loc: "/contact", changefreq: "monthly", priority: "0.7" },
   { loc: "/faq", changefreq: "monthly", priority: "0.7" },
   { loc: "/sitemap", changefreq: "monthly", priority: "0.6" },
   { loc: "/pricing", changefreq: "monthly", priority: "0.8" },
+  { loc: "/plans-and-packages", changefreq: "monthly", priority: "0.8" },
   { loc: "/premium-feature", changefreq: "monthly", priority: "0.7" },
   { loc: "/how-to-use", changefreq: "monthly", priority: "0.7" },
   { loc: "/education", changefreq: "monthly", priority: "0.7" },
@@ -21,6 +23,23 @@ const staticPages = [
   { loc: "/press", changefreq: "yearly", priority: "0.5" },
   { loc: "/features", changefreq: "monthly", priority: "0.8" },
   { loc: "/user-data-deletion", changefreq: "yearly", priority: "0.5" },
+  
+  // Workflows & Flipbooks
+  { loc: "/workflows", changefreq: "weekly", priority: "0.8" },
+  { loc: "/create-workflow", changefreq: "weekly", priority: "0.8" },
+  { loc: "/manage-flipbooks", changefreq: "weekly", priority: "0.8" },
+  
+  // Games
+  { loc: "/games", changefreq: "monthly", priority: "0.7" },
+  { loc: "/games/bubble-shooter", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/car-racing", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/color-flood", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/memory-match", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/paper-toss", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/pdf-invaders", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/quiz", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/snake", changefreq: "monthly", priority: "0.6" },
+  { loc: "/games/word-finder", changefreq: "monthly", priority: "0.6" },
   
   // Legal Pages
   { loc: "/legal", changefreq: "yearly", priority: "0.5" },
