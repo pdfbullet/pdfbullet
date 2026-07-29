@@ -35,11 +35,20 @@ export function useNavigate() {
 
 export function useLocation() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [search, setSearch] = React.useState('');
+  const [hash, setHash] = React.useState('');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSearch(window.location.search || '');
+      setHash(window.location.hash || '');
+    }
+  }, [pathname]);
+
   return {
     pathname: pathname || '/',
-    search: searchParams ? `?${searchParams.toString()}` : '',
-    hash: typeof window !== 'undefined' ? window.location.hash : '',
+    search: search,
+    hash: hash,
     state: null as any,
   };
 }
