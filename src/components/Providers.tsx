@@ -18,7 +18,13 @@ export function Providers({ children }: ProvidersProps) {
         <I18nProvider>
           <PWAInstallProvider>
             <PwaLayoutProvider>
-              {children}
+              {/* Suspense boundary required by Next.js App Router for hooks like
+                  usePathname() used inside routerCompat.tsx (react-router-dom compat layer).
+                  Without this, PWA standalone mode crashes with a client-side exception
+                  because usePathname() suspends during hydration with no fallback. */}
+              <React.Suspense fallback={null}>
+                {children}
+              </React.Suspense>
             </PwaLayoutProvider>
           </PWAInstallProvider>
         </I18nProvider>
