@@ -1,12 +1,10 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
 import { RefreshIcon, CheckIcon } from './icons.tsx';
 
 const PULL_THRESHOLD = 70; // pixels to pull before refresh triggers
 const PULL_RESISTANCE = 0.55; // dampening factor
 
 const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const location = useLocation();
   const [pullStart, setPullStart] = useState<number | null>(null);
   const [pullDistance, setPullDistance] = useState(0);
   const [status, setStatus] = useState<'idle' | 'pulling' | 'refreshing' | 'success'>('idle');
@@ -15,7 +13,7 @@ const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
   const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone);
 
   // Disable pull-to-refresh on pages other than the homepage to protect user form/processing states
-  const isHomepage = location.pathname === '/';
+  const isHomepage = typeof window !== 'undefined' && window.location.pathname === '/';
 
   if (!isIOS || !isStandalone || !isHomepage) {
     return <>{children}</>;
