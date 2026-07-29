@@ -1,5 +1,4 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
-
+// This is the "Offline copy of pages" service worker
 const CACHE = "pwabuilder-offline";
 
 self.addEventListener("message", (event) => {
@@ -8,40 +7,55 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// PWABuilder explicitly scans for workbox.routing.registerRoute for the offline test
-workbox.routing.registerRoute(
-  new RegExp('/*'),
-  new workbox.strategies.StaleWhileRevalidate({
-    cacheName: CACHE
-  })
-);
+self.addEventListener('install', async (event) => {
+  event.waitUntil(
+    caches.open(CACHE).then((cache) => cache.add(new Request('/', { cache: 'reload' })))
+  );
+  self.skipWaiting();
+});
 
-// 2. BACKGROUND SYNC
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const preloadResp = await event.preloadResponse;
+        if (preloadResp) {
+          return preloadResp;
+        }
+        const networkResp = await fetch(event.request);
+        return networkResp;
+      } catch (error) {
+        const cache = await caches.open(CACHE);
+        const cachedResp = await cache.match('/');
+        return cachedResp;
+      }
+    })());
+  }
+});
+
+// BACKGROUND SYNC
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-pdf-data') {
-    event.waitUntil(Promise.resolve(console.log('Background Sync triggered')));
+    event.waitUntil(Promise.resolve());
   }
 });
 
-// 3. PERIODIC BACKGROUND SYNC
+// PERIODIC BACKGROUND SYNC
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'update-pdf-tools') {
-    event.waitUntil(Promise.resolve(console.log('Periodic Sync triggered')));
+    event.waitUntil(Promise.resolve());
   }
 });
 
-// 4. PUSH NOTIFICATIONS
+// PUSH NOTIFICATIONS
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.text() : 'PDFBullet Update';
-  
-  const options = {
-    body: data,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
-  };
-
   event.waitUntil(
-    self.registration.showNotification('PDFBullet', options)
+    self.registration.showNotification('PDFBullet', { body: data })
   );
 });
 
