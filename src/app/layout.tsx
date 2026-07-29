@@ -58,6 +58,20 @@ export default function RootLayout({
           </AppShell>
         </Providers>
 
+        {/* Force Disable Long-Press Context Menu on Mobile */}
+        <Script id="disable-context-menu" strategy="beforeInteractive">
+          {`
+            if (typeof window !== 'undefined') {
+              window.addEventListener('contextmenu', function(e) {
+                // Prevent long-press popup if user is on a touch device
+                if (window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window) {
+                  e.preventDefault();
+                }
+              }, { passive: false });
+            }
+          `}
+        </Script>
+
         {/* Cloud Picker Scripts */}
         <Script src="https://apis.google.com/js/api.js" strategy="lazyOnload" />
         <Script 
