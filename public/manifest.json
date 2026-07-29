@@ -5,7 +5,7 @@
   "start_url": "/?source=pwa",
   "id": "com.pdfbullet.tools",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "display_override": ["standalone", "browser"],
   "background_color": "#B90B06",
   "theme_color": "#B90B06",
   "orientation": "portrait-primary",
@@ -71,61 +71,37 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/desktop-view.jpg",
-      "sizes": "1280x800",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "PDFBullet Homepage with all PDF & Image tools"
-    },
-    {
-      "src": "/mobile-view.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile view showing PDF tools"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Merge PDF",
       "short_name": "Merge",
       "url": "/merge-pdf",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Compress PDF",
       "short_name": "Compress",
       "url": "/compress-pdf",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "PDF to Word",
       "short_name": "PDF→Word",
       "url": "/pdf-to-word",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Remove Background",
       "short_name": "BG Remove",
       "url": "/remove-background",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
-  "share_target": {
-    "action": "/merge-pdf",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "files": [
-        {
-          "name": "file",
-          "accept": ["application/pdf", "image/*"]
-        }
-      ]
+  "scope_extensions": [
+    {
+      "origin": "*.pdfbullet.com"
     }
-  },
+  ],
   "prefer_related_applications": false,
   "related_applications": [
     {
