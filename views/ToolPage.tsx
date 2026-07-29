@@ -3161,7 +3161,10 @@ const ToolPage: React.FC = () => {
                         const { removeBackground } = await import('@imgly/background-removal');
                         blob = await removeBackground(file, {
                             model: 'isnet_fp16',
-                            publicPath: 'https://unpkg.com/@imgly/background-removal-data@1.7.0/dist/',
+                            publicPath: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.7.0/dist/',
+                            fetchArgs: {
+                                mode: 'cors'
+                            },
                             progress: (key, current, total) => {
                                 const percent = Math.round((current / total) * 100);
                                 setProgress({ 
@@ -3172,7 +3175,7 @@ const ToolPage: React.FC = () => {
                         });
                     } catch (err: any) {
                         console.error("Client background removal error:", err);
-                        throw new Error('Background removal failed: ' + (err.message || err));
+                        throw new Error('Background removal failed: ' + (err.message || err.toString()));
                     }
                     break;
                 }
