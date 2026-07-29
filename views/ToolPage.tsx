@@ -3155,61 +3155,23 @@ const ToolPage: React.FC = () => {
                 case 'remove-background': {
                     if (files.length !== 1) throw new Error("Please select one image file.");
                     const file = files[0];
-                    setProgress({ percentage: 10, status: 'Uploading image to server...' });
+                    setProgress({ percentage: 10, status: 'Initializing background removal model...' });
 
-                    const formData = new FormData();
-                    formData.append('file', file);
-
-                    setProgress({ percentage: 40, status: 'Removing background on server (this may take a moment)...' });
-                    const res = await fetch('/api/remove-background', {
-                        method: 'POST',
-                        body: formData,
-                    });
-
-                    if (!res.ok) {
-                        const errJson = await res.json().catch(() => ({ error: 'Background removal failed on the server.' }));
-                        throw new Error(errJson.error || 'Background removal failed on the server.');
-                    }
-
-                    if (!res.body) throw new Error("No response body");
-                    
-                    const reader = res.body.getReader();
-                    const decoder = new TextDecoder();
-                    let buffer = '';
-                    let finalBase64 = null;
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop() || '';
-                        
-                        for (const line of lines) {
-                            if (!line.trim()) continue;
-                            try {
-                                const data = JSON.parse(line);
-                                if (data.error) throw new Error(data.error);
-                                if (data.progress !== undefined) {
-                                    setProgress({ percentage: data.progress, status: data.status || 'Processing...' });
-                                }
-                                if (data.success && data.url) {
-                                    finalBase64 = data.url; // Storing URL in same variable name for now to avoid breaking scope
-                                }
-                            } catch (e) {
-                                // Ignore JSON parse errors for incomplete chunks just in case, though split('\n') should prevent it
-                                if (e instanceof Error && !e.message.includes("JSON")) {
-                                    throw e;
-                                }
+                    try {
+                        const removeBackground = (await import('@imgly/background-removal')).default;
+                        blob = await removeBackground(file, {
+                            progress: (key, current, total) => {
+                                const percent = Math.round((current / total) * 100);
+                                setProgress({ 
+                                    percentage: Math.min(10 + Math.round(percent * 0.85), 95), 
+                                    status: `Removing background (${percent}%)...` 
+                                });
                             }
-                        }
+                        });
+                    } catch (err: any) {
+                        console.error("Client background removal error:", err);
+                        throw new Error('Background removal failed: ' + (err.message || err));
                     }
-
-                    if (!finalBase64) throw new Error("Did not receive final image URL from server.");
-                    
-                    setProgress({ percentage: 95, status: 'Downloading processed image...' });
-                    const imgRes = await fetch(finalBase64);
-                    blob = await imgRes.blob();
                     break;
                 }
                 case 'jpg-to-pdf': {

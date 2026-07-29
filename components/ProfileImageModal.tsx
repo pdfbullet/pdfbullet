@@ -18,7 +18,7 @@ const ProfileImageModal: React.FC<ProfileImageModalProps> = ({ isOpen, onClose }
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
     setError('');
     if (fileRejections.length > 0) {
-        setError('Please upload a valid image file (PNG, JPG, etc.) under 4MB.');
+        setError('Please upload a valid image file (PNG, JPG, etc.) under 95MB.');
         return;
     }
     if (acceptedFiles.length > 0) {
@@ -37,7 +37,7 @@ const ProfileImageModal: React.FC<ProfileImageModalProps> = ({ isOpen, onClose }
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.jpeg', '.png', '.gif', '.jpg', '.webp'] },
-    maxSize: 4 * 1024 * 1024, // 4MB
+    maxSize: 95 * 1024 * 1024, // 95MB
     multiple: false,
   });
 
@@ -146,7 +146,7 @@ const ProfileImageModal: React.FC<ProfileImageModalProps> = ({ isOpen, onClose }
                     <input {...getInputProps()} />
                     <UploadCloudIcon className="h-12 w-12 text-gray-400" />
                     <p className="mt-4 font-semibold text-gray-700 dark:text-gray-200">Drag & drop or click to upload</p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 4MB</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 95MB</p>
                 </div>
             )}
         </main>
