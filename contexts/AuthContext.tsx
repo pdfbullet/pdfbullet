@@ -194,10 +194,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const data = await res.json();
           if (data.user) {
             setUser(data.user);
+          } else {
+            setUser(null); // Clear expired session from localStorage
           }
+        } else {
+          setUser(null);
         }
       } catch (e) {
         console.error("Session check failed:", e);
+        setUser(null);
       } finally {
         setLoading(false);
       }
