@@ -79,7 +79,7 @@ export async function POST(request: Request) {
                 const signature = crypto.createHash('sha1').update(signatureString).digest('hex');
 
                 const uploadFormData = new FormData();
-                const blob = new Blob([outputBytes], { type: 'image/png' });
+                const blob = new Blob([new Uint8Array(outputBytes)], { type: 'image/png' });
                 uploadFormData.append('file', blob, 'bg-removed.png');
                 uploadFormData.append('api_key', API_KEY);
                 uploadFormData.append('timestamp', timestamp);
@@ -101,6 +101,9 @@ export async function POST(request: Request) {
                 const cloudinaryData = await cloudinaryRes.json();
                 
                 controller.enqueue(new TextEncoder().encode(JSON.stringify({ success: true, url: cloudinaryData.secure_url }) + '\n'));
+              }
+            } catch (err: any) {
+              controller.enqueue(new TextEncoder().encode(JSON.stringify({ error: err.message }) + '\n'));
             } finally {
               // Cleanup
               if (tempInputPath && existsSync(tempInputPath)) await unlink(tempInputPath).catch(console.error);
