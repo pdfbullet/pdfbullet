@@ -1,14 +1,8 @@
-[
-  {
-    "relation": [
-      "delegate_permission/common.handle_all_urls"
-    ],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.pdfbullet.tools",
-      "sha256_cert_fingerprints": [
-        "D9:AF:D8:4C:16:2D:F5:92:DB:B3:C1:89:0D:AE:02:E3:01:95:68:53:8E:32:F9:89:0B:C8:16:C5:7C:08:3E:C4"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.pdfbullet.tools",
+    "sha256_cert_fingerprints": ["30:CE:60:D2:1E:BF:82:01:AC:0A:60:AD:55:C2:4B:FC:0D:C8:9B:E9:B8:91:51:85:69:1B:4C:4B:7E:CB:AA:22"]
   }
-]
+}]
