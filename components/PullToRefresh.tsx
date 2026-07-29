@@ -109,10 +109,12 @@ const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
           </div>
         ) : (
           <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-center">
-            <RefreshIcon 
-              className={`h-5 w-5 text-brand-red ${status === 'refreshing' ? 'animate-spin' : ''}`}
+            <div 
               style={{ transform: status === 'refreshing' ? 'none' : `rotate(${indicatorRotation}deg)` }}
-            />
+              className="flex items-center justify-center"
+            >
+              <RefreshIcon className={`h-5 w-5 text-brand-red ${status === 'refreshing' ? 'animate-spin' : ''}`} />
+            </div>
           </div>
         )}
       </div>
