@@ -3158,7 +3158,7 @@ const ToolPage: React.FC = () => {
                     setProgress({ percentage: 10, status: 'Initializing background removal model...' });
 
                     try {
-                        const removeBackground = (await import('@imgly/background-removal')).default;
+                        const { removeBackground } = await import('@imgly/background-removal');
                         blob = await removeBackground(file, {
                             progress: (key, current, total) => {
                                 const percent = Math.round((current / total) * 100);
