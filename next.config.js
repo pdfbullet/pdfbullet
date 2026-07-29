@@ -26,12 +26,8 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'react-router-dom': path.resolve(__dirname, 'utils/routerCompat.tsx'),
-      'react': path.resolve(__dirname, 'node_modules/react'),
-      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
       // Always mock @imgly/background-removal at build time for BOTH server and client.
       // The real library is loaded via dynamic import() at browser runtime only.
-      // This prevents onnxruntime-web WebGPU bundles (which use import.meta) from
-      // ever being processed by webpack/Terser — eliminating all build errors.
       '@imgly/background-removal': path.resolve(__dirname, 'utils/mockBgRemoval.js'),
     };
 
