@@ -1,84 +1,92 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { RefreshIcon } from './icons.tsx';
+import { useLocation } from 'react-router-dom';
+import { RefreshIcon, CheckIcon } from './icons.tsx';
 
-const PULL_THRESHOLD = 80; // pixels to pull before refresh triggers
-const PULL_RESISTANCE = 0.5; // makes pulling feel a bit heavier
+const PULL_THRESHOLD = 70; // pixels to pull before refresh triggers
+const PULL_RESISTANCE = 0.55; // dampening factor
 
 const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const location = useLocation();
   const [pullStart, setPullStart] = useState<number | null>(null);
   const [pullDistance, setPullDistance] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'pulling' | 'refreshing' | 'success'>('idle');
 
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+  const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone);
 
-  // This feature is only for iOS standalone (PWA) mode.
-  if (!isIOS || !isStandalone) {
+  // Disable pull-to-refresh on pages other than the homepage to protect user form/processing states
+  const isHomepage = location.pathname === '/';
+
+  if (!isIOS || !isStandalone || !isHomepage) {
     return <>{children}</>;
   }
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0 && !isRefreshing) {
+    if (window.scrollY === 0 && status === 'idle') {
       setPullStart(e.touches[0].clientY);
+      setStatus('pulling');
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (pullStart === null || isRefreshing) return;
+    if (pullStart === null || status === 'refreshing' || status === 'success') return;
     
     const currentY = e.touches[0].clientY;
-    let distance = currentY - pullStart;
+    const distance = currentY - pullStart;
 
     if (distance > 0) {
-      // Prevent native browser refresh behavior while pulling at the top
       if (window.scrollY === 0) {
-        e.preventDefault();
+        // Prevent default native scroll bounce
+        if (e.cancelable) e.preventDefault();
       }
       setPullDistance(distance * PULL_RESISTANCE);
     } else {
-      // If user starts scrolling up, cancel the pull
       setPullStart(null);
       setPullDistance(0);
+      setStatus('idle');
     }
   };
 
   const handleTouchEnd = () => {
-    if (pullStart === null || isRefreshing) return;
+    if (pullStart === null || status === 'refreshing' || status === 'success') return;
 
     if (pullDistance > PULL_THRESHOLD) {
-      setIsRefreshing(true);
-      // Wait for the spinner animation to be visible before reloading
+      setStatus('refreshing');
+      setPullDistance(PULL_THRESHOLD);
+      
+      // Perform simulated reload cycle with success indicator
       setTimeout(() => {
+        setStatus('success');
+        setTimeout(() => {
           window.location.reload();
-      }, 500);
+        }, 800);
+      }, 1000);
     } else {
-      // Animate back to original position
+      // Release spring animation
       setPullStart(null);
       setPullDistance(0);
+      setStatus('idle');
     }
   };
-  
-  // Clean up state if component unmounts
+
   useEffect(() => {
     return () => {
       setPullStart(null);
       setPullDistance(0);
-      setIsRefreshing(false);
+      setStatus('idle');
     };
   }, []);
 
-  const indicatorRotation = Math.min(pullDistance / PULL_THRESHOLD, 1) * 360;
-  const indicatorOpacity = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  
-  const wrapperStyle: React.CSSProperties = {
-      transform: `translateY(${isRefreshing ? PULL_THRESHOLD : pullDistance}px)`,
-      transition: pullStart === null && !isRefreshing ? 'transform 0.3s' : 'none',
-  };
-  
-  const indicatorStyle: React.CSSProperties = {
-      opacity: isRefreshing ? 1 : indicatorOpacity,
-      transform: `rotate(${isRefreshing ? 0 : indicatorRotation}deg)`,
-      transition: 'opacity 0.2s',
+  const progress = Math.min(pullDistance / PULL_THRESHOLD, 1);
+  const indicatorOpacity = progress;
+  const indicatorRotation = progress * 360;
+
+  // Header and wrapper remain completely static (no translateY on children)
+  // Only the spinner itself floats down over the page!
+  const spinnerStyle: React.CSSProperties = {
+    transform: `translateY(${pullDistance}px)`,
+    opacity: status === 'idle' ? 0 : indicatorOpacity,
+    transition: pullStart === null && status !== 'refreshing' ? 'transform 0.3s ease, opacity 0.3s ease' : 'none',
   };
 
   return (
@@ -86,18 +94,27 @@ const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={wrapperStyle}
+      className="relative w-full min-h-screen"
     >
+      {/* Absolute floating pull refresh indicator card */}
       <div 
-        className="absolute top-0 left-0 right-0 h-20 flex items-center justify-center -translate-y-full pointer-events-none"
+        className="fixed left-1/2 -translate-x-1/2 z-[999] pointer-events-none top-4"
+        style={spinnerStyle}
         aria-hidden="true"
       >
-        <div 
-          className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center"
-          style={indicatorStyle}
-        >
-          <RefreshIcon className={`h-6 w-6 text-brand-red ${isRefreshing ? 'animate-spin' : ''}`} />
-        </div>
+        {status === 'success' ? (
+          <div className="flex items-center gap-2 bg-green-500 text-white font-bold px-4 py-2 rounded-full shadow-xl transition-all duration-300 transform scale-100">
+            <CheckIcon className="h-5 w-5 animate-bounce" />
+            <span className="text-xs uppercase tracking-wider font-extrabold">Refresh Success</span>
+          </div>
+        ) : (
+          <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-center">
+            <RefreshIcon 
+              className={`h-5 w-5 text-brand-red ${status === 'refreshing' ? 'animate-spin' : ''}`}
+              style={{ transform: status === 'refreshing' ? 'none' : `rotate(${indicatorRotation}deg)` }}
+            />
+          </div>
+        )}
       </div>
       {children}
     </div>

@@ -9,14 +9,14 @@ const NavItem: React.FC<{ to: string; icon: React.FC<any>; label: string }> = ({
     return (
         <Link 
             to={to} 
-            className={`relative flex flex-col items-center justify-center w-full h-full transition-colors duration-200 group rounded-lg ${
+            className={`relative flex flex-col items-center justify-center w-full h-full transition-all duration-100 active:scale-95 origin-center group rounded-lg ${
                 isActive 
                     ? 'text-brand-red' 
                     : 'text-gray-500 dark:text-gray-400 hover:text-brand-red'
             }`}
         >
             {isActive && <div className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-brand-red" style={{ animation: 'pop-in 0.3s ease-out' }}></div>}
-            <Icon className="h-6 w-6 mb-1" />
+            <Icon className="h-6 w-6 mb-1 transition-transform group-active:scale-90" />
             <span className={`text-xs transition-all ${isActive ? 'font-bold' : 'font-medium'}`}>{label}</span>
         </Link>
     );

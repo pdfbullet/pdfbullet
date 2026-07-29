@@ -22,12 +22,11 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, isFavorite, onToggleFavorite,
     onToggleFavorite(id);
   };
   
-  const linkClasses = `
     relative flex flex-col items-start p-3 bg-white/70 dark:bg-black/50
     backdrop-blur-lg border border-gray-200/80 dark:border-gray-800/80 
-    rounded-xl shadow-md h-36 group
+    rounded-xl shadow-md h-36 group transition-all duration-100 active:scale-[0.97] origin-center
     ${disabled 
-      ? 'opacity-50 cursor-not-allowed' 
+      ? 'opacity-50 cursor-not-allowed pointer-events-none' 
       : 'tool-card'}
   `;
   

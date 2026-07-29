@@ -139,7 +139,7 @@ export function AppShell({ children }: AppShellProps) {
                             onAdminAccessRequest={() => {}}
                         />
                         <PullToRefresh>
-                            <main className={`text-gray-800 dark:text-gray-200 pt-[calc(60px+env(safe-area-inset-top))] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
+                            <main className={`text-gray-800 dark:text-gray-200 pt-[calc(52px+env(safe-area-inset-top))] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
                                 {children}
                             </main>
                         </PullToRefresh>

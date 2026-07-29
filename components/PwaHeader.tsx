@@ -73,7 +73,7 @@ const PwaHeader: React.FC<PwaHeaderProps> = ({ onOpenSearchModal, unreadCount, j
       <div className="flex items-center gap-1">
         <button
           onClick={onOpenSearchModal}
-          className="p-2 text-white hover:bg-white/20 rounded-full"
+          className="p-2 text-white hover:bg-white/20 rounded-full transition-transform active:scale-90"
           aria-label="Search"
           title="Search"
         >
@@ -81,7 +81,7 @@ const PwaHeader: React.FC<PwaHeaderProps> = ({ onOpenSearchModal, unreadCount, j
         </button>
         <Link
           to="/notifications"
-          className={`relative p-2 text-white hover:bg-white/20 rounded-full ${isShaking ? 'animate-shake' : ''}`}
+          className={`relative p-2 text-white hover:bg-white/20 rounded-full transition-transform active:scale-90 ${isShaking ? 'animate-shake' : ''}`}
           aria-label="Notifications"
           title="Notifications"
         >
