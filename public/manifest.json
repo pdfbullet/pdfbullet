@@ -5,7 +5,7 @@
   "start_url": "/?source=pwa",
   "id": "com.pdfbullet.tools",
   "display": "standalone",
-  "display_override": ["tabbed", "window-controls-overlay", "standalone", "browser"],
+  "display_override": ["tabbed", "standalone"],
   "background_color": "#B90B06",
   "theme_color": "#B90B06",
   "orientation": "portrait-primary",
