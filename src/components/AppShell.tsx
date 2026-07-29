@@ -129,16 +129,16 @@ export function AppShell({ children }: AppShellProps) {
                 <div className="native-app min-h-screen flex flex-col">
                     <PwaBackground />
                     <MobileAuthGate onOpenForgotPasswordModal={() => {}}>
+                        <PwaHeader
+                            onOpenSearchModal={() => setSearchModalOpen(true)}
+                            unreadCount={0}
+                            justReceivedNotification={false}
+                            onNotificationAnimationEnd={() => {}}
+                            onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
+                            onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
+                            onAdminAccessRequest={() => {}}
+                        />
                         <PullToRefresh>
-                            <PwaHeader
-                                onOpenSearchModal={() => setSearchModalOpen(true)}
-                                unreadCount={0}
-                                justReceivedNotification={false}
-                                onNotificationAnimationEnd={() => {}}
-                                onOpenProfileImageModal={() => setProfileImageModalOpen(true)}
-                                onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
-                                onAdminAccessRequest={() => {}}
-                            />
                             <main className={`text-gray-800 dark:text-gray-200 pt-[calc(60px+env(safe-area-inset-top))] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
                                 {children}
                             </main>
