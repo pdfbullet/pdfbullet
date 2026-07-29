@@ -39,23 +39,17 @@ const nextConfig = {
     config.externals = config.externals || [];
     config.externals.push('onnxruntime-node');
 
-    // Skip ALL onnxruntime .mjs bundles (WebGPU, WASM etc) from webpack compilation.
-    // These files use `import.meta` which is incompatible with webpack's CJS mode.
-    // They are loaded at runtime by the browser directly, not bundled.
-    const existingNoParse = Array.isArray(config.module?.noParse)
-      ? config.module.noParse
-      : config.module?.noParse
-      ? [config.module.noParse]
-      : [];
-
-    config.module = {
-      ...config.module,
-      noParse: [
-        ...existingNoParse,
-        /onnxruntime[\\/].*\.mjs$/,
-        /ort[\w.-]*\.mjs$/,
-      ],
-    };
+    // Handle .mjs files from node_modules (e.g. onnxruntime-web WebGPU bundles).
+    // These files use `import.meta` which Next.js can only handle when the module
+    // type is set to 'javascript/auto' — otherwise Terser/webpack crashes at build.
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: 'javascript/auto',
+      resolve: {
+        fullySpecified: false,
+      },
+    });
 
     // Resolve node module issues for client-side libraries
     if (!isServer) {
