@@ -30,6 +30,7 @@ const nextConfig = {
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
     };
 
+    // Mock background removal on the server - only use real library on client
     if (isServer) {
       config.resolve.alias['@imgly/background-removal'] = path.resolve(__dirname, 'utils/mockBgRemoval.js');
     }
@@ -38,12 +39,23 @@ const nextConfig = {
     config.externals = config.externals || [];
     config.externals.push('onnxruntime-node');
 
-    // Skip parsing of ort.node.min.mjs to prevent syntax compilation errors
-    config.module = config.module || {};
-    config.module.noParse = [
-      ...(Array.isArray(config.module.noParse) ? config.module.noParse : config.module.noParse ? [config.module.noParse] : []),
-      /ort\.node\.min\.mjs/
-    ];
+    // Skip ALL onnxruntime .mjs bundles (WebGPU, WASM etc) from webpack compilation.
+    // These files use `import.meta` which is incompatible with webpack's CJS mode.
+    // They are loaded at runtime by the browser directly, not bundled.
+    const existingNoParse = Array.isArray(config.module?.noParse)
+      ? config.module.noParse
+      : config.module?.noParse
+      ? [config.module.noParse]
+      : [];
+
+    config.module = {
+      ...config.module,
+      noParse: [
+        ...existingNoParse,
+        /onnxruntime[\\/].*\.mjs$/,
+        /ort[\w.-]*\.mjs$/,
+      ],
+    };
 
     // Resolve node module issues for client-side libraries
     if (!isServer) {
