@@ -67,6 +67,21 @@ export default function RootLayout({
           strategy="lazyOnload" 
         />
         <Script src="https://js.live.net/v7.2/OneDrive.js" strategy="lazyOnload" />
+        
+        {/* Service Worker Registration */}
+        <Script id="sw-registration" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  console.log('ServiceWorker registration successful');
+                }, function(err) {
+                  console.log('ServiceWorker registration failed: ', err);
+                });
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );
