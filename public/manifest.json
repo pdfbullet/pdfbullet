@@ -1,12 +1,17 @@
 {
   "name": "PDFBullet: PDF & Image Tools",
   "short_name": "PDFBullet",
-  "description": "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more.",
-  "start_url": "/",
+  "description": "The only PDF & Image toolkit you'll ever need. Merge, split, compress, convert, edit PDFs and more — 100% free.",
+  "start_url": "/?source=pwa",
+  "id": "com.pdfbullet.app",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "background_color": "#B90B06",
   "theme_color": "#B90B06",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
   "categories": [
     "productivity",
     "utilities",
@@ -14,8 +19,28 @@
   ],
   "icons": [
     {
-      "src": "/favicon.png",
-      "sizes": "192x192",
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
       "type": "image/png"
     },
     {
@@ -24,20 +49,26 @@
       "type": "image/png"
     },
     {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/maskable-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "screenshots": [
@@ -46,7 +77,7 @@
       "sizes": "1280x800",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "PDFBullet Homepage with all tools"
+      "label": "PDFBullet Homepage with all PDF & Image tools"
     },
     {
       "src": "/mobile-view.png",
@@ -54,6 +85,53 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Mobile view showing PDF tools"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Merge PDF",
+      "short_name": "Merge",
+      "url": "/merge-pdf",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Compress PDF",
+      "short_name": "Compress",
+      "url": "/compress-pdf",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "PDF to Word",
+      "short_name": "PDF→Word",
+      "url": "/pdf-to-word",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Remove Background",
+      "short_name": "BG Remove",
+      "url": "/remove-background",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "share_target": {
+    "action": "/merge-pdf",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "file",
+          "accept": ["application/pdf", "image/*"]
+        }
+      ]
+    }
+  },
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.pdfbullet.app",
+      "id": "com.pdfbullet.app"
     }
   ]
 }
