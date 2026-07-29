@@ -25,18 +25,27 @@ interface FlipbookDB extends DBSchema {
   };
 }
 
-const dbPromise = openDB<FlipbookDB>('flipbook-db', 1, {
-  upgrade(db) {
-    const store = db.createObjectStore('flipbooks', {
-      keyPath: 'id',
+let dbPromise: any = null;
+
+const getDB = () => {
+  if (typeof window === 'undefined') return null;
+  if (!dbPromise) {
+    dbPromise = openDB<FlipbookDB>('flipbook-db', 1, {
+      upgrade(db) {
+        const store = db.createObjectStore('flipbooks', {
+          keyPath: 'id',
+        });
+        store.createIndex('by-owner', 'ownerId');
+        store.createIndex('by-public', 'public');
+      },
     });
-    store.createIndex('by-owner', 'ownerId');
-    store.createIndex('by-public', 'public');
-  },
-});
+  }
+  return dbPromise;
+};
 
 export const addFlipbook = async (flipbook: Omit<Flipbook, 'id' | 'views' | 'likes' | 'likedBy'>): Promise<number> => {
-    const localDb = await dbPromise;
+    const localDb = await getDB();
+    if (!localDb) throw new Error("IndexedDB not available");
     const id = Date.now();
     const newFlipbook: Flipbook = {
         ...flipbook,
@@ -92,13 +101,15 @@ export const getFlipbook = async (id: number): Promise<Flipbook | undefined> => 
 
     // 2. Fallback to local IndexedDB
     try {
-        const localDb = await dbPromise;
-        const localBook = await localDb.get('flipbooks', id);
-        if (localBook) {
-            if (localBook.createdAt && !(localBook.createdAt instanceof Date)) {
-                localBook.createdAt = new Date(localBook.createdAt as any);
+        const localDb = await getDB();
+        if (localDb) {
+            const localBook = await localDb.get('flipbooks', id);
+            if (localBook) {
+                if (localBook.createdAt && !(localBook.createdAt instanceof Date)) {
+                    localBook.createdAt = new Date(localBook.createdAt as any);
+                }
+                return localBook;
             }
-            return localBook;
         }
     } catch (error) {
         console.warn("Could not access IndexedDB.", error);
@@ -124,8 +135,9 @@ export const getFlipbook = async (id: number): Promise<Flipbook | undefined> => 
 };
 
 export const getFlipbooksForUser = async (userId: string): Promise<Flipbook[]> => {
-    const db = await dbPromise;
-    const allFlipbooks = await db.getAllFromIndex('flipbooks', 'by-owner', userId);
+    const localDb = await getDB();
+    if (!localDb) return [];
+    const allFlipbooks = await localDb.getAllFromIndex('flipbooks', 'by-owner', userId);
     return allFlipbooks.sort((a, b) => {
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -156,8 +168,9 @@ export const getAllPublicFlipbooks = async (currentUserId?: string): Promise<Fli
 
     } catch (error) {
         console.error("Failed to fetch public flipbooks from Firestore, falling back to local.", error);
-        const db = await dbPromise;
-        const allFlipbooks = await db.getAll('flipbooks');
+        const localDb = await getDB();
+        if (!localDb) return [];
+        const allFlipbooks = await localDb.getAll('flipbooks');
         return allFlipbooks
             .filter(fb => fb && (fb.public || fb.ownerId === currentUserId))
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -165,7 +178,8 @@ export const getAllPublicFlipbooks = async (currentUserId?: string): Promise<Fli
 };
 
 export const updateFlipbookStats = async (id: number, type: 'views') => {
-    const localDb = await dbPromise;
+    const localDb = await getDB();
+    if (!localDb) return;
     const flipbook = await localDb.get('flipbooks', id);
     let shouldUpdateFirestore = flipbook?.public;
 
@@ -194,7 +208,8 @@ export const hasLiked = async (id: number, userId: string): Promise<boolean> => 
 };
 
 export const toggleLike = async (id: number, userId: string) => {
-    const localDb = await dbPromise;
+    const localDb = await getDB();
+    if (!localDb) return;
     const flipbook = await localDb.get('flipbooks', id);
     let wasLiked = false;
 
@@ -229,7 +244,8 @@ export const toggleLike = async (id: number, userId: string) => {
 };
 
 export const deleteFlipbook = async (id: number): Promise<void> => {
-    const localDb = await dbPromise;
+    const localDb = await getDB();
+    if (!localDb) return;
     const flipbook = await localDb.get('flipbooks', id);
     if (flipbook && flipbook.public) {
         try {
@@ -242,7 +258,8 @@ export const deleteFlipbook = async (id: number): Promise<void> => {
 };
 
 export const updateFlipbook = async (flipbook: Flipbook): Promise<void> => {
-    const localDb = await dbPromise;
+    const localDb = await getDB();
+    if (!localDb) return;
     await localDb.put('flipbooks', flipbook);
 
     if (flipbook.public) {

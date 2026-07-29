@@ -17,10 +17,10 @@ export const metadata: Metadata = {
   title: 'Pdf Bullet | Free PDF & Image Tools for Document Management',
   description: "The only PDF toolkit you'll ever need. Pdf Bullet provides a complete suite of free, secure, and fast online tools. Merge, split, compress, convert, edit, and sign PDFs with ease. Client-side processing ensures your files are 100% private.",
   keywords: "pdf bullet, pdf tools, merge pdf, split pdf, compress pdf, convert pdf, pdf editor, image background remover, free pdf tools, online pdf tools, document management, secure pdf processing, pdf to word, word to pdf, edit pdf, sign pdf, ocr pdf, image tools, ai tools, invoice generator, cv generator, remove background",
-  manifest: '/manifest.json',
+  manifest: '/manifest.json?v=1.0.6',
   icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.svg?v=1.0.6',
+    apple: '/apple-touch-icon.png?v=1.0.6',
   },
   appleWebApp: {
     capable: true,
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${nunito.variable}`}>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1.0.6" />
         <CanonicalHeader />
       </head>
       <body className="bg-white dark:bg-black font-sans antialiased">
