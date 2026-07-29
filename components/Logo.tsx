@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext.tsx';
 
 interface LogoProps {
   className?: string;
-  variant?: 'light' | 'dark';
+  variant?: 'light' | 'dark' | 'white';
 }
 
 export const Logo: React.FC<LogoProps> = ({ className, variant }) => {
