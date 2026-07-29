@@ -5,7 +5,7 @@
   "start_url": "/?source=pwa",
   "id": "com.pdfbullet.tools",
   "display": "standalone",
-  "display_override": ["standalone", "browser"],
+  "display_override": ["window-controls-overlay", "tabbed", "standalone", "browser"],
   "background_color": "#B90B06",
   "theme_color": "#B90B06",
   "orientation": "portrait-primary",
@@ -126,5 +126,39 @@
       "url": "https://play.google.com/store/apps/details?id=com.pdfbullet.tools",
       "id": "com.pdfbullet.tools"
     }
-  ]
+  ],
+  "file_handlers": [
+    {
+      "action": "/merge-pdf",
+      "accept": {
+        "application/pdf": [".pdf"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+pdfbullet",
+      "url": "/?url=%s"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "PDFBullet Tools",
+      "short_name": "PDF Tools",
+      "description": "Quick access to PDF tools",
+      "tag": "pdf-tools",
+      "ms_ac_template": "/widgets/template.json",
+      "data": "/widgets/data.json",
+      "type": "application/json"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "/"
+  }
 }
