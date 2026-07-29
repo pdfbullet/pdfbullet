@@ -48,7 +48,8 @@ export async function POST(request: Request) {
           }
 
           const { spawn } = await import('child_process');
-          const pyProcess = spawn('python', [scriptPath, tempInputPath, tempOutputPath]);
+          const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+          const pyProcess = spawn(pythonCmd, [scriptPath, tempInputPath, tempOutputPath]);
 
           pyProcess.stdout.on('data', (data) => {
             controller.enqueue(data);

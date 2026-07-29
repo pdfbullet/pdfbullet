@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Pdf Bullet',
   },
   other: {
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${nunito.variable}`}>
       <head>
-        <link rel="icon" type="image/svg" href="/favicon.png" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <CanonicalHeader />
       </head>
       <body className="bg-white dark:bg-black font-sans antialiased">

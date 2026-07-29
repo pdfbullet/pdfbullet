@@ -306,12 +306,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
 
   return (
     <>
-    <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+    <header className="bg-brand-red sticky top-0 z-50">
       <div className="px-4 sm:px-6 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="lg:hidden">
-              <button onClick={() => setMobileMenuOpen(true)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors" aria-label="Open main menu" title="Open main menu">
+              <button onClick={() => setMobileMenuOpen(true)} className="text-white hover:text-white/70 transition-colors" aria-label="Open main menu" title="Open main menu">
                 <MenuIcon className="h-6 w-6" />
               </button>
             </div>
@@ -320,20 +320,20 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             </a>
             <nav className="hidden lg:flex items-center space-x-1">
               {desktopNavLinks.map(link => (
-                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={t(link.labelKey)} className="px-2 2xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs 2xl:text-sm font-semibold text-center">
+                  <Link key={link.to} to={link.to} onClick={closeAllMenus} title={t(link.labelKey)} className="px-2 2xl:px-3 py-2 text-white hover:text-white/70 transition-colors rounded-md text-xs 2xl:text-sm font-semibold text-center">
                       {t(link.labelKey)}
                   </Link>
               ))}
-              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-2 2xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs 2xl:text-sm font-semibold text-center">
+              <Link to="/developer" onClick={closeAllMenus} title="Developer API" className="px-2 2xl:px-3 py-2 text-white hover:text-white/70 transition-colors rounded-md text-xs 2xl:text-sm font-semibold text-center">
                   {t('header.developer')}
               </Link>
               {/* Convert PDF Dropdown */}
               <div className="relative" onMouseEnter={() => handleMenuEnter(setConvertMenuOpen, convertMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setConvertMenuOpen, convertMenuTimeoutRef)}>
-                <button title="Convert PDF Tools" className="flex items-center px-2 2xl:px-3 py-2 text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors rounded-md text-xs 2xl:text-sm font-semibold">
+                <button title="Convert PDF Tools" className="flex items-center px-2 2xl:px-3 py-2 text-white hover:text-white/70 transition-colors rounded-md text-xs 2xl:text-sm font-semibold">
                   <span>{t('header.convert_pdf')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isConvertMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-6 z-20 transition-all duration-200 ease-out origin-top ${isConvertMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-0 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-b-lg shadow-xl p-6 z-20 transition-all duration-200 ease-out origin-top ${isConvertMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                     <div className="grid grid-cols-2 gap-x-8">
                       <div>
                         <h4 className="px-2 pb-2 text-sm font-bold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase">Convert to PDF</h4>
@@ -362,11 +362,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </div>
               {/* All PDF Tools Dropdown */}
               <div onMouseEnter={() => handleMenuEnter(setAllToolsMenuOpen, allToolsMenuTimeoutRef)} onMouseLeave={() => handleMenuLeave(setAllToolsMenuOpen, allToolsMenuTimeoutRef)}>
-                 <button title="All PDF Tools" className="flex items-center px-2 2xl:px-3 py-2 text-red-600 dark:text-red-400 transition-colors rounded-md text-xs 2xl:text-sm font-semibold">
+                 <button title="All PDF Tools" className="flex items-center px-2 2xl:px-3 py-2 text-white hover:text-white/70 transition-colors rounded-md text-xs 2xl:text-sm font-semibold">
                   <span>{t('header.all_pdf_tools')}</span>
                   <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform duration-200 ${isAllToolsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max max-w-[calc(100vw-2rem)] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 transition-all duration-200 ease-out origin-top ${isAllToolsMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'} overflow-x-auto no-scrollbar`}>
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-0 w-max max-w-[calc(100vw-2rem)] bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-b-lg shadow-xl z-50 transition-all duration-200 ease-out origin-top ${isAllToolsMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'} overflow-x-auto no-scrollbar`}>
                     <div className="p-6 grid grid-cols-6 gap-x-4">
                       {allToolsMenuStructure.map((category) => (
                         <div key={category.title} className="pr-4 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
@@ -392,12 +392,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Search Icon */}
-            <button onClick={onOpenSearchModal} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Search" title="Search">
+            <button onClick={onOpenSearchModal} className="text-white hover:text-white/70 transition-colors p-2 rounded-full" aria-label="Search" title="Search">
               <SearchIcon className="h-6 w-6" />
             </button>
             
             {/* QR Code Icon */}
-            <button onClick={onOpenQrCodeModal} className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
+            <button onClick={onOpenQrCodeModal} className="hidden md:block text-white hover:text-white/70 transition-colors p-2 rounded-full" aria-label="Share page via QR code" title="Share page via QR code">
                 <QrCodeIcon className="h-6 w-6" />
             </button>
             
@@ -435,7 +435,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                   {user.profileImage ? (
                     <img src={user.profileImage} alt="Profile" className="h-full w-full object-cover" />
                   ) : (
-                    <UserCircleIcon className="h-full w-full text-gray-500 dark:text-gray-400" />
+                    <UserCircleIcon className="h-full w-full text-white" />
                   )}
                 </button>
                 {isProfileMenuOpen && (
@@ -486,11 +486,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
             ) : (
               <>
                 <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
-                  <Link to="/login" title={t('header.login')} className="text-gray-800 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors font-semibold px-2 text-sm">{t('header.login')}</Link>
-                  <Link to="/signup" title={t('header.signup')} className="bg-brand-red hover:bg-brand-red-dark text-white font-bold py-1.5 px-3 text-sm rounded-md transition-colors">{t('header.signup')}</Link>
+                  <Link to="/login" title={t('header.login')} className="text-white hover:text-white/70 transition-colors font-semibold px-2 text-sm">{t('header.login')}</Link>
+                  <Link to="/signup" title={t('header.signup')} className="border border-white text-white hover:bg-white hover:text-brand-red font-bold py-1.5 px-3 text-sm rounded-md transition-colors">{t('header.signup')}</Link>
                 </div>
                 <div className="sm:hidden">
-                  <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-brand-red" aria-label="Login or sign up" title="Login or sign up">
+                  <Link to="/login" className="text-white hover:text-white/70" aria-label="Login or sign up" title="Login or sign up">
                     <UserIcon className="h-7 w-7" />
                   </Link>
                 </div>
@@ -502,7 +502,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
                 className="relative" 
                 ref={gridMenuRef}
             >
-              <button onClick={() => setGridMenuOpen(!isGridMenuOpen)} className="text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
+              <button onClick={() => setGridMenuOpen(!isGridMenuOpen)} className="text-white hover:text-white/70 transition-colors p-2 rounded-full" aria-label="Open all tools and options" title="Open all tools and options">
                 <GridIcon className="h-7 w-7 lg:h-8 lg:w-8" />
               </button>
                {isGridMenuOpen && (
