@@ -145,10 +145,10 @@
   ],
   "scope_extensions": [
     {
-      "origin": "https://pdfbullet.com"
+      "origin": "pdfbullet.com"
     },
     {
-      "origin": "https://www.pdfbullet.com"
+      "origin": "www.pdfbullet.com"
     }
   ],
   "prefer_related_applications": false,
