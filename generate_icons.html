@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PNG Icons</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
+        .btn { padding: 15px 30px; font-size: 18px; margin: 10px; cursor: pointer; background: #FF4B2B; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .btn:hover { background: #FF416C; }
+        canvas { display: none; }
+        .success { color: green; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>High-Quality PNG Icon Generator</h1>
+    <p>Click the buttons below to generate and download perfect, high-quality PNGs directly from your SVG logo.</p>
+    <p>After downloading, place them in your <b>public</b> and <b>public/icons</b> folders!</p>
+    
+    <button class="btn" onclick="generateAndDownload(180, 'apple-touch-icon.png')">Download Apple Touch Icon (180x180)</button>
+    <button class="btn" onclick="generateAndDownload(192, 'icon-192x192.png')">Download Android Icon (192x192)</button>
+    <button class="btn" onclick="generateAndDownload(512, 'icon-512x512.png')">Download Android Icon (512x512)</button>
+    
+    <div id="msg" class="success"></div>
+
+    <script>
+        const svgData = `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF416C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF4B2B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+  <path d="M 70 50 L 110 50 L 140 80 L 140 150 L 70 150 Z" fill="#ffffff" />
+  <path d="M 110 50 L 110 80 L 140 80 Z" fill="#f0f0f0" />
+  <path d="M 40 110 L 90 110 L 100 100 L 90 90 L 40 90 Z" fill="url(#grad1)" />
+  <text x="105" y="135" font-family="Arial, sans-serif" font-weight="bold" font-size="24" fill="#FF4B2B" text-anchor="middle">PDF</text>
+</svg>`;
+
+        function generateAndDownload(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0, size, size);
+                URL.revokeObjectURL(url);
+                
+                const pngUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = pngUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                document.getElementById('msg').innerText = "Downloaded " + filename + " successfully!";
+            };
+            img.src = url;
+        }
+    </script>
+</body>
+</html>

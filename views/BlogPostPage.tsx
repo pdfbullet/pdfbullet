@@ -1,12 +1,23 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams as useNextParams } from 'next/navigation';
 import { useDynamicBlogPost } from '../hooks/useDynamicContent.ts';
 import SocialShareButtons from '../components/SocialShareButtons.tsx';
 import { Logo } from '../components/Logo.tsx';
 
 const BlogPostPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const routerParams = useParams<{ slug: string }>();
+  const nextParams = useNextParams();
+  
+  // Extract slug from React Router, Next Router, or window pathname
+  let slug = routerParams?.slug || (nextParams?.slug as string);
+  if (!slug && typeof window !== 'undefined') {
+    const parts = window.location.pathname.split('/blog/');
+    if (parts.length > 1) {
+      slug = decodeURIComponent(parts[1].split('/')[0].split('?')[0]);
+    }
+  }
+
   const navigate = useNavigate();
   const { post, loading } = useDynamicBlogPost(slug);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -50,16 +61,15 @@ const BlogPostPage: React.FC = () => {
       document.head.appendChild(script);
 
       return () => {
-        // Cleanup on unmount
         const scriptToRemove = document.getElementById(scriptId);
         if(scriptToRemove) scriptToRemove.remove();
         document.title = 'PDFBullet - The PDF toolkit for your every need';
       };
-    } else {
-        // If post not found, navigate away
+    } else if (!loading) {
+        // Only navigate away if loading completed and post is truly not found
         navigate('/blog');
     }
-  }, [post, navigate]);
+  }, [post, loading, navigate]);
   
   useEffect(() => {
       // Reset expanded state when slug changes

@@ -120,8 +120,7 @@ const PwaToolsPage: React.FC = () => {
     const CurrentCategoryIcon = currentCategory?.icon || GridIcon;
 
     return (
-        <div className="p-4 sm:p-6">
-            <h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 mb-6">All Tools</h1>
+        <div className="p-4 sm:p-6 overscroll-none">
             
             {files && (
                 <div className="my-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
@@ -136,7 +135,8 @@ const PwaToolsPage: React.FC = () => {
                 </div>
             )}
 
-            <div className="pb-4 sticky top-[60px] bg-creamy/80 dark:bg-soft-dark/80 backdrop-blur-sm z-20 -mx-4 px-4">
+            <div className="pt-4 pb-4 sticky top-[60px] bg-creamy/90 dark:bg-soft-dark/90 backdrop-blur-md z-20 -mx-4 px-4 shadow-sm border-b border-gray-200/50 dark:border-gray-800/50">
+                <h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 mb-4">All Tools</h1>
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setIsDropdownOpen(prev => !prev)}

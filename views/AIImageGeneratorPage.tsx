@@ -260,33 +260,35 @@ In your expansion, make sure to:
       </div>
 
       {/* Main layout */}
-      <div className="flex flex-1 w-full gap-0">
+      <div className="flex flex-col lg:flex-row flex-1 w-full max-w-full overflow-hidden">
 
         {/* Left panel — controls */}
-        <div className="w-full max-w-xs xl:max-w-sm flex-shrink-0 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 p-5 flex flex-col gap-4 overflow-y-auto">
+        <div className="w-full lg:w-80 xl:w-96 flex-shrink-0 bg-white dark:bg-zinc-900 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-zinc-800 p-4 sm:p-5 flex flex-col gap-4 overflow-y-auto">
 
           {/* Prompt */}
           <div>
-            <label htmlFor="img-prompt" className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5">
-              ✏️ Prompt
+            <label htmlFor="img-prompt" className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              Prompt
             </label>
             <textarea
               id="img-prompt"
-              rows={5}
+              rows={4}
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) handleGenerate(); }}
               className="w-full px-3 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-gray-800 dark:text-gray-100 text-sm resize-none transition placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="A majestic dragon flying over a castle at sunset..."
             />
-            <p className="text-xs text-gray-400 mt-1">Ctrl+Enter to generate</p>
+            <p className="text-[11px] text-gray-400 mt-1">Press Ctrl+Enter to generate</p>
           </div>
 
           {/* Auto-Enhance Toggle */}
           <div className="flex items-center justify-between bg-pink-50 dark:bg-pink-950/20 p-2.5 rounded-lg border border-pink-100 dark:border-pink-900/30">
             <div className="flex flex-col pr-2">
-              <span className="text-xs font-bold text-pink-700 dark:text-pink-400 flex items-center gap-1">
-                ✨ Auto-Enhance with Gemini
+              <span className="text-xs font-bold text-pink-700 dark:text-pink-400 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                Auto-Enhance with Gemini
               </span>
               <span className="text-[10px] text-gray-500 dark:text-gray-400">
                 Corrects flag details, anatomy & style automatically
@@ -305,30 +307,37 @@ In your expansion, make sure to:
 
           {/* Generation Engine */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5">
-              🤖 Generation Engine
+            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              Generation Engine
             </label>
             <div className="flex flex-col gap-1.5">
               <button
                 onClick={() => setEngine('imagen')}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all text-left flex items-center justify-between flex-wrap gap-1 ${
                   engine === 'imagen'
                     ? 'bg-pink-500 text-white border-pink-500 shadow'
                     : 'bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:border-pink-400 hover:text-pink-500'
                 }`}
               >
-                <span>✨ Google Imagen 3 (High Quality)</span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                  Google Imagen 3
+                </span>
                 <span className="text-[10px] opacity-80">(Recommended)</span>
               </button>
               <button
                 onClick={() => setEngine('pollinations')}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all text-left flex items-center justify-between flex-wrap gap-1 ${
                   engine === 'pollinations'
                     ? 'bg-pink-500 text-white border-pink-500 shadow'
                     : 'bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:border-pink-400 hover:text-pink-500'
                 }`}
               >
-                <span>⚡ Pollinations / Flux (Fast, Free)</span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  Pollinations / Flux
+                </span>
                 <span className="text-[10px] opacity-80">Unlimited</span>
               </button>
             </div>
@@ -336,13 +345,16 @@ In your expansion, make sure to:
 
           {/* Style */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5">🎨 Style</label>
+            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+              Style
+            </label>
             <div className="grid grid-cols-2 gap-1.5">
               {STYLES.map(style => (
                 <button
                   key={style.label}
                   onClick={() => setSelectedStyle(style)}
-                  className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all text-center truncate ${
                     selectedStyle.label === style.label
                       ? 'bg-pink-500 text-white border-pink-500 shadow'
                       : 'bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:border-pink-400 hover:text-pink-500'
@@ -356,13 +368,16 @@ In your expansion, make sure to:
 
           {/* Size */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5">📐 Size</label>
+            <label className="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+              Size Aspect Ratio
+            </label>
             <div className="grid grid-cols-2 gap-1.5">
               {SIZES.map(size => (
                 <button
                   key={size.label}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all text-center ${
                     selectedSize.label === size.label
                       ? 'bg-pink-500 text-white border-pink-500 shadow'
                       : 'bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:border-pink-400 hover:text-pink-500'
@@ -398,24 +413,26 @@ In your expansion, make sure to:
         </div>
 
         {/* Right panel — full image canvas */}
-        <div className="flex-1 flex flex-col bg-zinc-100 dark:bg-zinc-950 relative">
+        <div className="flex-1 flex flex-col bg-zinc-100 dark:bg-zinc-950 relative min-h-[450px]">
 
           {/* Action bar */}
           {imageUrl && !isLoading && (
-            <div className="absolute top-16 right-4 z-10 flex gap-2">
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
               <button
                 id="regenerate-image-btn"
                 onClick={handleRegenerate}
                 className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/90 dark:bg-zinc-800/90 backdrop-blur border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-200 hover:border-pink-400 hover:text-pink-500 transition shadow"
               >
-                🔄 Regenerate
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                Regenerate
               </button>
               <button
                 id="download-image-btn"
                 onClick={handleDownload}
                 className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-pink-500 hover:bg-pink-600 text-white transition shadow"
               >
-                ⬇️ Download
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download
               </button>
             </div>
           )}
@@ -424,14 +441,23 @@ In your expansion, make sure to:
           <div className="flex-1 flex items-center justify-center p-6">
             {!imageUrl && !isLoading && (
               <div className="text-center text-gray-400 dark:text-gray-600 select-none">
-                <div className="text-7xl mb-4">🖼️</div>
+                <div className="flex justify-center mb-4">
+                  <svg className="w-16 h-16 text-gray-300 dark:text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
                 <p className="text-lg font-semibold">Your image will appear here</p>
                 <p className="text-sm mt-1">Enter a prompt and click Generate Image</p>
               </div>
             )}
             {isLoading && (
               <div className="text-center text-gray-500 dark:text-gray-400 select-none">
-                <div className="text-7xl mb-4 animate-pulse">✨</div>
+                <div className="flex justify-center mb-4">
+                  <svg className="w-12 h-12 text-pink-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                </div>
                 <p className="text-lg font-semibold">
                   {isEnhancing ? 'Gemini is enhancing your prompt...' : 'Creating your image...'}
                 </p>
@@ -464,7 +490,10 @@ In your expansion, make sure to:
             <div className="w-full max-w-2xl mx-auto px-6 text-center pb-4">
               {enhancedPromptText && (
                 <div className="mb-3 p-3 bg-white/70 dark:bg-zinc-900/70 backdrop-blur rounded-xl border border-gray-200/50 dark:border-zinc-800/50 text-left shadow-sm">
-                  <span className="text-[10px] font-bold text-pink-500 uppercase tracking-wider block mb-1">✨ Gemini Enhanced Prompt</span>
+                  <span className="text-[10px] font-bold text-pink-500 uppercase tracking-wider flex items-center gap-1 mb-1">
+                    <svg className="w-3 h-3 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                    Gemini Enhanced Prompt
+                  </span>
                   <p className="text-xs text-gray-600 dark:text-gray-300 italic">"{enhancedPromptText}"</p>
                 </div>
               )}
@@ -475,6 +504,52 @@ In your expansion, make sure to:
           )}
         </div>
       </div>
+
+      {/* FAQ Section */}
+      <section className="bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 py-12 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100 text-center mb-8">
+            Frequently Asked Questions (FAQ)
+          </h2>
+          <div className="space-y-4">
+            <details className="group border border-gray-200 dark:border-zinc-800 rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden bg-gray-50 dark:bg-zinc-800/50">
+              <summary className="flex items-center justify-between cursor-pointer font-semibold text-gray-800 dark:text-gray-100">
+                <span>Is the AI Image Generator 100% free to use?</span>
+                <span className="transition group-open:-rotate-180">
+                  <svg className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </span>
+              </summary>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                Yes! PDFBullet's AI Image Generator allows you to create high-resolution images from text prompts completely free with zero watermark restrictions.
+              </p>
+            </details>
+
+            <details className="group border border-gray-200 dark:border-zinc-800 rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden bg-gray-50 dark:bg-zinc-800/50">
+              <summary className="flex items-center justify-between cursor-pointer font-semibold text-gray-800 dark:text-gray-100">
+                <span>What is Gemini Auto-Enhance?</span>
+                <span className="transition group-open:-rotate-180">
+                  <svg className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </span>
+              </summary>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                Gemini Auto-Enhance uses Google's latest AI model to automatically rewrite your simple prompts into detailed visual instructions, ensuring accurate text rendering, realistic lighting, and proper anatomy.
+              </p>
+            </details>
+
+            <details className="group border border-gray-200 dark:border-zinc-800 rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden bg-gray-50 dark:bg-zinc-800/50">
+              <summary className="flex items-center justify-between cursor-pointer font-semibold text-gray-800 dark:text-gray-100">
+                <span>Can I use generated images for commercial purposes?</span>
+                <span className="transition group-open:-rotate-180">
+                  <svg className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </span>
+              </summary>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                Yes, all images generated using PDFBullet are yours to use for personal, educational, or commercial projects.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

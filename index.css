@@ -7,17 +7,14 @@
      -webkit-text-size-adjust: 100%;
      text-size-adjust: 100%;
    }
- }
-
- /* Custom base styles */
- body {
-   font-family: 'Nunito', 'sans-serif';
-   isolation: isolate;
-   /* Create a new stacking context */
+   body {
+     font-family: 'Nunito', 'sans-serif';
+     isolation: isolate;
+   }
  }
 
  .logo-img-dark {
-   filter: invert(1) hue-rotate(180deg);
+   filter: none;
  }
 
  .dashboard-bg {
@@ -356,18 +353,16 @@
    position: absolute;
    top: 50%;
    left: 50%;
-   width: 150%;
-   height: 150%;
-   max-width: 1400px;
-   max-height: 1400px;
+   width: 100vw;
+   height: 180%;
    transform: translate(-50%, -50%);
-   background: radial-gradient(ellipse at center, rgba(239, 219, 232, 0.4) 0%, rgba(255, 255, 255, 0) 60%);
+   background: radial-gradient(ellipse at center, rgba(255, 65, 108, 0.15) 0%, rgba(255, 75, 43, 0.05) 50%, transparent 80%);
    z-index: 0;
    pointer-events: none;
  }
 
  .dark .hero-background::before {
-   background: radial-gradient(ellipse at center, rgba(185, 11, 6, 0.2) 0%, rgba(18, 18, 18, 0) 60%);
+   background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.2) 0%, rgba(185, 11, 6, 0.06) 50%, transparent 80%);
  }
 
  .animated-border {

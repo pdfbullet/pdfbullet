@@ -83,13 +83,15 @@ const PwaSettingsPage: React.FC = () => {
     const solutions = [
       { path: '/education', nameKey: 'footer.solution_links.education', icon: StudentIcon },
       { path: '/business', nameKey: 'footer.solution_links.business', icon: BriefcaseIcon },
+      { path: '/developer', nameKey: 'header.developer', icon: CodeIcon },
+      { path: '/docs', nameKey: 'API Documentation', icon: BookOpenIcon },
       { path: '/how-to-use', nameKey: 'footer.solution_links.how_to', icon: BookOpenIcon },
     ];
 
     const company = [
       { path: '/about', nameKey: 'footer.company_links.about', icon: UserIcon },
       { path: '/blog', nameKey: 'footer.company_links.blog', icon: NewspaperIcon },
-      { path: '/developer', nameKey: 'header.developer', icon: CodeIcon },
+      { path: '/docs', nameKey: 'API Reference & Specs', icon: CodeIcon },
     ];
     
     const legal = [

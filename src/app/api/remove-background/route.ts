@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { randomUUID } from 'crypto';
+import crypto, { randomUUID } from 'crypto';
 import os from 'os';
 
 const execFileAsync = promisify(execFile);
@@ -13,84 +13,113 @@ export const runtime = 'nodejs';
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
-  const tmpDir = join(os.tmpdir(), 'pdfbullet-bg-remove');
-  let tempInputPath = '';
-  let tempOutputPath = '';
+  return new Response(
+    new ReadableStream({
+      async start(controller) {
+        let tempInputPath = '';
+        let tempOutputPath = '';
+        const tmpDir = join(os.tmpdir(), 'pdfbullet-bg-remove');
 
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+        try {
+          const formData = await request.formData();
+          const file = formData.get('file') as File;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
+          if (!file) {
+            controller.enqueue(new TextEncoder().encode(JSON.stringify({ error: 'No file provided' }) + '\n'));
+            controller.close();
+            return;
+          }
 
-    // Ensure temp directory exists
-    if (!existsSync(tmpDir)) {
-      await mkdir(tmpDir, { recursive: true });
-    }
+          if (!existsSync(tmpDir)) {
+            await mkdir(tmpDir, { recursive: true });
+          }
 
-    const sessionId = randomUUID();
-    // Keep the input file extension
-    const ext = file.name.split('.').pop() || 'png';
-    tempInputPath = join(tmpDir, `${sessionId}_input.${ext}`);
-    tempOutputPath = join(tmpDir, `${sessionId}_output.png`);
+          const sessionId = randomUUID();
+          const ext = file.name.split('.').pop() || 'png';
+          tempInputPath = join(tmpDir, `${sessionId}_input.${ext}`);
+          tempOutputPath = join(tmpDir, `${sessionId}_output.png`);
 
-    // Write input file to temp folder
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(tempInputPath, buffer);
+          const buffer = Buffer.from(await file.arrayBuffer());
+          await writeFile(tempInputPath, buffer);
 
-    const scriptPath = join(process.cwd(), 'src', 'app', 'api', 'remove-background', 'remove_bg.py');
+          const scriptPath = join(process.cwd(), 'src', 'app', 'api', 'remove-background', 'remove_bg.py');
+          if (!existsSync(scriptPath)) {
+            throw new Error(`Python script not found at path: ${scriptPath}`);
+          }
 
-    if (!existsSync(scriptPath)) {
-      throw new Error(`Python script not found at path: ${scriptPath}`);
-    }
+          const { spawn } = await import('child_process');
+          const pyProcess = spawn('python', [scriptPath, tempInputPath, tempOutputPath]);
 
-    // Execute Python script to remove background
-    try {
-      // In Windows we might have 'python' or 'py' or 'python3'
-      // Since 'python' verified successfully, we will call 'python'
-      await execFileAsync('python', [
-        scriptPath,
-        tempInputPath,
-        tempOutputPath
-      ]);
-    } catch (pyErr: any) {
-      console.error('Python background removal error:', pyErr);
-      const stderr = pyErr.stderr || pyErr.stdout || '';
-      return NextResponse.json({ error: `Background removal failed: ${stderr || pyErr.message}` }, { status: 500 });
-    }
+          pyProcess.stdout.on('data', (data) => {
+            controller.enqueue(data);
+          });
 
-    if (!existsSync(tempOutputPath)) {
-      throw new Error('Python script completed but output file was not created.');
-    }
+          pyProcess.stderr.on('data', (data) => {
+            console.error(`Python stderr: ${data}`);
+          });
 
-    // Read the decrypted output file
-    const outputBytes = await readFile(tempOutputPath);
+          pyProcess.on('close', async (code) => {
+            try {
+              if (code !== 0) {
+                controller.enqueue(new TextEncoder().encode(JSON.stringify({ error: `Python script exited with code ${code}` }) + '\n'));
+              } else if (!existsSync(tempOutputPath)) {
+                controller.enqueue(new TextEncoder().encode(JSON.stringify({ error: 'Output file was not created.' }) + '\n'));
+              } else {
+                const outputBytes = await readFile(tempOutputPath);
+                
+                // Upload directly to Cloudinary instead of using Base64
+                const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'uofmqpax';
+                const API_KEY = process.env.CLOUDINARY_API_KEY || '811578795199997';
+                const API_SECRET = process.env.CLOUDINARY_API_SECRET || 'ZfvM_Ha18PBe_xUNd_Dk14rg2cs';
+                
+                const timestamp = Math.round(Date.now() / 1000).toString();
+                const folder = 'pdfbullet_bg_removed';
+                
+                const signatureString = `folder=${folder}&timestamp=${timestamp}${API_SECRET}`;
+                const signature = crypto.createHash('sha1').update(signatureString).digest('hex');
 
-    // Return the transparent PNG file bytes directly
-    return new Response(new Uint8Array(outputBytes), {
-      status: 200,
+                const uploadFormData = new FormData();
+                const blob = new Blob([outputBytes], { type: 'image/png' });
+                uploadFormData.append('file', blob, 'bg-removed.png');
+                uploadFormData.append('api_key', API_KEY);
+                uploadFormData.append('timestamp', timestamp);
+                uploadFormData.append('signature', signature);
+                uploadFormData.append('folder', folder);
+
+                const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+                
+                const cloudinaryRes = await fetch(cloudinaryUrl, {
+                    method: 'POST',
+                    body: uploadFormData,
+                });
+
+                if (!cloudinaryRes.ok) {
+                    const errTxt = await cloudinaryRes.text();
+                    throw new Error('Cloudinary upload failed: ' + errTxt);
+                }
+
+                const cloudinaryData = await cloudinaryRes.json();
+                
+                controller.enqueue(new TextEncoder().encode(JSON.stringify({ success: true, url: cloudinaryData.secure_url }) + '\n'));
+            } finally {
+              // Cleanup
+              if (tempInputPath && existsSync(tempInputPath)) await unlink(tempInputPath).catch(console.error);
+              if (tempOutputPath && existsSync(tempOutputPath)) await unlink(tempOutputPath).catch(console.error);
+              controller.close();
+            }
+          });
+        } catch (err: any) {
+          controller.enqueue(new TextEncoder().encode(JSON.stringify({ error: err.message }) + '\n'));
+          controller.close();
+        }
+      }
+    }),
+    {
       headers: {
-        'Content-Type': 'image/png',
-        'Content-Disposition': `attachment; filename="${file.name.substring(0, file.name.lastIndexOf('.'))}_no_bg.png"`
-      }
-    });
-
-  } catch (err: any) {
-    console.error('Remove background general error:', err);
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
-  } finally {
-    // Clean up temp files
-    try {
-      if (tempInputPath && existsSync(tempInputPath)) {
-        await unlink(tempInputPath);
-      }
-      if (tempOutputPath && existsSync(tempOutputPath)) {
-        await unlink(tempOutputPath);
-      }
-    } catch (cleanupErr) {
-      console.error('Error during cleanup:', cleanupErr);
+        'Content-Type': 'application/x-ndjson',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     }
-  }
+  );
 }

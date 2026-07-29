@@ -122,8 +122,8 @@ export const TOOLS: Tool[] = [
   // Convert To
   {
     id: 'jpg-to-pdf',
-    title: 'jpg-to-pdf',
-    description: 'jpg-to-pdf.description',
+    title: 'tool.jpg-to-pdf.title',
+    description: 'tool.jpg-to-pdf.description',
     Icon: JpgToPdfIcon,
     color: 'bg-yellow-400',
     hoverColor: 'hover:bg-yellow-500',
@@ -137,8 +137,8 @@ export const TOOLS: Tool[] = [
   },
   {
     id: 'psd-to-pdf',
-    title: 'psd-to-pdf',
-    description: 'psd-to-pdf.description',
+    title: 'tool.psd-to-pdf.title',
+    description: 'tool.psd-to-pdf.description',
     Icon: PsdToPdfIcon,
     color: 'bg-sky-500',
     hoverColor: 'hover:bg-sky-600',
@@ -152,8 +152,8 @@ export const TOOLS: Tool[] = [
   },
   {
     id: 'word-to-pdf',
-    title: 'word-to-pdf',
-    description: 'word-to-pdf.description',
+    title: 'tool.word-to-pdf.title',
+    description: 'tool.word-to-pdf.description',
     Icon: WordIcon,
     color: 'bg-blue-500',
     hoverColor: 'hover:bg-blue-600',

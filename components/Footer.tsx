@@ -47,12 +47,15 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
   const solutions = [
       { path: '/education', nameKey: 'footer.solution_links.education' },
       { path: '/business', nameKey: 'footer.solution_links.business' },
+      { path: '/developer', nameKey: 'Developer REST API' },
+      { path: '/docs', nameKey: 'API Documentation' },
       { path: '/how-to-use', nameKey: 'footer.solution_links.how_to' },
   ];
 
   const company = [
       { path: '/about', nameKey: 'footer.company_links.about' },
       { path: '/blog', nameKey: 'footer.company_links.blog' },
+      { path: '/docs', nameKey: 'Developer Docs & Specs' },
       { path: '/press', nameKey: 'footer.company_links.press' },
       { path: '/contact', nameKey: 'footer.company_links.contact' },
       { path: '/ceo', nameKey: 'footer.company_links.ceo_message' },
@@ -97,7 +100,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenCalendarModal }) => {
           {/* Logo & Socials */}
           <div className="col-span-2 lg:col-span-2">
             <a href="/" title="Pdf Bullet Home">
-              <Logo className="h-10 w-auto mb-3" variant="dark" />
+              <Logo className="h-14 w-auto mb-3" variant="dark" />
             </a>
             <p className="text-gray-400 text-sm max-w-xs">
               {t('footer.slogan')}

@@ -23,6 +23,7 @@ import { useSignedDocuments } from '../hooks/useSignedDocuments.ts';
 import { useLastTasks } from '../hooks/useLastTasks.ts';
 import { LayoutContext } from '../App.tsx';
 import { GoogleGenAI, Type } from '@google/genai';
+import { ToolSeoFaqSection } from '../components/ToolSeoFaqSection.tsx';
 
 
 // Dynamically imported libraries to improve performance
@@ -1235,7 +1236,55 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
                     const errJson = await res.json().catch(() => ({ error: 'Background removal failed.' }));
                     throw new Error(errJson.error || 'Background removal failed.');
                 }
-                const resultBlob = await res.blob();
+                
+                if (!res.body) throw new Error("No response body");
+                
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let finalBase64 = null;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        try {
+                            const data = JSON.parse(line);
+                            if (data.error) throw new Error(data.error);
+                            if (data.progress !== undefined) {
+                                // Update local state for progress overlay if we had one here
+                                // Since we don't have a local progress state for this UI yet, we can optionally add it or just let the loading state continue.
+                                // Let's add a local state for the overlay text!
+                                const progressText = document.getElementById('bg-remove-progress-text');
+                                if (progressText) {
+                                    progressText.innerText = `${data.progress}% - ${data.status}`;
+                                }
+                            }
+                            if (data.success && data.image) {
+                                finalBase64 = data.image;
+                            }
+                        } catch (e) {
+                            if (e instanceof Error && !e.message.includes("JSON")) {
+                                throw e;
+                            }
+                        }
+                    }
+                }
+
+                if (!finalBase64) throw new Error("Did not receive final image from server.");
+
+                const byteCharacters = atob(finalBase64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const resultBlob = new Blob([byteArray], { type: 'image/png' });
                 const resultSrc = URL.createObjectURL(resultBlob);
                 setProcessedSrc(resultSrc);
             } catch (e: any) {
@@ -1371,8 +1420,8 @@ const BackgroundRemovalUI: React.FC<{ tool: Tool }> = ({ tool }) => {
                                 {originalSrc && <img src={originalSrc} alt="Processing..." className="relative w-full h-full object-contain opacity-50" />}
                                 <div className="absolute inset-0 bg-black/40" />
                                 <SparkleEffect />
-                                <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg bg-black/10 backdrop-blur-sm">
-                                    Removing background...
+                                <div id="bg-remove-progress-text" className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg bg-black/10 backdrop-blur-sm text-center px-4">
+                                    0% - Preparing image...
                                 </div>
                             </>
                         ) : (
@@ -3122,8 +3171,45 @@ const ToolPage: React.FC = () => {
                         throw new Error(errJson.error || 'Background removal failed on the server.');
                     }
 
-                    setProgress({ percentage: 90, status: 'Preparing processed image...' });
-                    blob = await res.blob();
+                    if (!res.body) throw new Error("No response body");
+                    
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    let finalBase64 = null;
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+                        
+                        for (const line of lines) {
+                            if (!line.trim()) continue;
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.error) throw new Error(data.error);
+                                if (data.progress !== undefined) {
+                                    setProgress({ percentage: data.progress, status: data.status || 'Processing...' });
+                                }
+                                if (data.success && data.url) {
+                                    finalBase64 = data.url; // Storing URL in same variable name for now to avoid breaking scope
+                                }
+                            } catch (e) {
+                                // Ignore JSON parse errors for incomplete chunks just in case, though split('\n') should prevent it
+                                if (e instanceof Error && !e.message.includes("JSON")) {
+                                    throw e;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!finalBase64) throw new Error("Did not receive final image URL from server.");
+                    
+                    setProgress({ percentage: 95, status: 'Downloading processed image...' });
+                    const imgRes = await fetch(finalBase64);
+                    blob = await imgRes.blob();
                     break;
                 }
                 case 'jpg-to-pdf': {
@@ -4484,7 +4570,12 @@ const ToolPage: React.FC = () => {
                         <span>Back to All Tools</span>
                     </button>
                 </div>
-                {tool && renderContent()}
+                {tool && (
+                    <>
+                        {renderContent()}
+                        <ToolSeoFaqSection toolId={tool.id} toolTitle={t(tool.title)} />
+                    </>
+                )}
             </div>
             <WhoWillSignModal
                 isOpen={isWhoWillSignModalOpen}

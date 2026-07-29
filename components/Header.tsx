@@ -316,7 +316,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenProfileImageModal, onOpenSearchMo
               </button>
             </div>
             <a href="/" className="flex items-center text-gray-800 dark:text-gray-100" title="Pdf Bullet Home">
-              <Logo className="h-8 md:h-10 w-auto" />
+              <Logo className="h-11 md:h-14 w-auto" />
             </a>
             <nav className="hidden lg:flex items-center space-x-1">
               {desktopNavLinks.map(link => (

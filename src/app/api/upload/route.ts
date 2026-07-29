@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-const CLOUD_NAME = 'jtz141my';
-const API_KEY = '466892663265132';
-const API_SECRET = 'rj4H664LjfZTX3FVLt6GLqxF-N8';
+const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'uofmqpax';
+const API_KEY = process.env.CLOUDINARY_API_KEY || '811578795199997';
+const API_SECRET = process.env.CLOUDINARY_API_SECRET || 'ZfvM_Ha18PBe_xUNd_Dk14rg2cs';
 
 // Generates Cloudinary signature for secure uploads
 function generateSignature(params: Record<string, string>): string {

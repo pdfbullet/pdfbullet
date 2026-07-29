@@ -28,7 +28,7 @@ const AppInstallBanner: React.FC = () => {
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-800 text-white p-3 shadow-lg animate-fade-in-up">
             <div className="container mx-auto flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <img src="/favicon.png" alt="Pdf Bullet Logo" className="h-10 w-10 rounded-lg" />
+                    <img src="/favicon.svg" alt="Pdf Bullet Logo" className="h-10 w-10 rounded-lg" />
                     <div>
                         <p className="font-bold">Pdf Bullet</p>
                         <p className="text-sm text-gray-300">Get the official app on Google Play.</p>

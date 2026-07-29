@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   description: "The only PDF toolkit you'll ever need. Pdf Bullet provides a complete suite of free, secure, and fast online tools. Merge, split, compress, convert, edit, and sign PDFs with ease. Client-side processing ensures your files are 100% private.",
   keywords: "pdf bullet, pdf tools, merge pdf, split pdf, compress pdf, convert pdf, pdf editor, image background remover, free pdf tools, online pdf tools, document management, secure pdf processing, pdf to word, word to pdf, edit pdf, sign pdf, ocr pdf, image tools, ai tools, invoice generator, cv generator, remove background",
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

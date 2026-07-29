@@ -1,5 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { auth, firebase } from '../firebase/config.ts';
 
 export interface BusinessDetails {
   companyName: string;
@@ -141,16 +142,59 @@ const mockAuth = {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserRaw] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pdfbullet_user');
+        return saved ? JSON.parse(saved) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
+  const setUser = (newUser: User | null | ((prev: User | null) => User | null)) => {
+    setUserRaw(prev => {
+      const nextUser = typeof newUser === 'function' ? newUser(prev) : newUser;
+      if (typeof window !== 'undefined') {
+        if (nextUser) {
+          localStorage.setItem('pdfbullet_user', JSON.stringify(nextUser));
+        } else {
+          localStorage.removeItem('pdfbullet_user');
+        }
+      }
+      return nextUser;
+    });
+  };
+
   useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((fbUser) => {
+      if (fbUser) {
+        const appUser: User = {
+          uid: fbUser.uid,
+          email: fbUser.email || '',
+          username: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+          profileImage: fbUser.photoURL || undefined,
+          creationDate: new Date().toISOString(),
+          isToolsPremium: true,
+          isFlipbookPremium: true,
+          apiPlan: 'developer'
+        };
+        setUser(appUser);
+      }
+      setLoading(false);
+    });
+
     const checkSession = async () => {
       try {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
+          if (data.user) {
+            setUser(data.user);
+          }
         }
       } catch (e) {
         console.error("Session check failed:", e);
@@ -159,6 +203,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
     checkSession();
+
+    return () => unsubscribe();
   }, []);
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -195,7 +241,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signInWithCustomToken = async (token: string) => {
-    // Falls back to me session check
     const res = await fetch('/api/auth/me');
     if (res.ok) {
       const data = await res.json();
@@ -205,7 +250,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     sessionStorage.removeItem('isAdminAuthenticated');
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await auth.signOut();
+    } catch (e) {}
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
     setUser(null);
   };
 
@@ -278,17 +328,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const generateApiKey = async (): Promise<string> => {
-    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
-    const newApiKey = 'sk_live_' + btoa(String.fromCharCode(...randomBytes)).replace(/[^A-Za-z0-9]/g, '').substring(0, 40);
-    await updateUserProfile({ apiKey: newApiKey });
+    const randomBytes = crypto.getRandomValues(new Uint8Array(24));
+    const rawKey = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    const newApiKey = 'pdfbullet_live_sec_' + rawKey;
+    
+    if (user) {
+      try {
+        await updateUserProfile({ apiKey: newApiKey });
+      } catch (e) {
+        console.warn("Could not sync API key to user profile:", e);
+      }
+    } else if (typeof window !== 'undefined') {
+      localStorage.setItem('pdfbullet_guest_apikey', newApiKey);
+    }
     return newApiKey;
   };
 
   const getApiUsage = async (): Promise<{ count: number; limit: number; resetsIn: string }> => {
-    if (!user) throw new Error("You must be logged in.");
-    const plan = user.apiPlan || 'free';
-    const limits = { free: 100, developer: 1000, business: 10000 };
-    return { count: Math.floor(Math.random() * limits[plan]), limit: limits[plan], resetsIn: '23h 59m' };
+    const plan = user?.apiPlan || 'developer';
+    const limits = { free: 1000, developer: 50000, business: 500000 };
+    return { count: 0, limit: limits[plan] || 50000, resetsIn: '23h 59m' };
   };
 
   const updateTwoFactorStatus = async (enabled: boolean) => {
@@ -465,15 +524,92 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const loginOrSignupWithGoogle = async () => {
-    await signInWithEmail('admin@pdfbullet.com', 'password123');
+    setLoading(true);
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      const result = await auth.signInWithPopup(provider);
+      if (result && result.user) {
+        const firebaseUser = result.user;
+        const appUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Google User',
+          profileImage: firebaseUser.photoURL || undefined,
+          creationDate: new Date().toISOString(),
+          isToolsPremium: true,
+          isFlipbookPremium: true,
+          apiPlan: 'developer'
+        };
+        setUser(appUser);
+      }
+    } catch (error: any) {
+      console.error("Google Auth Error:", error);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        throw error;
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loginOrSignupWithYahoo = async () => {
-    await signInWithEmail('admin@pdfbullet.com', 'password123');
+    setLoading(true);
+    try {
+      const provider = new firebase.auth.OAuthProvider('yahoo.com');
+      const result = await auth.signInWithPopup(provider);
+      if (result && result.user) {
+        const firebaseUser = result.user;
+        const appUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Yahoo User',
+          profileImage: firebaseUser.photoURL || undefined,
+          creationDate: new Date().toISOString(),
+          isToolsPremium: true,
+          isFlipbookPremium: true,
+          apiPlan: 'developer'
+        };
+        setUser(appUser);
+      }
+    } catch (error: any) {
+      console.error("Yahoo Auth Error:", error);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        throw error;
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loginOrSignupWithGithub = async () => {
-    await signInWithEmail('admin@pdfbullet.com', 'password123');
+    setLoading(true);
+    try {
+      const provider = new firebase.auth.GithubAuthProvider();
+      const result = await auth.signInWithPopup(provider);
+      if (result && result.user) {
+        const firebaseUser = result.user;
+        const appUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'GitHub User',
+          profileImage: firebaseUser.photoURL || undefined,
+          creationDate: new Date().toISOString(),
+          isToolsPremium: true,
+          isFlipbookPremium: true,
+          apiPlan: 'developer'
+        };
+        setUser(appUser);
+      }
+    } catch (error: any) {
+      console.error("GitHub Auth Error:", error);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        throw error;
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value: AuthContextType = { user, loading, logout, updateProfileImage, updateUserProfile, getAllUsers, updateUserPlan, updateUserApiPlan, deleteUser, deleteCurrentUser, loginOrSignupWithGoogle, loginOrSignupWithYahoo, loginOrSignupWithGithub, signInWithEmail, signUpWithEmail, signInWithCustomToken, generateApiKey, getApiUsage, changePassword, updateTwoFactorStatus, updateBusinessDetails, submitProblemReport, getProblemReports, updateReportStatus, deleteProblemReport, sendTaskCompletionEmail, logTask, getTaskHistory, deleteTaskRecord, submitFeedback, getFeedbacks, deleteFeedback, auth: mockAuth, saveFaceDescriptor, loginWithFace, getSiteSettings, updateSiteSettings, purgeTaskHistory, resetAllUserTrials, getPageSeo, updatePageSeo };

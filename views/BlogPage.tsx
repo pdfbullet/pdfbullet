@@ -20,10 +20,10 @@ const BlogPage: React.FC = () => {
   const allTags = useMemo(() => {
     const tags = new Set<string>();
     blogPosts.forEach(post => {
-      post.tags.forEach(tag => tags.add(tag));
+      (post.tags || []).forEach(tag => tags.add(tag));
     });
     return Array.from(tags);
-  }, []);
+  }, [blogPosts]);
 
   const filteredPosts = useMemo(() => {
     return blogPosts.filter(post => {
@@ -31,15 +31,15 @@ const BlogPage: React.FC = () => {
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesTag = selectedTag === null || post.tags.includes(selectedTag);
+      const matchesTag = selectedTag === null || (post.tags && post.tags.includes(selectedTag));
 
       return matchesSearch && matchesTag;
     });
-  }, [searchTerm, selectedTag]);
+  }, [blogPosts, searchTerm, selectedTag]);
   
   const recentPosts = useMemo(() => {
     return blogPosts.slice(0, 5);
-  }, []);
+  }, [blogPosts]);
 
   return (
     <div className="py-16 md:py-24 overflow-x-hidden">
@@ -68,7 +68,7 @@ const BlogPage: React.FC = () => {
                         </Link>
                         <div className="p-6 flex flex-col flex-1 md:w-2/3">
                             <div className="flex items-center gap-2 mb-2">
-                                {post.tags.map(tag => (
+                                {(post.tags || []).map(tag => (
                                     <button 
                                         key={tag} 
                                         onClick={() => setSelectedTag(tag)}

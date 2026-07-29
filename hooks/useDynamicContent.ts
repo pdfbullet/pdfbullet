@@ -47,8 +47,12 @@ export function useDynamicBlogs() {
             })
             .then((data: DynamicBlogPost[]) => {
                 if (cancelled) return;
-                const published = data.filter(p => p.published !== false);
-                setPosts(mergeWithStatic(published));
+                if (Array.isArray(data) && data.length > 0) {
+                    const published = data.filter(p => p.published !== false);
+                    setPosts(mergeWithStatic(published.length > 0 ? published : (staticBlogPosts as any[])));
+                } else {
+                    setPosts(staticBlogPosts as any[]);
+                }
             })
             .catch(() => {
                 if (cancelled) return;
@@ -82,12 +86,18 @@ export function useDynamicBlogPost(slug: string | undefined) {
             .then((data: DynamicBlogPost) => {
                 if (cancelled) return;
                 const staticMatch = (staticBlogPosts as any[]).find(s => s.slug === slug);
-                setPost({
-                    ...staticMatch,
-                    ...data,
-                    image: data.coverImage || staticMatch?.image || '',
-                    tags: staticMatch?.tags || [data.category || 'General'],
-                });
+                if (data && (data.slug || data.title)) {
+                    setPost({
+                        ...staticMatch,
+                        ...data,
+                        image: data.coverImage || staticMatch?.image || '',
+                        tags: staticMatch?.tags || [data.category || 'General'],
+                    });
+                } else if (staticMatch) {
+                    setPost(staticMatch);
+                } else {
+                    setPost(null);
+                }
             })
             .catch(() => {
                 if (cancelled) return;

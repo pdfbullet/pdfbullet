@@ -1,6 +1,7 @@
 'use client';
-import { useParams } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 import { OutletContext } from 'react-router-dom';
+import { TOOLS } from '../../../constants';
 
 // Import protectors and layouts
 import UserProtectedRoute from '../../../components/UserProtectedRoute';
@@ -172,6 +173,12 @@ export default function ToolRoute() {
     );
   }
 
-  // 6. Default to standard PDF tools page
-  return <ToolPage />;
+  // 6. Check if toolId is a valid tool in constants
+  const validToolIds = TOOLS.map(t => t.id);
+  if (validToolIds.includes(toolId)) {
+    return <ToolPage />;
+  }
+
+  // 7. Unknown route -> return true 404 for Googlebot
+  notFound();
 }

@@ -58,6 +58,17 @@ const ResponseCard: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     </div>
 );
 
+const NestedParam: React.FC<{ name: string; type: string; isRequired?: boolean | string; children: React.ReactNode }> = ({ name, type, isRequired, children }) => (
+    <div className="py-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700 my-2">
+        <div className="flex flex-wrap items-center gap-3 mb-1">
+            <code className="font-bold text-gray-800 dark:text-gray-100">{name}</code>
+            <ParamTag type="type">{type}</ParamTag>
+            {isRequired ? <ParamTag type="required">{typeof isRequired === 'string' ? isRequired : 'REQUIRED'}</ParamTag> : <ParamTag type="optional">OPTIONAL</ParamTag>}
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 pl-1">{children}</p>
+    </div>
+);
+
 const ApiSection: React.FC<{ id: string; title: string; children: React.ReactNode, refProp: React.RefObject<HTMLDivElement> }> = ({ id, title, children, refProp }) => (
     <section id={id} ref={refProp} className="scroll-mt-24 py-4">
         <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">{title}</h2>
@@ -70,13 +81,11 @@ const ApiSection: React.FC<{ id: string; title: string; children: React.ReactNod
 
 const ApiReferencePage: React.FC = () => {
     const [activeSection, setActiveSection] = useState('introduction');
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const [docSearch, setDocSearch] = useState('');
     const location = useLocation();
     const { t } = useI18n();
 
-    // FIX: Corrected multiple typos of React.create_ref to React.createRef
-    // and added generic types to all createRef calls to ensure proper type
-    // inference for refs. This resolves the downstream error where ref.current
-    // was not found on type unknown.
     const sectionsRefs = useMemo(() => {
         const refs: { [key: string]: React.RefObject<HTMLDivElement> } = {
             introduction: React.createRef<HTMLDivElement>(),
@@ -117,7 +126,7 @@ const ApiReferencePage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        document.title = "API Reference | PDFBullet";
+        document.title = "Developer Documentation | PDFBullet";
         if (location.hash) {
             const id = location.hash.substring(1);
             setTimeout(() => {
@@ -147,6 +156,7 @@ const ApiReferencePage: React.FC = () => {
     }, [sectionsRefs]);
     
     const scrollTo = (id: string) => {
+        setIsMobileNavOpen(false);
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
@@ -154,7 +164,7 @@ const ApiReferencePage: React.FC = () => {
         { id: 'introduction', title: 'Introduction' },
         { id: 'quickstart', title: 'Quick Start' },
         { id: 'authentication', title: 'Authentication' },
-        { id: 'pdf-image-header', title: 'PDF & Image', isHeader: true },
+        { id: 'pdf-image-header', title: 'PDF & Image APIs', isHeader: true },
         { id: 'request-workflow', title: 'Request Workflow' },
         { id: 'start', title: 'Start' },
         { id: 'upload', title: 'Upload' },
@@ -162,7 +172,7 @@ const ApiReferencePage: React.FC = () => {
         ...TOOLS.filter(tool => tool.api && ['pdf', 'image'].includes(tool.api.category)).map(tool => ({ id: tool.id, title: t(tool.title), isTool: true })),
         { id: 'download', title: 'Download' },
         { id: 'task', title: 'Task' },
-        { id: 'signatures-header', title: 'Signatures', isHeader: true },
+        { id: 'signatures-header', title: 'Signatures API', isHeader: true },
         { id: 'create_signature_request', title: 'Create Signature request' },
         { id: 'list_signatures', title: 'List Signatures' },
         { id: 'get_signature_status', title: 'Get Signature status' },
@@ -175,45 +185,84 @@ const ApiReferencePage: React.FC = () => {
         { id: 'send_reminders', title: 'Send Reminders' },
         { id: 'void_signature', title: 'Void Signature' },
         { id: 'increase_expiration_days', title: 'Increase Expiration Days' },
-        { id: 'topics-header', title: 'Topics', isHeader: true },
-        { id: 'security', title: 'Security' },
-        { id: 'errors', title: 'Errors' },
-        { id: 'testing', title: 'Testing' },
-        { id: 'credit_consumption', title: 'Credit consumption' },
-        { id: 'webhooks', title: 'Webhooks' },
-        { id: 'fonts_compatibility', title: 'Fonts compatibility' },
+        { id: 'topics-header', title: 'System Topics & Specs', isHeader: true },
+        { id: 'security', title: 'Security & Encryption' },
+        { id: 'errors', title: 'Errors & Status Codes' },
+        { id: 'testing', title: 'Sandbox & Testing' },
+        { id: 'credit_consumption', title: 'Credit Consumption' },
+        { id: 'webhooks', title: 'Webhooks & Events' },
+        { id: 'fonts_compatibility', title: 'Fonts & Rendering Compatibility' },
     ];
-    
-    const NestedParam: React.FC<{ name: string; type: string; isRequired?: boolean | string; children: React.ReactNode }> = ({ name, type, isRequired, children }) => (
-        <div className="py-2">
-            <div className="flex flex-wrap items-center gap-3 mb-1">
-                <code className="font-bold text-gray-800 dark:text-gray-100">{name}</code>
-                <ParamTag type="type">{type}</ParamTag>
-                {isRequired ? <ParamTag type="required">{typeof isRequired === 'string' ? isRequired : 'REQUIRED'}</ParamTag> : <ParamTag type="optional">OPTIONAL</ParamTag>}
+
+    const filteredLinks = sidebarLinks.filter(link => {
+        if (!docSearch) return true;
+        return link.title.toLowerCase().includes(docSearch.toLowerCase());
+    });
+
+    const renderNavContent = () => (
+        <div className="space-y-3">
+            <div className="p-2">
+                <input
+                    type="text"
+                    placeholder="Search docs & endpoints..."
+                    value={docSearch}
+                    onChange={e => setDocSearch(e.target.value)}
+                    className="w-full p-2 text-xs bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 focus:outline-none focus:border-brand-red"
+                />
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 pl-1">{children}</p>
+            {filteredLinks.map(link => {
+                if ('isHeader' in link && link.isHeader) {
+                    return <h3 key={link.id} className="font-extrabold text-sm uppercase tracking-wider p-2 text-gray-500 dark:text-gray-400 mt-4 first:mt-0">{link.title}</h3>;
+                }
+                if ('isSubHeader' in link && link.isSubHeader) {
+                    return <h4 key={link.id} onClick={() => scrollTo(link.id)} className={`w-full text-left p-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${activeSection === link.id ? 'text-brand-red' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{link.title}</h4>;
+                }
+                return (
+                    <button key={link.id} onClick={() => scrollTo(link.id)} className={`w-full text-left p-2 rounded-lg text-sm font-semibold transition-colors ${('isTool' in link && link.isTool) ? 'pl-6' : ''} ${activeSection === link.id ? 'bg-brand-red/10 text-brand-red font-bold' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'}`}>
+                        {link.title}
+                    </button>
+                );
+            })}
         </div>
     );
 
     return (
-        <div>
+        <div className="bg-gray-50 dark:bg-black min-h-screen">
+            {/* Mobile Header Bar with Left Drawer Toggle */}
+            <div className="lg:hidden sticky top-16 z-30 bg-white/95 dark:bg-black/95 backdrop-blur border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between shadow-sm">
+                <button
+                    onClick={() => setIsMobileNavOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-brand-red/10 text-brand-red font-bold rounded-lg text-sm"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span>Docs Menu</span>
+                </button>
+                <span className="text-xs font-bold text-gray-500 uppercase">PDFBullet API Docs</span>
+            </div>
+
+            {/* Mobile Slide-Over Left Drawer */}
+            {isMobileNavOpen && (
+                <div className="fixed inset-0 z-50 lg:hidden flex">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileNavOpen(false)} />
+                    <aside className="relative w-80 max-w-[85vw] bg-white dark:bg-gray-900 h-full p-6 overflow-y-auto shadow-2xl flex flex-col z-10 border-r border-gray-200 dark:border-gray-800">
+                        <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-800">
+                            <h2 className="font-extrabold text-lg text-gray-900 dark:text-gray-100">PDFBullet Docs</h2>
+                            <button onClick={() => setIsMobileNavOpen(false)} className="p-2 text-gray-500 hover:text-brand-red">
+                                ✕
+                            </button>
+                        </div>
+                        {renderNavContent()}
+                    </aside>
+                </div>
+            )}
+
             <div className="container mx-auto px-6 py-12">
                  <div className="lg:flex lg:gap-12">
-                    <aside className="w-full lg:w-72 lg:sticky top-24 self-start mb-8 lg:mb-0">
-                        <nav className="space-y-1 bg-white/80 dark:bg-black/70 backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-gray-800 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                            {sidebarLinks.map(link => {
-                                if ('isHeader' in link && link.isHeader) {
-                                    return <h3 key={link.id} className="font-bold text-lg p-2 text-gray-800 dark:text-gray-100 mt-4 first:mt-0">{link.title}</h3>
-                                }
-                                if('isSubHeader' in link && link.isSubHeader) {
-                                    return <h4 key={link.id} onClick={() => scrollTo(link.id)} className={`w-full text-left p-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${activeSection === link.id ? 'text-brand-red' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{link.title}</h4>
-                                }
-                                return (
-                                    <button key={link.id} onClick={() => scrollTo(link.id)} className={`w-full text-left p-2 rounded-lg text-sm font-semibold transition-colors ${('isTool' in link && link.isTool) ? 'pl-6' : ''} ${activeSection === link.id ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                                        {link.title}
-                                    </button>
-                                );
-                            })}
+                    <aside className="hidden lg:block w-72 sticky top-24 self-start">
+                        <nav className="bg-white/80 dark:bg-black/70 backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-gray-800 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                            {renderNavContent()}
                         </nav>
                     </aside>
                     <main className="w-full lg:flex-grow">
