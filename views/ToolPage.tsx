@@ -3160,7 +3160,7 @@ const ToolPage: React.FC = () => {
                     try {
                         const { removeBackground } = await import('@imgly/background-removal');
                         blob = await removeBackground(file, {
-                            model: 'medium',
+                            model: 'isnet_fp16',
                             publicPath: 'https://unpkg.com/@imgly/background-removal-data@1.7.0/dist/',
                             progress: (key, current, total) => {
                                 const percent = Math.round((current / total) * 100);
