@@ -44,7 +44,7 @@ const PwaBottomNav: React.FC = () => {
                     className="w-14 h-14 bg-brand-red text-white rounded-full shadow-lg flex items-center justify-center transition-transform active:scale-95 border-2 border-white dark:border-gray-900"
                 >
                     <img
-                        src="https://ik.imagekit.io/fixedmyspeaker/IMG_0865.gif?updatedAt=1762718107389"
+                        src="/apple-touch-icon.png"
                         alt="BG Remover"
                         className="w-9 h-9 rounded-full object-cover"
                     />
