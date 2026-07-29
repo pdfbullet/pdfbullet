@@ -61,11 +61,11 @@ const PwaHeader: React.FC<PwaHeaderProps> = ({ onOpenSearchModal, unreadCount, j
   };
 
   return (
-    <header className="fixed top-[env(safe-area-inset-top)] left-0 right-0 h-[60px] bg-brand-red z-40 flex items-center justify-between px-4" onClick={handleHeaderTap}>
+    <header className="fixed top-0 left-0 right-0 h-[calc(60px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-brand-red z-40 flex items-center justify-between px-4" onClick={handleHeaderTap}>
       <div className="flex items-center gap-3">
         {/* Logo on left */}
         <Link to="/" aria-label="PDF Bullet Home" onClick={closeMenu}>
-          <Logo className="h-9 w-auto" variant="dark" />
+          <Logo className="h-9 w-auto" variant="white" />
         </Link>
       </div>
 

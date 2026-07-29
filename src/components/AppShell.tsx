@@ -126,8 +126,7 @@ export function AppShell({ children }: AppShellProps) {
     if (shouldShowPwaLayout) {
         return (
             <LayoutContext.Provider value={layoutContextValue}>
-                <div className="safe-top fixed top-0 left-0 right-0 z-[1001] h-[env(safe-area-inset-top)]" />
-                <div className="native-app min-h-screen flex flex-col pt-[env(safe-area-inset-top)]">
+                <div className="native-app min-h-screen flex flex-col">
                     <PwaBackground />
                     <MobileAuthGate onOpenForgotPasswordModal={() => {}}>
                         <PullToRefresh>
@@ -140,7 +139,7 @@ export function AppShell({ children }: AppShellProps) {
                                 onOpenChangePasswordModal={() => setChangePasswordModalOpen(true)}
                                 onAdminAccessRequest={() => {}}
                             />
-                            <main className={`text-gray-800 dark:text-gray-200 pt-[60px] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
+                            <main className={`text-gray-800 dark:text-gray-200 pt-[calc(60px+env(safe-area-inset-top))] ${isFlipbookViewerPage ? 'pb-0' : 'pb-[72px]'}`}>
                                 {children}
                             </main>
                         </PullToRefresh>
