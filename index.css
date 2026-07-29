@@ -12,11 +12,19 @@
      font-family: 'Nunito', 'sans-serif';
      isolation: isolate;
      overscroll-behavior-y: none;
+     -webkit-touch-callout: none !important; /* Disable long press context menu on Android/iOS */
+     -webkit-user-select: none; /* Disable text selection popup */
+     user-select: none;
    }
  }
 
  .logo-img-dark {
    filter: none;
+ }
+
+ a, img {
+   -webkit-touch-callout: none !important;
+   -webkit-user-drag: none;
  }
 
  .dashboard-bg {
