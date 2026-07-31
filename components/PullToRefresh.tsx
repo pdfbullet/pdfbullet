@@ -1,121 +1,157 @@
-import React, { useState, useEffect, ReactNode } from 'react';
-import { RefreshIcon, CheckIcon } from './icons.tsx';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 
-const PULL_THRESHOLD = 70; // pixels to pull before refresh triggers
-const PULL_RESISTANCE = 0.55; // dampening factor
+const PULL_THRESHOLD = 72;   // px to pull before refresh triggers
+const MAX_PULL = 100;        // max pull distance
+const RESISTANCE = 0.45;    // dampening factor
 
 const PullToRefresh: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [pullStart, setPullStart] = useState<number | null>(null);
   const [pullDistance, setPullDistance] = useState(0);
-  const [status, setStatus] = useState<'idle' | 'pulling' | 'refreshing' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'pulling' | 'ready' | 'refreshing'>('idle');
+  const touchStartY = useRef<number | null>(null);
+  const isPulling = useRef(false);
 
-  const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone);
-
-  // Disable pull-to-refresh on pages other than the homepage to protect user form/processing states
-  const isHomepage = typeof window !== 'undefined' && window.location.pathname === '/';
-
-  if (!isIOS || !isStandalone || !isHomepage) {
-    return <>{children}</>;
-  }
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0 && status === 'idle') {
-      setPullStart(e.touches[0].clientY);
-      setStatus('pulling');
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (pullStart === null || status === 'refreshing' || status === 'success') return;
-    
-    const currentY = e.touches[0].clientY;
-    const distance = currentY - pullStart;
-
-    if (distance > 0) {
-      if (window.scrollY === 0) {
-        // Prevent default native scroll bounce
-        if (e.cancelable) e.preventDefault();
-      }
-      setPullDistance(distance * PULL_RESISTANCE);
-    } else {
-      setPullStart(null);
-      setPullDistance(0);
-      setStatus('idle');
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (pullStart === null || status === 'refreshing' || status === 'success') return;
-
-    if (pullDistance > PULL_THRESHOLD) {
-      setStatus('refreshing');
-      setPullDistance(PULL_THRESHOLD);
-      
-      // Perform simulated reload cycle with success indicator
-      setTimeout(() => {
-        setStatus('success');
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      }, 1000);
-    } else {
-      // Release spring animation
-      setPullStart(null);
-      setPullDistance(0);
-      setStatus('idle');
-    }
-  };
+  // Only activate in standalone / TWA mode (installed app), not regular browser
+  const isStandalone =
+    typeof window !== 'undefined' &&
+    (window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true);
 
   useEffect(() => {
-    return () => {
-      setPullStart(null);
-      setPullDistance(0);
-      setStatus('idle');
+    if (!isStandalone) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.scrollY !== 0) return;
+      touchStartY.current = e.touches[0].clientY;
+      isPulling.current = false;
     };
-  }, []);
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (touchStartY.current === null) return;
+      if (status === 'refreshing') return;
+
+      const dy = e.touches[0].clientY - touchStartY.current;
+      if (dy <= 0) {
+        touchStartY.current = null;
+        setPullDistance(0);
+        setStatus('idle');
+        isPulling.current = false;
+        return;
+      }
+
+      if (window.scrollY !== 0) return;
+
+      // Prevent native scroll bounce on iOS
+      if (e.cancelable) e.preventDefault();
+
+      isPulling.current = true;
+      const dampened = Math.min(dy * RESISTANCE, MAX_PULL);
+      setPullDistance(dampened);
+      setStatus(dampened >= PULL_THRESHOLD ? 'ready' : 'pulling');
+    };
+
+    const onTouchEnd = () => {
+      if (!isPulling.current || status === 'refreshing') {
+        touchStartY.current = null;
+        setPullDistance(0);
+        setStatus('idle');
+        isPulling.current = false;
+        return;
+      }
+
+      if (pullDistance >= PULL_THRESHOLD) {
+        setStatus('refreshing');
+        setPullDistance(PULL_THRESHOLD);
+        // Reload only the current page after a short delay for visual feedback
+        setTimeout(() => {
+          window.location.reload();
+        }, 700);
+      } else {
+        setPullDistance(0);
+        setStatus('idle');
+      }
+
+      touchStartY.current = null;
+      isPulling.current = false;
+    };
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isStandalone, status, pullDistance]);
+
+  if (!isStandalone) return <>{children}</>;
 
   const progress = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  const indicatorOpacity = progress;
-  const indicatorRotation = progress * 360;
+  const spinnerSize = 36 + progress * 4; // grows slightly as you pull
+  const isVisible = status !== 'idle' && pullDistance > 2;
 
-  // Header and wrapper remain completely static (no translateY on children)
-  // Only the spinner itself floats down over the page!
-  const spinnerStyle: React.CSSProperties = {
-    transform: `translateY(${pullDistance}px)`,
-    opacity: status === 'idle' ? 0 : indicatorOpacity,
-    transition: pullStart === null && status !== 'refreshing' ? 'transform 0.3s ease, opacity 0.3s ease' : 'none',
-  };
+  // Spinner offset: starts at -48px above, floats down as user pulls
+  const spinnerY = status === 'idle' ? -48 : Math.min(pullDistance - 8, PULL_THRESHOLD - 8);
 
   return (
-    <div
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      className="relative w-full min-h-screen"
-    >
-      {/* Absolute floating pull refresh indicator card */}
-      <div 
-        className="fixed left-1/2 -translate-x-1/2 z-[999] pointer-events-none top-4"
-        style={spinnerStyle}
+    <div className="relative w-full" style={{ overscrollBehaviorY: 'none' }}>
+      {/* Pull Indicator — only the spinner floats; page content stays still */}
+      <div
         aria-hidden="true"
+        className="pointer-events-none fixed left-1/2 z-[9999]"
+        style={{
+          transform: `translateX(-50%) translateY(${spinnerY}px)`,
+          top: '56px', // below the PWA header
+          transition: (status === 'idle' || status === 'refreshing')
+            ? 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease'
+            : 'none',
+          opacity: isVisible ? 1 : 0,
+        }}
       >
-        {status === 'success' ? (
-          <div className="flex items-center gap-2 bg-green-500 text-white font-bold px-4 py-2 rounded-full shadow-xl transition-all duration-300 transform scale-100">
-            <CheckIcon className="h-5 w-5 animate-bounce" />
-            <span className="text-xs uppercase tracking-wider font-extrabold">Refresh Success</span>
-          </div>
-        ) : (
-          <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-center">
-            <div 
-              style={{ transform: status === 'refreshing' ? 'none' : `rotate(${indicatorRotation}deg)` }}
-              className="flex items-center justify-center"
+        <div
+          className="flex items-center justify-center rounded-full shadow-xl"
+          style={{
+            width: spinnerSize,
+            height: spinnerSize,
+            background: status === 'ready' || status === 'refreshing'
+              ? '#B90B06'
+              : 'white',
+            border: '1.5px solid rgba(0,0,0,0.08)',
+            transition: 'background 0.2s ease, width 0.1s ease, height 0.1s ease',
+          }}
+        >
+          {status === 'refreshing' ? (
+            /* Spinning loader */
+            <svg
+              width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="white" strokeWidth="2.5"
+              strokeLinecap="round"
+              className="animate-spin"
             >
-              <RefreshIcon className={`h-5 w-5 text-brand-red ${status === 'refreshing' ? 'animate-spin' : ''}`} />
-            </div>
-          </div>
-        )}
+              <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+              <path d="M12 2 A10 10 0 0 1 22 12" stroke="white" />
+            </svg>
+          ) : (
+            /* Pull arrow — rotates as progress increases */
+            <svg
+              width="18" height="18" viewBox="0 0 24 24"
+              fill="none"
+              stroke={status === 'ready' ? 'white' : '#B90B06'}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: `rotate(${progress * 180}deg)`,
+                transition: 'transform 0.1s ease, stroke 0.2s ease',
+              }}
+            >
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          )}
+        </div>
       </div>
+
       {children}
     </div>
   );
