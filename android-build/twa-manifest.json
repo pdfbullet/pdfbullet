@@ -1,0 +1,101 @@
+{
+  "packageId": "com.pdfbullet.twa",
+  "host": "pdfbullet.com",
+  "name": "PDFBullet: PDF & Image Tools",
+  "launcherName": "PDFBullet",
+  "display": "standalone",
+  "themeColor": "#B90B06",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#B90B06",
+  "enableNotifications": true,
+  "startUrl": "/?source=pwa",
+  "iconUrl": "https://pdfbullet.com/icons/icon-512x512.png",
+  "maskableIconUrl": "https://pdfbullet.com/maskable-icon.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "E:\\PDFBullet (1)\\PDFBullet - Google Play package\\signing.keystore",
+    "alias": "my-key-alias"
+  },
+  "appVersionName": "2",
+  "appVersionCode": 2,
+  "shortcuts": [
+    {
+      "name": "Merge PDF",
+      "shortName": "Merge",
+      "url": "https://pdfbullet.com/merge-pdf",
+      "chosenIconUrl": "https://pdfbullet.com/icons/icon-96x96.png"
+    },
+    {
+      "name": "Compress PDF",
+      "shortName": "Compress",
+      "url": "https://pdfbullet.com/compress-pdf",
+      "chosenIconUrl": "https://pdfbullet.com/icons/icon-96x96.png"
+    },
+    {
+      "name": "PDF to Word",
+      "shortName": "PDF→Word",
+      "url": "https://pdfbullet.com/pdf-to-word",
+      "chosenIconUrl": "https://pdfbullet.com/icons/icon-96x96.png"
+    },
+    {
+      "name": "Remove Background",
+      "shortName": "BG Remove",
+      "url": "https://pdfbullet.com/remove-background",
+      "chosenIconUrl": "https://pdfbullet.com/icons/icon-96x96.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://pdfbullet.com/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://pdfbullet.com/",
+  "minSdkVersion": 21,
+  "shareTarget": {
+    "action": "https://pdfbullet.com/merge-pdf",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "orientation": "portrait-primary",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [
+    {
+      "protocol": "web+pdfbullet",
+      "url": "https://pdfbullet.com/?url=%s"
+    }
+  ],
+  "fileHandlers": [
+    {
+      "actionUrl": "https://pdfbullet.com/merge-pdf",
+      "mimeTypes": [
+        "application/pdf"
+      ]
+    }
+  ],
+  "launchHandlerClientMode": [
+    "navigate-existing",
+    "auto"
+  ],
+  "displayOverride": [
+    "tabbed",
+    "window-controls-overlay",
+    "standalone",
+    "browser"
+  ],
+  "appVersion": "2"
+}
